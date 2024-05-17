@@ -69,28 +69,31 @@ cpu_extension cpu_info_impl::get_top_cpu_extension() const {
 }
 
 std::string cpu_info_impl::dump() const {
-    std::stringstream ss;
-    for (auto it = info_.begin(); it != info_.end(); ++it) {
-        ss << it->first << " : ";
-        print_any(it->second, ss);
+    std::ostringstream ss;
+    for (auto const& [name, value] : info_) {
+        ss << name << " : ";
+        print_any(value, ss);
         ss << "; ";
     }
     return std::move(ss).str();
 }
 
 template <typename T>
-void cpu_info_impl::print(const std::any& value, std::stringstream& ss) const {
+void cpu_info_impl::print(const std::any& value, std::ostringstream& ss) const {
     T typed_value = std::any_cast<T>(value);
     ss << to_string(typed_value);
 }
 
-void cpu_info_impl::print_any(const std::any& value, std::stringstream& ss) const {
+void cpu_info_impl::print_any(const std::any& value, std::ostringstream& ss) const {
     const std::type_info& ti = value.type();
     if (ti == typeid(cpu_extension)) {
         print<cpu_extension>(value, ss);
     }
     else if (ti == typeid(cpu_vendor)) {
         print<cpu_vendor>(value, ss);
+    }
+    else {
+        throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
     }
 }
 

@@ -16,35 +16,41 @@
 
 #pragma once
 
-#include "oneapi/dal/detail/cpu_info_iface.hpp"
+#include "oneapi/dal/detail/cpu.hpp"
+
+#ifdef ONEDAL_DATA_PARALLEL
+#include <sycl/sycl.hpp>
+#endif
 
 #include <any>
 #include <map>
-#include <string>
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-std::string to_string(cpu_vendor vendor);
-std::string to_string(cpu_extension extension);
-
-class cpu_info_impl : public cpu_info_iface {
+class system_parameters_impl {
 public:
-    cpu_vendor get_cpu_vendor() const override;
+    explicit system_parameters_impl();
 
-    cpu_extension get_top_cpu_extension() const override;
+    cpu_extension get_top_enabled_cpu_extension() const;
+    std::uint32_t get_max_number_of_threads() const;
 
-    std::string dump() const override;
+#ifdef ONEDAL_DATA_PARALLEL
+    std::uint32_t get_max_workgroup_size(sycl::queue& queue) const;
+#endif
 
-protected:
-    std::map<std::string, std::any> info_;
+    std::string dump() const;
 
-    template <typename T>
-    void print(const std::any& value, std::ostringstream& ss) const;
+#ifdef ONEDAL_DATA_PARALLEL
+    std::string dump(sycl::queue& queue) const;
+#endif
+
+private:
+    std::map<std::string, std::any> sys_info_;
 
     void print_any(const std::any& value, std::ostringstream& ss) const;
 };
 
 } // namespace v1
-using v1::cpu_info_impl;
+using v1::system_parameters_impl;
 } // namespace oneapi::dal::detail
