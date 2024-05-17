@@ -34,6 +34,8 @@
     #include "src/algorithms/kernel_inst_x86.h"
 #elif defined(TARGET_ARM)
     #include "src/algorithms/kernel_inst_arm.h"
+#elif defined(TARGET_RISCV64)
+    #include "src/algorithms/kernel_inst_riscv64.h"
 #endif
 
 #define __DAAL_GET_CPUID int cpuid = daalEnv->cpuid;
@@ -41,8 +43,6 @@
 #define __DAAL_GET_CPUID_SAFE  \
     int cpuid = DAAL_BASE_CPU; \
     DAAL_SAFE_CPU_CALL((cpuid = daalEnv->cpuid), (cpuid = DAAL_BASE_CPU))
-
-#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SAFE(ContainerTemplate, Mode, ...)                                                               \
     __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID_SAFE, \

@@ -37,7 +37,9 @@ public:
         return results[0];
     }
 
-    void gen_dimensions(std::int64_t n = -1, std::int64_t p = -1) override {
+    void gen_dimensions(std::int64_t n = -1,
+                        std::int64_t p = -1,
+                        double train_size_coef = 0.7) override {
         if (n == -1 || p == -1) {
             this->n_ = GENERATE(50, 99);
             this->p_ = GENERATE(3, 10);
@@ -46,6 +48,8 @@ public:
             this->n_ = n;
             this->p_ = p;
         }
+        this->train_size_ = (this->n_ * train_size_coef);
+        this->test_size_ = this->n_ - this->train_size_;
     }
 
     template <typename... Args>
@@ -81,5 +85,9 @@ public:
 private:
     std::int64_t rank_count_;
 };
+
+using log_reg_spmd_types = COMBINE_TYPES((float, double),
+                                         (logistic_regression::method::dense_batch),
+                                         (logistic_regression::task::classification));
 
 } // namespace oneapi::dal::logistic_regression::test

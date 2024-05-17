@@ -38,10 +38,14 @@
 #define DAAL_KERNEL_AVX2
 #define DAAL_KERNEL_AVX512
 
+#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #if defined(TARGET_X86_64)
     #include "services/internal/x86_64/x86_64_kernel_defines.h"
 #elif defined(TARGET_ARM)
     #include "services/internal/aarch64/aarch64_kernel_defines.h"
+#elif defined(TARGET_RISCV64)
+    #include "services/internal/riscv64/riscv64_kernel_defines.h"
 #endif
 
 #define DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, ...) ContainerTemplate<__VA_ARGS__, cpuType>

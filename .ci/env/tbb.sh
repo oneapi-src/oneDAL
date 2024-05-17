@@ -15,15 +15,27 @@
 # limitations under the License.
 #===============================================================================
 
+set -eo pipefail
+
+SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
+SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
+ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../..")
+TBB_DEFAULT_VERSION="v2021.10.0"
+
 # Function to display help
 show_help() {
     echo "Usage: $0 [--help]"
-    echo -e "  --help  \t\t\tDisplay this information"
-    echo -e "  --CC <bin path> \t\tPass full path to c compiler. Default is GNU gcc."
-    echo -e "  --CXX <bin path> \t\tPass full path to c++ compiler. Default is GNU g++."
-    echo -e "  --cross-compile <flag> \tPass this flag if cross-compiling."
-    echo -e "  --toolchain_file <file> \tPass path to cmake toolchain file. Default is './.ci/env/arm-toolchain.cmake'. Use only with '--cross_compile'"
-    echo -e "  --target_arch <name> \t\tTarget architecture name (i.e aarch64, x86_64, etc.) for cross-compilation. Use only with '--cross_compile'"
+    column -t -s":" <<< '--help:Display this information
+--CC <bin path>:Pass full path to c compiler. Default is GNU gcc.
+--CXX <bin path>:Pass full path to c++ compiler. Default is GNU g++.
+--cross-compile:Pass this flag if cross-compiling. This may override the CC and CXX variables
+--toolchain-file <file>:Pass path to cmake toolchain file. To be used with --cross-compile
+--target-arch <name>:Target architecture name for cross-compilation. Use only with '--cross-compile'. Must be one of [x86_64, aarch64]
+--tbb-src <path>:The path to an existing TBB source directory. This is downloaded if not passed
+--prefix <path>:The path to install oneTBB into. Defaults to ${ONEDAL_DIR}/__deps/tbb-$${target_arch}
+--build-dir <path>:The path to build in. Defaults to ${ONEDAL_DIR}/__work/tbb-$${target_arch}
+--version <version string>:The version of oneTBB to fetch and build. Must be a valid git reference in the upstream oneTBB repo
+'
 }
 
 while [[ $# -gt 0 ]]; do
@@ -36,19 +48,31 @@ while [[ $# -gt 0 ]]; do
         --CC)
         CC="$2"
         shift;;
-        --toolchain_file)
+        --toolchain-file)
         toolchain_file="$2"
         shift;;
-        --target_arch)
+        --target-arch)
         target_arch="$2"
         shift;;
         --help)
         show_help
         exit 0
         ;;
-        --cross_compile)
+        --cross-compile)
         cross_compile="yes"
         ;;
+        --tbb-src)
+        tbb_src="$2"
+        shift;;
+        --prefix)
+        tbb_prefix="$2"
+        shift;;
+        --build-dir)
+        build_dir="$2"
+        shift;;
+        --version)
+        TBB_VERSION="$2"
+        shift;;
         *)
         echo "Unknown option: $1"
         exit 1
@@ -59,48 +83,58 @@ done
 
 set_arch_dir() {
     local arch="$1"
-    local arch_dir=""
+    arch_dir=""
     if [ "$arch" == "x86_64" ]; then
         arch_dir="intel64"
     elif [ "$arch" == "aarch64" ]; then
         arch_dir="arm"
+    elif [ "$arch" == "riscv64" ]; then
+        arch_dir="riscv64"
     else
-        echo "Unsupported arch, quitting tbb build script."
+        echo "Unsupported architecture '${arch}'. Quitting tbb build script."
         exit 1
     fi
-    echo "${arch_dir}"
 }
 
 if [ "${cross_compile}" == "yes" ]; then
-    toolchain_file=${toolchain_file:-$(pwd)/.ci/env/arm-toolchain.cmake}
-    if [ ! -f ${toolchain_file} ]; then
-        echo "'${toolchain_file}' file does not exists. Please specify using '--toolchain_file=<path>' argument."
+    if [ -z "${toolchain_file}" ]; then
+        echo "'toolchain_file' is not set, although we are performing cross-compilation"
+        exit 1
+    fi
+    if [ ! -f "${toolchain_file}" ]; then
+        echo "'${toolchain_file}' file does not exist. Please specify using '--toolchain-file <path>' argument."
         exit 1
     fi
     target_arch=${target_arch:-aarch64}
 else
     target_arch=${target_arch:-$(uname -m)}
 fi
-arch_dir=${arch_dir:-$(set_arch_dir "${target_arch}")}
-
-TBB_VERSION="v2021.10.0"
+if [[ -z "${arch_dir}" ]] ; then
+    set_arch_dir "${target_arch}"
+fi
+build_dir=${build_dir:-${ONEDAL_DIR}/__work/tbb-$target_arch}
+tbb_prefix=${tbb_prefix:-${ONEDAL_DIR}/__deps/tbb-$target_arch}
 
 sudo apt-get update
 sudo apt-get install build-essential gcc gfortran cmake -y
-git clone --depth 1 --branch ${TBB_VERSION} https://github.com/oneapi-src/oneTBB.git onetbb-src
+tbb_src=${tbb_src:-${ONEDAL_DIR}/__work/onetbb-src}
+if [[ ! -d "${tbb_src}" ]] ; then
+  TBB_VERSION="${TBB_VERSION:-${TBB_DEFAULT_VERSION}}"
+  git clone --depth 1 --branch "${TBB_VERSION}" https://github.com/oneapi-src/oneTBB.git "${tbb_src}"
+fi
 
-CoreCount=$(lscpu -p | grep -Ev '^#' | wc -l)
-
-rm -rf __deps/tbb
-pushd onetbb-src
-rm -rf build
-mkdir build
-pushd build
+rm -rf "${tbb_prefix}"
+mkdir -p "${build_dir}"
+pushd "${build_dir}"
 if [ "${cross_compile}" == "yes" ]; then
-    unset CXX
-    unset CC
-    echo cmake -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb ..
-    cmake -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb ..
+    cmake_options=(-DCMAKE_TOOLCHAIN_FILE="${toolchain_file}"
+      -DCMAKE_BUILD_TYPE=Release
+      -DTBB_TEST=OFF
+      -DTBB_STRICT_PROTOTYPES=OFF
+      -DCMAKE_INSTALL_PREFIX="${tbb_prefix}"
+      "${tbb_src}"
+    )
+
 else
     # Set default values for CXX and CC
     CXX="${CXX:-g++}"
@@ -108,20 +142,19 @@ else
 
     echo "CXX is set to: $CXX"
     echo "CC is set to: $CC"
-    cmake -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_CC_COMPILER=${CC} -DCMAKE_BUILD_TYPE=Release -DTBB_TEST=OFF -DTBB_STRICT_PROTOTYPES=OFF -DCMAKE_INSTALL_PREFIX=../../__deps/tbb .. 
+    cmake_options=(-DCMAKE_CXX_COMPILER="${CXX}"
+      -DCMAKE_C_COMPILER="${CC}"
+      -DCMAKE_BUILD_TYPE=Release
+      -DTBB_TEST=OFF
+      -DTBB_STRICT_PROTOTYPES=OFF
+      -DCMAKE_INSTALL_PREFIX="${tbb_prefix}"
+      "${tbb_src}"
+    )
 fi
-make -j${CoreCount}
+
+echo cmake "${cmake_options[@]}"
+cmake "${cmake_options[@]}"
+make -j"$(nproc --all)"
 make install
 popd
-popd
-rm -rf onetbb-src
 
-pushd __deps/tbb
-    mkdir -p lnx
-    mv lib/ lnx/
-    mv include/ lnx/ 
-    pushd lnx
-        mkdir -p lib/${arch_dir}/gcc4.8
-        mv lib/libtbb* lib/${arch_dir}/gcc4.8
-    popd
-popd 

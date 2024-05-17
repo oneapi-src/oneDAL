@@ -104,12 +104,14 @@ function (add_examples examples_paths)
         get_filename_component(example ${example_file_path} NAME_WE)
 
         # Detect CPU architecture
-        if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
+        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
             set(CPU_ARCHITECTURE "intel_intel64")
-        elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "aarch64")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
             set(CPU_ARCHITECTURE "arm_aarch64")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "riscv64")
+            set(CPU_ARCHITECTURE "riscv64_riscv64")
         else()
-            message(FATAL_ERROR "Unkown architecture ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+            message(FATAL_ERROR "Unkown architecture ${CMAKE_SYSTEM_PROCESSOR}")
         endif()
 
         add_executable(${example} ${example_file_path})

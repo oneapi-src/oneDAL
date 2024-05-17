@@ -37,7 +37,7 @@ public:
               tol_(tol),
               inner_iter_(0) {}
 
-    optimizer_type get_optimizer_type() override {
+    optimizer_type get_optimizer_type() final {
         return optimizer_type::newton_cg;
     }
 
@@ -45,12 +45,12 @@ public:
         return tol_;
     }
 
-    std::int64_t get_max_iter() override {
+    std::int64_t get_max_iter() final {
         return max_iter_;
     }
 
     // this parameter is set after minimize function was called
-    std::int64_t get_inner_iter() override {
+    std::int64_t get_inner_iter() final {
         return inner_iter_;
     }
 

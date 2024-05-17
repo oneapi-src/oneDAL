@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -33,6 +34,11 @@ namespace pr = oneapi::dal::backend::primitives;
 
 using reduction_types = std::tuple<std::tuple<float, sum<float>, square<float>>,
                                    std::tuple<double, sum<double>, square<double>>>;
+
+using finiteness_types = std::tuple<std::tuple<float, sum<float>, identity<float>>,
+                                    std::tuple<double, sum<double>, identity<double>>,
+                                    std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                    std::tuple<double, logical_or<double>, isinfornan<double>>>;
 
 template <typename Param>
 class reduction_test_random_1d : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -87,7 +93,7 @@ public:
         SUCCEED();
     }
 
-private:
+protected:
     table input_table_;
     const binary_t binary_{};
     const unary_t unary_{};
@@ -100,6 +106,74 @@ TEMPLATE_LIST_TEST_M(reduction_test_random_1d,
                      reduction_types) {
     SKIP_IF(this->not_float64_friendly());
     this->generate();
+    this->test_1d_reduce();
+}
+
+template <typename Param>
+class infinite_sum_test_random_1d : public reduction_test_random_1d<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+
+    void generate(bool maxval) {
+        this->n_ = GENERATE(17, 999, 1, 5, 1001);
+        CAPTURE(this->n_, maxval);
+        generate_input(maxval);
+    }
+
+    void generate_input(bool maxval) {
+        double mininp = 0.9 * (double)maxval * std::numeric_limits<double>::max() - 1.0f;
+        double maxinp = (double)maxval * std::numeric_limits<double>::max();
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(mininp, maxinp));
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+};
+
+TEMPLATE_LIST_TEST_M(infinite_sum_test_random_1d,
+                     "Randomly filled array with infinite sum",
+                     "[reduction][1d][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
+    this->test_1d_reduce();
+}
+
+template <typename Param>
+class single_infinite_test_random_1d : public reduction_test_random_1d<Param> {
+public:
+    using float_t = std::tuple_element_t<0, Param>;
+    using binary_t = std::tuple_element_t<1, Param>;
+    using unary_t = std::tuple_element_t<2, Param>;
+
+    void generate(bool infval) {
+        this->n_ = GENERATE(17, 999, 1, 5, 1001);
+        CAPTURE(this->n_, infval);
+        generate_input(infval);
+    }
+
+    void generate_input(bool infval) {
+        const auto train_dataframe =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, this->n_ }.fill_uniform(-0.2, 0.5));
+        auto train_data = train_dataframe.get_array().get_mutable_data();
+        // train_data is a float ndarray
+        train_data[5] = infval ? std::numeric_limits<float>::infinity()
+                               : std::numeric_limits<float>::quiet_NaN();
+        this->input_table_ = train_dataframe.get_table(this->get_homogen_table_id());
+    }
+};
+
+TEMPLATE_LIST_TEST_M(single_infinite_test_random_1d,
+                     "Randomly filled array with a single inf or nan",
+                     "[reduction][1d][small]",
+                     finiteness_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    const bool use_infnan = GENERATE(0, 1);
+    this->generate(use_infnan);
     this->test_1d_reduce();
 }
 

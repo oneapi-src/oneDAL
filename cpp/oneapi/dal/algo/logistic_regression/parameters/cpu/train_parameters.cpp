@@ -55,9 +55,22 @@ struct train_parameters_cpu<Float, method::dense_batch, Task> {
     }
 };
 
+template <typename Float, typename Task>
+struct train_parameters_cpu<Float, method::sparse, Task> {
+    using params_t = detail::train_parameters<Task>;
+    params_t operator()(const context_cpu& ctx,
+                        const detail::descriptor_base<Task>& desc,
+                        const train_input<Task>& input) const {
+        return params_t{};
+    }
+};
+
 template struct ONEDAL_EXPORT
     train_parameters_cpu<float, method::dense_batch, task::classification>;
 template struct ONEDAL_EXPORT
     train_parameters_cpu<double, method::dense_batch, task::classification>;
+
+template struct ONEDAL_EXPORT train_parameters_cpu<float, method::sparse, task::classification>;
+template struct ONEDAL_EXPORT train_parameters_cpu<double, method::sparse, task::classification>;
 
 } // namespace oneapi::dal::logistic_regression::parameters

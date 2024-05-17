@@ -19,14 +19,15 @@
 # Common macros
 #===============================================================================
 
+IDENTIFIED_PLAT=$(shell bash dev/make/identify_os.sh)
 ifeq (help,$(MAKECMDGOALS))
-    PLAT:=win32e
+    PLAT := win32e
 else ifeq ($(PLAT),)
-    PLAT:=$(shell bash dev/make/identify_os.sh)
+    PLAT := $(IDENTIFIED_PLAT)
 endif
 
 # Check that we know how to build for the identified platform
-PLATs := lnx32e mac32e win32e lnxarm
+PLATs := lnx32e mac32e win32e lnxarm lnxriscv64
 $(if $(filter $(PLAT),$(PLATs)),,$(error Unknown platform $(PLAT)))
 
 # Non-platform or architecture specific defines live in common.mk
@@ -44,6 +45,7 @@ MSVC_RUNTIME_VERSION ?= release
 $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
 COMPILER_is_$(COMPILER)            := yes
+COMPILER_is_cross                  := $(if $(filter $(PLAT),$(IDENTIFIED_PLAT)),no,yes)
 OS_is_$(_OS)                       := yes
 IA_is_$(_IA)                       := yes
 PLAT_is_$(PLAT)                    := yes
@@ -362,7 +364,7 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 # List examples files to populate release/examples.
 expat = %.cpp %.h %.hpp %.txt %.csv %.cmake
 expat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %_$(_OS).sh)
-release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
+release.EXAMPLES.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
@@ -380,8 +382,9 @@ release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
+spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob %.cmake
 spat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %makefile_$(_OS) %.sh)
+release.SAMPLES.CMAKE := $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cmake -type f))
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
@@ -560,14 +563,16 @@ ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(addprefix $(ONEAPI.srcdir)/io/, $(ONEAPI.IO))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
-ONEAPI.srcdirs.parameters := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
+ONEAPI.srcdirs.parameters := $(ONEAPI.srcdir)/detail/parameters \
+                             $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend) $(ONEAPI.srcdirs.parameters)
 
-ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*"
+ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*" ! -path "*/detail/parameters/*"
+ONEAPI.srcs.parameters.exclude := ! -path "*_test.*" ! -path "*/test/*"
 ONEAPI.srcs.all := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
-                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude)))
+                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.parameters.exclude)))
 ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
@@ -702,14 +707,14 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y.dpc),.dpcpp))
 
 # Filtering parameter files
-PARAMETERS.objs_a.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_a))
-ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_a))
-PARAMETERS.objs_y.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_y))
-ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_y))
-PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
-PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
-ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+PARAMETERS.objs_a.filtered := $(filter %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_a))
+ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_a))
+PARAMETERS.objs_y.filtered := $(filter %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_y))
+ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_y))
+PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
 
 # Actual compilation
 $(foreach x,$(ONEAPI.objs_a.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
@@ -1005,8 +1010,7 @@ $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daa
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
-$(foreach x,$(release.EXAMPLES.COMMON_CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
-$(foreach x,$(release.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
+$(foreach x,$(release.EXAMPLES.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 
 #----- releasing environment scripts
 define .release.x
@@ -1039,6 +1043,7 @@ $2: $1 | $(dir $2)/. ; $(value cpy)
 endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
 $(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_oneapi_dpc)))
+$(foreach d,$(release.SAMPLES.CMAKE),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$d),_release_common)))
 
 $(CORE.incdirs): _release_c_h
 

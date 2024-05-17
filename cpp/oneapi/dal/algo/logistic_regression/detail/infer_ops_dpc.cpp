@@ -43,5 +43,8 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
 INSTANTIATE(float, method::dense_batch, task::classification)
 INSTANTIATE(double, method::dense_batch, task::classification)
 
+INSTANTIATE(float, method::sparse, task::classification)
+INSTANTIATE(double, method::sparse, task::classification)
+
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression::detail

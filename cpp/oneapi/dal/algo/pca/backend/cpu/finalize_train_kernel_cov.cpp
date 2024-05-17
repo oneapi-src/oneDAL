@@ -33,6 +33,8 @@
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
 #elif defined(TARGET_ARM)
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
+#elif defined(TARGET_RISCV64)
+#define CPU_EXTENSION dal::detail::cpu_extension::rv64
 #endif
 
 namespace oneapi::dal::pca::backend {
@@ -133,6 +135,18 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         });
 
         interop::status_to_exception(status);
+    }
+
+    {
+        if (desc.get_deterministic()) {
+            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
+                return daal_pca_cor_kernel_t<Float, cpu_type>().signFlipEigenvectors(
+                    *daal_eigenvectors);
+            });
+
+            interop::status_to_exception(status);
+        }
     }
 
     {

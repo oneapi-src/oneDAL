@@ -19,6 +19,7 @@
 ##******************************************************************************
 
 MPI  =  basic_statistics_distr_ccl            \
+        basic_statistics_online_distr_ccl     \
         cor_distr_ccl                         \
         cov_biased_distr_ccl                  \
         cov_distr_ccl                         \
@@ -30,4 +31,5 @@ MPI  =  basic_statistics_distr_ccl            \
         knn_bf_distr_ccl                      \
         linear_regression_distr_ccl           \
         logistic_regression_distr_ccl         \
-        pca_distr_ccl    
+        pca_distr_ccl                         \
+        pca_online_distr_ccl

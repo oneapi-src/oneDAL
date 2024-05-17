@@ -40,6 +40,8 @@ public:
     using Method = std::tuple_element_t<1, TestType>;
     using input_t = pca::train_input<>;
     using result_t = pca::train_result<>;
+    using partial_input_t = pca::partial_train_input<>;
+    using partial_result_t = pca::partial_train_result<>;
     using descriptor_t = pca::descriptor<Float, Method>;
 
     bool not_available_on_device() {
@@ -131,13 +133,14 @@ public:
         return result;
     }
 
+    // TODO: add more checks, for example, check if eigenvectors are correct, checks for all possible values of normalization/whitening, check for infer gold data.
     void general_checks(const te::dataframe& data,
                         std::int64_t component_count,
                         const te::table_id& data_table_id) {
         CAPTURE(component_count);
         const table x = data.get_table(this->get_policy(), data_table_id);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto pca_desc = get_descriptor(component_count);
         INFO("run training");
         const auto train_result = this->train(pca_desc, x);
@@ -145,7 +148,7 @@ public:
         check_train_result(pca_desc, data, train_result);
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
-        check_infer_result(pca_desc, data, infer_result);
+        check_infer_result(pca_desc, model, data, infer_result);
     }
 
     void online_general_checks(const te::dataframe& data,
@@ -156,7 +159,7 @@ public:
 
         const table x = data.get_table(this->get_policy(), data_table_id);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto pca_desc = get_descriptor(component_count);
         INFO("run training");
         auto partial_result = dal::pca::partial_train_result();
@@ -170,7 +173,7 @@ public:
         check_train_result_online(pca_desc, data, train_result);
         INFO("run inference");
         const auto infer_result = this->infer(pca_desc, model, x);
-        check_infer_result(pca_desc, data, infer_result);
+        check_infer_result(pca_desc, model, data, infer_result);
     }
 
     void check_train_result(const pca::descriptor<Float, Method>& desc,
@@ -181,18 +184,18 @@ public:
         check_shapes(desc, data, result);
         check_nans(result);
 
-        INFO("check if eigenvectors order is descending")
+        INFO("check if eigenvectors order is descending");
         check_eigenvalues_order(eigenvalues);
 
-        INFO("check if eigenvectors matrix is orthogonal")
+        INFO("check if eigenvectors matrix is orthogonal");
         check_eigenvectors_orthogonality(eigenvectors);
 
         const auto bs = te::compute_basic_statistics<double>(data);
 
-        INFO("check if means are expected")
+        INFO("check if means are expected");
         check_means(bs, means);
 
-        INFO("check if variances are expected")
+        INFO("check if variances are expected");
         check_variances(bs, variances);
     }
 
@@ -204,16 +207,23 @@ public:
         check_online_shapes(desc, data, result);
         check_nans(result);
 
-        INFO("check if eigenvectors order is descending")
+        INFO("check if eigenvectors order is descending");
         check_eigenvalues_order(eigenvalues);
 
-        INFO("check if eigenvectors matrix is orthogonal")
+        INFO("check if eigenvectors matrix is orthogonal");
         check_eigenvectors_orthogonality(eigenvectors);
     }
 
     void check_infer_result(const pca::descriptor<Float, Method>& desc,
+                            const pca::model<>& model,
                             const te::dataframe& data,
-                            const pca::infer_result<>& result) {}
+                            const pca::infer_result<>& result) {
+        const auto eigenvectors = model.get_eigenvectors();
+        const auto transformed_data = result.get_transformed_data();
+
+        check_infer_nans(transformed_data);
+        check_infer_shapes(transformed_data, eigenvectors, data);
+    }
 
     void check_online_shapes(const pca::descriptor<Float, Method>& desc,
                              const te::dataframe& data,
@@ -223,11 +233,11 @@ public:
         const std::int64_t expected_component_count =
             (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
 
-        INFO("check if eigenvalues shape is expected")
+        INFO("check if eigenvalues shape is expected");
         REQUIRE(eigenvalues.get_row_count() == 1);
         REQUIRE(eigenvalues.get_column_count() == expected_component_count);
 
-        INFO("check if eigenvectors shape is expected")
+        INFO("check if eigenvectors shape is expected");
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
     }
@@ -240,37 +250,51 @@ public:
         const std::int64_t expected_component_count =
             (desc.get_component_count() > 0) ? desc.get_component_count() : data.get_column_count();
 
-        INFO("check if eigenvalues shape is expected")
+        INFO("check if eigenvalues shape is expected");
         REQUIRE(eigenvalues.get_row_count() == 1);
         REQUIRE(eigenvalues.get_column_count() == expected_component_count);
 
-        INFO("check if eigenvectors shape is expected")
+        INFO("check if eigenvectors shape is expected");
         REQUIRE(eigenvectors.get_row_count() == expected_component_count);
         REQUIRE(eigenvectors.get_column_count() == data.get_column_count());
 
-        INFO("check if means shape is expected")
+        INFO("check if means shape is expected");
         REQUIRE(means.get_row_count() == 1);
         REQUIRE(means.get_column_count() == data.get_column_count());
 
-        INFO("check if variances shape is expected")
+        INFO("check if variances shape is expected");
         REQUIRE(variances.get_row_count() == 1);
         REQUIRE(variances.get_column_count() == data.get_column_count());
+    }
+
+    void check_infer_shapes(const table& transformed_data,
+                            const table& eigenvectors,
+                            const te::dataframe& data) {
+        INFO("check if transformed data shape is expected");
+
+        REQUIRE(transformed_data.get_column_count() == eigenvectors.get_row_count());
+        REQUIRE(transformed_data.get_row_count() == data.get_row_count());
     }
 
     void check_nans(const pca::train_result<>& result) {
         const auto [means, variances, eigenvalues, eigenvectors] = unpack_result(result);
 
-        INFO("check if there is no NaN in eigenvalues")
+        INFO("check if there is no NaN in eigenvalues");
         REQUIRE(te::has_no_nans(eigenvalues));
 
-        INFO("check if there is no NaN in eigenvectors")
+        INFO("check if there is no NaN in eigenvectors");
         REQUIRE(te::has_no_nans(eigenvectors));
 
-        INFO("check if there is no NaN in means")
+        INFO("check if there is no NaN in means");
         REQUIRE(te::has_no_nans(means));
 
-        INFO("check if there is no NaN in variances")
+        INFO("check if there is no NaN in variances");
         REQUIRE(te::has_no_nans(variances));
+    }
+
+    void check_infer_nans(const table& transformed_data) {
+        INFO("check if there is no NaN in transformed_data");
+        REQUIRE(te::has_no_nans(transformed_data));
     }
 
     void check_eigenvalues_order(const table& eigenvalues) const {

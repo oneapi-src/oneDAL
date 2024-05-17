@@ -28,6 +28,8 @@
 #define CPU_EXTENSION dal::detail::cpu_extension::avx512
 #elif defined(TARGET_ARM)
 #define CPU_EXTENSION dal::detail::cpu_extension::sve
+#elif defined(TARGET_RISCV64)
+#define CPU_EXTENSION dal::detail::cpu_extension::rv64
 #endif
 
 namespace oneapi::dal::covariance::backend {
@@ -51,7 +53,7 @@ static partial_compute_result<Task> call_daal_kernel_partial_compute(
     const auto input_ = input.get_prev();
     daal_covariance::Parameter daal_parameter;
     daal_parameter.outputMatrixType = daal_covariance::correlationMatrix;
-
+    daal_parameter.assumeCentered = desc.get_assume_centered();
     dal::detail::check_mul_overflow(component_count, component_count);
 
     auto data = input.get_data();

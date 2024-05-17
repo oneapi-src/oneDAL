@@ -27,10 +27,14 @@
 #define TARGET_ARM
 #endif
 
+#if defined(__riscv) && (__riscv_xlen == 64)
+#define TARGET_RISCV64
+#endif
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
-enum class cpu_vendor { unknown = 0, intel = 1, amd = 2, arm = 3 };
+enum class cpu_vendor { unknown = 0, intel = 1, amd = 2, arm = 3, riscv64 = 4 };
 
 enum class cpu_extension : uint64_t {
     none = 0U,
@@ -41,9 +45,12 @@ enum class cpu_extension : uint64_t {
     avx512 = 1U << 5
 #elif defined(TARGET_ARM)
     sve = 1U << 0
+#elif defined(TARGET_RISCV64)
+    rv64 = 1U << 0
 #endif
 };
 
+cpu_extension from_daal_cpu_type(int);
 cpu_extension detect_top_cpu_extension();
 
 } // namespace v1

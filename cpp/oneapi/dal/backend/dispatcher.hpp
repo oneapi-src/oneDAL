@@ -20,6 +20,7 @@
 #include "oneapi/dal/detail/global_context.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/spmd_policy.hpp"
+#include "oneapi/dal/detail/dtype_dispatcher.hpp"
 
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/communicator.hpp"
@@ -45,6 +46,8 @@ struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
 #elif defined(TARGET_ARM)
 struct cpu_dispatch_sve {};
+#elif defined(TARGET_RISCV64)
+struct cpu_dispatch_rv64 {};
 #endif
 
 #if defined(TARGET_X86_64)
@@ -61,6 +64,10 @@ using cpu_dispatch_default = cpu_dispatch_sve;
 
 #define __CPU_TAG_ARMV8SVE__ oneapi::dal::backend::cpu_dispatch_sve
 
+#elif defined(TARGET_RISCV64)
+using cpu_dispatch_default = cpu_dispatch_rv64;
+
+#define __CPU_TAG_RISCV64GC__ oneapi::dal::backend::cpu_dispatch_rv64
 #endif
 
 template <typename MemoryAccessKind>
@@ -303,106 +310,16 @@ inline constexpr auto dispatch_by_cpu(const context_cpu& ctx, Op&& op) {
 #elif defined(TARGET_ARM)
     ONEDAL_IF_CPU_DISPATCH_A8SVE(
         if (test_cpu_extension(cpu_ex, cpu_extension::sve)) { return op(cpu_dispatch_sve{}); })
+
+#elif defined(TARGET_RISCV64)
+    ONEDAL_IF_CPU_DISPATCH_RV64(
+        if (test_cpu_extension(cpu_ex, cpu_extension::rv64)) { return op(cpu_dispatch_rv64{}); })
 #endif
 
     return op(cpu_dispatch_default{});
 }
 
-template <typename Op, typename OnUnknown>
-inline constexpr auto dispatch_by_data_type(data_type dtype, Op&& op, OnUnknown&& on_unknown) {
-    switch (dtype) {
-        case data_type::int8: return op(std::int8_t{});
-        case data_type::uint8: return op(std::uint8_t{});
-        case data_type::int16: return op(std::int16_t{});
-        case data_type::uint16: return op(std::uint16_t{});
-        case data_type::int32: return op(std::int32_t{});
-        case data_type::uint32: return op(std::uint32_t{});
-        case data_type::int64: return op(std::int64_t{});
-        case data_type::uint64: return op(std::uint64_t{});
-        case data_type::float32: return op(float{});
-        case data_type::float64: return op(double{});
-        default: return on_unknown(dtype);
-    }
-}
-
-template <typename Op, typename ResultType = std::invoke_result_t<Op, float>>
-inline constexpr ResultType dispatch_by_data_type(data_type dtype, Op&& op) {
-    // Necessary to make the return type conformant with
-    // other dispatch branches
-    const auto on_unknown = [](data_type) -> ResultType {
-        using msg = dal::detail::error_messages;
-        throw unimplemented{ msg::unsupported_conversion_types() };
-    };
-
-    return dispatch_by_data_type(dtype, std::forward<Op>(op), on_unknown);
-}
-
-namespace impl {
-
-template <typename Result, typename... Types>
-struct type_holder {
-    using result_t = Result;
-
-    template <typename Tail>
-    using add_tail = type_holder<Result, Types..., Tail>;
-
-    template <typename Op>
-    constexpr static inline Result evaluate(Op&& op) {
-        return op(Types{}...);
-    }
-};
-
-template <typename TypeHolder, typename Op>
-inline constexpr auto multi_dispatch_by_data_type(Op&& op) {
-    return TypeHolder::evaluate(std::forward<Op>(op));
-}
-
-template <typename TypeHolder, typename Op, typename Head, typename... Tail>
-inline constexpr auto multi_dispatch_by_data_type(Op&& op, Head&& head, Tail&&... tail) {
-    using result_t = typename TypeHolder::result_t;
-    const auto functor = [&](auto arg) -> result_t {
-        using type_t = std::decay_t<decltype(arg)>;
-        using holder_t = typename TypeHolder::template add_tail<type_t>;
-        return multi_dispatch_by_data_type<holder_t>( //
-            std::forward<Op>(op),
-            std::forward<Tail>(tail)...);
-    };
-    return dispatch_by_data_type(head, functor);
-}
-
-template <std::size_t n, typename DefaultType, typename Op, typename... Types>
-struct invoke_result_multiple_impl {
-    using next_t = invoke_result_multiple_impl<n - 1, DefaultType, Op, DefaultType, Types...>;
-    using type = typename next_t::type;
-};
-
-template <typename DefaultType, typename Op, typename... Types>
-struct invoke_result_multiple_impl<0ul, DefaultType, Op, Types...> {
-    using type = std::invoke_result_t<Op, Types...>;
-};
-
-template <typename Op, std::size_t n, typename DefaultType = float>
-using invoke_result_multiple_t = typename invoke_result_multiple_impl<n, DefaultType, Op>::type;
-
-} // namespace impl
-
-// Signature of this function is slightly different from
-// a simple `dispatch_by_data_type` due to inconsistency
-// with a `std::visit` which it heavily resembles
-template <typename ResultType, typename Op, typename... Types>
-inline constexpr ResultType multi_dispatch_by_data_type(Op&& op, Types&&... types) {
-    using holder_t = impl::type_holder<ResultType>;
-    return impl::multi_dispatch_by_data_type<holder_t, Op>( //
-        std::forward<Op>(op),
-        std::forward<Types>(types)...);
-}
-
-template <typename Op, typename... Types>
-inline constexpr auto multi_dispatch_by_data_type(Op&& op, Types&&... types) {
-    using result_t = impl::invoke_result_multiple_t<Op, sizeof...(Types), float>;
-    return multi_dispatch_by_data_type<result_t, Op>( //
-        std::forward<Op>(op),
-        std::forward<Types>(types)...);
-}
+using detail::v1::dispatch_by_data_type;
+using detail::v1::multi_dispatch_by_data_type;
 
 } // namespace oneapi::dal::backend

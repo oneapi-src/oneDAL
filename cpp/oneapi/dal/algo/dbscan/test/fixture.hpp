@@ -94,7 +94,7 @@ public:
                     const table &ref_responses) {
         CAPTURE(epsilon, min_observations);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc = get_descriptor(epsilon, min_observations);
 
         INFO("run compute");
@@ -119,7 +119,7 @@ public:
                                   std::int64_t min_observations,
                                   float_t ref_dbi,
                                   float_t dbi_ref_tol = 1.0e-4) {
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc = get_descriptor(epsilon, min_observations);
 
         INFO("run compute");
@@ -151,7 +151,7 @@ public:
                      std::int64_t min_observations) {
         CAPTURE(epsilon, min_observations);
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto dbscan_desc =
             get_descriptor(epsilon, min_observations).set_result_options(compute_mode);
 

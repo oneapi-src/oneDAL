@@ -23,6 +23,10 @@
     #define TARGET_ARM
 #endif
 
+#if defined(__riscv) && (__riscv_xlen == 64)
+    #define TARGET_RISCV64
+#endif
+
 #if defined(TARGET_X86_64)
 #include <immintrin.h>
 #endif
@@ -183,6 +187,8 @@ std::string detect_cpu() {
         }
     #elif defined(TARGET_ARM)
         return "sve";
+    #elif defined(TARGET_RISCV64)
+        return "rv64";
     #endif
 }
 

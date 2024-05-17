@@ -25,7 +25,7 @@
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 #include <math.h>
 
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/objective_function.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
