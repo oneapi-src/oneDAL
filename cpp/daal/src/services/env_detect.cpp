@@ -28,7 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
-#include <iostream>
+
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
@@ -132,9 +132,7 @@ DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _g
     // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
     // instance, it blocks the calling thread until the completion of all worker
     // threads that were implicitly created by the library.
-    std::cout << "env has been created" << std::endl;
     daal::setSchedulerHandle(&_schedulerHandle);
-    std::cout << "_schedulerHandle has been created" << std::endl;
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -164,32 +162,8 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    std::cout << "before free _globalControl" << std::endl;
-
-    if (_globalControl)
-    {
-        _daal_tbb_task_scheduler_free(_globalControl);
-        _globalControl = nullptr;
-        std::cout << "_globalControl has been freed" << std::endl;
-    }
-    else
-    {
-        std::cout << "_globalControl was already nullptr" << std::endl;
-    }
-
-    // Ensuring _schedulerHandle is destroyed after _globalControl.
-    if (_schedulerHandle)
-    {
-        _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
-        _schedulerHandle = nullptr;
-        std::cout << "_schedulerHandle has been freed" << std::endl;
-    }
-    else
-    {
-        std::cout << "_schedulerHandle was already nullptr" << std::endl;
-    }
-
-    std::cout << "after free _schedulerHandle" << std::endl;
+    _daal_tbb_task_scheduler_free(_globalControl);
+    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
