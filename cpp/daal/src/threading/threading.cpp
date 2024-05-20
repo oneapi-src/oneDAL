@@ -49,7 +49,6 @@ using namespace daal::services;
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
 #if defined(__DO_TBB_LAYER__)
-    tbb::task_arena {}.initialize();
     return scalable_aligned_malloc(size, alignment);
 #else
     return daal::internal::Service<>::serv_malloc(size, alignment);
@@ -59,7 +58,6 @@ DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t ali
 DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 {
 #if defined(__DO_TBB_LAYER__)
-    tbb::task_arena {}.initialize();
     scalable_aligned_free(ptr);
 #else
     daal::internal::Service<>::serv_free(ptr);
@@ -86,7 +84,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
-    tbb::task_arena {}.initialize();
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
@@ -483,7 +480,6 @@ DAAL_EXPORT bool _daal_is_in_parallel()
 
 DAAL_EXPORT void * _daal_threader_env()
 {
-    tbb::task_arena {}.initialize();
     static daal::ThreaderEnvironment env;
     return &env;
 }
