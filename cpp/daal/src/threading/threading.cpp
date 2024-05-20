@@ -66,24 +66,29 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
+#if defined(__DO_TBB_LAYER__)
     if (globalControl)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
         globalControl = nullptr;
     }
+#endif
 }
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
+#if defined(__DO_TBB_LAYER__)
     if (schedulerHandle)
     {
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
         schedulerHandle = nullptr;
     }
+#endif
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
+#if defined(__DO_TBB_LAYER__)
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
@@ -93,16 +98,18 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }
-
+#endif
     daal::threader_env()->setNumberOfThreads(1);
     return 1;
 }
 
 DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
 {
+#if defined(__DO_TBB_LAYER__)
     // It is necessary for initializing tbb in cases where DAAL does not use it.
     tbb::task_arena {}.initialize();
     *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+#endif
     return 0;
 }
 
