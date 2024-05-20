@@ -236,6 +236,7 @@ public:
 thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
     : pinner_arena(nthreads = daal::threader_get_threads_number()), tbb::task_scheduler_observer(pinner_arena), topo_deleter(deleter)
 {
+    pinner_arena.initialize();
     do_pinning = (nthreads > 0) ? true : false;
     is_pinning.set(0);
 
