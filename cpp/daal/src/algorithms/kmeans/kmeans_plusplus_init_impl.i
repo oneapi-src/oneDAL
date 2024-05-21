@@ -292,10 +292,11 @@ public:
                                             const algorithmFPType * const pLastAddedCenter, const algorithmFPType * const aWeights,
                                             const algorithmFPType * const pDistSqBest)
     {
-        algorithmFPType sumOfDist2 = algorithmFPType(0);
-        size_t csrCursor           = 0u;
-        algorithmFPType pLastAddedCenterSumSq     = algorithmFPType(0.);
-        for (size_t iCol = 0u; iCol < dim; iCol++){
+        algorithmFPType sumOfDist2            = algorithmFPType(0);
+        size_t csrCursor                      = 0u;
+        algorithmFPType pLastAddedCenterSumSq = algorithmFPType(0.);
+        for (size_t iCol = 0u; iCol < dim; iCol++)
+        {
             pLastAddedCenterSumSq += pLastAddedCenter[iCol] * pLastAddedCenter[iCol];
         }
 
