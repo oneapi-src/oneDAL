@@ -112,10 +112,12 @@ public:
     descriptor_base(bool compute_intercept);
 
     bool get_compute_intercept() const;
+    double get_alpha() const;
     result_option_id get_result_options() const;
 
 protected:
     void set_compute_intercept_impl(bool compute_intercept);
+    void set_alpha_impl(double alpha);
     void set_result_options_impl(const result_option_id& value);
 
 private:
@@ -165,6 +167,14 @@ public:
     /// Creates a new instance of the class with default parameters
     explicit descriptor() : base_t(true) {}
 
+    explicit descriptor(bool compute_intercept, double alpha) : base_t(compute_intercept) {
+        set_alpha(alpha);
+    }
+
+    explicit descriptor(double alpha) : base_t(true) {
+        set_alpha(alpha);
+    }
+
     /// Defines should intercept be taken into consideration.
     bool get_compute_intercept() const {
         return base_t::get_compute_intercept();
@@ -172,6 +182,16 @@ public:
 
     auto& set_compute_intercept(bool compute_intercept) const {
         base_t::set_compute_intercept(compute_intercept);
+        return *this;
+    }
+
+    /// Defines regularization term alpha used in Ridge Regression
+    double get_alpha() const {
+        return base_t::get_alpha();
+    }
+
+    auto& set_alpha(double value) {
+        base_t::set_alpha_impl(value);
         return *this;
     }
 
