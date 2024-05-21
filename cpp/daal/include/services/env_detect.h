@@ -140,13 +140,6 @@ public:
     {
         MultiThreaded = 0 /*!< Multi-threaded mode */
     };
-
-    /**
-     *  Sets the threading mode on Windows*
-     *  \param[in] type  The threading mode of the library
-     */
-    void setDynamicLibraryThreadingTypeOnWindows(LibraryThreadingType type);
-
     /**
      *  Sets the number of threads to use
      *  \param[in] numThreads   The number of threads
