@@ -312,8 +312,8 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction with infinte sum",
                      "[reduction][rm][small]",
                      finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
-
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
@@ -326,8 +326,8 @@ TEMPLATE_LIST_TEST_M(infinite_sum_rm_test_random,
                      "Randomly filled Row-Major Col-Wise reduction with infinte sum",
                      "[reduction][rm][small]",
                      finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
-
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
@@ -368,8 +368,8 @@ TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
                      "Randomly filled Row-Major Row-Wise reduction with single inf or nan",
                      "[reduction][rm][small]",
                      finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
-
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
@@ -382,8 +382,8 @@ TEMPLATE_LIST_TEST_M(single_infinite_rm_test_random,
                      "Randomly filled Row-Major Col-Wise reduction with single inf or nan",
                      "[reduction][rm][small]",
                      finiteness_types) {
-    SKIP_IF(this->not_float64_friendly());
-
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
     const bool use_infnan = GENERATE(0, 1);
     this->generate(use_infnan);
     SKIP_IF(this->should_be_skipped());
