@@ -139,8 +139,10 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
     // threads that were implicitly created by the library.
     if (!isHandleCreated)
     {
+#if defined(TARGET_X86_64)
         daal::setSchedulerHandle(&_schedulerHandle);
         isHandleCreated = true;
+#endif
     }
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
@@ -161,7 +163,7 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
-    // _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
+    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -178,8 +180,10 @@ DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t nu
     isInit = true;
     if (!isHandleCreated)
     {
+#if defined(TARGET_X86_64)
         daal::setSchedulerHandle(&_schedulerHandle);
         isHandleCreated = true;
+#endif
     }
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
