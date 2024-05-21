@@ -42,10 +42,12 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const table& data) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
+    const std::int64_t trial_count = desc.get_local_trials_count();
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
                                     0,
                                     dal::detail::integral_cast<std::size_t>(desc.get_seed()));
+    par.nTrials = dal::detail::integral_cast<std::size_t>(trial_count);
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const std::size_t len_input = 1;
