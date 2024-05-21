@@ -156,7 +156,7 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    _daal_tbb_task_scheduler_free(_globalControl);
+    // _daal_tbb_task_scheduler_free(_globalControl);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
