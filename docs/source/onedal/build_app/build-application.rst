@@ -122,7 +122,6 @@ Applications on Windows* OS
       * - Dynamic linking
         - 
           | onedal_core_dll.lib
-          | onedal_core_dll.lib
 
    You may also add debug versions of the libraries based on the threading mode and linking method:
 
