@@ -642,17 +642,6 @@ DAAL_EXPORT bool _daal_is_in_parallel()
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
-    if (init == NULL)
-    {
-        // If threading library was not opened, there is nothing to free,
-        // so we do not need to load threading library.
-        // Moreover, loading threading library in the Environment destructor
-        // results in a crush because of the use of Wintrust library after it was unloaded.
-        // This happens due to undefined order of static objects deinitialization
-        // like Environment, and dependent libraries.
-        return;
-    }
-
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
@@ -663,17 +652,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
 {
-    if (init == NULL)
-    {
-        // If threading library was not opened, there is nothing to free,
-        // so we do not need to load threading library.
-        // Moreover, loading threading library in the Environment destructor
-        // results in a crush because of the use of Wintrust library after it was unloaded.
-        // This happens due to undefined order of static objects deinitialization
-        // like Environment, and dependent libraries.
-        return;
-    }
-
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_handle_free_ptr == NULL)
     {

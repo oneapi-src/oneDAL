@@ -23,7 +23,7 @@
 
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
-#include <iostream>
+
 #if defined(__DO_TBB_LAYER__)
     #define TBB_PREVIEW_GLOBAL_CONTROL 1
     #define TBB_PREVIEW_TASK_ARENA     1
@@ -66,10 +66,7 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-    std::cout << "free global control" << std::endl;
 #if defined(__DO_TBB_LAYER__)
-    static tbb::spin_mutex mt;
-    tbb::spin_mutex::scoped_lock lock(mt);
     if (globalControl)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
@@ -81,9 +78,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
 #if defined(__DO_TBB_LAYER__)
-    std::cout << "free handler" << std::endl;
-    static tbb::spin_mutex mt;
-    tbb::spin_mutex::scoped_lock lock(mt);
     if (schedulerHandle)
     {
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
@@ -94,7 +88,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
-    std::cout << "set global control" << std::endl;
 #if defined(__DO_TBB_LAYER__)
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
@@ -112,10 +105,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
 
 DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
 {
-    std::cout << "set handler" << std::endl;
 #if defined(__DO_TBB_LAYER__)
-    static tbb::spin_mutex mt;
-    tbb::spin_mutex::scoped_lock lock(mt);
     // It is necessary for initializing tbb in cases where DAAL does not use it.
     tbb::task_arena {}.initialize();
     *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
