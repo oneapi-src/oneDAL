@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <cmath>
+
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
 #include "oneapi/dal/algo/kmeans_init/backend/cpu/compute_kernel.hpp"
@@ -42,12 +44,16 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const table& data) {
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
-    const std::int64_t trial_count = desc.get_local_trials_count();
+
+    const std::int64_t init_trial_count = desc.get_local_trials_count();
+    const auto additional = std::log(cluster_count);
+    const auto proposed = 2 + std::int64_t(additional);
+    const std::int64_t trial_count = (init_trial_count == -1) ? proposed : init_trial_count;
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
                                     0,
                                     dal::detail::integral_cast<std::size_t>(desc.get_seed()));
-    par.nTrials = dal::detail::integral_cast<std::size_t>(trial_count);
+    par.nTrials = trial_count;
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
     const std::size_t len_input = 1;

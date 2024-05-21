@@ -23,7 +23,7 @@ namespace v1 {
 template <typename Task>
 class descriptor_impl : public base {
 public:
-    std::int64_t local_trials_count = 2;
+    std::int64_t local_trials_count = -1;
     std::int64_t cluster_count = 2;
     std::int64_t seed = 777;
 };
