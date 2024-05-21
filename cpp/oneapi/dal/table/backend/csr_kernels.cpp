@@ -18,7 +18,6 @@
 #include "oneapi/dal/table/backend/convert.hpp"
 
 #include <algorithm>
-#include <iostream>
 
 namespace oneapi::dal::backend {
 
