@@ -125,9 +125,10 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
 {
     std::cout << "Environment() : _schedulerHandle {}, _globalControl {}" << std::endl;
+    setSchedulerHandle(&_schedulerHandle);
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -176,9 +177,9 @@ DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t nu
 {
     isInit = true;
     std::cout << "setNumberOfThreads" << std::endl;
-#if defined(TARGET_X86_64)
-    daal::setSchedulerHandle(&_schedulerHandle);
-#endif
+// #if defined(TARGET_X86_64)
+//     daal::setSchedulerHandle(&_schedulerHandle);
+// #endif
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 

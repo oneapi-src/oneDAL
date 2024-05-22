@@ -28,7 +28,7 @@
 #include "services/base.h"
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
-
+#include "src/threading/threading.h"
 namespace daal
 {
 /**

@@ -25,6 +25,7 @@
 #include "src/threading/threading.h"
 #include "src/threading/service_thread_pinner.h"
 #include "services/env_detect.h"
+#include <iostream>
 
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
@@ -644,6 +645,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
     if (init == NULL)
     {
+        std::cout<<"empty _daal_tbb_task_scheduler_free"<<std::endl;
         // If threading library was not opened, there is nothing to free,
         // so we do not need to load threading library.
         // Moreover, loading threading library in the Environment destructor
@@ -652,7 +654,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
         // like Environment, and dependent libraries.
         return;
     }
-
+    std::cout<<"NO empty _daal_tbb_task_scheduler_handle_free"<<std::endl;
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
@@ -665,6 +667,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
 {
     if (init == NULL)
     {
+        std::cout<<"empty _daal_tbb_task_scheduler_handle_free"<<std::endl;
         // If threading library was not opened, there is nothing to free,
         // so we do not need to load threading library.
         // Moreover, loading threading library in the Environment destructor
@@ -673,6 +676,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
         // like Environment, and dependent libraries.
         return;
     }
+    std::cout<<"NO empty _daal_tbb_task_scheduler_handle_free"<<std::endl;
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_handle_free_ptr == NULL)
     {
