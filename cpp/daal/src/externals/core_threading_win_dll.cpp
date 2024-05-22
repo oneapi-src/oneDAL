@@ -652,6 +652,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
         // like Environment, and dependent libraries.
         return;
     }
+
     load_daal_thr_dll();
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
