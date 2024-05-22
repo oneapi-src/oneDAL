@@ -84,7 +84,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
     tbb::spin_mutex::scoped_lock lock(mt);
     if (schedulerHandle)
     {
-        tbb::finalize(*reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle));
+        reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle)->release();
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
         schedulerHandle = nullptr;
     }
