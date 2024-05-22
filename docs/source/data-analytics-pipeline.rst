@@ -19,6 +19,9 @@ Introduction
 
 .. _onedal_data_analytics_pipeline:
 
+Data Analytics Pipeline
+***********************
+
 |full_name| (|short_name|) is a library that provides building
 blocks covering all stages of data analytics: data acquisition from a
 data source, preprocessing, transformation, data mining, modeling,
