@@ -62,14 +62,14 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                    const partial_train_input<Task>& input) {
     using dal::detail::check_mul_overflow;
 
-    const bool beta = desc.get_compute_intercept();
+    const bool compute_intercept = desc.get_compute_intercept();
 
     const auto feature_count = input.get_data().get_column_count();
     const auto response_count = input.get_responses().get_column_count();
 
     const daal_hyperparameters_t& hp = convert_parameters<Float>(params);
 
-    const auto ext_feature_count = feature_count + beta;
+    const auto ext_feature_count = feature_count + compute_intercept;
 
     const bool has_xtx_data = input.get_prev().get_partial_xtx().has_data();
     if (has_xtx_data) {
@@ -85,7 +85,7 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                   *y_daal_table,
                                                                                   *daal_xtx,
                                                                                   *daal_xty,
-                                                                                  beta,
+                                                                                  compute_intercept,
                                                                                   &hp);
 
             interop::status_to_exception(status);
@@ -117,7 +117,7 @@ static partial_train_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                                   *y_daal_table,
                                                                                   *xtx_daal_table,
                                                                                   *xty_daal_table,
-                                                                                  beta,
+                                                                                  compute_intercept,
                                                                                   &hp);
 
             interop::status_to_exception(status);

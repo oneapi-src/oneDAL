@@ -27,6 +27,7 @@
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/finalize_train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/misc.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
@@ -47,14 +48,14 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto& queue = ctx.get_queue();
 
-    const bool beta = desc.get_compute_intercept();
+    const bool compute_intercept = desc.get_compute_intercept();
 
     constexpr auto uplo = pr::mkl::uplo::upper;
     constexpr auto alloc = sycl::usm::alloc::device;
 
     const auto response_count = input.get_partial_xty().get_row_count();
     const auto ext_feature_count = input.get_partial_xty().get_column_count();
-    const auto feature_count = ext_feature_count - beta;
+    const auto feature_count = ext_feature_count - compute_intercept;
 
     const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
 
@@ -69,9 +70,21 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(queue, betas_size, alloc);
 
+    double alpha = desc.get_alpha();
+    sycl::event ridge_event;
+    if (alpha != 0.0) {
+        ridge_event = add_ridge_penalty<Float>(queue, xtx_nd, compute_intercept, alpha);
+    }
+
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);
-    auto solve_event = pr::solve_system<uplo>(queue, beta, xtx_nd, xty_nd, nxtx, nxty, {});
+    auto solve_event = pr::solve_system<uplo>(queue,
+                                              compute_intercept,
+                                              xtx_nd,
+                                              xty_nd,
+                                              nxtx,
+                                              nxty,
+                                              { ridge_event });
     sycl::event::wait_and_throw({ solve_event });
 
     auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
