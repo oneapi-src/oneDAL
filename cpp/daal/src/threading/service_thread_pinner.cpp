@@ -21,6 +21,7 @@
 //--
 */
 #include "services/daal_defines.h"
+#include <iostream>
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 
     #include "src/threading/service_thread_pinner.h"
@@ -329,7 +330,7 @@ bool thread_pinner_impl_t::set_pinning(bool p)
 thread_pinner_impl_t::~thread_pinner_impl_t()
 {
     observe(false);
-
+    std::cout << "thread pinner destructor" << std::endl;
     if (cpu_queue) topo_deleter(cpu_queue);
 
     thread_mask.combine_each([](cpu_mask_t *& source_mask) { delete source_mask; });

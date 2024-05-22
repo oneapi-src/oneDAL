@@ -28,7 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
-
+#include <iostream>
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
@@ -54,16 +54,19 @@ void daal_free_buffers();
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
     static daal::services::Environment instance;
+    std::cout << "getInstance" << std::endl;
     return &instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
 {
+    std::cout << "freeInstance" << std::endl;
     return 0;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
 {
+    std::cout << "getCpuId" << std::endl;
     initNumberOfThreads();
     if (!_env.cpuid_init_flag)
     {
@@ -76,6 +79,7 @@ DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
 
 DAAL_EXPORT int daal::services::Environment::enableInstructionsSet(int enable)
 {
+    std::cout << "enableInstructionsSet" << std::endl;
     initNumberOfThreads();
     if (!_env.cpuid_init_flag)
     {
@@ -88,6 +92,7 @@ DAAL_EXPORT int daal::services::Environment::enableInstructionsSet(int enable)
 
 DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 {
+    std::cout << "setCpuId" << std::endl;
     initNumberOfThreads();
 
     int host_cpuid = __daal_serv_cpu_detect(DAAL_HOST_CPUID);
@@ -116,11 +121,13 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
 {
+    std::cout << "__daal_serv_get_thr_set" << std::endl;
     return daal_thr_set;
 }
 
 DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
+    std::cout << "Environment() : _schedulerHandle {}, _globalControl {}" << std::endl;
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -131,7 +138,7 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-
+    std::cout << "initNumberOfThreads" << std::endl;
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -149,13 +156,15 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
+    std::cout << "~Environment()" << std::endl;
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
-    // _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
+    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
 {
+    std::cout << "_cpu_detect" << std::endl;
     initNumberOfThreads();
     if (~size_t(0) == _env.cpuid)
     {
@@ -166,6 +175,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
+    std::cout << "setNumberOfThreads" << std::endl;
 #if defined(TARGET_X86_64)
     daal::setSchedulerHandle(&_schedulerHandle);
 #endif
@@ -174,17 +184,20 @@ DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t nu
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const
 {
+    std::cout << "getNumberOfThreads" << std::endl;
     return daal::threader_get_threads_number();
 }
 
 DAAL_EXPORT int daal::services::Environment::setMemoryLimit(MemType type, size_t limit)
 {
+    std::cout << "setMemoryLimit" << std::endl;
     initNumberOfThreads();
     return daal::internal::ServiceInst::serv_set_memory_limit(type, limit);
 }
 
 DAAL_EXPORT void daal::services::Environment::enableThreadPinning(const bool enableThreadPinningFlag)
 {
+    std::cout << "enableThreadPinning" << std::endl;
     initNumberOfThreads();
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
     daal::services::internal::thread_pinner_t * thread_pinner = daal::services::internal::getThreadPinner(true, read_topology, delete_topology);
