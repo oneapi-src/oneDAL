@@ -42,7 +42,6 @@
 
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;
-static bool isHandleCreated                                           = false;
 
 namespace daal
 {
@@ -132,18 +131,7 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-    // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
-    // destruction of the calling thread.
-    // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
-    // instance, it blocks the calling thread until the completion of all worker
-    // threads that were implicitly created by the library.
-    if (!isHandleCreated)
-    {
-#if defined(TARGET_X86_64)
-        daal::setSchedulerHandle(&_schedulerHandle);
-        isHandleCreated = true;
-#endif
-    }
+
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -178,13 +166,12 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    if (!isHandleCreated)
-    {
+
 #if defined(TARGET_X86_64)
-        daal::setSchedulerHandle(&_schedulerHandle);
-        isHandleCreated = true;
+    daal::setSchedulerHandle(&_schedulerHandle);
+
 #endif
-    }
+
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 
