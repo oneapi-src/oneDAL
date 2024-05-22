@@ -496,16 +496,16 @@ out_of_bound_type check_bounds(const array<T>& arr,
                 sycl::reduction(count_gt_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
             cgh.parallel_for(sycl::range<1>{ dal::detail::integral_cast<std::size_t>(count) },
-                            count_lt_reduction,
-                            count_gt_reduction,
-                            [=](sycl::id<1> i, auto& count_lt, auto &count_gt) {
-                                if (data[i] < min_value) {
-                                    count_lt.combine(1);
-                                }
-                                if (data[i] > max_value) {
-                                    count_gt.combine(1);
-                                }
-                            });
+                             count_lt_reduction,
+                             count_gt_reduction,
+                             [=](sycl::id<1> i, auto& count_lt, auto& count_gt) {
+                                 if (data[i] < min_value) {
+                                     count_lt.combine(1);
+                                 }
+                                 if (data[i] > max_value) {
+                                     count_gt.combine(1);
+                                 }
+                             });
         })
         .wait_and_throw();
 

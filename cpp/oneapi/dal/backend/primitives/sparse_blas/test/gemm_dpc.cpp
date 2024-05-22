@@ -32,7 +32,8 @@ TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR gemm", "[csr][gem
     SKIP_IF(this->get_policy().is_cpu());
 
     // Test takes too long time if HW emulates float64
-    SKIP_IF(!this->not_float64_friendly());
+    // Temporary workaround: skip tests on architectures that do not support native float64
+    SKIP_IF(!this->get_policy().has_native_float64());
 
     this->generate_dimensions();
     this->test_gemm();
