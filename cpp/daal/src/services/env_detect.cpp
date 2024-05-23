@@ -53,9 +53,8 @@ void daal_free_buffers();
 
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static daal::services::Environment instance;
-    // std::cout << "getInstance" << std::endl;
-    return &instance;
+    static std::unique_ptr<Environment> instance(new Environment());
+    return instance.get();
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
@@ -181,6 +180,7 @@ DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t nu
 {
     isInit = true;
     std::cout << "setNumberOfThreads" << std::endl;
+
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 

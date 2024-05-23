@@ -29,6 +29,8 @@
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
 
+#include <memory>
+
 namespace daal
 {
 /**
@@ -181,11 +183,12 @@ public:
         return *_executionContext;
     }
 
+    ~Environment();
+
 private:
     Environment();
     Environment(const Environment & e);
     Environment & operator=(const Environment &);
-    ~Environment();
 
     void _cpu_detect(int);
     void initNumberOfThreads();
@@ -196,6 +199,7 @@ private:
     // allow user to wait for completion of worker threads.
     void * _schedulerHandle;
     void * _globalControl;
+    std::unique_ptr<Environment> instance;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
