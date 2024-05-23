@@ -83,7 +83,7 @@ public:
      *  Returns the environment instance
      *  \return The environment instance
      */
-    static Environment * getInstance();
+    static Environment & getInstance();
 
     /**
      *  Decreases the instance counter
