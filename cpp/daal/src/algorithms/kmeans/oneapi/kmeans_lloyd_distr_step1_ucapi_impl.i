@@ -55,7 +55,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::compute(size_t na, co
 
     Status st;
 
-    auto & context       = Environment::getInstance().getDefaultExecutionContext();
+    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
 
     NumericTable * ntData        = const_cast<NumericTable *>(a[0]);
@@ -230,7 +230,7 @@ Status KMeansDistributedStep1KernelUCAPI<algorithmFPType>::finalizeCompute(size_
     BlockDescriptor<int> outBlock;
     DAAL_CHECK_STATUS_VAR(ntAssignments->getBlockOfRows(0, n, writeOnly, outBlock));
 
-    auto & context = Environment::getInstance().getDefaultExecutionContext();
+    auto & context = Environment::getInstance()->getDefaultExecutionContext();
     Status status;
     DAAL_ASSERT(outBlock.getBuffer().size() >= n);
     DAAL_ASSERT(inBlock.getBuffer().size() >= n);

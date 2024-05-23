@@ -83,7 +83,7 @@ Status KMeansDenseLloydBatchKernelUCAPI<algorithmFPType>::compute(const NumericT
     DAAL_ASSERT(ntNIterations->getNumberOfRows() == 1 && ntNIterations->getNumberOfColumns() == 1);
     DAAL_ASSERT(ntAssignments->getNumberOfRows() == nDataRowsAsSizeT && ntAssignments->getNumberOfColumns() == 1);
 
-    auto & context        = Environment::getInstance().getDefaultExecutionContext();
+    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernel_factory, nClusters));
 

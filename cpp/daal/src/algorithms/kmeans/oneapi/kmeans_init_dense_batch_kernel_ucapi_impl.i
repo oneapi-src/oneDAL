@@ -59,7 +59,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::init(size_t p, 
 {
     Status st;
 
-    auto & context = Environment::getInstance().getDefaultExecutionContext();
+    auto & context = Environment::getInstance()->getDefaultExecutionContext();
 
     if (method == deterministicDense)
     {
@@ -175,7 +175,7 @@ Status KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>::gatherRandom(co
                                                                               uint32_t nFeatures)
 {
     Status st;
-    auto & context       = Environment::getInstance().getDefaultExecutionContext();
+    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernelFactory));
 

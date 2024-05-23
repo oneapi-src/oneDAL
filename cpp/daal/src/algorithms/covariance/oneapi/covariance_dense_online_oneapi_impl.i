@@ -53,7 +53,7 @@ services::Status CovarianceDenseOnlineKernelOneAPI<algorithmFPType, method>::com
     DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseOnline);
     services::Status status;
 
-    auto & context                       = Environment::getInstance().getDefaultExecutionContext();
+    auto & context                       = Environment::getInstance()->getDefaultExecutionContext();
     algorithmFPType * nObservations      = nullptr;
     algorithmFPType partialNObservations = 0.0;
 

@@ -56,12 +56,12 @@ int main(int argc, char* argv[]) {
     init.input.set(kmeans::init::data, dataSource.getNumericTable());
 
     /* Enables thread pinning for next algorithm runs */
-    services::Environment::getInstance().enableThreadPinning(true);
+    services::Environment::getInstance()->enableThreadPinning(true);
 
     init.compute();
 
     /* Disables thread pinning for next algorithm runs */
-    services::Environment::getInstance().enableThreadPinning(false);
+    services::Environment::getInstance()->enableThreadPinning(false);
 
     NumericTablePtr centroids = init.getResult()->get(kmeans::init::centroids);
 

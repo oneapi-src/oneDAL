@@ -46,13 +46,13 @@ int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Get the number of threads that is used by the library by default */
-    nThreadsInit = services::Environment::getInstance().getNumberOfThreads();
+    nThreadsInit = services::Environment::getInstance()->getNumberOfThreads();
 
     /* Set the maximum number of threads to be used by the library */
-    services::Environment::getInstance().setNumberOfThreads(nThreads);
+    services::Environment::getInstance()->setNumberOfThreads(nThreads);
 
     /* Get the number of threads that is used by the library after changing */
-    nThreadsNew = services::Environment::getInstance().getNumberOfThreads();
+    nThreadsNew = services::Environment::getInstance()->getNumberOfThreads();
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
     FileDataSource<CSVFeatureManager> dataSource(datasetFileName,

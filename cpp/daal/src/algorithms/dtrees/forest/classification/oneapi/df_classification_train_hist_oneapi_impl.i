@@ -815,7 +815,7 @@ services::Status ClassificationTrainBatchKernelOneAPI<algorithmFPType, hist>::co
     services::String buildOptions = getBuildOptions(_nClasses);
     DAAL_CHECK_STATUS_VAR(_treeLevelBuildHelper.init(buildOptions.c_str(), TreeLevel::_nNodeSplitProps));
 
-    auto & context        = Environment::getInstance().getDefaultExecutionContext();
+    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     auto & info = context.getInfoDevice();

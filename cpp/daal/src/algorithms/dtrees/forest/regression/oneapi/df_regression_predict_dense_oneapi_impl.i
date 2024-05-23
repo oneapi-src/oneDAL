@@ -99,7 +99,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
         static_cast<const daal::algorithms::decision_forest::regression::internal::ModelImpl * const>(m);
     const auto nTrees = pModel->size();
 
-    auto & context        = Environment::getInstance().getDefaultExecutionContext();
+    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     if (nRows > _int32max)
