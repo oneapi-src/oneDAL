@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/detail/cpu_info_impl.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 #include <sstream>
 
@@ -52,36 +53,47 @@ std::string to_string(cpu_extension extension) {
 }
 
 cpu_vendor cpu_info_impl::get_cpu_vendor() const {
-    return std::any_cast<detail::cpu_vendor>(info_.find("vendor")->second);
+    const auto entry = info_.find("vendor");
+    if (entry == info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<detail::cpu_vendor>(entry->second);
 }
 
 cpu_extension cpu_info_impl::get_top_cpu_extension() const {
-    return std::any_cast<cpu_extension>(info_.find("top_cpu_extension")->second);
+    const auto entry = info_.find("top_cpu_extension");
+    if (entry == info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<cpu_extension>(entry->second);
 }
 
 std::string cpu_info_impl::dump() const {
-    std::stringstream ss;
-    for (auto it = info_.begin(); it != info_.end(); ++it) {
-        ss << it->first << " : ";
-        print_any(it->second, ss);
+    std::ostringstream ss;
+    for (auto const& [name, value] : info_) {
+        ss << name << " : ";
+        print_any(value, ss);
         ss << "; ";
     }
     return std::move(ss).str();
 }
 
 template <typename T>
-void cpu_info_impl::print(const std::any& value, std::stringstream& ss) const {
+void cpu_info_impl::print(const std::any& value, std::ostringstream& ss) const {
     T typed_value = std::any_cast<T>(value);
     ss << to_string(typed_value);
 }
 
-void cpu_info_impl::print_any(const std::any& value, std::stringstream& ss) const {
+void cpu_info_impl::print_any(const std::any& value, std::ostringstream& ss) const {
     const std::type_info& ti = value.type();
     if (ti == typeid(cpu_extension)) {
         print<cpu_extension>(value, ss);
     }
     else if (ti == typeid(cpu_vendor)) {
         print<cpu_vendor>(value, ss);
+    }
+    else {
+        throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };
     }
 }
 

@@ -21,7 +21,7 @@ namespace oneapi::dal::logistic_regression::test {
 TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
                      "LogReg common flow - fit intercept",
                      "[lr][spmd]",
-                     log_reg_types) {
+                     log_reg_spmd_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -35,7 +35,7 @@ TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
 TEMPLATE_LIST_TEST_M(log_reg_spmd_test,
                      "LogReg common flow - no fit intercept",
                      "[lr][spmd]",
-                     log_reg_types) {
+                     log_reg_spmd_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 

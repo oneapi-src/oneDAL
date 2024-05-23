@@ -1,6 +1,7 @@
 /* file: helpers.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -225,7 +226,7 @@ inline IndexNumType getIndexNumType<unsigned long>()
 }
 #endif
 
-#if !(defined(_WIN32) || defined(_WIN64)) && defined(__x86_64__)
+#if !(defined(_WIN32) || defined(_WIN64)) && (defined(__x86_64__) || defined(TARGET_ARM) || defined(TARGET_RISCV64))
 template <>
 inline IndexNumType getIndexNumType<size_t>()
 {
