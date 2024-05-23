@@ -36,19 +36,17 @@ public:
         const table x = x_data.get_table(this->get_policy(), x_data_table_id);
 
         INFO("create descriptor");
-        const auto finiteness_desc = finiteness_checker::descriptor<Float, Method>{}.set_allow_NaN(allowNaN);
+        const auto finiteness_desc =
+            finiteness_checker::descriptor<Float, Method>{}.set_allow_NaN(allowNaN);
 
         INFO("run compute");
         const auto compute_result = this->compute(finiteness_desc, x);
         check_compute_result(sigma, x, y, compute_result);
     }
 
-    void check_compute_result(bool allowNaN,
-                              const table& x_data,
-                              const bool& result) {
-
+    void check_compute_result(bool allowNaN, const table& x_data, const bool& result) {
         INFO("check if there is no NaN in result values table");
-        REQUIRE(te::has_no_nans(x) == (result && allowNaN) );
+        REQUIRE(te::has_no_nans(x) == (result && allowNaN));
 
         INFO("check if result values are expected");
         check_result_values(sigma, x_data, y_data, result_values);
@@ -123,7 +121,6 @@ TEMPLATE_LIST_TEST_M(finiteness_batch_test,
                            te::dataframe_builder{ 200, 50 }.fill_normal(0, 1, 8888),
                            te::dataframe_builder{ 1000, 50 }.fill_normal(0, 1, 8888));
 
-
     const double sigma = GENERATE_COPY(0.8, 1.0, 5.0);
 
     this->general_checks(x_data, y_data, sigma, x_data_table_id, y_data_table_id);
@@ -152,4 +149,4 @@ TEMPLATE_LIST_TEST_M(rbf_kernel_batch_test,
     this->general_checks(x_data, y_data, sigma, x_data_table_id, y_data_table_id);
 }
 
-} // namespace oneapi::dal::rbf_kernel::test
+} // namespace oneapi::dal::finiteness_checker::test
