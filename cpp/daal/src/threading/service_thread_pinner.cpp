@@ -28,39 +28,37 @@
     #include "services/daal_memory.h"
     #include "src/threading/threading.h"
 
-    #if defined(__DO_TBB_LAYER__)
+    #define USE_TASK_ARENA_CURRENT_SLOT 1
+    #define LOG_PINNING                 1
+    #define TBB_PREVIEW_TASK_ARENA      1
+    #define TBB_PREVIEW_LOCAL_OBSERVER  1
 
-        #define USE_TASK_ARENA_CURRENT_SLOT 1
-        #define LOG_PINNING                 1
-        #define TBB_PREVIEW_TASK_ARENA      1
-        #define TBB_PREVIEW_LOCAL_OBSERVER  1
-
-        #include "tbb/tbb.h"
-        #include <tbb/task_arena.h>
-        #include <tbb/task_scheduler_observer.h>
-        #include <tbb/parallel_reduce.h>
-        #include <tbb/blocked_range.h>
-        #include <tbb/tick_count.h>
-        #include <tbb/scalable_allocator.h>
-        #include "services/daal_atomic_int.h"
+    #include "tbb/tbb.h"
+    #include <tbb/task_arena.h>
+    #include <tbb/task_scheduler_observer.h>
+    #include <tbb/parallel_reduce.h>
+    #include <tbb/blocked_range.h>
+    #include <tbb/tick_count.h>
+    #include <tbb/scalable_allocator.h>
+    #include "services/daal_atomic_int.h"
 using namespace daal::services;
 
-        #if defined(_WIN32) || defined(_WIN64)
-            #include <Windows.h>
-            #define __PINNER_WINDOWS__
+    #if defined(_WIN32) || defined(_WIN64)
+        #include <Windows.h>
+        #define __PINNER_WINDOWS__
 
-            #if defined(_WIN64)
-                #define MASK_WIDTH 64
-            #else
-                #define MASK_WIDTH 32
-            #endif
+        #if defined(_WIN64)
+            #define MASK_WIDTH 64
+        #else
+            #define MASK_WIDTH 32
+        #endif
 
-        #else // LINUX
-            #include <sched.h>
-            #define __PINNER_LINUX__
+    #else // LINUX
+        #include <sched.h>
+        #define __PINNER_LINUX__
 
-            #ifdef __FreeBSD__
-                #include <pthread_np.h>
+        #ifdef __FreeBSD__
+            #include <pthread_np.h>
 
 cpu_set_t * __sched_cpualloc(size_t count)
 {
@@ -74,25 +72,25 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t * mask)
 {
     return cpuset_getaffinity(CPU_LEVEL_WHICH, CPU_WHICH_PID, pid == 0 ? -1 : pid, cpusetsize, mask);
 }
-            #endif
-
         #endif
+
+    #endif
 
 struct cpu_mask_t
 {
     int status;
-        #if defined(_WIN32) || defined(_WIN64)
+    #if defined(_WIN32) || defined(_WIN64)
     GROUP_AFFINITY ga;
-        #else
+    #else
     int ncpus;
     int bit_parts_size;
     cpu_set_t * cpu_set;
-        #endif
+    #endif
     cpu_mask_t()
     {
         status = 0;
 
-        #if defined __PINNER_LINUX__
+    #if defined __PINNER_LINUX__
 
         ncpus          = 0;
         bit_parts_size = 0;
@@ -114,10 +112,10 @@ struct cpu_mask_t
         }
 
         if (cpu_set == NULL)
-        #else // defined __PINNER_WINDOWS__
+    #else // defined __PINNER_WINDOWS__
         bool retval = GetThreadGroupAffinity(GetCurrentThread(), &ga);
         if (!retval)
-        #endif
+    #endif
         {
             status--;
         }
@@ -129,13 +127,13 @@ struct cpu_mask_t
     {
         if (status == 0)
         {
-        #if defined __PINNER_LINUX__
+    #if defined __PINNER_LINUX__
             int err = pthread_getaffinity_np(pthread_self(), bit_parts_size, cpu_set);
             if (err)
-        #else // defined __PINNER_WINDOWS__
+    #else // defined __PINNER_WINDOWS__
             bool retval = GetThreadGroupAffinity(GetCurrentThread(), &ga);
             if (!retval)
-        #endif
+    #endif
             {
                 status--;
             }
@@ -148,15 +146,15 @@ struct cpu_mask_t
     {
         if (status == 0)
         {
-        #if defined __PINNER_LINUX__
+    #if defined __PINNER_LINUX__
 
             int err = pthread_setaffinity_np(pthread_self(), bit_parts_size, cpu_set);
             if (err)
-        #else // defined __PINNER_WINDOWS__
+    #else // defined __PINNER_WINDOWS__
 
             bool retval = SetThreadGroupAffinity(GetCurrentThread(), &ga, NULL);
             if (!retval)
-        #endif
+    #endif
             {
                 status--;
             }
@@ -169,13 +167,13 @@ struct cpu_mask_t
     {
         if (status == 0)
         {
-        #if defined __PINNER_LINUX__
+    #if defined __PINNER_LINUX__
             CPU_ZERO_S(bit_parts_size, cpu_set);
             CPU_SET_S(cpu_idx, bit_parts_size, cpu_set);
-        #else // defined __PINNER_WINDOWS__
+    #else // defined __PINNER_WINDOWS__
             ga.Group = cpu_idx / MASK_WIDTH;
             ga.Mask  = cpu_idx % MASK_WIDTH;
-        #endif
+    #endif
         }
 
         return status;
@@ -185,12 +183,12 @@ struct cpu_mask_t
 
     ~cpu_mask_t()
     {
-        #if defined __PINNER_LINUX__
+    #if defined __PINNER_LINUX__
         if (cpu_set != NULL)
         {
             CPU_FREE(cpu_set);
         }
-        #endif
+    #endif
 
         return;
     } // ~cpu_mask_t()
@@ -390,35 +388,5 @@ DAAL_EXPORT void _thread_pinner_on_scheduler_exit(bool p)
 {
     IMPL->on_scheduler_exit(p);
 }
-
-    #else /* if __DO_TBB_LAYER__ is not defined */
-
-DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
-{
-    return NULL;
-}
-
-DAAL_EXPORT void _thread_pinner_thread_pinner_init(void (*f)(int &, int &, int &, int **), void (*deleter)(void *)) {}
-DAAL_EXPORT void _thread_pinner_execute(daal::services::internal::thread_pinner_task_t & task)
-{
-    task();
-}
-DAAL_EXPORT bool _thread_pinner_get_pinning()
-{
-    return false;
-}
-DAAL_EXPORT bool _thread_pinner_set_pinning(bool p)
-{
-    return true;
-}
-DAAL_EXPORT int _thread_pinner_get_status()
-{
-    return 0;
-}
-
-DAAL_EXPORT void _thread_pinner_on_scheduler_entry(bool p) {}
-DAAL_EXPORT void _thread_pinner_on_scheduler_exit(bool p) {}
-
-    #endif /* if __DO_TBB_LAYER__ is not defined */
 
 #endif /* #if !defined (DAAL_THREAD_PINNING_DISABLED) */

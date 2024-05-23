@@ -29,6 +29,7 @@
 #include "oneapi/dal/algo/linear_regression/backend/model_impl.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/linear_regression/backend/gpu/update_kernel.hpp"
+#include "oneapi/dal/algo/linear_regression/backend/gpu/misc.hpp"
 
 namespace oneapi::dal::linear_regression::backend {
 
@@ -62,8 +63,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     const auto feature_count = data.get_column_count();
     const auto response_count = resp.get_column_count();
     ONEDAL_ASSERT(sample_count == resp.get_row_count());
-    const bool beta = desc.get_compute_intercept();
-    const std::int64_t ext_feature_count = feature_count + beta;
+    const bool compute_intercept = desc.get_compute_intercept();
+    const std::int64_t ext_feature_count = feature_count + compute_intercept;
 
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(queue, betas_size, alloc);
@@ -95,8 +96,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         auto y_arr = y_accessor.pull(queue, { first, last }, alloc);
         auto y = pr::ndview<Float, 2>::wrap(y_arr.get_data(), { length, response_count });
 
-        last_xty_event = update_xty(queue, beta, x, y, xty, { last_xty_event });
-        last_xtx_event = update_xtx(queue, beta, x, xtx, { last_xtx_event });
+        last_xty_event = update_xty(queue, compute_intercept, x, y, xty, { last_xty_event });
+        last_xtx_event = update_xtx(queue, compute_intercept, x, xtx, { last_xtx_event });
 
         // We keep the latest slice of data up to date because of pimpl -
         // it virtually extend lifetime of pulled arrays
@@ -104,6 +105,12 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
     }
 
     const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
+
+    double alpha = desc.get_alpha();
+    if (alpha != 0.0) {
+        last_xtx_event =
+            add_ridge_penalty<Float>(queue, xtx, compute_intercept, alpha, { last_xtx_event });
+    }
 
     auto& comm = ctx.get_communicator();
     if (comm.get_rank_count() > 1) {
@@ -122,7 +129,8 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);
-    auto solve_event = pr::solve_system<uplo>(queue, beta, xtx, xty, nxtx, nxty, solve_deps);
+    auto solve_event =
+        pr::solve_system<uplo>(queue, compute_intercept, xtx, xty, nxtx, nxty, solve_deps);
     sycl::event::wait_and_throw({ solve_event });
 
     auto betas = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
