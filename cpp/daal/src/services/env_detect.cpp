@@ -54,19 +54,18 @@ void daal_free_buffers();
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
     static daal::services::Environment instance;
-    std::cout << "getInstance" << std::endl;
+    // std::cout << "getInstance" << std::endl;
     return &instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
 {
-    std::cout << "freeInstance" << std::endl;
     return 0;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
 {
-    std::cout << "getCpuId" << std::endl;
+    // std::cout << "getCpuId" << std::endl;
     initNumberOfThreads();
     if (!_env.cpuid_init_flag)
     {
@@ -125,10 +124,9 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle(nullptr), _globalControl(nullptr)
 {
     std::cout << "Environment() : _schedulerHandle {}, _globalControl {}" << std::endl;
-    setSchedulerHandle(&_schedulerHandle);
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -180,9 +178,9 @@ DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t nu
 {
     isInit = true;
     std::cout << "setNumberOfThreads" << std::endl;
-// #if defined(TARGET_X86_64)
-//     daal::setSchedulerHandle(&_schedulerHandle);
-// #endif
+    // #if defined(TARGET_X86_64)
+    daal::setSchedulerHandle(&_schedulerHandle);
+    // #endif
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 

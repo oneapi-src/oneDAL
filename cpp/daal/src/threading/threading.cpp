@@ -29,7 +29,6 @@
 #define TBB_PREVIEW_GLOBAL_CONTROL 1
 #define TBB_PREVIEW_TASK_ARENA     1
 
-
 #include <stdlib.h> // malloc and free
 #include <tbb/tbb.h>
 #include <tbb/spin_mutex.h>
@@ -59,7 +58,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
     std::cout << "_daal_tbb_task_scheduler_free" << std::endl;
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    if (globalControl)
+    if (globalControl != nullptr)
     {
         std::cout << "_daal_tbb_task_scheduler_free true delete" << std::endl;
         delete reinterpret_cast<tbb::global_control *>(globalControl);
@@ -74,7 +73,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
     std::cout << "_daal_tbb_task_scheduler_handle_free" << std::endl;
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    if (schedulerHandle)
+    if (schedulerHandle != nullptr)
     {
         std::cout << "_daal_tbb_task_scheduler_handle_free true delete" << std::endl;
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
