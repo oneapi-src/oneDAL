@@ -125,8 +125,8 @@ DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     // // It is necessary for initializing tbb in cases where DAAL does not use it.
+    tbb::task_arena {}.initialize();
     *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
-    // tbb::task_arena {}.initialize();
 #endif
     std::cout << "_setSchedulerHandle is created fine" << std::endl;
     return 0;

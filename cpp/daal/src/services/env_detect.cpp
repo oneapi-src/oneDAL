@@ -159,8 +159,11 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     std::cout << "~Environment()" << std::endl;
     daal::services::daal_free_buffers();
+    std::cout << "~after free buffers()" << std::endl;
     _daal_tbb_task_scheduler_free(_globalControl);
+    std::cout << "after global control deelte" << std::endl;
     _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
+    std::cout << "after handler delete" << std::endl;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
