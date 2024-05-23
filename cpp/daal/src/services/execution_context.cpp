@@ -28,7 +28,7 @@ namespace interface1
 {
 sycl::ExecutionContextIface & getDefaultContext()
 {
-    return services::Environment::getInstance().getDefaultExecutionContext();
+    return services::Environment::getInstance()->getDefaultExecutionContext();
 }
 
 } // namespace interface1

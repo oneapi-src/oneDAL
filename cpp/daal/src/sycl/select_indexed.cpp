@@ -240,7 +240,7 @@ Status QuickSelectIndexed::adjustIndexBuffer(uint32_t number, uint32_t size)
     Status status;
     if (_indexSize < newSize)
     {
-        auto & context = Environment::getInstance().getDefaultExecutionContext();
+        auto & context = Environment::getInstance()->getDefaultExecutionContext();
         _indices       = context.allocate(TypeIds::id<int>(), newSize, status);
         DAAL_CHECK_STATUS_VAR(status);
         _indexSize = newSize;
@@ -266,7 +266,7 @@ Status QuickSelectIndexed::init(Params & par)
     {
         values[i] = static_cast<float>(numbers[i]) / (_nRndSeq - 1);
     }
-    auto & context = Environment::getInstance().getDefaultExecutionContext();
+    auto & context = Environment::getInstance()->getDefaultExecutionContext();
     _rndSeq        = context.allocate(par.type, _nRndSeq, status);
     DAAL_CHECK_STATUS_VAR(status);
     context.copy(_rndSeq, 0, (void *)&values[0], _nRndSeq, 0, _nRndSeq, status);
