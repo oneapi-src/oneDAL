@@ -12,7 +12,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:reduction",
     ],
     extra_deps = [
-        "@onedal//cpp/daal/src/data_management:finiteness_checker",
+        "@onedal//cpp/daal:data_management",
     ]
 )
 
