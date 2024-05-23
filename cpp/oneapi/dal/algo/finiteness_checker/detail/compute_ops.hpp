@@ -61,7 +61,7 @@ struct compute_ops {
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename Context>
     void operator()(const Context& ctx, const Descriptor& desc, const table& x, bool& res) {
-        compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, x, y, res);
+        compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, x, res);
     }
 #endif
 };
