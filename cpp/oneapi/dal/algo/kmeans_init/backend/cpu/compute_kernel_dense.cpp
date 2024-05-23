@@ -45,10 +45,12 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
 
-    const std::int64_t init_trial_count = desc.get_local_trials_count();
-    const auto additional = std::log(cluster_count);
-    const auto proposed = 2 + std::int64_t(additional);
-    const std::int64_t trial_count = (init_trial_count == -1) ? proposed : init_trial_count;
+    std::int64_t trial_count = desc.get_local_trials_count();
+    if (trial_count == -1)
+    {
+        const auto additional = std::log(cluster_count);
+        trial_count = 2 + std::int64_t(additional);
+    }
 
     daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count),
                                     0,

@@ -306,8 +306,7 @@ public:
             const size_t nValues  = rowIdx[iRow + 1] - rowIdx[iRow];
             for (size_t i = 0u; i < nValues; i++, csrCursor++)
             {
-                dist2 += pData[csrCursor] * pData[csrCursor];
-                dist2 -= 2 * pData[csrCursor] * pLastAddedCenter[colIdx[csrCursor] - 1];
+                dist2 += pData[csrCursor] * pData[csrCursor] - 2 * pData[csrCursor] * pLastAddedCenter[colIdx[csrCursor] - 1];
             }
             if (aWeights)
             {
