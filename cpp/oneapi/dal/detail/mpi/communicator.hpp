@@ -195,7 +195,7 @@ public:
         dlclose(handle);
         printf("Result: %s.\n", result ? "true" : "false");
         if (!result) {
-            throw std::runtime_error("NOT SUPPORTING")
+            throw std::runtime_error("NOT SUPPORTING");
         }
 
         return result;
