@@ -82,6 +82,12 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
         std::cout << "_daal_tbb_task_scheduler_handle_free is nullptr" << std::endl;
     }
 }
+DAAL_EXPORT void _destructor_pointers(void ** globalControl, void ** schedulerHandle)
+{
+    std::cout << "destructor through _destructor_pointers" << std::endl;
+    _daal_tbb_task_scheduler_free(*globalControl);
+    _daal_tbb_task_scheduler_handle_free(*schedulerHandle);
+}
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {

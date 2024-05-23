@@ -104,6 +104,8 @@ extern "C"
     DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
     DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle);
     DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl);
+
+    DAAL_EXPORT void _destructor_pointers(void ** schedulerHandle, void ** globalControl);
     DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle);
 
     DAAL_EXPORT void * _daal_threader_env();
@@ -193,6 +195,11 @@ inline size_t setSchedulerHandle(void ** schedulerHandle)
 inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
     return _setNumberOfThreads(numThreads, globalControl);
+}
+
+inline void destructor_pointers(void ** globalControl, void ** schedulerHandle)
+{
+    return _destructor_pointers(globalControl, schedulerHandle);
 }
 
 template <typename F>

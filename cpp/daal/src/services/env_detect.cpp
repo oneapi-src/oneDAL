@@ -53,8 +53,9 @@ void daal_free_buffers();
 
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static std::unique_ptr<Environment> instance(new Environment());
-    return instance.get();
+    static daal::services::Environment instance;
+    // std::cout << "getInstance" << std::endl;
+    return &instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
@@ -160,10 +161,11 @@ DAAL_EXPORT daal::services::Environment::~Environment()
     std::cout << "~Environment()" << std::endl;
     daal::services::daal_free_buffers();
     std::cout << "~after free buffers()" << std::endl;
-    _daal_tbb_task_scheduler_free(_globalControl);
-    std::cout << "after global control deelte" << std::endl;
-    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
-    std::cout << "after handler delete" << std::endl;
+    _destructor_pointers(&_globalControl, &_schedulerHandle);
+    // _daal_tbb_task_scheduler_free(_globalControl);
+    // std::cout << "after global control deelte" << std::endl;
+    // _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
+    // std::cout << "after handler delete" << std::endl;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
