@@ -57,7 +57,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::initializeBuffers(uint3
     uint32_t nCandidateParts = getCandidatePartNum(nClusters);
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(uint32_t, nCandidateParts, nClusters);
     Status st;
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = Environment::getInstance().getDefaultExecutionContext();
     _distances     = context.allocate(TypeIds::id<algorithmFPType>(), blockSize * nClusters, st);
     DAAL_CHECK_STATUS_VAR(st);
     _mindistances = context.allocate(TypeIds::id<algorithmFPType>(), blockSize, st);
@@ -134,7 +134,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::getNumEmptyClusters(uin
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.countEmptyClusters);
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("count_empty_clusters", st);
@@ -183,7 +183,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computeAssignments(cons
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computeAssignments);
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("reduce_assignments", st);
@@ -232,7 +232,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::computePartialCandidate
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.computePartialCandidates);
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("partial_candidates", st);
@@ -282,7 +282,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergePartialCandidates(
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergePartialCandidates);
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("merge_candidates", st);
@@ -325,7 +325,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::partialReduceCentroids(
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.partialReduceCentroids);
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("partial_reduce_centroids", st);
@@ -367,7 +367,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::mergeReduceCentroids(co
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
     Status st;
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("merge_reduce_centroids", st);
@@ -414,7 +414,7 @@ Status KMeansDenseLloydKernelBaseUCAPI<algorithmFPType>::updateObjectiveFunction
         *hostPtr = 0.0f;
     }
 
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory, nClusters));
     auto kernel = kernelFactory.getKernel("update_objective_function", st);

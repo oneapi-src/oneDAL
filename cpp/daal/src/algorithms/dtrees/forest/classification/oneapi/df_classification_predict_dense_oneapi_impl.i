@@ -139,7 +139,7 @@ services::Status PredictKernelOneAPI<algorithmFPType, method>::compute(services:
 
     services::String buildOptions = getBuildOptions(_nClasses);
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory, "predict_cls_kernels", df_batch_predict_classification_kernels, buildOptions.c_str()));

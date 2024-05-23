@@ -62,7 +62,7 @@ Status PCACorrelationKernelBatchUCAPI<algorithmFPType>::compute(bool isCorrelati
     DAAL_ITTNOTIFY_SCOPED_TASK(compute);
     Status st;
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     auto fptype_name   = services::internal::sycl::getKeyFPType<algorithmFPType>();
