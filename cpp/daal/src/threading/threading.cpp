@@ -54,11 +54,37 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-    if (globalControl)
+    if (globalControl != nullptr)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
         globalControl = nullptr;
     }
+}
+
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
+{
+    if (schedulerHandle != nullptr)
+    {
+        delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+        schedulerHandle = nullptr;
+    }
+}
+
+DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
+{
+    // // It is necessary for initializing tbb in cases where DAAL does not use it.
+    tbb::task_arena {}.initialize();
+    *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+}
+
+DAAL_EXPORT void _releaseSchedulerHandle(void *& schedulerHandle)
+{
+    _daal_tbb_task_scheduler_handle_free(schedulerHandle);
+}
+
+DAAL_EXPORT void _releaseGlobalControl(void *& globalControl)
+{
+    _daal_tbb_task_scheduler_free(globalControl);
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)

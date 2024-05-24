@@ -142,12 +142,6 @@ public:
     };
 
     /**
-     *  Sets the threading mode on Windows*
-     *  \param[in] type  The threading mode of the library
-     */
-    void setDynamicLibraryThreadingTypeOnWindows(LibraryThreadingType type);
-
-    /**
      *  Sets the number of threads to use
      *  \param[in] numThreads   The number of threads
      */
@@ -196,8 +190,14 @@ private:
 
     void _cpu_detect(int);
     void initNumberOfThreads();
-
+    void initSchedulerHandle();
+    void releaseSchedulerHandle();
+    void releaseGlobalControl();
     env _env;
+    // Pointer to the oneapi::tbb::task_scheduler_handle class object, global for oneDAL.
+    // The oneapi::tbb::task_scheduler_handle and the oneapi::tbb::finalize function
+    // allow user to wait for completion of worker threads.
+    void * _schedulerHandle;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };

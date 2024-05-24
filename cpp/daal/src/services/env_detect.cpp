@@ -28,7 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
-
+#include <iostream>
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
@@ -119,20 +119,32 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWindows(daal::services::Environment::LibraryThreadingType thr)
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle(nullptr), _globalControl(nullptr)
 {
-    daal_thr_set = thr;
-    initNumberOfThreads();
-}
-
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
-{
+    initSchedulerHandle();
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
+
+DAAL_EXPORT void daal::services::Environment::initSchedulerHandle()
+{
+    initializeSchedulerHandle(&_schedulerHandle);
+}
+
+DAAL_EXPORT void daal::services::Environment::releaseGlobalControl()
+{
+    std::cout << "here" << std::endl;
+    releaseGlobalControl_(_globalControl);
+}
+
+DAAL_EXPORT void daal::services::Environment::releaseSchedulerHandle()
+{
+    std::cout << "here1" << std::endl;
+    releaseSchedulerHandle_(_schedulerHandle);
+}
 
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
@@ -156,7 +168,8 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    _daal_tbb_task_scheduler_free(_globalControl);
+    releaseGlobalControl();
+    releaseSchedulerHandle();
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
