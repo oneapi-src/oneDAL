@@ -84,6 +84,8 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 
 DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
 {
+    static tbb::spin_mutex mt;
+    tbb::spin_mutex::scoped_lock lock(mt);
     // // It is necessary for initializing tbb in cases where DAAL does not use it.
     tbb::task_arena {}.initialize();
     *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
