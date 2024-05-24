@@ -45,6 +45,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
 
+    //number of trials to pick each centroid from, 2 + int(ln(cluster_count)) if not set by user
     std::int64_t trial_count = desc.get_local_trials_count();
     if (trial_count == -1) {
         const auto additional = std::log(cluster_count);
