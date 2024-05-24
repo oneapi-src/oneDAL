@@ -693,7 +693,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
     return _daal_tbb_task_scheduler_handle_free_ptr(init);
 }
 
-DAAL_EXPORT void _initializeSchedulerHandle(void *& init)
+DAAL_EXPORT void _initializeSchedulerHandle(void ** init)
 {
     std::cout << "NO empty _daal_tbb_task_scheduler_handle_free0" << std::endl;
     load_daal_thr_dll();

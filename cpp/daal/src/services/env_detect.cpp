@@ -136,13 +136,11 @@ DAAL_EXPORT void daal::services::Environment::initSchedulerHandle()
 
 DAAL_EXPORT void daal::services::Environment::releaseGlobalControl()
 {
-    std::cout << "here" << std::endl;
     releaseGlobalControl_(_globalControl);
 }
 
 DAAL_EXPORT void daal::services::Environment::releaseSchedulerHandle()
 {
-    std::cout << "here1" << std::endl;
     releaseSchedulerHandle_(_schedulerHandle);
 }
 
