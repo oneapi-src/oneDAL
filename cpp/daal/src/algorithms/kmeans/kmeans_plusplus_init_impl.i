@@ -300,10 +300,14 @@ public:
             pLastAddedCenterSumSq += pLastAddedCenter[iCol] * pLastAddedCenter[iCol];
         }
 
+        //calculate (weighted if weight is provided) distance from last added center to the rows in the block
         for (size_t iRow = 0u; iRow < nRowsToProcess; iRow++)
         {
             algorithmFPType dist2 = pLastAddedCenterSumSq;
             const size_t nValues  = rowIdx[iRow + 1] - rowIdx[iRow];
+
+            //distance from the lastAddedCenter to the current row
+            //using the formula: dist2 = x^2  + y^2 - 2xy
             for (size_t i = 0u; i < nValues; i++, csrCursor++)
             {
                 dist2 += pData[csrCursor] * pData[csrCursor] - 2 * pData[csrCursor] * pLastAddedCenter[colIdx[csrCursor] - 1];
