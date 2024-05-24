@@ -686,8 +686,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
     if (_daal_tbb_task_scheduler_handle_free_ptr == NULL)
     {
         std::cout << "NO empty _daal_tbb_global _daal_tbb_handle2" << std::endl;
-        _daal_tbb_task_scheduler_handle_free_ptr =
-            (_daal_tbb_task_scheduler_handle_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_handle_free_ptr");
+        _daal_tbb_task_scheduler_handle_free_ptr = (_daal_tbb_task_scheduler_handle_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_handle_free");
     }
     std::cout << "NO empty _daal_tbb_global _daal_tbb_handle 3" << std::endl;
     return _daal_tbb_task_scheduler_handle_free_ptr(init);
