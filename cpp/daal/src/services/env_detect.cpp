@@ -124,7 +124,6 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
 
 DAAL_EXPORT daal::services::Environment::Environment()
 {
-    initSchedulerHandle();
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
