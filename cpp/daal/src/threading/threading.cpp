@@ -101,10 +101,10 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
-            if (*globalControl != nullptr)
+        if (*globalControl != nullptr)
         {
-        delete reinterpret_cast<tbb::global_control *>(*globalControl);
-        *globalControl = nullptr;
+            delete reinterpret_cast<tbb::global_control *>(*globalControl);
+            *globalControl = nullptr;
         }
         *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);

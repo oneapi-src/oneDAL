@@ -25,7 +25,7 @@
 #include "src/threading/threading.h"
 #include "src/threading/service_thread_pinner.h"
 #include "services/env_detect.h"
-
+#include <iostream>
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
