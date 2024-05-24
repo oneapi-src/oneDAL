@@ -51,6 +51,9 @@ void daal_free_buffers();
 }
 } // namespace daal
 
+void * daal::services::Environment::_schedulerHandle = nullptr;
+void * daal::services::Environment::_globalControl   = nullptr;
+
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
     static daal::services::Environment instance;
@@ -119,7 +122,7 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle(nullptr), _globalControl(nullptr)
+DAAL_EXPORT daal::services::Environment::Environment()
 {
     initSchedulerHandle();
     _env.cpuid_init_flag = false;
