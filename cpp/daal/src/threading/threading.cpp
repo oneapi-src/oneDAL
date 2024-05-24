@@ -42,6 +42,9 @@
 
 using namespace daal::services;
 
+static std::unique_ptr<tbb::task_scheduler_handle> globalSchedulerHandle = nullptr;
+static bool isInitialized                                                = false;
+
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
     return scalable_aligned_malloc(size, alignment);
@@ -56,14 +59,10 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    std::cout << "_daal_tbb_task_scheduler_free TRUE FUNC" << std::endl;
     if (globalControl != nullptr)
     {
-        std::cout << "_daal_tbb_task_scheduler_free TRUE FUNC step 1" << std::endl;
         delete reinterpret_cast<tbb::global_control *>(globalControl);
-        std::cout << "_daal_tbb_task_scheduler_free TRUE FUNC step 2" << std::endl;
         globalControl = nullptr;
-        std::cout << "_daal_tbb_task_scheduler_free TRUE FUNC step 3" << std::endl;
     }
 }
 
@@ -72,23 +71,19 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     std::cout << "_daal_tbb_task_scheduler_handle_free TRUE FUNCTION" << std::endl;
-    if (schedulerHandle != nullptr)
-    {
-        std::cout << "_daal_tbb_task_scheduler_handle_free TRUE FUNCTION 1" << std::endl;
-        delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
-        std::cout << "_daal_tbb_task_scheduler_handle_free TRUE FUNCTION 2" << std::endl;
-        schedulerHandle = nullptr;
-        std::cout << "_daal_tbb_task_scheduler_handle_free TRUE FUNCTION 3" << std::endl;
-    }
+    globalSchedulerHandle->release();
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    // // It is necessary for initializing tbb in cases where DAAL does not use it.
-    tbb::task_arena {}.initialize();
-    *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+    if (!isInitialized)
+    {
+        tbb::task_arena {}.initialize();
+        globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
+        isInitialized         = true;
+    }
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
