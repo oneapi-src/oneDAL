@@ -45,7 +45,8 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     const std::int64_t cluster_count = desc.get_cluster_count();
 
-    //number of trials to pick each centroid from, 2 + int(ln(cluster_count)) if not set by user
+    //number of trials to pick each centroid from, 2 + int(ln(cluster_count)) works better than vanilla kmeans++
+    //https://github.com/scikit-learn/scikit-learn/blob/a63b021310ba13ea39ad3555f550d8aeec3002c5/sklearn/cluster/_kmeans.py#L108
     std::int64_t trial_count = desc.get_local_trials_count();
     if (trial_count == -1) {
         const auto additional = std::log(cluster_count);
