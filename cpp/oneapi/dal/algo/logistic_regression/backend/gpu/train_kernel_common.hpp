@@ -14,37 +14,21 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
+#include "oneapi/dal/algo/logistic_regression/common.hpp"
 
-#include "oneapi/dal/detail/cpu_info_iface.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+#include "oneapi/dal/algo/logistic_regression/train_types.hpp"
 
-#include <any>
-#include <map>
-#include <string>
+namespace oneapi::dal::logistic_regression::backend {
 
-namespace oneapi::dal::detail {
-namespace v1 {
+using dal::backend::context_gpu;
 
-std::string to_string(cpu_vendor vendor);
-std::string to_string(cpu_extension extension);
+template <typename Float, typename Task>
+train_result<Task> call_dal_kernel(const context_gpu& ctx,
+                                   const detail::descriptor_base<Task>& desc,
+                                   const detail::train_parameters<Task>& params,
+                                   const table& data,
+                                   const table& resp);
 
-class cpu_info_impl : public cpu_info_iface {
-public:
-    cpu_vendor get_cpu_vendor() const override;
-
-    cpu_extension get_top_cpu_extension() const override;
-
-    std::string dump() const override;
-
-protected:
-    std::map<std::string, std::any> info_;
-
-    template <typename T>
-    void print(const std::any& value, std::ostringstream& ss) const;
-
-    void print_any(const std::any& value, std::ostringstream& ss) const;
-};
-
-} // namespace v1
-using v1::cpu_info_impl;
-} // namespace oneapi::dal::detail
+} // namespace oneapi::dal::logistic_regression::backend

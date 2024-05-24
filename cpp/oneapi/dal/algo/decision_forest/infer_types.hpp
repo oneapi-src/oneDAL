@@ -18,6 +18,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/decision_forest/common.hpp"
+#include "oneapi/dal/detail/parameters/system_parameters.hpp"
 
 namespace oneapi::dal::decision_forest {
 
@@ -33,7 +34,7 @@ template <typename Task>
 struct infer_parameters_impl;
 
 template <typename Task = task::by_default>
-class infer_parameters : public base {
+class infer_parameters : public dal::detail::system_parameters {
 public:
     explicit infer_parameters();
     infer_parameters(infer_parameters&&) = default;
