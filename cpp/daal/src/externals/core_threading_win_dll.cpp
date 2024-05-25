@@ -25,7 +25,7 @@
 #include "src/threading/threading.h"
 #include "src/threading/service_thread_pinner.h"
 #include "services/env_detect.h"
-#include <iostream>
+
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
@@ -644,7 +644,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
 {
     if (init == NULL)
     {
-        std::cout << "empty _daal_tbb_task_scheduler_free" << std::endl;
         // If threading library was not opened, there is nothing to free,
         // so we do not need to load threading library.
         // Moreover, loading threading library in the Environment destructor
@@ -654,56 +653,32 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
         return;
     }
 
-    std::cout << "NO empty _daal_tbb_global control_free" << std::endl;
     load_daal_thr_dll();
-    std::cout << "NO empty _daal_tbb_global control_free1" << std::endl;
     if (_daal_tbb_task_scheduler_free_ptr == NULL)
     {
-        std::cout << "NO empty _daal_tbb_global control_free2" << std::endl;
         _daal_tbb_task_scheduler_free_ptr = (_daal_tbb_task_scheduler_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_free");
     }
-    std::cout << "NO empty _daal_tbb_global control_free3" << std::endl;
     return _daal_tbb_task_scheduler_free_ptr(init);
 }
 
-DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
-    if (init == NULL)
-    {
-        std::cout << "empty _daal_tbb_task_scheduler_handle_free" << std::endl;
-        // If threading library was not opened, there is nothing to free,
-        // so we do not need to load threading library.
-        // Moreover, loading threading library in the Environment destructor
-        // results in a crush because of the use of Wintrust library after it was unloaded.
-        // This happens due to undefined order of static objects deinitialization
-        // like Environment, and dependent libraries.
-        return;
-    }
-
-    std::cout << "NO empty _daal_tbb_handle" << std::endl;
     load_daal_thr_dll();
-    std::cout << "NO empty _daal_tbb_global _daal_tbb_handle1" << std::endl;
     if (_daal_tbb_task_scheduler_handle_free_ptr == NULL)
     {
-        std::cout << "NO empty _daal_tbb_global _daal_tbb_handle2" << std::endl;
         _daal_tbb_task_scheduler_handle_free_ptr = (_daal_tbb_task_scheduler_handle_free_t)load_daal_thr_func("_daal_tbb_task_scheduler_handle_free");
     }
-    std::cout << "NO empty _daal_tbb_global _daal_tbb_handle 3" << std::endl;
-    return _daal_tbb_task_scheduler_handle_free_ptr(init);
+    _daal_tbb_task_scheduler_handle_free_ptr();
 }
 
-DAAL_EXPORT void _initializeSchedulerHandle(void ** init)
+DAAL_EXPORT void _initializeSchedulerHandle()
 {
-    std::cout << "NO empty _daal_tbb_task_scheduler_handle_free0" << std::endl;
     load_daal_thr_dll();
-    std::cout << "NO empty _daal_tbb_task_scheduler_handle_free1" << std::endl;
     if (_initializeSchedulerHandle_ptr == NULL)
     {
-        std::cout << "NO empty _daal_tbb_task_scheduler_handle_free2" << std::endl;
         _initializeSchedulerHandle_ptr = (_initializeSchedulerHandle_t)load_daal_thr_func("_initializeSchedulerHandle");
     }
-    std::cout << "NO empty _daal_tbb_task_scheduler_handle_free3" << std::endl;
-    return _initializeSchedulerHandle_ptr(init);
+    _initializeSchedulerHandle_ptr(init);
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)

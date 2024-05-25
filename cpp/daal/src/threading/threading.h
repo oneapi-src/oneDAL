@@ -102,8 +102,8 @@ extern "C"
     DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr);
 
     DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
-    DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle);
-    DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle);
+    DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free();
+    DAAL_EXPORT void _initializeSchedulerHandle();
 
     DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl);
 
@@ -191,9 +191,9 @@ inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl)
     return _setNumberOfThreads(numThreads, globalControl);
 }
 
-inline void initializeSchedulerHandle(void ** schedulerHandle)
+inline void initializeSchedulerHandle()
 {
-    return _initializeSchedulerHandle(schedulerHandle);
+    return _initializeSchedulerHandle();
 }
 
 inline void releaseGlobalControl_(void *& globalControl)
@@ -201,9 +201,9 @@ inline void releaseGlobalControl_(void *& globalControl)
     return _daal_tbb_task_scheduler_free(globalControl);
 }
 
-inline void releaseSchedulerHandle_(void *& schedulerHandle)
+inline void releaseSchedulerHandle_()
 {
-    return _daal_tbb_task_scheduler_handle_free(schedulerHandle);
+    return _daal_tbb_task_scheduler_handle_free();
 }
 
 template <typename F>

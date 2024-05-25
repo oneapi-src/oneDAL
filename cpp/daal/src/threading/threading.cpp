@@ -66,15 +66,14 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
     }
 }
 
-DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    std::cout << "_daal_tbb_task_scheduler_handle_free TRUE FUNCTION" << std::endl;
-    globalSchedulerHandle->release();
+    globalSchedulerHandle.reset();
 }
 
-DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
+DAAL_EXPORT void _initializeSchedulerHandle()
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);

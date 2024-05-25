@@ -28,7 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
-#include <iostream>
+
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
@@ -50,9 +50,6 @@ namespace services
 void daal_free_buffers();
 }
 } // namespace daal
-
-void * daal::services::Environment::_schedulerHandle = nullptr;
-void * daal::services::Environment::_globalControl   = nullptr;
 
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
@@ -133,7 +130,7 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 
 DAAL_EXPORT void daal::services::Environment::initSchedulerHandle()
 {
-    initializeSchedulerHandle(&_schedulerHandle);
+    initializeSchedulerHandle();
 }
 
 DAAL_EXPORT void daal::services::Environment::releaseGlobalControl()
@@ -143,7 +140,7 @@ DAAL_EXPORT void daal::services::Environment::releaseGlobalControl()
 
 DAAL_EXPORT void daal::services::Environment::releaseSchedulerHandle()
 {
-    releaseSchedulerHandle_(_schedulerHandle);
+    releaseSchedulerHandle_();
 }
 
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
@@ -183,7 +180,6 @@ void daal::services::Environment::_cpu_detect(int enable)
 
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
-    isInit = true;
     initSchedulerHandle();
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
