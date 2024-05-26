@@ -77,7 +77,7 @@ public:
     bool get_allow_NaN() const;
 
 protected:
-    void set_allow_NaN(double);
+    void set_allow_NaN(bool);
 
 private:
     dal::detail::pimpl<descriptor_impl<Task>> impl_;
