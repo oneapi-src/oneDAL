@@ -74,7 +74,7 @@ public:
 
     descriptor_base();
 
-    double get_allow_NaN() const;
+    bool get_allow_NaN() const;
 
 protected:
     void set_allow_NaN(double);
