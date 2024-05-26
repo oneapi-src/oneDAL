@@ -62,6 +62,5 @@ private:
 } // namespace v1
 
 using v1::compute_input;
-using v1::compute_result;
 
 } // namespace oneapi::dal::finiteness_checker
