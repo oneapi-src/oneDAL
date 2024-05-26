@@ -30,6 +30,8 @@ using dal::backend::context_cpu;
 using input_t = compute_input<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
+namespace interop = dal::backend::interop;
+
 template <typename Float>
 static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, const table& x) {
     bool result;
@@ -43,15 +45,15 @@ static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, c
 }
 
 template <typename Float>
-static result_t compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
+static bool compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float>(ctx, desc, input.get_x());
 }
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_cpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
+    bool operator()(const context_cpu& ctx,
+                    const descriptor_t& desc,
+                    const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 
