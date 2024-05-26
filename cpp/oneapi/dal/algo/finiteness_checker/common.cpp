@@ -30,7 +30,7 @@ template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <typename Task>
-double descriptor_base<Task>::get_allow_NaN() const {
+bool descriptor_base<Task>::get_allow_NaN() const {
     return impl_->allowNaN;
 }
 
