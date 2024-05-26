@@ -81,7 +81,7 @@ DAAL_EXPORT void _initializeSchedulerHandle()
     {
         globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
         tbb::task_arena {}.initialize();
-        isInitialized         = true;
+        isInitialized = true;
     }
 }
 

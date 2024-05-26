@@ -237,7 +237,7 @@ thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &
 {
     pinner_arena.initialize();
     scheduler_handle = tbb::task_scheduler_handle(tbb::attach {});
-    do_pinning = (nthreads > 0) ? true : false;
+    do_pinning       = (nthreads > 0) ? true : false;
     is_pinning.set(0);
 
     read_topo(status, nthreads, max_threads, &cpu_queue);
