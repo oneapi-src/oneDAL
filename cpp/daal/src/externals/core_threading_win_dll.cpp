@@ -143,8 +143,8 @@ typedef void (*_daal_wait_task_group_t)(void * taskGroupPtr);
 
 typedef bool (*_daal_is_in_parallel_t)();
 typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
-typedef void (*_daal_tbb_task_scheduler_handle_free_t)(void *& schedulerHandle);
-typedef void (*_initializeSchedulerHandle_t)(void **);
+typedef void (*_daal_tbb_task_scheduler_handle_free_t)();
+typedef void (*_initializeSchedulerHandle_t)();
 typedef size_t (*_setNumberOfThreads_t)(const size_t, void **);
 typedef void * (*_daal_threader_env_t)();
 
@@ -678,7 +678,7 @@ DAAL_EXPORT void _initializeSchedulerHandle()
     {
         _initializeSchedulerHandle_ptr = (_initializeSchedulerHandle_t)load_daal_thr_func("_initializeSchedulerHandle");
     }
-    _initializeSchedulerHandle_ptr(init);
+    _initializeSchedulerHandle_ptr();
 }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)

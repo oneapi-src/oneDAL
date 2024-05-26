@@ -146,7 +146,9 @@ DAAL_EXPORT void daal::services::Environment::releaseSchedulerHandle()
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
+#if defined(TARGET_X86_64)
     initSchedulerHandle();
+#endif
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -180,6 +182,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
+    isInit = true;
     initSchedulerHandle();
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }

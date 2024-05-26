@@ -203,7 +203,7 @@ inline void releaseGlobalControl_(void *& globalControl)
 
 inline void releaseSchedulerHandle_()
 {
-    return _daal_tbb_task_scheduler_handle_free();
+    // return _daal_tbb_task_scheduler_handle_free();
 }
 
 template <typename F>

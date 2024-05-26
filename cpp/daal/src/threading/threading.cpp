@@ -70,7 +70,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    globalSchedulerHandle.reset();
+    // globalSchedulerHandle.reset();
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
@@ -79,8 +79,8 @@ DAAL_EXPORT void _initializeSchedulerHandle()
     tbb::spin_mutex::scoped_lock lock(mt);
     if (!isInitialized)
     {
-        tbb::task_arena {}.initialize();
         globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
+        tbb::task_arena {}.initialize();
         isInitialized         = true;
     }
 }

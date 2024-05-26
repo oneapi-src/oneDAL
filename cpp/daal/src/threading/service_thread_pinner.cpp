@@ -202,6 +202,7 @@ class thread_pinner_impl_t : public tbb::task_scheduler_observer
     bool do_pinning;
     AtomicInt is_pinning;
     tbb::enumerable_thread_specific<cpu_mask_t *> thread_mask;
+    tbb::task_scheduler_handle scheduler_handle;
     tbb::task_arena pinner_arena;
     void (*topo_deleter)(void *);
 
@@ -235,6 +236,7 @@ thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &
     : pinner_arena(nthreads = daal::threader_get_threads_number()), tbb::task_scheduler_observer(pinner_arena), topo_deleter(deleter)
 {
     pinner_arena.initialize();
+    scheduler_handle = tbb::task_scheduler_handle(tbb::attach {});
     do_pinning = (nthreads > 0) ? true : false;
     is_pinning.set(0);
 
