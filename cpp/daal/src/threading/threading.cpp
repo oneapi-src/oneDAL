@@ -24,7 +24,7 @@
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
 #include "src/algorithms/service_qsort.h"
-#include <iostream>
+
 #define TBB_PREVIEW_GLOBAL_CONTROL 1
 #define TBB_PREVIEW_TASK_ARENA     1
 
@@ -42,8 +42,8 @@
 
 using namespace daal::services;
 
-static std::unique_ptr<tbb::task_scheduler_handle> globalSchedulerHandle = nullptr;
-static bool isInitialized                                                = false;
+static tbb::task_scheduler_handle globalSchedulerHandle;
+static bool isInitialized = false;
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
@@ -70,7 +70,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
-    // globalSchedulerHandle.reset();
+    globalSchedulerHandle.release();
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
@@ -79,7 +79,7 @@ DAAL_EXPORT void _initializeSchedulerHandle()
     tbb::spin_mutex::scoped_lock lock(mt);
     if (!isInitialized)
     {
-        globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
+        globalSchedulerHandle = tbb::task_scheduler_handle(tbb::attach {});
         tbb::task_arena {}.initialize();
         isInitialized = true;
     }
@@ -91,11 +91,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
-        if (*globalControl != nullptr)
-        {
-            delete reinterpret_cast<tbb::global_control *>(*globalControl);
-            *globalControl = nullptr;
-        }
+        _daal_tbb_task_scheduler_free(*globalControl);
         *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
