@@ -190,11 +190,8 @@ private:
 
     void _cpu_detect(int);
     void initNumberOfThreads();
-    void initSchedulerHandle();
-    void releaseSchedulerHandle();
-    void releaseGlobalControl();
-    env _env;
 
+    env _env;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
