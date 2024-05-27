@@ -29,14 +29,6 @@
 static HMODULE daal_thr_dll_handle = NULL;
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
-#define __GLUE__(a, b) a##b
-
-#ifdef _DEBUG
-    #define _DLL_SUFFIX(name) __GLUE__(name, "d.2.dll")
-#else
-    #define _DLL_SUFFIX(name) __GLUE__(name, ".2.dll")
-#endif
-
 #define DAAL_LOAD_DLL(name) _daal_load_win_dynamic_lib(name)
 
 DAAL_EXPORT HMODULE load_onedal_thread_dll()
