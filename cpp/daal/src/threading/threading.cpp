@@ -66,7 +66,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
-    tbb::finalize(*globalSchedulerHandle, std::nothrow);
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
