@@ -66,13 +66,19 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
-    tbb::finalize(*globalSchedulerHandle, std::nothrow);
+    std::mutex global_mutex;
+    std::lock_guard<std::mutex> guard(global_mutex);
+    if (isInitialized)
+    {
+        tbb::finalize(*globalSchedulerHandle, std::nothrow);
+    }
+    globalSchedulerHandle = nullptr;
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
 {
-    static tbb::spin_mutex mt_;
-    tbb::spin_mutex::scoped_lock lock(mt_);
+    std::mutex global_mutex;
+    std::lock_guard<std::mutex> guard(global_mutex);
     if (!isInitialized)
     {
         tbb::task_arena {}.initialize();
