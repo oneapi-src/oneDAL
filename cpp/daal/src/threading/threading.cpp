@@ -42,7 +42,7 @@
 
 using namespace daal::services;
 
-static std::unique_ptr<tbb::task_scheduler_handle> globalSchedulerHandle = nullptr;
+static std::shared_ptr<tbb::task_scheduler_handle> globalSchedulerHandle = nullptr;
 static bool isInitialized                                                = false;
 
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
@@ -66,6 +66,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
+    tbb::finalize(*globalSchedulerHandle, std::nothrow);
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
@@ -75,7 +76,7 @@ DAAL_EXPORT void _initializeSchedulerHandle()
     if (!isInitialized)
     {
         tbb::task_arena {}.initialize();
-        globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
+        globalSchedulerHandle = std::make_shared<oneapi::tbb::task_scheduler_handle>(tbb::attach {});
         isInitialized         = true;
     }
 }
