@@ -65,7 +65,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
-    globalSchedulerHandle.reset();
+    globalSchedulerHandle->release();
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
