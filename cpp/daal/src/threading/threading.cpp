@@ -24,6 +24,7 @@
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
 #include "src/algorithms/service_qsort.h"
+
 #define TBB_PREVIEW_GLOBAL_CONTROL 1
 #define TBB_PREVIEW_TASK_ARENA     1
 
@@ -65,7 +66,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free()
 {
-    globalSchedulerHandle->release();
+    tbb::finalize(*globalSchedulerHandle, std::nothrow);
 }
 
 DAAL_EXPORT void _initializeSchedulerHandle()
@@ -74,9 +75,9 @@ DAAL_EXPORT void _initializeSchedulerHandle()
     tbb::spin_mutex::scoped_lock lock(mt_);
     if (!isInitialized)
     {
-        globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
         tbb::task_arena {}.initialize();
-        isInitialized = true;
+        globalSchedulerHandle = std::unique_ptr<tbb::task_scheduler_handle>(new tbb::task_scheduler_handle(tbb::attach {}));
+        isInitialized         = true;
     }
 }
 

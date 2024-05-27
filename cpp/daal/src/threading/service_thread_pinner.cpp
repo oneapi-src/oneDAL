@@ -202,8 +202,8 @@ class thread_pinner_impl_t : public tbb::task_scheduler_observer
     bool do_pinning;
     AtomicInt is_pinning;
     tbb::enumerable_thread_specific<cpu_mask_t *> thread_mask;
-    tbb::task_scheduler_handle scheduler_handle;
     tbb::task_arena pinner_arena;
+    tbb::task_scheduler_handle scheduler_handle;
     void (*topo_deleter)(void *);
 
 public:
