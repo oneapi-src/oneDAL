@@ -196,16 +196,6 @@ inline void initializeSchedulerHandle()
     return _initializeSchedulerHandle();
 }
 
-inline void releaseGlobalControl_(void *& globalControl)
-{
-    return _daal_tbb_task_scheduler_free(globalControl);
-}
-
-inline void releaseSchedulerHandle_()
-{
-    return _daal_tbb_task_scheduler_handle_free();
-}
-
 template <typename F>
 inline void threader_func(int i, const void * a)
 {

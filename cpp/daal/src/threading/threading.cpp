@@ -57,7 +57,7 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-    if (globalControl != nullptr)
+    if (globalControl)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
         globalControl = nullptr;
