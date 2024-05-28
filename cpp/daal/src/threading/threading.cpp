@@ -69,7 +69,15 @@ DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
     std::lock_guard<std::mutex> guard(global_mutex);
     if (!isInitialized)
     {
+#if (TBB_INTERFACE_VERSION < 12000)
+        *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_init > ());
+#elif (TBB_INTERFACE_VERSION < 12060)
+        *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle > (oneapi::tbb::task_scheduler_handle::get()));
+#else
         *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+#endif
+        *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+        isInitialized    = true;
     }
 }
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle)
@@ -77,9 +85,9 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandl
     std::lock_guard<std::mutex> guard(global_mutex);
     if (schedulerHandle)
     {
-        tbb::task_scheduler_handle * handle = static_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+        std::unique_ptr<tbb::task_scheduler_handle> handle(static_cast<tbb::task_scheduler_handle *>(schedulerHandle));
         tbb::finalize(*handle, std::nothrow);
-        delete handle;
+        handle.reset();
         schedulerHandle = nullptr;
     }
 }
@@ -90,9 +98,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
-#if defined(TARGET_X86_64)
         _initializeSchedulerHandle(schedulerHandle);
-#endif
         _daal_tbb_task_scheduler_free(*globalControl);
         *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
