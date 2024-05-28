@@ -34,14 +34,10 @@ namespace interop = dal::backend::interop;
 
 template <typename Float>
 static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, const table& x) {
-    bool result;
     const auto daal_x = interop::convert_to_daal_table<Float>(x);
 
-    interop::status_to_exception(
-        daal::data_management::internal::allValuesAreFinite<Float>(daal_x.get(),
-                                                                   desc.get_allow_NaN(),
-                                                                   &result));
-    return result;
+    return daal::data_management::internal::allValuesAreFinite<Float>(daal_x.get(),
+                                                                   desc.get_allow_NaN());
 }
 
 template <typename Float>
