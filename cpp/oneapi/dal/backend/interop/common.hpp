@@ -75,4 +75,54 @@ inline auto call_daal_kernel_finalize_compute(const context_cpu& ctx, Args&&... 
     });
 }
 
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_compute_eigen_values(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().computeEigenValues(
+            std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_compute_correlation_eigenvalues(const context_cpu& ctx,
+                                                             Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>()
+            .computeCorrelationEigenvalues(std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_sign_flip_eigenvectors(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().signFlipEigenvectors(
+            std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_compute_singular_values(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().computeSingularValues(
+            std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_compute_variances_from_cov(const context_cpu& ctx, Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>().computeVariancesFromCov(
+            std::forward<Args>(args)...);
+    });
+}
+
+template <typename Float, template <typename, daal::CpuType> typename CpuKernel, typename... Args>
+inline auto call_daal_kernel_compute_explained_variances_ratio(const context_cpu& ctx,
+                                                               Args&&... args) {
+    return dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+        return CpuKernel<Float, to_daal_cpu_type<decltype(cpu)>::value>()
+            .computeExplainedVariancesRatio(std::forward<Args>(args)...);
+    });
+}
+
 } // namespace oneapi::dal::backend::interop

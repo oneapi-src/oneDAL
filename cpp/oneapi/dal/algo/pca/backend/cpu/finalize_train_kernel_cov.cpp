@@ -125,63 +125,39 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
             &daal_parameter,
             &daal_hyperparameter));
 
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeCorrelationEigenvalues(
-                *daal_cor_matrix,
-                *daal_eigenvectors,
-                *daal_eigenvalues);
-        });
+    interop::status_to_exception(
+        interop::call_daal_kernel_compute_correlation_eigenvalues<Float, daal_pca_cor_kernel_t>(
+            ctx,
+            *daal_cor_matrix,
+            *daal_eigenvectors,
+            *daal_eigenvalues));
 
-        interop::status_to_exception(status);
+    if (desc.get_deterministic()) {
+        interop::status_to_exception(
+            interop::call_daal_kernel_sign_flip_eigenvectors<Float, daal_pca_cor_kernel_t>(
+                ctx,
+                *daal_eigenvectors));
     }
 
-    {
-        if (desc.get_deterministic()) {
-            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-                return daal_pca_cor_kernel_t<Float, cpu_type>().signFlipEigenvectors(
-                    *daal_eigenvectors);
-            });
+    interop::status_to_exception(
+        interop::call_daal_kernel_compute_singular_values<Float, daal_pca_cor_kernel_t>(
+            ctx,
+            *daal_eigenvalues,
+            *daal_singular_values,
+            row_count));
 
-            interop::status_to_exception(status);
-        }
-    }
+    interop::status_to_exception(
+        interop::call_daal_kernel_compute_variances_from_cov<Float, daal_pca_cor_kernel_t>(
+            ctx,
+            *daal_cor_matrix,
+            *daal_variances));
 
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeSingularValues(
-                *daal_eigenvalues,
-                *daal_singular_values,
-                row_count);
-        });
-
-        interop::status_to_exception(status);
-    }
-
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeVariancesFromCov(
-                *daal_cor_matrix,
-                *daal_variances);
-        });
-        interop::status_to_exception(status);
-    }
-
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_pca_cor_kernel_t<Float, cpu_type>().computeExplainedVariancesRatio(
-                *daal_eigenvalues,
-                *daal_variances,
-                *daal_explained_variances_ratio);
-        });
-
-        interop::status_to_exception(status);
-    }
+    interop::status_to_exception(
+        interop::call_daal_kernel_compute_explained_variances_ratio<Float, daal_pca_cor_kernel_t>(
+            ctx,
+            *daal_eigenvalues,
+            *daal_variances,
+            *daal_explained_variances_ratio));
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
         result.set_eigenvectors(homogen_table::wrap(arr_eigvec, component_count, column_count));
