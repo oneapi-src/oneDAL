@@ -19,7 +19,7 @@ rem %1 - Make target
 rem %2 - Compiler
 rem %3 - Instruction set
 
-set exitcode=0
+set errorcode=0
 for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
 echo CPUCOUNT=%CPUCOUNT%
 
@@ -27,19 +27,19 @@ echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 
 echo pacman -S --noconfirm msys/make msys/dos2unix
-pacman -S --noconfirm msys/make msys/dos2unix || set exitcode=1
+pacman -S --noconfirm msys/make msys/dos2unix || set errorcode=1
 
 echo call .ci\env\tbb.bat
-call .ci\env\tbb.bat || set exitcode=1
+call .ci\env\tbb.bat || set errorcode=1
 
 echo call .\dev\download_micromkl.bat
-call .\dev\download_micromkl.bat || set exitcode=1
+call .\dev\download_micromkl.bat || set errorcode=1
 
 echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set exitcode=1
+call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
 
 echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
-make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3 || set exitcode=1
+make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
 
-cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake || set exitcode=1
-EXIT /B %exitcode%
+cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake || set errorcode=1
+EXIT /B %errorcode%
