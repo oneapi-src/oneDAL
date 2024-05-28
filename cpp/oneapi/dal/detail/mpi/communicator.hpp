@@ -24,7 +24,6 @@
 #include <dlfcn.h>
 #include <string>
 #include <sstream>
-#include <stdio.h>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 
@@ -193,10 +192,6 @@ public:
 
         bool result = query_ze_support_ptr();
         dlclose(handle);
-        printf("Result: %s.\n", result ? "true" : "false");
-        if (!result) {
-            throw std::runtime_error("NOT SUPPORTING");
-        }
 
         return result;
     }
@@ -358,8 +353,6 @@ public:
         MPI_Status status;
         constexpr int zero_tag = 0;
 
-        printf("dst GPU buffer address: %p.\n", (void*)buf);
-        printf("src GPU buffer address: %p.\n", (void*)recv_buf);
         // Trying MPI_Sendrecv with 2 buffers to check perf
         mpi_call(MPI_Sendrecv(buf,
                               integral_cast<int>(count),

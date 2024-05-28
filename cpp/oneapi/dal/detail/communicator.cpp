@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <stdio.h>
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
@@ -245,8 +244,6 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
             recv_buf = sycl::malloc_device<byte_t>(size, q);
             initialized = true;
         }
-        printf("detail dst GPU buffer address: %p.\n", (void*)buf);
-        printf("detail src GPU buffer address: %p.\n", (void*)recv_buf);
         wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank, recv_buf));
         q.memcpy(buf, recv_buf, size).wait();
     }
