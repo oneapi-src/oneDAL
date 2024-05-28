@@ -62,8 +62,13 @@ template <typename Float, typename Method>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     constexpr bool is_random_dense = std::is_same_v<Method, method::random_dense>;
     constexpr bool is_plus_plus_dense = std::is_same_v<Method, method::plus_plus_dense>;
+    constexpr bool is_random_csr = std::is_same_v<Method, method::random_csr>;
+    constexpr bool is_plus_plus_csr = std::is_same_v<Method, method::plus_plus_csr>;
     using distr_t = compute_kernel_distr<Float, Method, task_t>;
     if constexpr (is_random_dense || is_plus_plus_dense) {
+        return distr_t{}(ctx, desc, input);
+    }
+    else if constexpr (is_random_csr || is_plus_plus_csr) {
         return distr_t{}(ctx, desc, input);
     }
     else {
@@ -84,8 +89,12 @@ template struct compute_kernel_gpu<float, method::dense, task::init>;
 template struct compute_kernel_gpu<double, method::dense, task::init>;
 template struct compute_kernel_gpu<float, method::random_dense, task::init>;
 template struct compute_kernel_gpu<double, method::random_dense, task::init>;
+template struct compute_kernel_gpu<float, method::random_csr, task::init>;
+template struct compute_kernel_gpu<double, method::random_csr, task::init>;
 template struct compute_kernel_gpu<float, method::plus_plus_dense, task::init>;
 template struct compute_kernel_gpu<double, method::plus_plus_dense, task::init>;
+template struct compute_kernel_gpu<float, method::plus_plus_csr, task::init>;
+template struct compute_kernel_gpu<double, method::plus_plus_csr, task::init>;
 template struct compute_kernel_gpu<float, method::parallel_plus_dense, task::init>;
 template struct compute_kernel_gpu<double, method::parallel_plus_dense, task::init>;
 
