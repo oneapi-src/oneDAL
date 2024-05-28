@@ -63,6 +63,19 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
     }
 }
 
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle)
+{
+    std::mutex global_mutex;
+    std::lock_guard<std::mutex> guard(global_mutex);
+    if (schedulerHandle)
+    {
+        tbb::task_scheduler_handle * handle = static_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+        tbb::finalize(*handle, std::nothrow);
+        delete handle;
+        schedulerHandle = nullptr;
+    }
+}
+
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
     std::mutex global_mutex;
