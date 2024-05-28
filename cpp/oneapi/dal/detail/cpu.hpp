@@ -50,6 +50,7 @@ enum class cpu_extension : uint64_t {
 #endif
 };
 
+cpu_extension from_daal_cpu_type(int);
 cpu_extension detect_top_cpu_extension();
 
 } // namespace v1

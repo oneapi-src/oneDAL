@@ -15,7 +15,7 @@
 * limitations under the License.
 *******************************************************************************/-->
 
-# oneAPI Data Analytics Library <!-- omit in toc --> <img align="right" width="100" height="100" src="https://spec.oneapi.io/oneapi-logo-white-scaled.jpg">
+# oneAPI Data Analytics Library <!-- omit in toc --> <img align="right" width="200" height="100" src="https://raw.githubusercontent.com/uxlfoundation/artwork/e98f1a7a3d305c582d02c5f532e41487b710d470/foundation/uxl-foundation-logo-horizontal-color.svg">
 
 [Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Support](#support)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
@@ -25,7 +25,7 @@ oneAPI Data Analytics Library (oneDAL) is a powerful machine learning library th
 
 The library implements classical machine learning algorithms. The boost in their performance is achieved by leveraging the capabilities of Intel&reg; hardware.
 
-oneDAL is part of [oneAPI](https://oneapi.io). The current branch implements version 1.1 of oneAPI Specification.
+The oneDAL is part of the [UXL Foundation](http://www.uxlfoundation.org) and is an implementation of the [oneAPI specification](https://spec.oneapi.io) for oneDAL component.
 
 ## Usage
 
@@ -92,6 +92,15 @@ oneDAL K-Means fit, strong scaling result | oneDAL K-Means fit, weak scaling res
 ![](docs/readme-charts/Intel%20oneDAL%20KMeans%20strong%20scaling.png)  |   ![](docs/readme-charts/intel%20oneDAL%20KMeans%20weak%20scaling.png)
 
 >*Technical details: FPType: float32; HW: Intel Xeon Processor E5-2698 v3 @2.3GHz, 2 sockets, 16 cores per socket; SW: Intel® DAAL (2019.3), MPI4Py (3.0.0), Intel® Distribution Of Python (IDP) 3.6.8; Details available in the article https://arxiv.org/abs/1909.11822*
+
+## Governance
+
+The oneDAL project is governed by the UXL Foundation and you can get involved in this project in multiple ways. It is possible to join the [AI Special Interest Group (SIG)](https://github.com/uxlfoundation/foundation/tree/main/ai) meetings where the group discuss and demonstrates work using this project. Members can also join the Open Source and Specification Working Group meetings.
+
+You can also join the mailing lists for the [UXL Foundation](https://lists.uxlfoundation.org/g/main/subgroups) to be informed of when meetings are happening and receive the latest information and discussions.
+
+You can contribute to this project and also contribute to the specification for this project, read the [CONTRIBUTING](CONTRIBUTING.md) page for more information.
+
 
 ## Support
 
