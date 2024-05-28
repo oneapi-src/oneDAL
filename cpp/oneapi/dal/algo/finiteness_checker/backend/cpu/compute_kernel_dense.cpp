@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <daal/src/data_management/data/internal/finiteness_checker.h>
+#include <daal/include/data_management/data/internal/finiteness_checker.h>
 
 #include "oneapi/dal/algo/finiteness_checker/backend/cpu/compute_kernel.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
