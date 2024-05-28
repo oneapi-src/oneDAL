@@ -69,13 +69,6 @@ DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
     std::lock_guard<std::mutex> guard(global_mutex);
     if (!isInitialized)
     {
-#if (TBB_INTERFACE_VERSION < 12000)
-        *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_init > ());
-#elif (TBB_INTERFACE_VERSION < 12060)
-        *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle > (oneapi::tbb::task_scheduler_handle::get()));
-#else
-        *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
-#endif
         *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
         isInitialized    = true;
     }
