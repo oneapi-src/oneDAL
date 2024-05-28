@@ -42,6 +42,8 @@
 
 using namespace daal::services;
 
+static std::mutex global_mutex;
+
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
     return scalable_aligned_malloc(size, alignment);
@@ -54,7 +56,6 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-    std::mutex global_mutex;
     std::lock_guard<std::mutex> guard(global_mutex);
     if (globalControl)
     {
@@ -65,7 +66,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle)
 {
-    std::mutex global_mutex;
     std::lock_guard<std::mutex> guard(global_mutex);
     if (schedulerHandle)
     {

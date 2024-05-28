@@ -682,7 +682,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& init)
     _daal_tbb_task_scheduler_handle_free_ptr(init);
 }
 
-DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& init)
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
 {
     if (init == NULL)
     {
