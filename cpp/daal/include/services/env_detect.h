@@ -192,6 +192,7 @@ private:
     void initNumberOfThreads();
 
     env _env;
+    void * _schedulerHandle;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };

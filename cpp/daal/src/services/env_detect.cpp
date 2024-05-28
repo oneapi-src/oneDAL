@@ -119,7 +119,7 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
@@ -132,9 +132,6 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
 
-#if defined(TARGET_X86_64)
-    initializeSchedulerHandle();
-#endif
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -154,7 +151,7 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
-    _daal_tbb_task_scheduler_handle_free();
+    _daal_tbb_task_scheduler_handle_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -169,10 +166,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-#if defined(TARGET_X86_64)
-    initializeSchedulerHandle();
-#endif
-    daal::setNumberOfThreads(numThreads, &_globalControl);
+    daal::setNumberOfThreads(numThreads, &_globalControl, &_schedulerHandle);
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const
