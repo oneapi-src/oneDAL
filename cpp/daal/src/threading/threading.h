@@ -105,6 +105,7 @@ extern "C"
     DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle);
     DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle);
     DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle);
+    DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle);
 
     DAAL_EXPORT void * _daal_threader_env();
 
@@ -183,6 +184,11 @@ inline ThreaderEnvironment * threader_env()
 inline size_t threader_get_threads_number()
 {
     return threader_env()->getNumberOfThreads();
+}
+
+inline void initializeSchedulerHandle(void ** schedulerHandle)
+{
+    _initializeSchedulerHandle(schedulerHandle);
 }
 
 inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle)

@@ -145,7 +145,8 @@ typedef bool (*_daal_is_in_parallel_t)();
 typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
 typedef void (*_daal_tbb_task_scheduler_handle_free_t)(void *& schedulerHandle);
 typedef void (*_daal_tbb_task_scheduler_handle_finalize_t)(void *& schedulerHandle);
-typedef size_t (*_setNumberOfThreads_t)(const size_t, void **);
+typedef size_t (*_setNumberOfThreads_t)(const size_t, void **, void **);
+typedef void (*_initializeSchedulerHandle_t)(void **);
 typedef void * (*_daal_threader_env_t)();
 
 typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
@@ -211,6 +212,7 @@ static _daal_is_in_parallel_t _daal_is_in_parallel_ptr                          
 static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr                       = NULL;
 static _daal_tbb_task_scheduler_handle_free_t _daal_tbb_task_scheduler_handle_free_ptr         = NULL;
 static _daal_tbb_task_scheduler_handle_finalize_t _daal_tbb_task_scheduler_handle_finalize_ptr = NULL;
+static _initializeSchedulerHandle_t _initializeSchedulerHandle_ptr                             = NULL;
 static _setNumberOfThreads_t _setNumberOfThreads_ptr                                           = NULL;
 static _daal_threader_env_t _daal_threader_env_ptr                                             = NULL;
 
@@ -320,6 +322,16 @@ DAAL_EXPORT void _daal_parallel_sort_uint64(size_t * begin_ptr, size_t * end_ptr
         _daal_parallel_sort_uint64_ptr = (_daal_parallel_sort_uint64_t)load_daal_thr_func("_daal_parallel_sort_uint64");
     }
     _daal_parallel_sort_uint64_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _initializeSchedulerHandle(void ** init)
+{
+    load_daal_thr_dll();
+    if (_initializeSchedulerHandle_ptr == NULL)
+    {
+        _initializeSchedulerHandle_ptr = (_initializeSchedulerHandle_t)load_daal_thr_func("_initializeSchedulerHandle");
+    }
+    _initializeSchedulerHandle_ptr(init);
 }
 
 DAAL_EXPORT void _daal_parallel_sort_pair_int32_uint64(daal::IdxValType<int> * begin_ptr, daal::IdxValType<int> * end_ptr)
@@ -702,14 +714,14 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& init)
     _daal_tbb_task_scheduler_handle_free_ptr(init);
 }
 
-DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
+DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init, void ** schedulerHandle)
 {
     load_daal_thr_dll();
     if (_setNumberOfThreads_ptr == NULL)
     {
         _setNumberOfThreads_ptr = (_setNumberOfThreads_t)load_daal_thr_func("_setNumberOfThreads");
     }
-    return _setNumberOfThreads_ptr(numThreads, init);
+    return _setNumberOfThreads_ptr(numThreads, init, schedulerHandle);
 }
 
 DAAL_EXPORT void * _daal_threader_env()
