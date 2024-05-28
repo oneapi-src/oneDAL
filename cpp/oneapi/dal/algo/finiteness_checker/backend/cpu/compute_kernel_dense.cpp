@@ -38,9 +38,9 @@ static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, c
     const auto daal_x = interop::convert_to_daal_table<Float>(x);
 
     interop::status_to_exception(
-        daal::data_management::internal::allValuesAreFinite<Float>(daal_x.get(),
-                                                                   desc.get_allow_NaN(),
-                                                                   &result));
+        daal::data_management::internal::allValuesAreFinite(daal_x.get(),
+                                                            desc.get_allow_NaN(),
+                                                            &result));
     return result;
 }
 
