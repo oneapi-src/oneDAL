@@ -501,7 +501,7 @@ auto thread_communicator_impl<MemoryAccessKind>::sendrecv_replace(byte_t* buf,
                                                                   const data_type& dtype,
                                                                   std::int64_t destination_rank,
                                                                   std::int64_t source_rank,
-                                                                  byte_t* recv_buf = nullptr)
+                                                                  byte_t* recv_buf)
     -> request_t* {
     collective_operation_guard guard{ ctx_ };
     sendrecv_replace_(buf, count, dtype, destination_rank, source_rank);
