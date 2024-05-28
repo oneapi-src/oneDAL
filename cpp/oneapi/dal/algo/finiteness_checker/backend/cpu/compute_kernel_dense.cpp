@@ -36,7 +36,7 @@ template <typename Float>
 static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, const table& x) {
     const auto daal_x = interop::convert_to_daal_table<Float>(x);
 
-    return daal::data_management::internal::allValuesAreFinite<Float>(daal_x.get(),
+    return daal::data_management::internal::allValuesAreFinite<Float>(*daal_x.get(),
                                                                    desc.get_allow_NaN());
 }
 
