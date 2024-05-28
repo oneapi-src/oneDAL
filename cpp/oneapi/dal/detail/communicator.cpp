@@ -14,6 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <stdio.h>
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
@@ -238,6 +239,8 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
 
     if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
+#ifdef MPICH_NAME
+        printf("MPICH_NAME Defined");
         static byte_t* recv_buf = nullptr;
         static bool initialized = false;
         if (!initialized) {
@@ -246,6 +249,10 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
         }
         wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank, recv_buf));
         q.memcpy(buf, recv_buf, size).wait();
+#else
+        printf("MPICH_NAME Not Defined");
+        wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
+#endif
     }
     else {
         ONEDAL_PROFILER_TASK(comm.srr_cpu, q);

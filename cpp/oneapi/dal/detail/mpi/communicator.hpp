@@ -24,6 +24,7 @@
 #include <dlfcn.h>
 #include <string>
 #include <sstream>
+#include <stdio.h>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 
@@ -305,35 +306,6 @@ public:
         }
     }
 
-    // spmd::request_iface* sendrecv_replace(byte_t* buf,
-    //                                       std::int64_t count,
-    //                                       const data_type& dtype,
-    //                                       std::int64_t destination_rank,
-    //                                       std::int64_t source_rank) override {
-    //     ONEDAL_ASSERT(destination_rank >= 0);
-    //     ONEDAL_ASSERT(source_rank >= 0);
-
-    //     if (count == 0) {
-    //         return nullptr;
-    //     }
-
-    //     ONEDAL_ASSERT(buf);
-    //     ONEDAL_ASSERT(count > 0);
-
-    //     MPI_Status status;
-    //     constexpr int zero_tag = 0;
-    //     mpi_call(MPI_Sendrecv_replace(buf,
-    //                                   integral_cast<int>(count),
-    //                                   make_mpi_data_type(dtype),
-    //                                   integral_cast<int>(destination_rank),
-    //                                   zero_tag,
-    //                                   integral_cast<int>(source_rank),
-    //                                   zero_tag,
-    //                                   mpi_comm_,
-    //                                   &status));
-    //     return nullptr;
-    // }
-
     spmd::request_iface* sendrecv_replace(byte_t* buf,
                                           std::int64_t count,
                                           const data_type& dtype,
@@ -353,19 +325,34 @@ public:
         MPI_Status status;
         constexpr int zero_tag = 0;
 
-        // Trying MPI_Sendrecv with 2 buffers to check perf
-        mpi_call(MPI_Sendrecv(buf,
-                              integral_cast<int>(count),
-                              make_mpi_data_type(dtype),
-                              integral_cast<int>(destination_rank),
-                              zero_tag,
-                              recv_buf,
-                              integral_cast<int>(count),
-                              make_mpi_data_type(dtype),
-                              integral_cast<int>(source_rank),
-                              zero_tag,
-                              mpi_comm_,
-                              &status));
+        #ifdef MPICH_NAME
+            printf("MPICH_NAME Defined");
+            // MPICH-specific workaround for GPU performance
+            mpi_call(MPI_Sendrecv(buf,
+                                integral_cast<int>(count),
+                                make_mpi_data_type(dtype),
+                                integral_cast<int>(destination_rank),
+                                zero_tag,
+                                recv_buf,
+                                integral_cast<int>(count),
+                                make_mpi_data_type(dtype),
+                                integral_cast<int>(source_rank),
+                                zero_tag,
+                                mpi_comm_,
+                                &status));
+        #else
+            printf("MPICH_NAME Not Defined");
+            // Standard call to sendrecv_replace of designated mpi backend
+            mpi_call(MPI_Sendrecv_replace(buf,
+                                        integral_cast<int>(count),
+                                        make_mpi_data_type(dtype),
+                                        integral_cast<int>(destination_rank),
+                                        zero_tag,
+                                        integral_cast<int>(source_rank),
+                                        zero_tag,
+                                        mpi_comm_,
+                                        &status));
+        #endif
         return nullptr;
     }
 
