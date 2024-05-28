@@ -40,7 +40,7 @@ bool compute_finiteness(sycl::queue& queue,
                             x_1d,
                             output,
                             pr::logical_or<Float>{},
-                            allowNaN ? pr::isinf<Float>{} : pr::isinfornan<Float>,
+                            allowNaN ? pr::isinf<Float>{} : pr::isinfornan<Float>{},
                             deps);
     }
     return static_cast<bool> out;
