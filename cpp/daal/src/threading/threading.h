@@ -102,7 +102,6 @@ extern "C"
     DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr);
 
     DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
-    DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle);
     DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle);
     DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle);
     DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle);

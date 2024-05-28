@@ -84,23 +84,15 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandl
     }
 }
 
-DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
-{
-    std::lock_guard<std::mutex> guard(global_mutex);
-    if (schedulerHandle)
-    {
-        delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
-        schedulerHandle = nullptr;
-    }
-}
-
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle)
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
+#if defined(TARGET_X86_64)
         _initializeSchedulerHandle(schedulerHandle);
+#endif
         _daal_tbb_task_scheduler_free(*globalControl);
         *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
