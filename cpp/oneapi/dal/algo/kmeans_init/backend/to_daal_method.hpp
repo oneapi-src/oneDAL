@@ -38,8 +38,16 @@ struct to_daal_method<method::random_dense> : daal_method_constant<daal_kmeans_i
 };
 
 template <>
+struct to_daal_method<method::random_csr> : daal_method_constant<daal_kmeans_init::randomCSR> {
+};
+
+template <>
 struct to_daal_method<method::plus_plus_dense>
         : daal_method_constant<daal_kmeans_init::plusPlusDense> {};
+
+template <>
+struct to_daal_method<method::plus_plus_csr>
+        : daal_method_constant<daal_kmeans_init::plusPlusCSR> {};
 
 template <>
 struct to_daal_method<method::parallel_plus_dense>
