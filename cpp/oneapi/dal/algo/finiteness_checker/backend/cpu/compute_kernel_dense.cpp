@@ -37,7 +37,7 @@ static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, c
     const auto daal_x = interop::convert_to_daal_table<Float>(x);
 
     return daal::data_management::internal::allValuesAreFinite<Float>(*daal_x.get(),
-                                                                   desc.get_allow_NaN());
+                                                                      desc.get_allow_NaN());
 }
 
 template <typename Float>
@@ -47,9 +47,7 @@ static bool compute(const context_cpu& ctx, const descriptor_t& desc, const inpu
 
 template <typename Float>
 struct compute_kernel_cpu<Float, method::dense, task::compute> {
-    bool operator()(const context_cpu& ctx,
-                    const descriptor_t& desc,
-                    const input_t& input) const {
+    bool operator()(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 
