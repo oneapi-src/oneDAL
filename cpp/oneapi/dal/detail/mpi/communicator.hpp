@@ -325,34 +325,34 @@ public:
         MPI_Status status;
         constexpr int zero_tag = 0;
 
-        #ifdef MPICH_NAME
-            printf("MPICH_NAME Defined");
-            // MPICH-specific workaround for GPU performance
-            mpi_call(MPI_Sendrecv(buf,
-                                integral_cast<int>(count),
-                                make_mpi_data_type(dtype),
-                                integral_cast<int>(destination_rank),
-                                zero_tag,
-                                recv_buf,
-                                integral_cast<int>(count),
-                                make_mpi_data_type(dtype),
-                                integral_cast<int>(source_rank),
-                                zero_tag,
-                                mpi_comm_,
-                                &status));
-        #else
-            printf("MPICH_NAME Not Defined");
-            // Standard call to sendrecv_replace of designated mpi backend
-            mpi_call(MPI_Sendrecv_replace(buf,
-                                        integral_cast<int>(count),
-                                        make_mpi_data_type(dtype),
-                                        integral_cast<int>(destination_rank),
-                                        zero_tag,
-                                        integral_cast<int>(source_rank),
-                                        zero_tag,
-                                        mpi_comm_,
-                                        &status));
-        #endif
+#ifdef MPICH_NAME
+        printf("MPICH_NAME Defined");
+        // MPICH-specific workaround for GPU performance
+        mpi_call(MPI_Sendrecv(buf,
+                              integral_cast<int>(count),
+                              make_mpi_data_type(dtype),
+                              integral_cast<int>(destination_rank),
+                              zero_tag,
+                              recv_buf,
+                              integral_cast<int>(count),
+                              make_mpi_data_type(dtype),
+                              integral_cast<int>(source_rank),
+                              zero_tag,
+                              mpi_comm_,
+                              &status));
+#else
+        printf("MPICH_NAME Not Defined");
+        // Standard call to sendrecv_replace of designated mpi backend
+        mpi_call(MPI_Sendrecv_replace(buf,
+                                      integral_cast<int>(count),
+                                      make_mpi_data_type(dtype),
+                                      integral_cast<int>(destination_rank),
+                                      zero_tag,
+                                      integral_cast<int>(source_rank),
+                                      zero_tag,
+                                      mpi_comm_,
+                                      &status));
+#endif
         return nullptr;
     }
 
