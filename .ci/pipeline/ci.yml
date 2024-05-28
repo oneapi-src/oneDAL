@@ -114,7 +114,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
+      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -363,7 +363,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gcc" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
+      key: '"gcc" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
