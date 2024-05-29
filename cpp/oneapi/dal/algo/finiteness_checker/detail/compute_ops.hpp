@@ -30,7 +30,10 @@ struct compute_ops_dispatcher {
                     const compute_input<Task>&) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const Context&, const descriptor_base<Task>& desc, const table& data, const bool&);
+    void operator()(const Context&,
+                    const descriptor_base<Task>& desc,
+                    const table& data,
+                    const bool&);
 #endif
 };
 
