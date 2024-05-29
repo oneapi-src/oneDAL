@@ -36,8 +36,11 @@ bool compute_finiteness(sycl::queue& queue,
 
     {
         ONEDAL_PROFILER_TASK(finiteness_checker.reduce, queue);
-            out =
-                pr::reduce_1d(queue, data_1d, pr::logical_or<Float>{}, allowNan ? pr::isinf<Float>{} : pr::isinfornan<Float>{}, deps);
+        out = pr::reduce_1d(queue,
+                            data_1d,
+                            pr::logical_or<Float>{},
+                            allowNan ? pr::isinf<Float>{} : pr::isinfornan<Float>{},
+                            deps);
     }
     return static_cast<bool>(out);
 }
@@ -57,7 +60,10 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const context_gpu& ctx, const descriptor_t& desc, const table& data, bool& res) {
+    void operator()(const context_gpu& ctx,
+                    const descriptor_t& desc,
+                    const table& data,
+                    bool& res) {
         auto& queue = ctx.get_queue();
         const auto data_1d = pr::table2ndarray_1d<Float>(queue, data, sycl::usm::alloc::device);
         res = compute_finiteness(queue, data_1d, desc.get_allow_NaN());
