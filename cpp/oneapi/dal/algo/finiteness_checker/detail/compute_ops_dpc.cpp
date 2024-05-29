@@ -38,12 +38,12 @@ struct compute_ops_dispatcher<data_parallel_policy, Float, Method, Task> {
 #ifdef ONEDAL_DATA_PARALLEL
     void operator()(const data_parallel_policy& ctx,
                     const descriptor_base<Task>& params,
-                    const table& x,
+                    const table& data,
                     bool& res) {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>),
             KERNEL_SINGLE_NODE_GPU(backend::compute_kernel_gpu<Float, Method, Task>)>;
-        kernel_dispatcher_t{}(ctx, params, x, res);
+        kernel_dispatcher_t{}(ctx, params, data, res);
     }
 #endif
 };

@@ -30,7 +30,7 @@ struct compute_ops_dispatcher {
                     const compute_input<Task>&) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const Context&, const descriptor_base<Task>& desc, const table& x, const bool&);
+    void operator()(const Context&, const descriptor_base<Task>& desc, const table& data, const bool&);
 #endif
 };
 
@@ -45,8 +45,8 @@ struct compute_ops {
     void check_preconditions(const Descriptor& params, const input_t& input) const {
         using msg = dal::detail::error_messages;
 
-        if (!input.get_x().has_data()) {
-            throw domain_error(msg::input_x_is_empty());
+        if (!input.get_data().has_data()) {
+            throw domain_error(msg::input_data_is_empty());
         }
     }
 
@@ -60,8 +60,8 @@ struct compute_ops {
 
 #ifdef ONEDAL_DATA_PARALLEL
     template <typename Context>
-    void operator()(const Context& ctx, const Descriptor& desc, const table& x, bool& res) {
-        compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, x, res);
+    void operator()(const Context& ctx, const Descriptor& desc, const table& data, bool& res) {
+        compute_ops_dispatcher<Context, float_t, method_t, task_t>()(ctx, desc, data, res);
     }
 #endif
 };

@@ -22,8 +22,8 @@ namespace oneapi::dal::finiteness_checker {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& x) : x(x) {}
-    table x;
+    compute_input_impl(const table& data) : data(data) {}
+    table data;
 };
 
 using detail::v1::compute_input_impl;
@@ -31,16 +31,16 @@ using detail::v1::compute_input_impl;
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& x) : impl_(new compute_input_impl<Task>(x)) {}
+compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
-const table& compute_input<Task>::get_x() const {
-    return impl_->x;
+const table& compute_input<Task>::get_data() const {
+    return impl_->data;
 }
 
 template <typename Task>
-void compute_input<Task>::set_x_impl(const table& value) {
-    impl_->x = value;
+void compute_input<Task>::set_data_impl(const table& value) {
+    impl_->data = value;
 }
 
 template class ONEDAL_EXPORT compute_input<task::compute>;

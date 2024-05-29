@@ -40,20 +40,19 @@ class compute_input : public base {
 public:
     using task_t = Task;
 
-    /// Creates a new instance of the class with the given :literal:`x`.
-    compute_input(const table& x);
+    /// Creates a new instance of the class with the given :literal:`data`.
+    compute_input(const table& data);
 
-    /// An $n \\times p$ table with the data x
     /// @remark default = table{}
-    const table& get_x() const;
+    const table& get_data() const;
 
-    auto& set_x(const table& data) {
-        set_x_impl(data);
+    auto& set_data(const table& data) {
+        set_data_impl(data);
         return *this;
     }
 
 protected:
-    void set_x_impl(const table& data);
+    void set_data_impl(const table& data);
 
 private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;

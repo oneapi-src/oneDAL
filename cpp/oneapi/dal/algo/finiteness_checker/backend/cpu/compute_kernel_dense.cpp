@@ -33,16 +33,16 @@ using descriptor_t = detail::descriptor_base<task::compute>;
 namespace interop = dal::backend::interop;
 
 template <typename Float>
-static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, const table& x) {
-    const auto daal_x = interop::convert_to_daal_table<Float>(x);
+static bool call_daal_kernel(const context_cpu& ctx, const descriptor_t& desc, const table& data) {
+    const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    return daal::data_management::internal::allValuesAreFinite<Float>(*daal_x.get(),
+    return daal::data_management::internal::allValuesAreFinite<Float>(*daal_data.get(),
                                                                       desc.get_allow_NaN());
 }
 
 template <typename Float>
 static bool compute(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return call_daal_kernel<Float>(ctx, desc, input.get_x());
+    return call_daal_kernel<Float>(ctx, desc, input.get_data());
 }
 
 template <typename Float>
@@ -54,7 +54,7 @@ struct compute_kernel_cpu<Float, method::dense, task::compute> {
 #ifdef ONEDAL_DATA_PARALLEL
     void operator()(const context_cpu& ctx,
                     const descriptor_t& desc,
-                    const table& x,
+                    const table& data,
                     bool& res) const {
         throw unimplemented(dal::detail::error_messages::method_not_implemented());
     }

@@ -31,7 +31,7 @@ struct compute_kernel_gpu {
 #ifdef ONEDAL_DATA_PARALLEL
     void operator()(const dal::backend::context_gpu& ctx,
                     const detail::descriptor_base<Task>& params,
-                    const table& x,
+                    const table& data,
                     bool& res);
 #endif
 };

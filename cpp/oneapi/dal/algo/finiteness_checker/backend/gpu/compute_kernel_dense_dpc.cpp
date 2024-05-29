@@ -29,7 +29,7 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 bool compute_finiteness(sycl::queue& queue,
-                        const pr::ndview<Float, 1>& x_1d,
+                        const pr::ndview<Float, 1>& data_1d,
                         bool allowNaN,
                         const dal::backend::event_vector& deps = {}) {
     Float out;
@@ -37,11 +37,11 @@ bool compute_finiteness(sycl::queue& queue,
     {
         ONEDAL_PROFILER_TASK(finiteness_checker.reduce, queue);
         if (allowNaN) {
-            out = pr::reduce_1d(queue, x_1d, pr::logical_or<Float>{}, pr::isinf<Float>{}, deps);
+            out = pr::reduce_1d(queue, data_1d, pr::logical_or<Float>{}, pr::isinf<Float>{}, deps);
         }
         else {
             out =
-                pr::reduce_1d(queue, x_1d, pr::logical_or<Float>{}, pr::isinfornan<Float>{}, deps);
+                pr::reduce_1d(queue, data_1d, pr::logical_or<Float>{}, pr::isinfornan<Float>{}, deps);
         }
     }
     return static_cast<bool>(out);
@@ -50,9 +50,9 @@ bool compute_finiteness(sycl::queue& queue,
 template <typename Float>
 static bool compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& queue = ctx.get_queue();
-    const auto x = input.get_x();
-    const auto x_1d = pr::table2ndarray_1d<Float>(queue, x, sycl::usm::alloc::device);
-    return compute_finiteness(queue, x_1d, desc.get_allow_NaN());
+    const auto data = input.get_data();
+    const auto data_1d = pr::table2ndarray_1d<Float>(queue, data, sycl::usm::alloc::device);
+    return compute_finiteness(queue, data_1d, desc.get_allow_NaN());
 }
 
 template <typename Float>
@@ -62,10 +62,10 @@ struct compute_kernel_gpu<Float, method::dense, task::compute> {
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    void operator()(const context_gpu& ctx, const descriptor_t& desc, const table& x, bool& res) {
+    void operator()(const context_gpu& ctx, const descriptor_t& desc, const table& data, bool& res) {
         auto& queue = ctx.get_queue();
-        const auto x_1d = pr::table2ndarray_1d<Float>(queue, x, sycl::usm::alloc::device);
-        res = compute_finiteness(queue, x_1d, desc.get_allow_NaN());
+        const auto data_1d = pr::table2ndarray_1d<Float>(queue, data, sycl::usm::alloc::device);
+        res = compute_finiteness(queue, data_1d, desc.get_allow_NaN());
     }
 #endif
 };

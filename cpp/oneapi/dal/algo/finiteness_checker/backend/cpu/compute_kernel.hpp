@@ -31,7 +31,7 @@ struct compute_kernel_cpu {
 #ifdef ONEDAL_DATA_PARALLEL
     void operator()(const dal::backend::context_cpu& ctx,
                     const detail::descriptor_base<Task>& params,
-                    const table& x,
+                    const table& data,
                     bool& res) const;
 #endif
 };
