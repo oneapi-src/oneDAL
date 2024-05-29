@@ -28,7 +28,6 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
-
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
@@ -51,10 +50,12 @@ void daal_free_buffers();
 }
 } // namespace daal
 
+std::mutex daal::services::Environment::_mutex;
 daal::services::Environment * daal::services::Environment::_instance = nullptr;
 
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
+    std::lock_guard<std::mutex> guard(_mutex);
     if (_instance == nullptr)
     {
         _instance = new Environment();
