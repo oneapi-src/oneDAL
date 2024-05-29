@@ -55,10 +55,14 @@ daal::services::Environment * daal::services::Environment::_instance = nullptr;
 
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    std::lock_guard<std::mutex> guard(_mutex);
+    //Double-Checked Locking
     if (_instance == nullptr)
     {
-        _instance = new Environment();
+        std::lock_guard<std::mutex> guard(_mutex);
+        if (_instance == nullptr)
+        {
+            _instance = new Environment();
+        }
     }
     return _instance;
 }
