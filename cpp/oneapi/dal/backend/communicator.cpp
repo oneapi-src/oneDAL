@@ -90,6 +90,10 @@ public:
         return false;
     }
 
+    bool use_sendrecv_replace_alternative() override {
+        return false;
+    }
+
     void barrier() override {}
 
     request_t* bcast(byte_t* send_buf,
@@ -154,6 +158,10 @@ public:
     }
 
     bool get_mpi_offload_support() override {
+        return false;
+    }
+
+    bool use_sendrecv_replace_alternative() override {
         return false;
     }
 

@@ -386,6 +386,10 @@ public:
         return false;
     }
 
+    bool use_sendrecv_replace_alternative() override {
+        return false;
+    }
+
     void barrier() override;
 
     request_t* bcast(byte_t* send_buf,

@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include <stdio.h>
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
@@ -239,20 +238,20 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
 
     if (gpu_offloading) {
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
-#ifdef MPICH_NAME
-        printf("MPICH_NAME Defined");
-        static byte_t* recv_buf = nullptr;
-        static bool initialized = false;
-        if (!initialized) {
-            recv_buf = sycl::malloc_device<byte_t>(size, q);
-            initialized = true;
+        const bool mpich_sendrecv = use_sendrecv_replace_alternative();
+        if (mpich_sendrecv) {
+            static byte_t* recv_buf = nullptr;
+            static bool initialized = false;
+            if (!initialized) {
+                recv_buf = sycl::malloc_device<byte_t>(size, q);
+                initialized = true;
+            }
+            wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank, recv_buf));
+            q.memcpy(buf, recv_buf, size).wait();
         }
-        wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank, recv_buf));
-        q.memcpy(buf, recv_buf, size).wait();
-#else
-        printf("MPICH_NAME Not Defined");
-        wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
-#endif
+        else {
+            wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
+        }
     }
     else {
         ONEDAL_PROFILER_TASK(comm.srr_cpu, q);

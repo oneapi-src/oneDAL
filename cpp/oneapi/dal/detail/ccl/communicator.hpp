@@ -333,6 +333,10 @@ public:
         return false;
     }
 
+    bool use_sendrecv_replace_alternative() override {
+        return false;
+    }
+
     void barrier() override {
         ccl::barrier(host_comm_->get_ref()).wait();
     }
