@@ -53,7 +53,7 @@ bool compute_finiteness(sycl::queue& queue,
                               deps);
         }
     }
-    return static_cast<bool> out;
+    return static_cast<bool>(out);
 }
 
 template <typename Float>
