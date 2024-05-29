@@ -38,7 +38,6 @@ bool compute_finiteness(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(finiteness_checker.reduce, queue);
             out =
                 pr::reduce_1d(queue, data_1d, pr::logical_or<Float>{}, allowNan ? pr::isinf<Float>{} : pr::isinfornan<Float>{}, deps);
-
     }
     return static_cast<bool>(out);
 }
