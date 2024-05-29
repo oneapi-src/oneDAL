@@ -196,7 +196,7 @@ private:
 
     void _cpu_detect(int);
     void initNumberOfThreads();
-
+    static Environment * _instance;
     env _env;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;

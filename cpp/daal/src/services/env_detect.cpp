@@ -51,10 +51,15 @@ void daal_free_buffers();
 }
 } // namespace daal
 
+daal::services::Environment * daal::services::Environment::_instance = nullptr;
+
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static daal::services::Environment instance;
-    return &instance;
+    if (_instance == nullptr)
+    {
+        _instance = new Environment();
+    }
+    return _instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
