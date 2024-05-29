@@ -27,16 +27,16 @@ echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 
 echo pacman -S --noconfirm msys/make msys/dos2unix
-pacman -S --noconfirm msys/make msys/dos2unix || set errorcode=1
+pacman -S --noconfirm msys/make msys/dos2unix
 
 echo call .ci\env\tbb.bat
-call .ci\env\tbb.bat || set errorcode=1
+call .ci\env\tbb.bat
 
 echo call .\dev\download_micromkl.bat
-call .\dev\download_micromkl.bat || set errorcode=1
+call .\dev\download_micromkl.bat
 
 echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
+call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 
 echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
 make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
