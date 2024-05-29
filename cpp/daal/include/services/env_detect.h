@@ -86,13 +86,6 @@ public:
     static Environment * getInstance();
 
     /**
-     *  Decreases the instance counter
-     *  \return The return code
-     *  \DAAL_DEPRECATED
-     */
-    DAAL_DEPRECATED static int freeInstance();
-
-    /**
      *  <a name="DAAL-ENUM-SERVICES__CPUTYPEENABLE"></a>
      *  \brief CPU types
      *  \DAAL_DEPRECATED
@@ -187,7 +180,7 @@ private:
     Environment(const Environment & e);
     Environment & operator=(const Environment &);
     ~Environment();
-
+    static Environment * _instance;
     void _cpu_detect(int);
     void initNumberOfThreads();
 

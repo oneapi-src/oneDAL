@@ -51,15 +51,15 @@ void daal_free_buffers();
 }
 } // namespace daal
 
+daal::services::Environment * daal::services::Environment::_instance = nullptr;
+
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static daal::services::Environment instance;
-    return &instance;
-}
-
-DAAL_EXPORT int daal::services::Environment::freeInstance()
-{
-    return 0;
+    if (_instance == nullptr)
+    {
+        _instance = new Environment();
+    }
+    return _instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
@@ -151,7 +151,7 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
-    // _daal_tbb_task_scheduler_handle_finalize(_schedulerHandle);
+    _daal_tbb_task_scheduler_handle_finalize(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
