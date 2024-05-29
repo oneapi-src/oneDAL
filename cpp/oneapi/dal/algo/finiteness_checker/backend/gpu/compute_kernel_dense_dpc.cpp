@@ -36,21 +36,12 @@ bool compute_finiteness(sycl::queue& queue,
 
     {
         ONEDAL_PROFILER_TASK(finiteness_checker.reduce, queue);
-        if(allowNaN)
-        {
-          out = pr::reduce_1d(queue,
-                              x_1d,
-                              pr::logical_or<Float>{},
-                              pr::isinf<Float>{},
-                              deps);
+        if (allowNaN) {
+            out = pr::reduce_1d(queue, x_1d, pr::logical_or<Float>{}, pr::isinf<Float>{}, deps);
         }
-        else
-        {
-          out = pr::reduce_1d(queue,
-                              x_1d,
-                              pr::logical_or<Float>{},
-                              pr::isinfornan<Float>{},
-                              deps);
+        else {
+            out =
+                pr::reduce_1d(queue, x_1d, pr::logical_or<Float>{}, pr::isinfornan<Float>{}, deps);
         }
     }
     return static_cast<bool>(out);
@@ -66,9 +57,7 @@ static bool compute(const context_gpu& ctx, const descriptor_t& desc, const inpu
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense, task::compute> {
-    bool operator()(const context_gpu& ctx,
-                    const descriptor_t& desc,
-                    const input_t& input) const {
+    bool operator()(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 
