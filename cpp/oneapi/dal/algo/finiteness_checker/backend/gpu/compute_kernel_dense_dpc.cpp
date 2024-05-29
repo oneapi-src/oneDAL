@@ -66,9 +66,9 @@ static bool compute(const context_gpu& ctx, const descriptor_t& desc, const inpu
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense, task::compute> {
-    result_t operator()(const context_gpu& ctx,
-                        const descriptor_t& desc,
-                        const input_t& input) const {
+    bool operator()(const context_gpu& ctx,
+                    const descriptor_t& desc,
+                    const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 
