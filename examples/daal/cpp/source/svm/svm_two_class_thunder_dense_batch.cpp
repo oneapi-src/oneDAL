@@ -29,7 +29,7 @@
 
 #include "daal.h"
 #include "service.h"
-
+#include <iostream>
 using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
@@ -54,11 +54,13 @@ void printResults();
 
 int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
-
+    std::cout << "here 1" << std::endl;
     trainModel();
+    std::cout << "here 2" << std::endl;
     testModel();
+    std::cout << "here 3" << std::endl;
     printResults();
-
+    std::cout << "here 4" << std::endl;
     return 0;
 }
 
@@ -67,29 +69,27 @@ void trainModel() {
     FileDataSource<CSVFeatureManager> trainDataSource(trainDatasetFileName,
                                                       DataSource::notAllocateNumericTable,
                                                       DataSource::doDictionaryFromContext);
-
+    std::cout << "here 11" << std::endl;
     /* Create Numeric Tables for training data and labels */
-    NumericTablePtr trainData =
-        HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    NumericTablePtr trainGroundTruth =
-        HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
-    NumericTablePtr mergedData = MergedNumericTable::create(trainData, trainGroundTruth);
-
+    NumericTablePtr trainData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
+    NumericTablePtr trainGroundTruth(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
+    NumericTablePtr mergedData(new MergedNumericTable(trainData, trainGroundTruth));
+    std::cout << "here 12" << std::endl;
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
-
+    std::cout << "here 13" << std::endl;
     /* Create an algorithm object to train the SVM model using the Thunder method */
     svm::training::Batch<float, svm::training::thunder> algorithm;
-
+    std::cout << "here 14" << std::endl;
     algorithm.parameter.kernel = kernel;
-
+    std::cout << "here 15" << std::endl;
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
     algorithm.input.set(classifier::training::labels, trainGroundTruth);
-
+    std::cout << "here 16" << std::endl;
     /* Build the SVM model */
     algorithm.compute();
-
+    std::cout << "here 17" << std::endl;
     /* Retrieve the algorithm results */
     trainingResult = algorithm.getResult();
 }
@@ -99,31 +99,33 @@ void testModel() {
     FileDataSource<CSVFeatureManager> testDataSource(testDatasetFileName,
                                                      DataSource::notAllocateNumericTable,
                                                      DataSource::doDictionaryFromContext);
-
+    std::cout << "here 18" << std::endl;
     /* Create Numeric Tables for testing data and labels */
-    NumericTablePtr testData =
-        HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
-    testGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
-    NumericTablePtr mergedData = MergedNumericTable::create(testData, testGroundTruth);
-
+    NumericTablePtr testData(new HomogenNumericTable<>(nFeatures, 0, NumericTable::doNotAllocate));
+    testGroundTruth = NumericTablePtr(new HomogenNumericTable<>(1, 0, NumericTable::doNotAllocate));
+    NumericTablePtr mergedData(new MergedNumericTable(testData, testGroundTruth));
+    std::cout << "here 19" << std::endl;
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());
-
+    std::cout << "here 20" << std::endl;
     /* Create an algorithm object to predict SVM values */
     svm::prediction::Batch<> algorithm;
+    std::cout << "here 21" << std::endl;
 
     algorithm.parameter.kernel = kernel;
+    std::cout << "here 22" << std::endl;
 
     /* Pass a testing data set and the trained model to the algorithm */
     algorithm.input.set(classifier::prediction::data, testData);
     algorithm.input.set(classifier::prediction::model,
                         trainingResult->get(classifier::training::model));
-
+    std::cout << "here 23" << std::endl;
     /* Predict SVM values */
     algorithm.compute();
-
+    std::cout << "here 24" << std::endl;
     /* Retrieve the algorithm results */
     predictionResult = algorithm.getResult();
+    std::cout << "here 25" << std::endl;
 }
 
 void printResults() {

@@ -28,7 +28,7 @@
 #include "services/base.h"
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
-#include <mutex>
+
 namespace daal
 {
 /**
@@ -180,7 +180,7 @@ private:
     Environment(const Environment & e);
     Environment & operator=(const Environment &);
     ~Environment();
-    static std::mutex _mutex;
+
     static Environment * _instance;
     void _cpu_detect(int);
     void initNumberOfThreads();
