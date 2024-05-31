@@ -97,16 +97,14 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         result.set_singular_values(homogen_table::wrap(reshaped_eigval, 1, component_count));
 
         if (desc.get_normalization_mode() == normalization::mean_center) {
-            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-                return daal_svd_kernel_t<Float, cpu_type>().computeEigenValues(
-                    *daal_singular_values,
-                    *daal_eigenvalues,
-                    rows_count_global);
-            });
-
-            interop::status_to_exception(status);
-            result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
+            interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                return daal_svd_kernel_t<
+                           Float,
+                           dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>()
+                    .computeEigenValues(*daal_singular_values,
+                                        *daal_eigenvalues,
+                                        rows_count_global);
+            }));
         }
         else {
             result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));

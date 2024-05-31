@@ -155,25 +155,19 @@ result_t call_daal_kernel_with_weights(const context_cpu& ctx,
         daal_result.set(daal_lom::ResultId::sumSquaresCentered,
                         daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered));
     }
-
-    {
-        const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-            constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-            return daal_lom_online_kernel_t<Float, cpu_type>{}.finalizeCompute(
-                daal_partial.get(daal_lom::PartialResultId::nObservations).get(),
-                daal_partial.get(daal_lom::PartialResultId::partialSum).get(),
-                daal_partial.get(daal_lom::PartialResultId::partialSumSquares).get(),
-                daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered).get(),
-                daal_result.get(daal_lom::ResultId::mean).get(),
-                daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
-                daal_result.get(daal_lom::ResultId::variance).get(),
-                daal_result.get(daal_lom::ResultId::standardDeviation).get(),
-                daal_result.get(daal_lom::ResultId::variation).get(),
-                &daal_parameter);
-        });
-
-        interop::status_to_exception(status);
-    }
+    interop::status_to_exception(
+        interop::call_daal_kernel_finalize_compute<Float, daal_lom_online_kernel_t>(
+            ctx,
+            daal_partial.get(daal_lom::PartialResultId::nObservations).get(),
+            daal_partial.get(daal_lom::PartialResultId::partialSum).get(),
+            daal_partial.get(daal_lom::PartialResultId::partialSumSquares).get(),
+            daal_partial.get(daal_lom::PartialResultId::partialSumSquaresCentered).get(),
+            daal_result.get(daal_lom::ResultId::mean).get(),
+            daal_result.get(daal_lom::ResultId::secondOrderRawMoment).get(),
+            daal_result.get(daal_lom::ResultId::variance).get(),
+            daal_result.get(daal_lom::ResultId::standardDeviation).get(),
+            daal_result.get(daal_lom::ResultId::variation).get(),
+            &daal_parameter));
 
     auto result =
         get_result<Float, task_t>(desc, daal_result).set_result_options(desc.get_result_options());

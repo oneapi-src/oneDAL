@@ -489,7 +489,6 @@ $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
-$(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
 
 $(eval $(call append_uarch_copt,$(CORE.objs_a)))
 
@@ -500,7 +499,6 @@ $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
-$(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
 
 $(eval $(call append_uarch_copt,$(CORE.objs_y)))
 
@@ -844,7 +842,6 @@ THR_TBB.objs := $(THR_TBB.objs_a) $(THR_TBB.objs_y)
 THR.objs := $(THR.objs_a) $(THR.objs_y)
 
 $(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
-$(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
 
 $(THR.objs_a): $(THR.tmpdir_a)/thr_inc_a_folders.txt
 $(THR.objs_a): COPT += @$(THR.tmpdir_a)/thr_inc_a_folders.txt
