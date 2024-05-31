@@ -43,14 +43,10 @@ std::string testLabelsFileName = "../data/batch/svm_multi_class_test_labels.csv"
 
 const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(
-    new svm::training::Batch<float, svm::training::boser>());
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 multi_class_classifier::training::ResultPtr trainingResult;
 multi_class_classifier::prediction::ResultPtr predictionResult;
-kernel_function::KernelIfacePtr kernel(
-    new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -65,7 +61,8 @@ int main(int argc, char* argv[]) {
                    &trainLabelsFileName,
                    &testDatasetFileName,
                    &testLabelsFileName);
-
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
     training->parameter.cacheSize = 100000000;
     training->parameter.kernel = kernel;
     prediction->parameter.kernel = kernel;
@@ -91,7 +88,10 @@ void trainModel() {
 
     /* Create an algorithm object to train the multi-class SVM model */
     multi_class_classifier::training::Batch<> algorithm(nClasses);
-
+    services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(
+        new svm::training::Batch<float, svm::training::boser>());
+    training->parameter.cacheSize = 100000000;
+    training->parameter.kernel = kernel;
     algorithm.parameter.training = training;
     algorithm.parameter.prediction = prediction;
 

@@ -41,13 +41,9 @@ std::string testDatasetFileName = "../data/batch/svm_multi_class_test_dense.csv"
 const size_t nFeatures = 20;
 const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
-    new svm::training::Batch<float, svm::training::thunder>());
-services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
-
 multi_class_classifier::training::ResultPtr trainingResult;
 multi_class_classifier::prediction::ResultPtr predictionResult;
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -79,10 +75,16 @@ void trainModel() {
     NumericTablePtr trainGroundTruth =
         HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData = MergedNumericTable::create(trainData, trainGroundTruth);
+    services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
+        new svm::training::Batch<float, svm::training::thunder>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+    training->parameter.kernel = kernel;
+    prediction->parameter.kernel = kernel;
 
     /* Retrieve the data from the input file */
     trainDataSource.loadDataBlock(mergedData.get());
-
     /* Create an algorithm object to train the multi-class SVM model */
     multi_class_classifier::training::Batch<> algorithm(nClasses);
 
@@ -111,7 +113,13 @@ void testModel() {
         HomogenNumericTable<>::create(nFeatures, 0, NumericTable::doNotAllocate);
     testGroundTruth = HomogenNumericTable<>::create(1, 0, NumericTable::doNotAllocate);
     NumericTablePtr mergedData = MergedNumericTable::create(testData, testGroundTruth);
+    services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
+        new svm::training::Batch<float, svm::training::thunder>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+    training->parameter.kernel = kernel;
+    prediction->parameter.kernel = kernel;
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());
 

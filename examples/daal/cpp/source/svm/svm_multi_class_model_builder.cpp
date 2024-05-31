@@ -47,7 +47,7 @@ const size_t nClasses = 3;
 services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
 classifier::prediction::ResultPtr predictionResult;
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+
 NumericTablePtr testGroundTruth;
 
 multi_class_classifier::ModelPtr buildModelFromTraining();
@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &testDatasetFileName);
 
     multi_class_classifier::ModelPtr builtModel = buildModelFromTraining();
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
     prediction->parameter.kernel = kernel;
     testModel(builtModel);
     return 0;

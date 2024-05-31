@@ -41,9 +41,6 @@ std::string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
 const size_t nFeatures = 20;
 const float bias = -0.562F;
 
-/* Parameters for the SVM kernel function */
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
-
 NumericTablePtr testGroundTruth;
 
 void testModel(svm::ModelPtr &);
@@ -123,6 +120,8 @@ void testModel(svm::ModelPtr &inputModel) {
     /* Create an algorithm object to predict SVM values */
     svm::prediction::Batch<float> algorithm;
 
+    /* Parameters for the SVM kernel function */
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
     algorithm.parameter.kernel = kernel;
 
     /* Pass a testing data set and the trained model to the algorithm */

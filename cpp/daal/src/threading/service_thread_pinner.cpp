@@ -337,13 +337,13 @@ DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &,
 {
     static bool pinner_created = false;
 
-    if (create_pinner == true || pinner_created == true)
+    if (create_pinner == true || pinner_created == false)
     {
-        static daal::services::internal::thread_pinner_t thread_pinner(read_topo, deleter);
-        if (thread_pinner.get_status() == 0)
+        static daal::services::internal::thread_pinner_t * thread_pinner = new daal::services::internal::thread_pinner_t(read_topo, deleter);
+        if (thread_pinner->get_status() == 0)
         {
             pinner_created = true;
-            return (void *)&thread_pinner;
+            return (void *)thread_pinner;
         }
     }
 

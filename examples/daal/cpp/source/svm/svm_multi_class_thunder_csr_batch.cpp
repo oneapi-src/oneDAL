@@ -43,14 +43,8 @@ std::string testLabelsFileName = "../data/batch/svm_multi_class_test_labels.csv"
 
 const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
-    new svm::training::Batch<float, svm::training::thunder>());
-services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
-
 multi_class_classifier::training::ResultPtr trainingResult;
 multi_class_classifier::prediction::ResultPtr predictionResult;
-kernel_function::KernelIfacePtr kernel(
-    new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
 NumericTablePtr testGroundTruth;
 
 void trainModel();
@@ -87,7 +81,13 @@ void trainModel() {
 
     /* Retrieve the data from the input file */
     trainLabelsDataSource.loadDataBlock();
-
+    services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
+        new svm::training::Batch<float, svm::training::thunder>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+    training->parameter.kernel = kernel;
+    prediction->parameter.kernel = kernel;
     /* Create an algorithm object to train the multi-class SVM model */
     multi_class_classifier::training::Batch<> algorithm(nClasses);
 
@@ -111,7 +111,13 @@ void testModel() {
 
     /* Create an algorithm object to predict multi-class SVM values */
     multi_class_classifier::prediction::Batch<> algorithm(nClasses);
-
+    services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
+        new svm::training::Batch<float, svm::training::thunder>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+    training->parameter.kernel = kernel;
+    prediction->parameter.kernel = kernel;
     algorithm.parameter.training = training;
     algorithm.parameter.prediction = prediction;
 

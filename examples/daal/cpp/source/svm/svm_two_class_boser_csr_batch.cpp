@@ -41,10 +41,6 @@ std::string trainLabelsFileName = "../data/batch/svm_two_class_train_labels.csv"
 std::string testDatasetFileName = "../data/batch/svm_two_class_test_csr.csv";
 std::string testLabelsFileName = "../data/batch/svm_two_class_test_labels.csv";
 
-/* Parameters for the SVM kernel function */
-kernel_function::KernelIfacePtr kernel(
-    new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
-
 /* Model object for the SVM algorithm */
 svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -84,7 +80,11 @@ void trainModel() {
     /* Create an algorithm object to train the SVM model */
     svm::training::Batch<float, svm::training::boser> algorithm;
 
+    /* Parameters for the SVM kernel function */
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
     algorithm.parameter.kernel = kernel;
+
     algorithm.parameter.cacheSize = 40000000;
 
     /* Pass a training data set and dependent values to the algorithm */
@@ -105,6 +105,9 @@ void testModel() {
     /* Create an algorithm object to predict SVM values */
     svm::prediction::Batch<> algorithm;
 
+    /* Parameters for the SVM kernel function */
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
     algorithm.parameter.kernel = kernel;
 
     /* Pass a testing data set and the trained model to the algorithm */
