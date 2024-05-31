@@ -78,7 +78,9 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandl
     std::lock_guard<std::mutex> guard(global_mutex);
     if (schedulerHandle)
     {
-        delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+        std::unique_ptr<tbb::task_scheduler_handle> handle(static_cast<tbb::task_scheduler_handle *>(schedulerHandle));
+        tbb::finalize(*handle, std::nothrow);
+        handle.reset();
         schedulerHandle = nullptr;
     }
 }

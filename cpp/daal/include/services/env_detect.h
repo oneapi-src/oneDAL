@@ -29,6 +29,8 @@
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
 
+#include <mutex>
+
 namespace daal
 {
 /**
@@ -182,6 +184,7 @@ private:
     ~Environment();
 
     static Environment * _instance;
+    static std::mutex _mutex;
     void _cpu_detect(int);
     void initNumberOfThreads();
 
