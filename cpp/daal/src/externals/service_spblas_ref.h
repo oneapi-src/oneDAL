@@ -41,7 +41,7 @@ struct RefSpBlas
     static void xcsrmultd(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, fpType * a, DAAL_INT * ja, DAAL_INT * ia,
                           fpType * b, DAAL_INT * jb, DAAL_INT * ib, fpType * c, DAAL_INT * ldc)
     {
-        if (*transa=='n' || *transa=='N')
+        if (*transa == 'n' || *transa == 'N')
         {
             csrmultd(m, n, k, a, ja, ia, b, jb, ib, c, ldc);
         }
@@ -51,60 +51,59 @@ struct RefSpBlas
         }
     }
 
-    static void csrmultd(const DAAL_INT *m, const DAAL_INT *n, const DAAL_INT *k, fpType *a, DAAL_INT *ja, DAAL_INT *ia,
-            fpType *b, DAAL_INT *jb, DAAL_INT *ib, fpType *c, DAAL_INT *ldc)
+    static void csrmultd(const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, fpType * a, DAAL_INT * ja, DAAL_INT * ia, fpType * b,
+                         DAAL_INT * jb, DAAL_INT * ib, fpType * c, DAAL_INT * ldc)
     {
         DAAL_INT indexing = 1; // 1-based indexing
         DAAL_INT row_b, row_c, col_c, val_ptr_a, val_ptr_b;
         fpType a_elt, b_elt;
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, *ldc, (*k)-1);
-        for(DAAL_INT col_c=0; col_c<*k; col_c++) //flush the matrix c
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, *ldc, (*k) - 1);
+        for (DAAL_INT col_c = 0; col_c < *k; col_c++) //flush the matrix c
         {
-            services::internal::service_memset<fpType, cpu>(c+col_c*(*ldc), fpType(0), *m);
+            services::internal::service_memset<fpType, cpu>(c + col_c * (*ldc), fpType(0), *m);
         }
-        for (row_c=0; row_c<*m; row_c++) // row_a = row_c
+        for (row_c = 0; row_c < *m; row_c++) // row_a = row_c
         {
-           for (val_ptr_a=ia[row_c]-indexing; val_ptr_a<ia[row_c+1]-indexing; val_ptr_a++)
-           {
-               row_b = ja[val_ptr_a]-indexing;
-               a_elt = a[val_ptr_a];
-               for (val_ptr_b=ib[row_b]-indexing; val_ptr_b<ib[row_b+1]-indexing; val_ptr_b++)
-               {
-                   col_c = jb[val_ptr_b]-indexing;
-                   b_elt = b[val_ptr_b];
-                   c[col_c*(*ldc)+row_c] += a_elt*b_elt;
-               }
-           }
+            for (val_ptr_a = ia[row_c] - indexing; val_ptr_a < ia[row_c + 1] - indexing; val_ptr_a++)
+            {
+                row_b = ja[val_ptr_a] - indexing;
+                a_elt = a[val_ptr_a];
+                for (val_ptr_b = ib[row_b] - indexing; val_ptr_b < ib[row_b + 1] - indexing; val_ptr_b++)
+                {
+                    col_c = jb[val_ptr_b] - indexing;
+                    b_elt = b[val_ptr_b];
+                    c[col_c * (*ldc) + row_c] += a_elt * b_elt;
+                }
+            }
         }
     }
 
-    static void csrmultd_transpose(const DAAL_INT *m, const DAAL_INT *n, const DAAL_INT *k, fpType *a, DAAL_INT *ja, DAAL_INT *ia,
-            fpType *b, DAAL_INT *jb, DAAL_INT *ib, fpType *c, DAAL_INT *ldc)
+    static void csrmultd_transpose(const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, fpType * a, DAAL_INT * ja, DAAL_INT * ia, fpType * b,
+                                   DAAL_INT * jb, DAAL_INT * ib, fpType * c, DAAL_INT * ldc)
     {
         DAAL_INT indexing = 1;
         DAAL_INT row_a, row_b, row_c, col_c, val_ptr_a, val_ptr_b;
         fpType a_elt, b_elt;
-        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, *ldc, (*n)-1);
-        for(DAAL_INT col_c=0; col_c<*k; col_c++) //flush the matrix c
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_THROW_IF_POSSIBLE(DAAL_INT, *ldc, (*n) - 1);
+        for (DAAL_INT col_c = 0; col_c < *k; col_c++) //flush the matrix c
         {
-            services::internal::service_memset<fpType, cpu>(c+col_c*(*ldc), fpType(0), *n);
+            services::internal::service_memset<fpType, cpu>(c + col_c * (*ldc), fpType(0), *n);
         }
-        for (row_a=0;row_a<*m; row_a++)
+        for (row_a = 0; row_a < *m; row_a++)
         {
             row_b = row_a;
-            for (val_ptr_b=ib[row_b]-indexing; val_ptr_b<ib[row_b+1]-indexing; val_ptr_b++)
+            for (val_ptr_b = ib[row_b] - indexing; val_ptr_b < ib[row_b + 1] - indexing; val_ptr_b++)
             {
                 b_elt = b[val_ptr_b];
-                col_c = jb[val_ptr_b]-indexing; //col_c = col_b
-                for(val_ptr_a=ia[row_a]-indexing; val_ptr_a<ia[row_a+1]-indexing; val_ptr_a++)
+                col_c = jb[val_ptr_b] - indexing; //col_c = col_b
+                for (val_ptr_a = ia[row_a] - indexing; val_ptr_a < ia[row_a + 1] - indexing; val_ptr_a++)
                 {
-                    row_c = ja[val_ptr_a]-indexing; //row_c = col_a
+                    row_c = ja[val_ptr_a] - indexing; //row_c = col_a
                     a_elt = a[val_ptr_a];
-                    c[col_c*(*ldc)+row_c] += a_elt*b_elt;
+                    c[col_c * (*ldc) + row_c] += a_elt * b_elt;
                 }
             }
         }
-
     }
 
     static void xcsrmv(const char * transa, const DAAL_INT * m, const DAAL_INT * k, const fpType * alpha, const char * matdescra, const fpType * val,
@@ -120,44 +119,45 @@ struct RefSpBlas
         }
     }
 
-    static void csrmv(const DAAL_INT *m, const DAAL_INT *k, const fpType *alpha, const char  *matdescra, const fpType *val,
-            const DAAL_INT *indx, const DAAL_INT *pntrb, const DAAL_INT *pntre, const fpType *x, const fpType *beta, fpType *y)
+    static void csrmv(const DAAL_INT * m, const DAAL_INT * k, const fpType * alpha, const char * matdescra, const fpType * val, const DAAL_INT * indx,
+                      const DAAL_INT * pntrb, const DAAL_INT * pntre, const fpType * x, const fpType * beta, fpType * y)
     {
         DAAL_INT indexing = 1;
-        if (matdescra[3]=='C') indexing = 0; // if fourth entry is 'C' zero based
+        if (matdescra[3] == 'C') indexing = 0; // if fourth entry is 'C' zero based
         DAAL_INT curr_row_start, curr_row_end, i, k_ind;
-        for (DAAL_INT row_num=0; row_num<*m; row_num++)
+        for (DAAL_INT row_num = 0; row_num < *m; row_num++)
         {
             y[row_num] *= (*beta);
-            curr_row_start = pntrb[row_num]-indexing;
-            curr_row_end = pntre[row_num]-indexing;
-            for (i=curr_row_start; i<curr_row_end; i++)
+            curr_row_start = pntrb[row_num] - indexing;
+            curr_row_end   = pntre[row_num] - indexing;
+            for (i = curr_row_start; i < curr_row_end; i++)
             {
-                k_ind = indx[i]-indexing;
-                y[row_num] += (*alpha)*x[k_ind]*val[i];
+                k_ind = indx[i] - indexing;
+                y[row_num] += (*alpha) * x[k_ind] * val[i];
             }
         }
     }
 
-    static void csrmv_transpose(const DAAL_INT *m, const DAAL_INT *k, const fpType *alpha, const char *matdescra, const fpType *val,
-            const DAAL_INT *indx, const DAAL_INT *pntrb, const DAAL_INT *pntre, const fpType *x, const fpType *beta, fpType *y)
+    static void csrmv_transpose(const DAAL_INT * m, const DAAL_INT * k, const fpType * alpha, const char * matdescra, const fpType * val,
+                                const DAAL_INT * indx, const DAAL_INT * pntrb, const DAAL_INT * pntre, const fpType * x, const fpType * beta,
+                                fpType * y)
     {
         DAAL_INT indexing = 1;
-        if (matdescra[3]=='C') indexing = 0; // if fourth entry is 'C' zero based
-        for (DAAL_INT _i=0; _i<*k; _i++)
+        if (matdescra[3] == 'C') indexing = 0; // if fourth entry is 'C' zero based
+        for (DAAL_INT _i = 0; _i < *k; _i++)
         {
-            y[_i]*=*beta;
+            y[_i] *= *beta;
         }
         fpType coeff;
         DAAL_INT row_num, i, curr_row_start, curr_row_end;
-        for (row_num=0; row_num<*m; row_num++)
+        for (row_num = 0; row_num < *m; row_num++)
         {
-            coeff = (*alpha)*x[row_num];
-            curr_row_start = pntrb[row_num]-indexing;
-            curr_row_end = pntre[row_num]-indexing;
-            for (i=curr_row_start; i<curr_row_end; i++)
+            coeff          = (*alpha) * x[row_num];
+            curr_row_start = pntrb[row_num] - indexing;
+            curr_row_end   = pntre[row_num] - indexing;
+            for (i = curr_row_start; i < curr_row_end; i++)
             {
-                y[indx[i]-indexing] += coeff*val[i];
+                y[indx[i] - indexing] += coeff * val[i];
             }
         }
     }
