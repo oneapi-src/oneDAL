@@ -198,18 +198,16 @@ public:
     }
 
     bool use_sendrecv_replace_alternative() override {
-#ifdef MPICH_VERSION
-#ifndef I_MPI_VERSION
-        printf("MPICH no Intel");
-        return true;
-#else
-        printf("MPICH and Intel");
-        return false;
-#endif
-#else
-        printf("No MPICH");
-        return false;
-#endif
+        char version[MPI_MAX_LIBRARY_VERSION_STRING];
+        int len = 0;
+        MPI_Get_library_version(version, &len);
+        std::string version_str(version);
+        if (version_str.compare(0, 5, "MPICH") == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     void barrier() override {
