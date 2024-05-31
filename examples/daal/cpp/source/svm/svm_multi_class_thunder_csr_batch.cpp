@@ -27,12 +27,12 @@
 //  * \example svm_multi_class_thunder_csr_batch.cpp
 //  */
 
-// #include "daal.h"
-// #include "service.h"
+#include "daal.h"
+#include "service.h"
 
-// using namespace daal;
-// using namespace daal::algorithms;
-// using namespace daal::data_management;
+using namespace daal;
+using namespace daal::algorithms;
+using namespace daal::data_management;
 
 // /* Input data set parameters */
 // std::string trainDatasetFileName = "../data/batch/svm_multi_class_train_csr.csv";
@@ -51,24 +51,10 @@
 // void testModel();
 // void printResults();
 
-// int main(int argc, char* argv[]) {
-//     checkArguments(argc,
-//                    argv,
-//                    4,
-//                    &trainDatasetFileName,
-//                    &trainLabelsFileName,
-//                    &testDatasetFileName,
-//                    &testLabelsFileName);
+int main(int argc, char* argv[]) {
 
-//     training->parameter.kernel = kernel;
-//     prediction->parameter.kernel = kernel;
-
-//     trainModel();
-//     testModel();
-//     printResults();
-
-//     return 0;
-// }
+    return 0;
+}
 
 // void trainModel() {
 //     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
