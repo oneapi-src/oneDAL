@@ -40,9 +40,6 @@ std::string testDatasetFileName = "../data/batch/svm_two_class_test_dense.csv";
 
 const size_t nFeatures = 20;
 
-/* Parameters for the SVM kernel function */
-kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
-
 /* Model object for the SVM algorithm */
 svm::training::ResultPtr trainingResult;
 classifier::prediction::ResultPtr predictionResult;
@@ -53,6 +50,7 @@ void testModel();
 void printResults();
 
 int main(int argc, char* argv[]) {
+    std::cout << "here 0" << std::endl;
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
     std::cout << "here 1" << std::endl;
     trainModel();
@@ -81,6 +79,8 @@ void trainModel() {
     /* Create an algorithm object to train the SVM model using the Thunder method */
     svm::training::Batch<float, svm::training::thunder> algorithm;
     std::cout << "here 14" << std::endl;
+    /* Parameters for the SVM kernel function */
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
     algorithm.parameter.kernel = kernel;
     std::cout << "here 15" << std::endl;
     /* Pass a training data set and dependent values to the algorithm */
@@ -111,7 +111,8 @@ void testModel() {
     /* Create an algorithm object to predict SVM values */
     svm::prediction::Batch<> algorithm;
     std::cout << "here 21" << std::endl;
-
+    /* Parameters for the SVM kernel function */
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
     algorithm.parameter.kernel = kernel;
     std::cout << "here 22" << std::endl;
 
