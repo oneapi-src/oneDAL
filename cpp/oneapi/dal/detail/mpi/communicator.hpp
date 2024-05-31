@@ -24,7 +24,6 @@
 #include <dlfcn.h>
 #include <string>
 #include <sstream>
-#include <stdio.h>
 #include <oneapi/dal/array.hpp>
 #include "oneapi/dal/detail/communicator.hpp"
 
@@ -340,7 +339,6 @@ public:
 
         if (use_sendrecv_replace_alternative()) {
             // MPICH-specific workaround for GPU performance
-            printf("Using sendrecv workaround");
             mpi_call(MPI_Sendrecv(buf,
                                   integral_cast<int>(count),
                                   make_mpi_data_type(dtype),
@@ -355,7 +353,6 @@ public:
                                   &status));
         }
         else {
-            printf("Using sendrecv_replace");
             // Standard call to sendrecv_replace of designated mpi backend
             mpi_call(MPI_Sendrecv_replace(buf,
                                           integral_cast<int>(count),

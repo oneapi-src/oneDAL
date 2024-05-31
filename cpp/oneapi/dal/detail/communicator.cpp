@@ -18,7 +18,6 @@
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/array.hpp"
-#include <stdio.h>
 
 namespace spmd = oneapi::dal::preview::spmd;
 
@@ -241,7 +240,6 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
         ONEDAL_PROFILER_TASK(comm.srr_gpu, q);
         const bool mpich_sendrecv = use_sendrecv_replace_alternative();
         if (mpich_sendrecv) {
-            printf("OFFLOAD sendrecv");
             static byte_t* recv_buf = nullptr;
             static bool initialized = false;
             if (!initialized) {
@@ -253,7 +251,6 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
             q.memcpy(buf, recv_buf, size).wait();
         }
         else {
-            printf("OFFLOAD sendrecv_replace");
             wait_request(sendrecv_replace(buf, count, dtype, destination_rank, source_rank));
         }
     }
