@@ -14,11 +14,13 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/atomic.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/atomic.hpp"
+#include "oneapi/dal/backend/primitives/reduction.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -160,6 +162,109 @@ sycl::event assign_clusters(sycl::queue& q,
 
     const auto cluster_count = centroids.get_dimension(0);
     const auto row_count = static_cast<size_t>(row_offsets.get_count() - 1);
+    // based on bechmarks an optimal block size is equal to 8 work-group sizes
+    const std::int64_t block_multiplier = 8;
+    const std::int64_t row_block = block_multiplier * bk::device_max_wg_size(q);
+
+    const auto local_size =
+        std::min<std::int64_t>(bk::device_max_wg_size(q), bk::down_pow2(cluster_count));
+    const auto nd_range =
+        bk::make_multiple_nd_range_2d({ row_block, local_size }, { 1, local_size });
+
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on({ dist_event });
+        cgh.depends_on(deps);
+        cgh.parallel_for(nd_range, [=](auto item) {
+            const auto row_shift = item.get_global_id(0);
+            const auto local_id = item.get_local_id(1);
+            const auto max_val = std::numeric_limits<Float>::max();
+            const auto max_index = std::numeric_limits<std::int32_t>::max();
+            for (auto row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
+                auto min_dist = max_val;
+                auto min_idx = max_index;
+                auto row_dists = distances_ptr + row_idx * cluster_count;
+                for (std::int32_t cluster_id = local_id; cluster_id < cluster_count;
+                     cluster_id += local_size) {
+                    const auto dist = cent_squares_ptr[cluster_id] + row_dists[cluster_id] +
+                                      data_squares_ptr[row_idx];
+                    if (dist < min_dist) {
+                        min_dist = dist;
+                        min_idx = cluster_id;
+                    }
+                }
+                const Float closest = sycl::reduce_over_group(item.get_group(),
+                                                              min_dist,
+                                                              max_val,
+                                                              sycl::ext::oneapi::minimum<Float>());
+                const std::int32_t dist_idx = closest == min_dist ? min_idx : max_index;
+                const std::int32_t closest_id =
+                    sycl::reduce_over_group(item.get_group(),
+                                            dist_idx,
+                                            max_index,
+                                            sycl::ext::oneapi::minimum<std::int32_t>());
+                if (local_id == 0) {
+                    responses_ptr[row_idx] = closest_id;
+                    closest_dists_ptr[row_idx] = closest;
+                }
+            }
+        });
+    });
+    return event;
+}
+
+template <typename Float>
+sycl::event transpose(sycl::queue& q,
+                      const pr::ndview<Float, 2>& src,
+                      pr::ndview<Float, 2>& dst,
+                      const event_vector& deps = {}) {
+    const auto src_shape = src.get_shape();
+    const auto row_count = src_shape[0];
+    const auto col_count = src_shape[1];
+
+    const auto nd_range = sycl::range<2>(row_count, col_count);
+
+    const Float* src_ptr = src.get_data();
+    Float* dst_ptr = dst.get_mutable_data();
+    auto event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(nd_range, [=](auto item) {
+            auto i = item[0];
+            auto j = item[1];
+            dst_ptr[j * row_count + i] = src_ptr[i * col_count + j];
+        });
+    });
+
+    return event;
+}
+template <typename Float>
+sycl::event assign_clusters(sycl::queue& q,
+                            const std::size_t row_count,
+                            pr::sparse_matrix_handle& data_handle,
+                            const pr::ndview<Float, 1>& data_squares,
+                            const pr::ndview<Float, 2>& centroids,
+                            const pr::ndview<Float, 1>& centroid_squares,
+                            pr::ndview<Float, 2>& distances,
+                            pr::ndview<std::int32_t, 2>& responses,
+                            pr::ndview<Float, 2>& closest_dists,
+                            const event_vector& deps = {}) {
+    ONEDAL_PROFILER_TASK(assign_clusters, q);
+    auto data_squares_ptr = data_squares.get_data();
+    auto cent_squares_ptr = centroid_squares.get_data();
+    auto responses_ptr = responses.get_mutable_data();
+    auto closest_dists_ptr = closest_dists.get_mutable_data();
+    // Calculate rest part of distances
+    auto dist_event = pr::gemm(q,
+                               pr::transpose::nontrans,
+                               data_handle,
+                               centroids,
+                               distances,
+                               Float(-2.0),
+                               Float(0),
+                               deps);
+
+    const auto distances_ptr = distances.get_data();
+
+    const auto cluster_count = centroids.get_dimension(0);
     // based on bechmarks an optimal block size is equal to 8 work-group sizes
     const std::int64_t block_multiplier = 8;
     const std::int64_t row_block = block_multiplier * bk::device_max_wg_size(q);

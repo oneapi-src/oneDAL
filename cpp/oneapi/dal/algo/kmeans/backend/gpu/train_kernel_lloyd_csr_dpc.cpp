@@ -20,6 +20,7 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_csr_impl.hpp"
 #include "oneapi/dal/algo/kmeans/detail/train_init_centroids.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 
 #include "oneapi/dal/detail/profiler.hpp"
 
@@ -84,6 +85,9 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         const double accuracy_threshold = params.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
 
+        pr::sparse_matrix_handle data_handle(queue);
+        auto set_csr_data_event = pr::set_csr_data(queue, data_handle, data);
+
         auto [arr_val, arr_col, arr_row] =
             csr_accessor<const Float>(data).pull(queue,
                                                  { 0, -1 },
@@ -99,8 +103,12 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
             pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
-        auto data_squares_event =
-            compute_data_squares(queue, values, column_indices, row_offsets, arr_data_squares);
+        auto data_squares_event = compute_data_squares(queue,
+                                                       values,
+                                                       column_indices,
+                                                       row_offsets,
+                                                       arr_data_squares,
+                                                       { set_csr_data_event });
 
         auto distances = pr::ndarray<Float, 2>::empty(queue,
                                                       { row_count, cluster_count },
@@ -111,6 +119,10 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::ndarray<Float, 2>::empty(queue,
                                                           { cluster_count, column_count },
                                                           sycl::usm::alloc::device);
+        auto arr_centroids_trans = pr::ndarray<Float, 2>::empty(queue,
+                                                                { column_count, cluster_count },
+                                                                sycl::usm::alloc::device);
+
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
         auto cluster_counts =
@@ -126,17 +138,20 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                    iter == 0 ? arr_initial : arr_centroids,
                                                    arr_centroid_squares,
                                                    { last_event });
-            auto assign_event = assign_clusters(queue,
-                                                values,
-                                                column_indices,
-                                                row_offsets,
-                                                arr_data_squares,
-                                                iter == 0 ? arr_initial : arr_centroids,
-                                                arr_centroid_squares,
-                                                distances,
-                                                arr_responses,
-                                                arr_closest_distances,
-                                                { centroid_squares_event, last_event });
+
+            sycl::event trans_event =
+                transpose(queue, iter == 0 ? arr_initial : arr_centroids, arr_centroids_trans);
+            auto assign_event =
+                assign_clusters(queue,
+                                arr_row.get_count() - 1,
+                                data_handle,
+                                arr_data_squares,
+                                arr_centroids_trans,
+                                arr_centroid_squares,
+                                distances,
+                                arr_responses,
+                                arr_closest_distances,
+                                { trans_event, centroid_squares_event, last_event });
             auto count_event = count_clusters(queue,
                                               arr_responses,
                                               cluster_count,
