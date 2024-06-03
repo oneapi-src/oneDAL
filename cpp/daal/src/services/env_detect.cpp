@@ -114,7 +114,7 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle(nullptr), _globalControl(nullptr)
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
