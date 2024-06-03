@@ -41,10 +41,6 @@ std::string testDatasetFileName = "../data/batch/svm_multi_class_test_dense.csv"
 const size_t nFeatures = 20;
 const size_t nClasses = 5;
 
-services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(
-    new svm::training::Batch<float, svm::training::boser>());
-services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
-
 multi_class_classifier::training::ResultPtr trainingResult;
 multi_class_classifier::prediction::ResultPtr predictionResult;
 
@@ -56,10 +52,6 @@ void printResults();
 
 int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
-    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
-    training->parameter.cacheSize = 100000000;
-    training->parameter.kernel = kernel;
-    prediction->parameter.kernel = kernel;
 
     trainModel();
     testModel();
@@ -86,9 +78,16 @@ void trainModel() {
 
     /* Create an algorithm object to train the multi-class SVM model */
     multi_class_classifier::training::Batch<> algorithm(nClasses);
+    services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(
+        new svm::training::Batch<float, svm::training::boser>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
 
     algorithm.parameter.training = training;
     algorithm.parameter.prediction = prediction;
+    training->parameter.cacheSize = 100000000;
+    training->parameter.kernel = kernel;
 
     /* Pass a training data set and dependent values to the algorithm */
     algorithm.input.set(classifier::training::data, trainData);
@@ -120,8 +119,17 @@ void testModel() {
     multi_class_classifier::prediction::Batch<float, multi_class_classifier::prediction::voteBased>
         algorithm(nClasses);
 
+    services::SharedPtr<svm::training::Batch<float, svm::training::boser> > training(
+        new svm::training::Batch<float, svm::training::boser>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+
+    training->parameter.kernel = kernel;
+    training->parameter.cacheSize = 100000000;
     algorithm.parameter.training = training;
     algorithm.parameter.prediction = prediction;
+
     algorithm.parameter.resultsToEvaluate = multi_class_classifier::computeClassLabels |
                                             multi_class_classifier::computeDecisionFunction;
 

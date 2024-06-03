@@ -34,105 +34,104 @@ using namespace daal;
 using namespace daal::algorithms;
 using namespace daal::data_management;
 
-// /* Input data set parameters */
-// std::string trainDatasetFileName = "../data/batch/svm_multi_class_train_csr.csv";
-// std::string trainLabelsFileName = "../data/batch/svm_multi_class_train_labels.csv";
+/* Input data set parameters */
+std::string trainDatasetFileName = "../data/batch/svm_multi_class_train_csr.csv";
+std::string trainLabelsFileName = "../data/batch/svm_multi_class_train_labels.csv";
 
-// std::string testDatasetFileName = "../data/batch/svm_multi_class_test_csr.csv";
-// std::string testLabelsFileName = "../data/batch/svm_multi_class_test_labels.csv";
+std::string testDatasetFileName = "../data/batch/svm_multi_class_test_csr.csv";
+std::string testLabelsFileName = "../data/batch/svm_multi_class_test_labels.csv";
 
-// const size_t nClasses = 5;
+const size_t nClasses = 5;
 
-// multi_class_classifier::training::ResultPtr trainingResult;
-// multi_class_classifier::prediction::ResultPtr predictionResult;
-// NumericTablePtr testGroundTruth;
+multi_class_classifier::training::ResultPtr trainingResult;
+multi_class_classifier::prediction::ResultPtr predictionResult;
+NumericTablePtr testGroundTruth;
 
-// void trainModel();
-// void testModel();
-// void printResults();
+void trainModel();
+void testModel();
+void printResults();
 
 int main(int argc, char* argv[]) {
-
     return 0;
 }
 
-// void trainModel() {
-//     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-//     FileDataSource<CSVFeatureManager> trainLabelsDataSource(trainLabelsFileName,
-//                                                             DataSource::doAllocateNumericTable,
-//                                                             DataSource::doDictionaryFromContext);
+void trainModel() {
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
+    FileDataSource<CSVFeatureManager> trainLabelsDataSource(trainLabelsFileName,
+                                                            DataSource::doAllocateNumericTable,
+                                                            DataSource::doDictionaryFromContext);
 
-//     /* Create numeric table for training data */
-//     CSRNumericTablePtr trainData(createSparseTable<float>(trainDatasetFileName));
+    /* Create numeric table for training data */
+    CSRNumericTablePtr trainData(createSparseTable<float>(trainDatasetFileName));
 
-//     /* Retrieve the data from the input file */
-//     trainLabelsDataSource.loadDataBlock();
-//     services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
-//         new svm::training::Batch<float, svm::training::thunder>());
-//     services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
-//     kernel_function::KernelIfacePtr kernel(
-//         new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
-//     training->parameter.kernel = kernel;
-//     prediction->parameter.kernel = kernel;
-//     /* Create an algorithm object to train the multi-class SVM model */
-//     multi_class_classifier::training::Batch<> algorithm(nClasses);
+    /* Retrieve the data from the input file */
+    trainLabelsDataSource.loadDataBlock();
+    services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
+        new svm::training::Batch<float, svm::training::thunder>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+    training->parameter.kernel = kernel;
+    prediction->parameter.kernel = kernel;
+    /* Create an algorithm object to train the multi-class SVM model */
+    multi_class_classifier::training::Batch<> algorithm(nClasses);
 
-//     algorithm.parameter.training = training;
-//     algorithm.parameter.prediction = prediction;
+    algorithm.parameter.training = training;
+    algorithm.parameter.prediction = prediction;
 
-//     /* Pass a training data set and dependent values to the algorithm */
-//     algorithm.input.set(classifier::training::data, trainData);
-//     algorithm.input.set(classifier::training::labels, trainLabelsDataSource.getNumericTable());
+    /* Pass a training data set and dependent values to the algorithm */
+    algorithm.input.set(classifier::training::data, trainData);
+    algorithm.input.set(classifier::training::labels, trainLabelsDataSource.getNumericTable());
 
-//     /* Build the multi-class SVM model */
-//     algorithm.compute();
+    /* Build the multi-class SVM model */
+    algorithm.compute();
 
-//     /* Retrieve the algorithm results */
-//     trainingResult = algorithm.getResult();
-// }
+    /* Retrieve the algorithm results */
+    trainingResult = algorithm.getResult();
+}
 
-// void testModel() {
-//     /* Create Numeric Tables for testing data */
-//     NumericTablePtr testData(createSparseTable<float>(testDatasetFileName));
+void testModel() {
+    /* Create Numeric Tables for testing data */
+    NumericTablePtr testData(createSparseTable<float>(testDatasetFileName));
 
-//     /* Create an algorithm object to predict multi-class SVM values */
-//     multi_class_classifier::prediction::Batch<> algorithm(nClasses);
-//     services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
-//         new svm::training::Batch<float, svm::training::thunder>());
-//     services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
-//     kernel_function::KernelIfacePtr kernel(
-//         new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
-//     training->parameter.kernel = kernel;
-//     prediction->parameter.kernel = kernel;
-//     algorithm.parameter.training = training;
-//     algorithm.parameter.prediction = prediction;
+    /* Create an algorithm object to predict multi-class SVM values */
+    multi_class_classifier::prediction::Batch<> algorithm(nClasses);
+    services::SharedPtr<svm::training::Batch<float, svm::training::thunder> > training(
+        new svm::training::Batch<float, svm::training::thunder>());
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
+    kernel_function::KernelIfacePtr kernel(
+        new kernel_function::linear::Batch<float, kernel_function::linear::fastCSR>());
+    training->parameter.kernel = kernel;
+    prediction->parameter.kernel = kernel;
+    algorithm.parameter.training = training;
+    algorithm.parameter.prediction = prediction;
 
-//     /* Pass a testing data set and the trained model to the algorithm */
-//     algorithm.input.set(classifier::prediction::data, testData);
-//     algorithm.input.set(classifier::prediction::model,
-//                         trainingResult->get(classifier::training::model));
+    /* Pass a testing data set and the trained model to the algorithm */
+    algorithm.input.set(classifier::prediction::data, testData);
+    algorithm.input.set(classifier::prediction::model,
+                        trainingResult->get(classifier::training::model));
 
-//     /* Predict multi-class SVM values */
-//     algorithm.compute();
+    /* Predict multi-class SVM values */
+    algorithm.compute();
 
-//     /* Retrieve the algorithm results */
-//     predictionResult = algorithm.getResult();
-// }
+    /* Retrieve the algorithm results */
+    predictionResult = algorithm.getResult();
+}
 
-// void printResults() {
-//     /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
-//     FileDataSource<CSVFeatureManager> testLabelsDataSource(testLabelsFileName,
-//                                                            DataSource::doAllocateNumericTable,
-//                                                            DataSource::doDictionaryFromContext);
-//     /* Retrieve the data from input file */
-//     testLabelsDataSource.loadDataBlock();
-//     testGroundTruth = testLabelsDataSource.getNumericTable();
+void printResults() {
+    /* Initialize FileDataSource<CSVFeatureManager> to retrieve the test data from a .csv file */
+    FileDataSource<CSVFeatureManager> testLabelsDataSource(testLabelsFileName,
+                                                           DataSource::doAllocateNumericTable,
+                                                           DataSource::doDictionaryFromContext);
+    /* Retrieve the data from input file */
+    testLabelsDataSource.loadDataBlock();
+    testGroundTruth = testLabelsDataSource.getNumericTable();
 
-//     printNumericTables<int, int>(
-//         testGroundTruth,
-//         predictionResult->get(multi_class_classifier::prediction::prediction),
-//         "Ground truth",
-//         "Classification results",
-//         "Multi-class SVM classification sample program results (first 20 observations):",
-//         20);
-// }
+    printNumericTables<int, int>(
+        testGroundTruth,
+        predictionResult->get(multi_class_classifier::prediction::prediction),
+        "Ground truth",
+        "Classification results",
+        "Multi-class SVM classification sample program results (first 20 observations):",
+        20);
+}

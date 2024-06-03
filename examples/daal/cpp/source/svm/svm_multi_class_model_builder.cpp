@@ -44,8 +44,6 @@ std::string testDatasetFileName = "../data/batch/multiclass_iris_train.csv";
 const size_t nFeatures = 4;
 const size_t nClasses = 3;
 
-services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
-
 classifier::prediction::ResultPtr predictionResult;
 
 NumericTablePtr testGroundTruth;
@@ -57,8 +55,7 @@ int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &testDatasetFileName);
 
     multi_class_classifier::ModelPtr builtModel = buildModelFromTraining();
-    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
-    prediction->parameter.kernel = kernel;
+
     testModel(builtModel);
     return 0;
 }
@@ -133,8 +130,10 @@ void testModel(multi_class_classifier::ModelPtr& inputModel) {
 
     /* Create an algorithm object to predict multi-class SVM values */
     multi_class_classifier::prediction::Batch<> algorithm(nClasses);
+    services::SharedPtr<svm::prediction::Batch<> > prediction(new svm::prediction::Batch<>());
 
-    //algorithm.parameter.training = training;
+    kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
+    prediction->parameter.kernel = kernel;
     algorithm.parameter.prediction = prediction;
 
     /* Pass a testing data set and the trained model to the algorithm */

@@ -53,9 +53,6 @@ void printResults();
 int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 2, &trainDatasetFileName, &testDatasetFileName);
 
-    training->parameter.kernel = kernel;
-    prediction->parameter.kernel = kernel;
-
     trainModel();
     testModel();
     printResults();
@@ -120,6 +117,7 @@ void testModel() {
     kernel_function::KernelIfacePtr kernel(new kernel_function::linear::Batch<>());
     training->parameter.kernel = kernel;
     prediction->parameter.kernel = kernel;
+
     /* Retrieve the data from input file */
     testDataSource.loadDataBlock(mergedData.get());
 
