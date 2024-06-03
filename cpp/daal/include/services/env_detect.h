@@ -86,13 +86,6 @@ public:
     static Environment * getInstance();
 
     /**
-     *  Decreases the instance counter
-     *  \return The return code
-     *  \DAAL_DEPRECATED
-     */
-    DAAL_DEPRECATED static int freeInstance();
-
-    /**
      *  <a name="DAAL-ENUM-SERVICES__CPUTYPEENABLE"></a>
      *  \brief CPU types
      *  \DAAL_DEPRECATED
@@ -140,12 +133,6 @@ public:
     {
         MultiThreaded = 0 /*!< Multi-threaded mode */
     };
-
-    /**
-     *  Sets the threading mode on Windows*
-     *  \param[in] type  The threading mode of the library
-     */
-    void setDynamicLibraryThreadingTypeOnWindows(LibraryThreadingType type);
 
     /**
      *  Sets the number of threads to use
@@ -199,6 +186,7 @@ private:
 
     env _env;
     void * _globalControl;
+    void * _schedulerHandle;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1

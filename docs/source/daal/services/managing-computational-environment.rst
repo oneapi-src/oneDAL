@@ -37,9 +37,6 @@ it for multiple purposes:
    based application.
    To do this, call the ``getNumberOfThreads()`` or ``setNumberOfThreads()`` method, respectively.
 
--  Specify the single-threaded of multi-threaded mode for |short_name| on Windows.
-   To do this, call to the ``setDynamicLibraryThreadingTypeOnWindows()`` method.
-
 -  Enable thread pinning.
    To do this, call the ``enableThreadPinning()`` method. This method
    performs binding of the threads that are used to parallelize
