@@ -167,7 +167,11 @@ public:
 
             // Check if Intel MPI without MPIX_Query_ze_support
             // Intel MPI 2021.1 and greater supports but not all have symbol
-            if (!is_mpi_version("INTEL")) {
+            char version[MPI_MAX_LIBRARY_VERSION_STRING];
+            int len = 0;
+            MPI_Get_library_version(version, &len);
+            std::string version_str(version);
+            if (version_str.compare(0, 5, "Intel") != 0) {
                 return false;
             }
 
@@ -193,8 +197,16 @@ public:
     }
 
     bool use_sendrecv_replace_alternative() override {
-        // For now only use alternative if using MPICH
-        return is_mpi_version("MPICH");
+        char version[MPI_MAX_LIBRARY_VERSION_STRING];
+        int len = 0;
+        MPI_Get_library_version(version, &len);
+        std::string version_str(version);
+        if (version_str.compare(0, 5, "MPICH") == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     void barrier() override {
@@ -376,23 +388,6 @@ public:
             : spmd::communicator<MemoryAccessKind>(
                   new mpi_communicator_impl<MemoryAccessKind>(default_root)) {}
 };
-
-bool is_mpi_version(const char* prefix) {
-    // Checks if beginning of string returned from MPI_Get_library_version matches arg
-    char version[MPI_MAX_LIBRARY_VERSION_STRING];
-    int len = 0;
-    MPI_Get_library_version(version, &len);
-
-    std::string version_str(version);
-    size_t prefix_length = std::strlen(prefix);
-
-    if (version_str.compare(0, prefix_length, prefix) == 0) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
 
 } // namespace v1
 
