@@ -1,4 +1,4 @@
-name: oneDAL nightly build
+name: oneDAL build example
 
 on:
   pull_request:
