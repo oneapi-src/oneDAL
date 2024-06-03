@@ -20,8 +20,7 @@ rem %2 - Compiler
 rem %3 - Instruction set
 
 set errorcode=0
-for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
-echo CPUCOUNT=%CPUCOUNT%
+echo CPUCOUNT=%NUMBER_OF_PROCESSORS%
 
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
@@ -38,8 +37,8 @@ if "%MKLGPUFPKROOT%"=="" if not exist %~dp0\__deps\mklgpufpk\win call .\dev\down
 echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 if "%VISUALSTUDIOVERSION%"=="" call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
 
-echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
-make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
+echo make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3
+make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
 
 cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake || set errorcode=1
 EXIT /B %errorcode%
