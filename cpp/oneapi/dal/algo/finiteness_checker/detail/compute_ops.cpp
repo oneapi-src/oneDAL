@@ -25,9 +25,9 @@ using dal::detail::host_policy;
 
 template <typename Float, typename Method, typename Task>
 struct compute_ops_dispatcher<host_policy, Float, Method, Task> {
-    bool operator()(const host_policy& ctx,
-                    const descriptor_base<Task>& desc,
-                    const compute_input<Task>& input) const {
+    compute_result<Task> operator()(const host_policy& ctx,
+                                    const descriptor_base<Task>& desc,
+                                    const compute_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::compute_kernel_cpu<Float, Method, Task>)>;
         return kernel_dispatcher_t()(ctx, desc, input);

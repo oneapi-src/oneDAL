@@ -25,9 +25,9 @@ namespace v1 {
 
 template <typename Context, typename Float, typename Method, typename Task, typename... Options>
 struct compute_ops_dispatcher {
-    bool operator()(const Context&,
-                    const descriptor_base<Task>& desc,
-                    const compute_input<Task>&) const;
+    compute_result<Task> operator()(const Context&,
+                                    const descriptor_base<Task>& desc,
+                                    const compute_input<Task>&) const;
 
 #ifdef ONEDAL_DATA_PARALLEL
     void operator()(const Context&,
@@ -43,6 +43,7 @@ struct compute_ops {
     using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
     using input_t = compute_input<task_t>;
+    using result_t = compute_result<task_t>;
     using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor& params, const input_t& input) const {

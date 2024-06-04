@@ -23,6 +23,7 @@ namespace oneapi::dal::finiteness_checker::backend {
 
 using dal::backend::context_gpu;
 using input_t = compute_input<task::compute>;
+using result_t = compute_result<task::compute>;
 using descriptor_t = detail::descriptor_base<task::compute>;
 
 namespace pr = dal::backend::primitives;
@@ -47,16 +48,16 @@ bool compute_finiteness(sycl::queue& queue,
 }
 
 template <typename Float>
-static bool compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
+static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     auto& queue = ctx.get_queue();
     const auto data = input.get_data();
     const auto data_1d = pr::table2ndarray_1d<Float>(queue, data, sycl::usm::alloc::device);
-    return compute_finiteness(queue, data_1d, desc.get_allow_NaN());
+    return result_t{}.set_finite(compute_finiteness(queue, data_1d, desc.get_allow_NaN()));
 }
 
 template <typename Float>
 struct compute_kernel_gpu<Float, method::dense, task::compute> {
-    bool operator()(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) const {
+    result_t operator()(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) const {
         return compute<Float>(ctx, desc, input);
     }
 

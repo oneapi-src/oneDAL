@@ -26,7 +26,14 @@ public:
     table data;
 };
 
+template <typename Task>
+class detail::v1::compute_result_impl : public base {
+public:
+    bool finite;
+};
+
 using detail::v1::compute_input_impl;
+using detail::v1::compute_result_impl;
 
 namespace v1 {
 
@@ -44,6 +51,21 @@ void compute_input<Task>::set_data_impl(const table& value) {
 }
 
 template class ONEDAL_EXPORT compute_input<task::compute>;
+
+template <typename Task>
+compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
+
+template <typename Task>
+const table& compute_result<Task>::get_finite() const {
+    return impl_->finite;
+}
+
+template <typename Task>
+void compute_result<Task>::set_finite_impl(const bool& value) {
+    impl_->finite = value;
+}
+
+template class ONEDAL_EXPORT compute_result<task::compute>;
 
 } // namespace v1
 } // namespace oneapi::dal::finiteness_checker
