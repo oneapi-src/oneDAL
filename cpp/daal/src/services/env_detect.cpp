@@ -108,7 +108,8 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
     return static_cast<int>(_env.cpuid);
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle(nullptr), _globalControl(nullptr)
+DAAL_EXPORT daal::services::Environment::Environment()
+    : _schedulerHandle(tbb::task_scheduler_handle(tbb::attach {})), _globalControl(tbb::global_control::max_allowed_parallelism, 1)
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
@@ -139,8 +140,8 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    _daal_tbb_task_scheduler_free(_globalControl);
-    _daal_tbb_task_scheduler_handle_finalize(_schedulerHandle);
+    // _daal_tbb_task_scheduler_free(_globalControl);
+    // _daal_tbb_task_scheduler_handle_finalize(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -155,7 +156,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    daal::setNumberOfThreads(numThreads, &_globalControl, &_schedulerHandle);
+    daal::setNumberOfThreads(numThreads, _globalControl);
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const

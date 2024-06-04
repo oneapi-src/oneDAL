@@ -28,6 +28,16 @@
 #include "services/base.h"
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
+#include <tbb/tbb.h>
+#include <tbb/spin_mutex.h>
+#include <tbb/scalable_allocator.h>
+#include <tbb/global_control.h>
+#include <tbb/task_arena.h>
+#include "services/daal_atomic_int.h"
+
+#if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
+    #include <tbb/task.h>
+#endif
 
 namespace daal
 {
@@ -185,8 +195,8 @@ private:
     void initNumberOfThreads();
 
     env _env;
-    void * _globalControl;
-    void * _schedulerHandle;
+    tbb::global_control _globalControl;
+    tbb::task_scheduler_handle _schedulerHandle;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1

@@ -107,6 +107,8 @@ daal_module(
         exclude = ["src/externals/**/*_win_dll.cpp"],
     ),
     deps = [
+        "@tbb//:tbb",
+        "@tbb//:tbbmalloc",
         ":service_headers",
         ":threading_headers",
         ":microvmlipp",

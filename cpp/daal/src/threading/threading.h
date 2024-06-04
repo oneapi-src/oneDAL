@@ -26,6 +26,17 @@
 
 #include <stdint.h>
 #include "services/daal_defines.h"
+#include <stdlib.h> // malloc and free
+#include <tbb/tbb.h>
+#include <tbb/spin_mutex.h>
+#include <tbb/scalable_allocator.h>
+#include <tbb/global_control.h>
+#include <tbb/task_arena.h>
+#include "services/daal_atomic_int.h"
+
+#if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
+    #include <tbb/task.h>
+#endif
 
 namespace daal
 {
@@ -103,7 +114,7 @@ extern "C"
 
     DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
     DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle);
-    DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle);
+    DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, tbb::global_control globalControl);
     DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle);
 
     DAAL_EXPORT void * _daal_threader_env();
@@ -190,9 +201,9 @@ inline size_t threader_get_threads_number()
     return threader_env()->getNumberOfThreads();
 }
 
-inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle)
+inline size_t setNumberOfThreads(const size_t numThreads, tbb::global_control globalControl)
 {
-    return _setNumberOfThreads(numThreads, globalControl, schedulerHandle);
+    return _setNumberOfThreads(numThreads, globalControl);
 }
 
 template <typename F>
