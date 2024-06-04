@@ -40,8 +40,7 @@
     #define DAAL_HOST_CPUID daal::services::Environment::rv64
 #endif
 
-static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
-static bool isInit                                                    = false;
+static bool isInit = false;
 
 namespace daal
 {
@@ -107,11 +106,6 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
     }
 
     return static_cast<int>(_env.cpuid);
-}
-
-daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
-{
-    return daal_thr_set;
 }
 
 DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle(nullptr), _globalControl(nullptr)

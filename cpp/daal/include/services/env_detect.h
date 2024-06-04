@@ -66,7 +66,7 @@ namespace interface1
  * <a name="DAAL-CLASS-SERVICES__ENVIRONMENT"></a>
  * \brief Class that provides methods to interact with the environment, including processor detection and control by the number of threads
  */
-class DAAL_EXPORT Environment : public Base
+class DAAL_EXPORT Environment
 {
 public:
     /**
@@ -125,14 +125,14 @@ public:
      */
     int enableInstructionsSet(int enable);
 
-    /**
-     * <a name="DAAL-ENUM-SERVICES__LIBRARYTHREADINGTYPE"></a>
-     * The threading mode of the library
-     */
-    enum LibraryThreadingType
-    {
-        MultiThreaded = 0 /*!< Multi-threaded mode */
-    };
+    // /**
+    //  * <a name="DAAL-ENUM-SERVICES__LIBRARYTHREADINGTYPE"></a>
+    //  * The threading mode of the library
+    //  */
+    // enum LibraryThreadingType
+    // {
+    //     MultiThreaded = 0 /*!< Multi-threaded mode */
+    // };
 
     /**
      *  Sets the number of threads to use

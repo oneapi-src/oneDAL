@@ -27,7 +27,6 @@
 #include "services/env_detect.h"
 
 static HMODULE daal_thr_dll_handle = NULL;
-daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set();
 
 #define __GLUE__(a, b) a##b
 
@@ -51,19 +50,6 @@ static void load_daal_thr_dll(void)
         return;
     }
 
-    switch (__daal_serv_get_thr_set())
-    {
-    case daal::services::Environment::MultiThreaded:
-    {
-        daal_thr_dll_handle = load_onedal_thread_dll();
-        if (daal_thr_dll_handle == NULL)
-        {
-            printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
-            exit(1);
-        }
-        break;
-    }
-    default:
     {
         daal_thr_dll_handle = load_onedal_thread_dll();
         if (daal_thr_dll_handle != NULL)
@@ -73,7 +59,6 @@ static void load_daal_thr_dll(void)
 
         printf("Intel oneDAL FATAL ERROR: Cannot load onedal_thread.2.dll.\n");
         exit(1);
-    }
     }
 }
 
