@@ -337,7 +337,7 @@ public:
         MPI_Status status;
         constexpr int zero_tag = 0;
 
-        if (use_sendrecv_replace_alternative()) {
+        if (recv_buf) {
             // MPICH-specific workaround for GPU performance
             mpi_call(MPI_Sendrecv(buf,
                                   integral_cast<int>(count),
