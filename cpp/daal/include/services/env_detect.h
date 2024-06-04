@@ -28,6 +28,7 @@
 #include "services/base.h"
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
+#include <memory>
 
 namespace daal
 {
@@ -180,7 +181,7 @@ public:
      */
     void setDefaultExecutionContext(const internal::ExecutionContext & ctx)
     {
-        _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
+        _executionContext = std::make_shared<services::internal::sycl::CpuExecutionContextImpl>();
     }
 
     services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext()
@@ -199,7 +200,7 @@ private:
 
     env _env;
     void * _globalControl;
-    SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
+    std::shared_ptr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
 
