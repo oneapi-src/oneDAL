@@ -24,6 +24,7 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/csr.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
 

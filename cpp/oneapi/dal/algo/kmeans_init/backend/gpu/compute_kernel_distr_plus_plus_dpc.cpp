@@ -20,6 +20,7 @@
 #include <algorithm>
 
 #include "oneapi/dal/array.hpp"
+#include "oneapi/dal/table/csr.hpp"
 
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"

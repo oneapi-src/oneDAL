@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/kmeans_init/compute_types.hpp"
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
 
 namespace oneapi::dal::kmeans_init::backend {
