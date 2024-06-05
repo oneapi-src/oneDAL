@@ -28,10 +28,10 @@ namespace v1 {
 
 system_parameters_impl::system_parameters_impl() {
     using daal::services::Environment;
-    Environment* env = Environment::getInstance();
+    Environment &env = Environment::getInstance();
     sys_info_["top_enabled_cpu_extension"] =
         from_daal_cpu_type(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID);
-    sys_info_["max_number_of_threads"] = static_cast<std::uint32_t>(env->getNumberOfThreads());
+    sys_info_["max_number_of_threads"] = static_cast<std::uint32_t>(env.getNumberOfThreads());
 }
 
 cpu_extension system_parameters_impl::get_top_enabled_cpu_extension() const {

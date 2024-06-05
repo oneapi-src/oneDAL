@@ -84,14 +84,7 @@ public:
      *  Returns the environment instance
      *  \return The environment instance
      */
-    static Environment * getInstance();
-
-    /**
-     *  Decreases the instance counter
-     *  \return The return code
-     *  \DAAL_DEPRECATED
-     */
-    DAAL_DEPRECATED static int freeInstance();
+    static Environment & getInstance();
 
     /**
      *  <a name="DAAL-ENUM-SERVICES__CPUTYPEENABLE"></a>
@@ -141,12 +134,6 @@ public:
     {
         MultiThreaded = 0 /*!< Multi-threaded mode */
     };
-
-    /**
-     *  Sets the threading mode on Windows*
-     *  \param[in] type  The threading mode of the library
-     */
-    void setDynamicLibraryThreadingTypeOnWindows(LibraryThreadingType type);
 
     /**
      *  Sets the number of threads to use

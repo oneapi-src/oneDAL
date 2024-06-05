@@ -82,7 +82,7 @@ services::Status KNNClassificationPredictKernelUCAPI<algorithmFpType>::compute(c
 
     services::Status st;
 
-    auto & context = services::Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = services::Environment::getInstance().getDefaultExecutionContext();
 
     const Model * model = static_cast<const Model *>(m);
     DAAL_CHECK(model, services::ErrorNullModel);

@@ -826,7 +826,7 @@ services::Status RegressionTrainBatchKernelOneAPI<algorithmFPType, method>::comp
 
     services::Status status;
 
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
 
     status |= buildProgram<algorithmFPType>(kernel_factory);

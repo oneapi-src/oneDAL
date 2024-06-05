@@ -51,15 +51,10 @@ void daal_free_buffers();
 }
 } // namespace daal
 
-DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
+DAAL_EXPORT daal::services::Environment & daal::services::Environment::getInstance()
 {
     static daal::services::Environment instance;
-    return &instance;
-}
-
-DAAL_EXPORT int daal::services::Environment::freeInstance()
-{
-    return 0;
+    return instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
@@ -117,12 +112,6 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
 {
     return daal_thr_set;
-}
-
-DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWindows(daal::services::Environment::LibraryThreadingType thr)
-{
-    daal_thr_set = thr;
-    initNumberOfThreads();
 }
 
 DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}

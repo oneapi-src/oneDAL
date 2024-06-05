@@ -56,7 +56,7 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::compute(size_t na, co
 {
     Status st;
 
-    auto & context       = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context       = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(this->buildProgram(kernelFactory));
 
@@ -239,7 +239,7 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateClusters(bool i
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
     Status st;
-    auto & context            = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context            = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory      = context.getClKernelFactory();
     auto kernelUpdateClusters = init ? kernelFactory.getKernel("init_clusters", st) : kernelFactory.getKernel("update_clusters", st);
     DAAL_CHECK_STATUS_VAR(st);
@@ -284,7 +284,7 @@ Status KMeansDistributedStep2KernelUCAPI<algorithmFPType>::updateCandidates(bool
 {
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.mergeReduceCentroids);
     Status st;
-    auto & context              = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context              = Environment::getInstance().getDefaultExecutionContext();
     auto & kernelFactory        = context.getClKernelFactory();
     auto kernelUpdateCandidates = init ? kernelFactory.getKernel("init_candidates", st) : kernelFactory.getKernel("update_candidates", st);
     DAAL_CHECK_STATUS_VAR(st);

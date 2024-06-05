@@ -45,7 +45,7 @@ template <typename algorithmFPType>
 services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::initializeBuffers(uint32_t nRows, NumericTable * weights)
 {
     Status s;
-    auto & context = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context = Environment::getInstance().getDefaultExecutionContext();
     _queue         = context.allocate(TypeIds::id<int>(), nRows, s);
     DAAL_CHECK_STATUS_VAR(s);
     _isCore = context.allocate(TypeIds::id<int>(), nRows, s);
@@ -162,7 +162,7 @@ Status DBSCANBatchKernelUCAPI<algorithmFPType>::compute(const NumericTable * x, 
                                                         const Parameter * par)
 {
     Status s;
-    auto & context                = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context                = Environment::getInstance().getDefaultExecutionContext();
     const uint32_t minkowskiPower = 2;
     algorithmFPType epsP          = 1.0;
     for (uint32_t i = 0; i < minkowskiPower; i++) epsP *= par->epsilon;
@@ -254,7 +254,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::startNextCluster(uint3
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.startNextCluster);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("startNextCluster", st);
@@ -309,7 +309,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCores(const Univers
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("computeCores", st);
@@ -349,7 +349,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::getCoresWithWeights(co
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.getCores);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("computeCoresWithWeights", st);
@@ -392,7 +392,7 @@ services::Status DBSCANBatchKernelUCAPI<algorithmFPType>::updateQueue(uint32_t c
 {
     services::Status st;
     DAAL_ITTNOTIFY_SCOPED_TASK(compute.updateQueue);
-    auto & context        = Environment::getInstance()->getDefaultExecutionContext();
+    auto & context        = Environment::getInstance().getDefaultExecutionContext();
     auto & kernel_factory = context.getClKernelFactory();
     DAAL_CHECK_STATUS_VAR(buildProgram(kernel_factory));
     auto kernel = kernel_factory.getKernel("updateQueue", st);
