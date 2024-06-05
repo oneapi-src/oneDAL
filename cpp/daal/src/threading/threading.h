@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 #include "services/daal_defines.h"
-
+#include <memory>
 namespace daal
 {
 template <typename FPType>
@@ -173,9 +173,15 @@ private:
     size_t _numberOfThreads;
 };
 
+inline std::shared_ptr<ThreaderEnvironment> threader_env_()
+{
+    return std::make_shared<ThreaderEnvironment>();
+}
+
+// If you need a function that returns a raw pointer, you can provide a separate function:
 inline ThreaderEnvironment * threader_env()
 {
-    return static_cast<ThreaderEnvironment *>(_daal_threader_env());
+    return threader_env_().get();
 }
 
 inline size_t threader_get_threads_number()
