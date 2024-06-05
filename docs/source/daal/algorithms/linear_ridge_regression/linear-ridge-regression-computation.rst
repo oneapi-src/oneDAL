@@ -455,8 +455,8 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`linear_regression_batch.py`
-    - :daal4py_example:`ridge_regression_batch.py`
+    - :daal4py_example:`linear_regression.py`
+    - :daal4py_example:`ridge_regression.py`
 
     Online Processing:
 

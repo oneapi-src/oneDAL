@@ -193,4 +193,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`logitboost_batch.py`
+    - :daal4py_example:`logitboost.py`

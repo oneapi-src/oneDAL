@@ -73,4 +73,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`distributions_normal_batch.py`
+    - :daal4py_example:`distributions_normal.py`

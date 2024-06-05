@@ -192,4 +192,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`brownboost_batch.py`
+    - :daal4py_example:`brownboost.py`
