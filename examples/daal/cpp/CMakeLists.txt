@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2021 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +45,6 @@ if(REF_BACKEND)
         ${EXCLUDE_LIST}
         "source/boosting/brownboost_dense_batch.cpp"
         "source/em/em_gmm_dense_batch.cpp"
-        "source/pca/pca_cor_csr*"
     )
 endif()
 
