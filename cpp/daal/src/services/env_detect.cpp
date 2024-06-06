@@ -63,11 +63,6 @@ DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstan
     return instance.get();
 }
 
-DAAL_EXPORT int daal::services::Environment::freeInstance()
-{
-    return 0;
-}
-
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
 {
     initNumberOfThreads();
@@ -125,13 +120,7 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWindows(daal::services::Environment::LibraryThreadingType thr)
-{
-    daal_thr_set = thr;
-    initNumberOfThreads();
-}
-
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl(nullptr)
+DAAL_EXPORT daal::services::Environment::Environment() : _globalControl(nullptr), _schedulerHandle(nullptr)
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
@@ -162,7 +151,8 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    //_daal_tbb_task_scheduler_free(_globalControl);
+    // _daal_tbb_task_scheduler_free(_globalControl);
+    // _daal_tbb_task_scheduler_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)

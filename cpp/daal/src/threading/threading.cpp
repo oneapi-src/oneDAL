@@ -52,14 +52,14 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
     scalable_aligned_free(ptr);
 }
 
-DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
-{
-    if (globalControl)
-    {
-        delete reinterpret_cast<tbb::global_control *>(globalControl);
-        globalControl = nullptr;
-    }
-}
+// DAAL_EXPORT void _daal_tbb_task_scheduler_free(std::shared_ptr<void> globalControl)
+// {
+//     if (globalControl)
+//     {
+//         delete reinterpret_cast<tbb::global_control *>(globalControl);
+//         globalControl = nullptr;
+//     }
+// }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl)
 {
@@ -68,7 +68,8 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<
     if (numThreads != 0)
     {
         globalControl.reset();
-        globalControl = std::static_pointer_cast<void>(std::make_shared<tbb::global_control>(tbb::global_control::max_allowed_parallelism, numThreads));
+        globalControl =
+            std::static_pointer_cast<void>(std::make_shared<tbb::global_control>(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }

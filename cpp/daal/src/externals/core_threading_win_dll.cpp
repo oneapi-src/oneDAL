@@ -144,6 +144,9 @@ typedef void (*_daal_wait_task_group_t)(void * taskGroupPtr);
 typedef bool (*_daal_is_in_parallel_t)();
 typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
 typedef size_t (*_setNumberOfThreads_t)(const size_t, std::shared_ptr<void> globalControl);
+typedef void (*_daal_tbb_task_scheduler_handle_finalize_t)(std::shared_ptr<void> globalControl);
+typedef size_t (*_setNumberOfThreads_t)(const size_t, std::shared_ptr<void> globalControl);
+typedef void (*_initializeSchedulerHandle_t)(std::shared_ptr<void> scheduleHandle);
 typedef void * (*_daal_threader_env_t)();
 
 typedef void (*_daal_parallel_sort_int32_t)(int *, int *);
@@ -205,10 +208,12 @@ static _daal_del_task_group_t _daal_del_task_group_ptr   = NULL;
 static _daal_run_task_group_t _daal_run_task_group_ptr   = NULL;
 static _daal_wait_task_group_t _daal_wait_task_group_ptr = NULL;
 
-static _daal_is_in_parallel_t _daal_is_in_parallel_ptr                   = NULL;
-static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr = NULL;
-static _setNumberOfThreads_t _setNumberOfThreads_ptr                     = NULL;
-static _daal_threader_env_t _daal_threader_env_ptr                       = NULL;
+static _daal_is_in_parallel_t _daal_is_in_parallel_ptr                                         = NULL;
+static _daal_tbb_task_scheduler_free_t _daal_tbb_task_scheduler_free_ptr                       = NULL;
+static _daal_tbb_task_scheduler_handle_finalize_t _daal_tbb_task_scheduler_handle_finalize_ptr = NULL;
+static _initializeSchedulerHandle_t _initializeSchedulerHandle_ptr                             = NULL;
+static _setNumberOfThreads_t _setNumberOfThreads_ptr                                           = NULL;
+static _daal_threader_env_t _daal_threader_env_ptr                                             = NULL;
 
 static _daal_parallel_sort_int32_t _daal_parallel_sort_int32_ptr                         = NULL;
 static _daal_parallel_sort_uint64_t _daal_parallel_sort_uint64_ptr                       = NULL;
@@ -337,6 +342,37 @@ DAAL_EXPORT void _daal_parallel_sort_pair_fp32_uint64(daal::IdxValType<float> * 
         _daal_parallel_sort_pair_fp32_uint64_ptr = (_daal_parallel_sort_pair_fp32_uint64_t)load_daal_thr_func("_daal_parallel_sort_pair_fp32_uint64");
     }
     _daal_parallel_sort_pair_fp32_uint64_ptr(begin_ptr, end_ptr);
+}
+
+DAAL_EXPORT void _initializeSchedulerHandle(std::shared_ptr<void> init)
+{
+    load_daal_thr_dll();
+    if (_initializeSchedulerHandle_ptr == NULL)
+    {
+        _initializeSchedulerHandle_ptr = (_initializeSchedulerHandle_t)load_daal_thr_func("_initializeSchedulerHandle");
+    }
+    _initializeSchedulerHandle_ptr(init);
+}
+
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(std::shared_ptr<void> init)
+{
+    if (init == NULL)
+    {
+        // If threading library was not opened, there is nothing to free,
+        // so we do not need to load threading library.
+        // Moreover, loading threading library in the Environment destructor
+        // results in a crush because of the use of Wintrust library after it was unloaded.
+        // This happens due to undefined order of static objects deinitialization
+        // like Environment, and dependent libraries.
+        return;
+    }
+    load_daal_thr_dll();
+    if (_daal_tbb_task_scheduler_handle_finalize_ptr == NULL)
+    {
+        _daal_tbb_task_scheduler_handle_finalize_ptr =
+            (_daal_tbb_task_scheduler_handle_finalize_t)load_daal_thr_func("_daal_tbb_task_scheduler_handle_finalize");
+    }
+    _daal_tbb_task_scheduler_handle_finalize_ptr(init);
 }
 
 DAAL_EXPORT void _daal_parallel_sort_pair_fp64_uint64(daal::IdxValType<double> * begin_ptr, daal::IdxValType<double> * end_ptr)
@@ -657,7 +693,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
     return _daal_tbb_task_scheduler_free_ptr(init);
 }
 
-DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** init)
+DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> init)
 {
     load_daal_thr_dll();
     if (_setNumberOfThreads_ptr == NULL)

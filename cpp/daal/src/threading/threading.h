@@ -101,7 +101,7 @@ extern "C"
     DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t);
     DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr);
 
-    DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
+    DAAL_EXPORT void _daal_tbb_task_scheduler_free(std::shared_ptr<void> globalControl);
     DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl);
 
     DAAL_EXPORT void * _daal_threader_env();
