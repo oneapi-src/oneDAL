@@ -28,6 +28,8 @@
 #include "services/base.h"
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
+#include <memory>
+#include <mutex>
 
 namespace daal
 {
@@ -188,12 +190,13 @@ public:
         return *_executionContext;
     }
 
-private:
     Environment();
     Environment(const Environment & e);
     Environment & operator=(const Environment &);
     ~Environment();
 
+private:
+    static std::shared_ptr<Environment> createInstance();
     void _cpu_detect(int);
     void initNumberOfThreads();
 
@@ -204,6 +207,29 @@ private:
 } // namespace interface1
 
 using interface1::Environment;
+
+class EnvironmentHolder
+{
+    std::mutex _mutex;
+    std::weak_ptr<Environment> _manager;
+
+public:
+    EnvironmentHolder(const EnvironmentHolder &)             = delete;
+    EnvironmentHolder & operator=(const EnvironmentHolder &) = delete;
+
+    EnvironmentHolder() = default;
+
+    std::shared_ptr<Environment> get()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+        auto manager = _manager.lock();
+        if (!manager)
+        {
+            _manager = manager = std::make_shared<Environment>();
+        }
+        return manager;
+    }
+};
 
 } // namespace services
 /** @} */

@@ -51,10 +51,16 @@ void daal_free_buffers();
 }
 } // namespace daal
 
+DAAL_EXPORT std::shared_ptr<daal::services::Environment> daal::services::Environment::createInstance()
+{
+    static daal::services::EnvironmentHolder holder;
+    return holder.get();
+}
+
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static daal::services::Environment instance;
-    return &instance;
+    static std::shared_ptr<daal::services::Environment> instance = createInstance();
+    return instance.get();
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
