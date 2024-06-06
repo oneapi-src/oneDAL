@@ -77,8 +77,7 @@ public:
     compute_result();
 
     /// A boolean with the result finiteness.
-    /// @remark default = table{}
-    const table& get_finite() const;
+    bool get_finite() const;
 
     auto& set_finite(const bool& value) {
         set_values_impl(value);
