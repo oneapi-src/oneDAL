@@ -71,31 +71,31 @@ const dal::csr_table make_device_csr_table_from_host_data(sycl::queue &q,
 template <typename Method>
 void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name) {
     constexpr std::int64_t cluster_count = 3;
-    // constexpr std::int64_t max_iteration_count = 1000;
-    // constexpr double accuracy_threshold = 0.0001;
+    constexpr std::int64_t max_iteration_count = 1000;
+    constexpr double accuracy_threshold = 0.0001;
 
     const auto kmeans_init_desc =
         dal::kmeans_init::descriptor<float, Method>().set_cluster_count(cluster_count);
 
     const auto result_init = dal::compute(q, kmeans_init_desc, x_train);
 
-    // const auto kmeans_desc = dal::kmeans::descriptor<>()
-    //                              .set_cluster_count(cluster_count)
-    //                              .set_max_iteration_count(max_iteration_count)
-    //                              .set_accuracy_threshold(accuracy_threshold);
+    const auto kmeans_desc = dal::kmeans::descriptor<>()
+                                 .set_cluster_count(cluster_count)
+                                 .set_max_iteration_count(max_iteration_count)
+                                 .set_accuracy_threshold(accuracy_threshold);
 
-    // const auto result_train = dal::train(q, kmeans_desc, x_train, result_init.get_centroids());
+    const auto result_train = dal::train(q, kmeans_desc, x_train, result_init.get_centroids());
 
     std::cout << "Method: " << method_name << std::endl;
     std::cout << "=================================================================" << std::endl;
     std::cout << "centroids: \n" << result_init.get_centroids() << std::endl;
 
-    // std::cout << "Max iteration count: " << max_iteration_count
-    //           << ", Accuracy threshold: " << accuracy_threshold << std::endl;
-    // std::cout << "Iteration count: " << result_train.get_iteration_count()
-    //           << ", Objective function value: " << result_train.get_objective_function_value()
-    //           << '\n'
-    //           << std::endl;
+    std::cout << "Max iteration count: " << max_iteration_count
+              << ", Accuracy threshold: " << accuracy_threshold << std::endl;
+    std::cout << "Iteration count: " << result_train.get_iteration_count()
+              << ", Objective function value: " << result_train.get_objective_function_value()
+              << '\n'
+              << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
