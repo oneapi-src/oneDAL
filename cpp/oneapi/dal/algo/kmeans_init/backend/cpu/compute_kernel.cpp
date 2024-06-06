@@ -110,5 +110,7 @@ template struct compute_kernel_cpu<float, method::plus_plus_csr, task::init>;
 template struct compute_kernel_cpu<double, method::plus_plus_csr, task::init>;
 template struct compute_kernel_cpu<float, method::parallel_plus_dense, task::init>;
 template struct compute_kernel_cpu<double, method::parallel_plus_dense, task::init>;
+template struct compute_kernel_cpu<float, method::parallel_plus_csr, task::init>;
+template struct compute_kernel_cpu<double, method::parallel_plus_csr, task::init>;
 
 } // namespace oneapi::dal::kmeans_init::backend

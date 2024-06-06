@@ -53,4 +53,8 @@ template <>
 struct to_daal_method<method::parallel_plus_dense>
         : daal_method_constant<daal_kmeans_init::parallelPlusDense> {};
 
+template <>
+struct to_daal_method<method::parallel_plus_csr>
+        : daal_method_constant<daal_kmeans_init::parallelPlusCSR> {};
+
 } // namespace oneapi::dal::kmeans_init::backend

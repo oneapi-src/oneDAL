@@ -76,7 +76,6 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                                      sparse_indexing::one_based);
 
 
-
     //number of trials to pick each centroid from, 2 + int(ln(cluster_count)) works better than vanilla kmeans++
     //https://github.com/scikit-learn/scikit-learn/blob/a63b021310ba13ea39ad3555f550d8aeec3002c5/sklearn/cluster/_kmeans.py#L108
     std::int64_t trial_count = desc.get_local_trials_count();
@@ -136,7 +135,7 @@ template struct compute_kernel_gpu<float, method::random_csr, task::init>;
 template struct compute_kernel_gpu<double, method::random_csr, task::init>;
 template struct compute_kernel_gpu<float, method::plus_plus_csr, task::init>;
 template struct compute_kernel_gpu<double, method::plus_plus_csr, task::init>;
-// template struct compute_kernel_gpu<float, method::parallel_plus_dense, task::init>;
-// template struct compute_kernel_gpu<double, method::parallel_plus_dense, task::init>;
+template struct compute_kernel_gpu<float, method::parallel_plus_csr, task::init>;
+template struct compute_kernel_gpu<double, method::parallel_plus_csr, task::init>;
 
 } // namespace oneapi::dal::kmeans_init::backend

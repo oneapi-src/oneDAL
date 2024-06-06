@@ -55,6 +55,9 @@ struct plus_plus_csr {};
 /// Tag-type that denotes :ref:`parallel_plus_dense <kmeans_init_c_math_parallel_plus_dense>`
 /// computational method.
 struct parallel_plus_dense {};
+/// Tag-type that denotes :ref:`parallel_plus_csr <kmeans_init_c_math_parallel_plus_csr>`
+/// computational method.
+struct parallel_plus_csr {};
 using by_default = dense;
 } // namespace v1
 
@@ -64,6 +67,7 @@ using v1::random_csr;
 using v1::plus_plus_dense;
 using v1::plus_plus_csr;
 using v1::parallel_plus_dense;
+using v1::parallel_plus_csr;
 using v1::by_default;
 
 } // namespace method
