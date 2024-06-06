@@ -69,7 +69,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
         return distr_t{}(ctx, desc, input);
     }
     else if constexpr (is_random_csr || is_plus_plus_csr) {
-        return distr_t{}(ctx, desc, input);
+        pass;
     }
     else {
         return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
