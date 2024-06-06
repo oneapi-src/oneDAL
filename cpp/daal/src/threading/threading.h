@@ -26,7 +26,7 @@
 
 #include <stdint.h>
 #include "services/daal_defines.h"
-
+#include <memory>
 namespace daal
 {
 template <typename FPType>
@@ -102,7 +102,7 @@ extern "C"
     DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr);
 
     DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
-    DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl);
+    DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl);
 
     DAAL_EXPORT void * _daal_threader_env();
 
@@ -183,7 +183,7 @@ inline size_t threader_get_threads_number()
     return threader_env()->getNumberOfThreads();
 }
 
-inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl)
+inline size_t setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl)
 {
     return _setNumberOfThreads(numThreads, globalControl);
 }

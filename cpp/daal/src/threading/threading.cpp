@@ -61,14 +61,14 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
     }
 }
 
-DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
+DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl)
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
-        _daal_tbb_task_scheduler_free(*globalControl);
-        *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
+        globalControl.reset();
+        globalControl = std::static_pointer_cast<void>(std::make_shared<tbb::global_control>(tbb::global_control::max_allowed_parallelism, numThreads));
         daal::threader_env()->setNumberOfThreads(numThreads);
         return numThreads;
     }

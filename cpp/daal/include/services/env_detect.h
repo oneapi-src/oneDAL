@@ -201,7 +201,7 @@ private:
     void initNumberOfThreads();
 
     env _env;
-    void * _globalControl;
+    std::shared_ptr<void> _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
