@@ -143,10 +143,8 @@ typedef void (*_daal_wait_task_group_t)(void * taskGroupPtr);
 
 typedef bool (*_daal_is_in_parallel_t)();
 typedef void (*_daal_tbb_task_scheduler_free_t)(void *& globalControl);
-typedef size_t (*_setNumberOfThreads_t)(const size_t, std::shared_ptr<void> globalControl);
+typedef size_t (*_setNumberOfThreads_t)(const size_t, std::shared_ptr<void> globalControl, std::shared_ptr<void> scheduleHandle);
 typedef void (*_daal_tbb_task_scheduler_handle_finalize_t)(std::shared_ptr<void> globalControl);
-typedef size_t (*_setNumberOfThreads_t)(const size_t, std::shared_ptr<void> globalControl);
-typedef void (*_initializeSchedulerHandle_t)(std::shared_ptr<void> scheduleHandle);
 typedef void * (*_daal_threader_env_t)();
 
 typedef void (*_daal_parallel_sort_int32_t)(int *, int *);

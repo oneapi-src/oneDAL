@@ -51,16 +51,10 @@ void daal_free_buffers();
 }
 } // namespace daal
 
-DAAL_EXPORT std::shared_ptr<daal::services::Environment> daal::services::Environment::createInstance()
-{
-    static daal::services::EnvironmentHolder holder;
-    return holder.get();
-}
-
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static std::shared_ptr<daal::services::Environment> instance = createInstance();
-    return instance.get();
+    static daal::services::Environment instance;
+    return &instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
@@ -151,8 +145,8 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    // _daal_tbb_task_scheduler_free(_globalControl);
-    // _daal_tbb_task_scheduler_free(_schedulerHandle);
+    _daal_tbb_task_scheduler_free(_globalControl);
+    _daal_tbb_task_scheduler_free(_schedulerHandle);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -167,7 +161,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    daal::setNumberOfThreads(numThreads, _globalControl);
+    daal::setNumberOfThreads(numThreads, _globalControl, _schedulerHandle);
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const
