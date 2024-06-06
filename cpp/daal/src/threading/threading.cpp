@@ -57,7 +57,7 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(std::shared_ptr<void> globalContr
     globalControl.reset();
 }
 
-DAAL_EXPORT void initializeSchedulerHandle(std::shared_ptr<void> _schedulerHandle)
+DAAL_EXPORT void _initializeSchedulerHandle(std::shared_ptr<void> _schedulerHandle)
 {
     if (!isInit)
     {
@@ -73,7 +73,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads != 0)
     {
-        initializeSchedulerHandle(_schedulerHandle);
+        _initializeSchedulerHandle(_schedulerHandle);
         globalControl.reset();
         globalControl =
             std::static_pointer_cast<void>(std::make_shared<tbb::global_control>(tbb::global_control::max_allowed_parallelism, numThreads));
