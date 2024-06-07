@@ -54,6 +54,8 @@ INSTANTIATE(float, method::plus_plus_csr, task::init)
 INSTANTIATE(double, method::plus_plus_csr, task::init)
 INSTANTIATE(float, method::parallel_plus_dense, task::init)
 INSTANTIATE(double, method::parallel_plus_dense, task::init)
+INSTANTIATE(float, method::parallel_plus_csr, task::init)
+INSTANTIATE(double, method::parallel_plus_csr, task::init)
 
 } // namespace v1
 } // namespace oneapi::dal::kmeans_init::detail
