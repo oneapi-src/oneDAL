@@ -1037,7 +1037,5 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
 
 template struct compute_kernel_distr<float, method::plus_plus_dense, task::init>;
 template struct compute_kernel_distr<double, method::plus_plus_dense, task::init>;
-template struct compute_kernel_distr<float, method::plus_plus_csr, task::init>;
-template struct compute_kernel_distr<double, method::plus_plus_csr, task::init>;
 
 } // namespace oneapi::dal::kmeans_init::backend

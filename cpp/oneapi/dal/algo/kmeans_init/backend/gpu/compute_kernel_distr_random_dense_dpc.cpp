@@ -69,8 +69,6 @@ compute_result<Task> compute_kernel_distr<Float, Method, Task>::operator()(
 
 template struct compute_kernel_distr<float, method::random_dense, task::init>;
 template struct compute_kernel_distr<double, method::random_dense, task::init>;
-template struct compute_kernel_distr<float, method::random_csr, task::init>;
-template struct compute_kernel_distr<double, method::random_csr, task::init>;
 
 namespace misc {
 

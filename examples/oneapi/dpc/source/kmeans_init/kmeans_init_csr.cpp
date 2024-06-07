@@ -84,7 +84,7 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
                                  .set_max_iteration_count(max_iteration_count)
                                  .set_accuracy_threshold(accuracy_threshold);
 
-    const auto result_train = dal::train(q, kmeans_desc, x_train, result_init.get_centroids());
+    const auto result_train = dal::train(q, kmeans_desc, x_train);
 
     std::cout << "Method: " << method_name << std::endl;
     std::cout << "=================================================================" << std::endl;
