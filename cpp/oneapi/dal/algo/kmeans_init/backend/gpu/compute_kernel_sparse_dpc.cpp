@@ -110,16 +110,16 @@ static result_t call_daal_kernel(const context_gpu& ctx,
             .compute(len_input, input, len_output, output, &par, *(par.engine));
     }));
     
-    // auto element_count = cluster_count * column_count;
-    // auto arr_centroids_device = dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
-    // auto* const arr_centroids_ptr = arr_centroids_device.get_mutable_data();
-    // auto copy_to_device_event = queue.submit([&](sycl::handler& cgh) {
-    //     cgh.memcpy(arr_centroids_ptr, arr_centroids.get_data(), element_count * sizeof(float));
-    // });
+    auto element_count = cluster_count * column_count;
+    auto arr_centroids_device = dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
+    auto* const arr_centroids_ptr = arr_centroids_device.get_mutable_data();
+    auto copy_to_device_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.memcpy(arr_centroids_ptr, arr_centroids.get_data(), element_count * sizeof(float));
+    });
     
     return compute_result<task_t>().set_centroids(
         dal::detail::homogen_table_builder{}
-            .reset(arr_centroids, cluster_count, column_count)
+            .reset(arr_centroids_device, cluster_count, column_count)
             .build());
 }
 
