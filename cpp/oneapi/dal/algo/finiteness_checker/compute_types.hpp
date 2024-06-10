@@ -80,12 +80,12 @@ public:
     bool get_finite() const;
 
     auto& set_finite(const bool& value) {
-        set_values_impl(value);
+        set_finite_impl(value);
         return *this;
     }
 
 protected:
-    void set_values_impl(const bool&);
+    void set_finite_impl(const bool&);
 
 private:
     dal::detail::pimpl<detail::compute_result_impl<Task>> impl_;
