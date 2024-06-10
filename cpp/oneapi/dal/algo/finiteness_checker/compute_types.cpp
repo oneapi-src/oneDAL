@@ -56,7 +56,7 @@ template <typename Task>
 compute_result<Task>::compute_result() : impl_(new compute_result_impl<Task>{}) {}
 
 template <typename Task>
-const table& compute_result<Task>::get_finite() const {
+bool compute_result<Task>::get_finite() const {
     return impl_->finite;
 }
 
