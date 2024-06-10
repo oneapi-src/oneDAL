@@ -16,9 +16,7 @@
 *******************************************************************************/
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict.h"
-#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_predict_kernel_ucapi.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
-#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
 #include "services/error_indexes.h"
 
 namespace daal

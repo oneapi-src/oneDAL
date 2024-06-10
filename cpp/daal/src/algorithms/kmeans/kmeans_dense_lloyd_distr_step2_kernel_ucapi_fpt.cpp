@@ -22,7 +22,6 @@
 */
 
 #include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
-#include "src/algorithms/kmeans/oneapi/kmeans_lloyd_distr_step2_ucapi_impl.i"
 
 namespace daal
 {

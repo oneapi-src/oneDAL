@@ -30,7 +30,6 @@
 #include "algorithms/kmeans/kmeans_init_distributed.h"
 #include "src/algorithms/kmeans/kmeans_init_kernel.h"
 #include "src/algorithms/kmeans/kmeans_init_impl.h"
-#include "src/algorithms/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
 #include "services/internal/sycl/execution_context.h"
 
 namespace daal

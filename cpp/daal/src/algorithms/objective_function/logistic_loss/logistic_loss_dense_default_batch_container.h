@@ -26,7 +26,6 @@
 
 #include "algorithms/optimization_solver/objective_function/logistic_loss_batch.h"
 #include "src/algorithms/objective_function/logistic_loss/logistic_loss_dense_default_batch_kernel.h"
-#include "src/algorithms/objective_function/logistic_loss/oneapi/logistic_loss_dense_default_kernel_oneapi.h"
 
 namespace daal
 {

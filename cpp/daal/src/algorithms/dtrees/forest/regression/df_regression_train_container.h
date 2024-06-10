@@ -28,7 +28,6 @@
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_batch.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h"
-#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/services/service_algo_utils.h"
 

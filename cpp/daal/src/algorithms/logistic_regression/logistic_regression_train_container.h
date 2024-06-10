@@ -32,8 +32,6 @@
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
 #include "src/services/service_algo_utils.h"
 
-#include "src/algorithms/logistic_regression/oneapi/logistic_regression_train_kernel_oneapi.h"
-
 namespace daal
 {
 namespace algorithms

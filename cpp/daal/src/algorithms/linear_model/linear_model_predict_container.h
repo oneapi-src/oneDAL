@@ -29,8 +29,6 @@
 #include "algorithms/linear_model/linear_model_predict.h"
 #include "src/algorithms/linear_model/linear_model_predict_kernel.h"
 
-#include "src/algorithms/linear_model/oneapi/linear_model_predict_kernel_oneapi.h"
-
 namespace daal
 {
 namespace algorithms

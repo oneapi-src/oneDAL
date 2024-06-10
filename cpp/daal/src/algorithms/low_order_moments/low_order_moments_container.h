@@ -29,9 +29,6 @@
 #include "algorithms/moments/low_order_moments_online.h"
 #include "algorithms/moments/low_order_moments_distributed.h"
 #include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
-#include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_batch_oneapi.h"
-#include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
-#include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_distributed_oneapi.h"
 #include "services/internal/execution_context.h"
 
 namespace daal

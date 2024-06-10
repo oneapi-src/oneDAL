@@ -25,7 +25,6 @@
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_dense_default_kernel.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_polynomial_csr_fast_kernel.h"
-#include "src/algorithms/kernel_function/oneapi/kernel_function_linear_kernel_oneapi.h"
 
 namespace daal
 {

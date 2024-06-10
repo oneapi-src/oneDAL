@@ -34,8 +34,6 @@
 #include "src/data_management/service_numeric_table.h"
 #include "services/internal/execution_context.h"
 
-#include "src/algorithms/linear_regression/oneapi/linear_regression_train_kernel_oneapi.h"
-
 namespace daal
 {
 namespace algorithms

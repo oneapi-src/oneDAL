@@ -30,8 +30,6 @@
 #include "algorithms/covariance/covariance_distributed.h"
 #include "src/algorithms/covariance/covariance_hyperparameter_impl.h"
 #include "src/algorithms/covariance/covariance_kernel.h"
-#include "src/algorithms/covariance/oneapi/covariance_kernel_oneapi.h"
-#include "src/algorithms/covariance/oneapi/covariance_dense_distr_step2_oneapi.h"
 
 #undef __DAAL_CONCAT
 #define __DAAL_CONCAT(x, y) x##y

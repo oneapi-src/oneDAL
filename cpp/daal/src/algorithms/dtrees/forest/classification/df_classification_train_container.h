@@ -28,7 +28,6 @@
 #include "algorithms/decision_forest/decision_forest_classification_training_types.h"
 #include "algorithms/decision_forest/decision_forest_classification_training_batch.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_train_kernel.h"
-#include "src/algorithms/dtrees/forest/classification/oneapi/df_classification_train_hist_kernel_oneapi.h"
 #include "src/algorithms/dtrees/forest/classification/df_classification_model_impl.h"
 #include "src/services/service_algo_utils.h"
 

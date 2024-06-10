@@ -24,7 +24,6 @@
 #include "algorithms/kernel_function/kernel_function_rbf.h"
 #include "src/algorithms/kernel_function/kernel_function_rbf_dense_default_kernel.h"
 #include "src/algorithms/kernel_function/kernel_function_rbf_csr_fast_kernel.h"
-#include "src/algorithms/kernel_function/oneapi/kernel_function_rbf_kernel_oneapi.h"
 
 namespace daal
 {

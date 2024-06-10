@@ -27,7 +27,6 @@
 #include "src/algorithms/kernel.h"
 #include "algorithms/pca/pca_online.h"
 #include "src/algorithms/pca/pca_dense_correlation_online_kernel.h"
-#include "src/algorithms/pca/oneapi/pca_dense_correlation_online_kernel_ucapi.h"
 
 namespace daal
 {
