@@ -20,6 +20,8 @@
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
+#include <src/algorithms/k_nearest_neighbors/bf_knn_classification_model.h>
+
 namespace oneapi::dal::knn::backend {
 
 template <typename Task, typename ModelImpl>
