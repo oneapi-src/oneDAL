@@ -47,10 +47,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsBatchKernel, algorithmFPType, method);
     }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsBatchKernelOneAPI, algorithmFPType, method);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -78,11 +74,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, dataTable, result,
                            par);
     }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::LowOrderMomentsBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                dataTable, result, par);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -94,10 +85,6 @@ OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(daal::services::E
     if (method != defaultDense || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsOnlineKernel, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, algorithmFPType, method);
     }
 }
 
@@ -126,11 +113,6 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     {
         __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, dataTable,
                            partialResult, par, isOnline);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                dataTable, partialResult, par, isOnline);
     }
 }
 
@@ -170,11 +152,6 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute(
                            nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable, varianceTable, stDevTable,
                            variationTable, par);
     }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::LowOrderMomentsOnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-                                finalizeCompute, partialResult, result, par);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -186,10 +163,6 @@ DistributedContainer<step2Master, algorithmFPType, method, cpu>::DistributedCont
     if (method != defaultDense || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::LowOrderMomentsDistributedKernel, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::LowOrderMomentsDistributedKernelOneAPI, algorithmFPType, method);
     }
 }
 
@@ -219,11 +192,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     {
         s = __DAAL_CALL_KERNEL_STATUS(env, internal::LowOrderMomentsDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                                       collection, partialResult, par);
-    }
-    else
-    {
-        s = __DAAL_CALL_KERNEL_STATUS_SYCL(env, oneapi::internal::LowOrderMomentsDistributedKernelOneAPI,
-                                           __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, collection, partialResult, par);
     }
 
     collection->clear();
@@ -267,11 +235,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
         s = __DAAL_CALL_KERNEL_STATUS(env, internal::LowOrderMomentsDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
                                       finalizeCompute, nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable,
                                       varianceTable, stDevTable, variationTable, par);
-    }
-    else
-    {
-        s = __DAAL_CALL_KERNEL_STATUS_SYCL(env, oneapi::internal::LowOrderMomentsDistributedKernelOneAPI,
-                                           __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), finalizeCompute, partialResult, result, par);
     }
 
     return s;

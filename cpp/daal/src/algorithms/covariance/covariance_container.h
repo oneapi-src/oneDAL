@@ -282,10 +282,6 @@
         {                                                                                                                                    \
             __DAAL_INITIALIZE_KERNELS(internal::CovarianceDistributedKernel, algorithmFPType, ComputeMethod);                                \
         }                                                                                                                                    \
-        else                                                                                                                                 \
-        {                                                                                                                                    \
-            __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI, algorithmFPType, ComputeMethod)          \
-        }                                                                                                                                    \
     }
 
 #undef __DAAL_COVARIANCE_DISTR_CONTAINER_DESTRUCTOR
@@ -341,14 +337,7 @@
         {                                                                                                                                       \
             __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute,    \
                                collection, nObsTable, crossProductTable, sumTable, parameter);                                                  \
-        }                                                                                                                                       \
-        else                                                                                                                                    \
-        {                                                                                                                                       \
-            __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI,                                               \
-                                    __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, collection, nObsTable, crossProductTable, \
-                                    sumTable, parameter);                                                                                       \
-        }                                                                                                                                       \
-                                                                                                                                                \
+        }                                                                                                                                   \
         collection->clear();                                                                                                                    \
     }
 
@@ -397,13 +386,7 @@
         {                                                                                                                                            \
             __DAAL_CALL_KERNEL(env, internal::CovarianceDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, \
                                nObsTable, crossProductTable, sumTable, covTable, meanTable, parameter);                                              \
-        }                                                                                                                                            \
-        else                                                                                                                                         \
-        {                                                                                                                                            \
-            __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::CovarianceDenseDistrStep2KernelOneAPI,                                                    \
-                                    __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable, crossProductTable,          \
-                                    sumTable, covTable, meanTable, parameter);                                                                       \
-        }                                                                                                                                            \
+        }                                                                                                                                           \
     }
 
 namespace daal
