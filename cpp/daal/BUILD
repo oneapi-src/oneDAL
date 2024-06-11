@@ -124,7 +124,7 @@ daal_module(
 
 daal_module(
     name = "sycl",
-    hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
+    hdrs = glob(["src/sycl/**/*.h"]),
     srcs = glob(["src/sycl/**/*.cpp"]),
     deps = select({
             "@config//:backend_ref": [
