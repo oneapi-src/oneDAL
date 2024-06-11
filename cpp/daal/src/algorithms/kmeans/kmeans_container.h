@@ -51,10 +51,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::KMeansBatchKernel, method, algorithmFPType);
     }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KMeansDenseLloydBatchKernelUCAPI, algorithmFPType);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -84,10 +80,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     {
         __DAAL_CALL_KERNEL(env, internal::KMeansBatchKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a, r, par);
     }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDenseLloydBatchKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, a, r, par);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -99,10 +91,6 @@ DistributedContainer<step1Local, algorithmFPType, method, cpu>::DistributedConta
     if (deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::KMeansDistributedStep1Kernel, method, algorithmFPType);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KMeansDistributedStep1KernelUCAPI, algorithmFPType);
     }
 }
 
@@ -146,11 +134,6 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
     {
         __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, par);
     }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep1KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, na, a, nr, r,
-                                par);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -177,11 +160,6 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
         __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr,
                            r, par);
     }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep1KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeCompute, na, a,
-                                nr, r, par);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -193,10 +171,6 @@ DistributedContainer<step2Master, algorithmFPType, method, cpu>::DistributedCont
     if (deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::KMeansDistributedStep2Kernel, method, algorithmFPType);
-    }
-    else
-    {
-        _kernel = new internal::KMeansDistributedStep2KernelUCAPI<algorithmFPType>();
     }
 }
 
@@ -249,11 +223,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
         s = __DAAL_CALL_KERNEL_STATUS(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a,
                                       nr, r, par);
     }
-    else
-    {
-        s = __DAAL_CALL_KERNEL_STATUS_SYCL(env, internal::KMeansDistributedStep2KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, na, a,
-                                           nr, r, par);
-    }
     dcInput->clear();
     return s;
 }
@@ -286,11 +255,6 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     {
         __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr,
                            r, par);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KMeansDistributedStep2KernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), finalizeCompute, na, a,
-                                nr, r, par);
     }
 }
 

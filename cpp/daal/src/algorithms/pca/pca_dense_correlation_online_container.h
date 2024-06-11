@@ -44,11 +44,6 @@ OnlineContainer<algorithmFPType, correlationDense, cpu>::OnlineContainer(daal::s
     {
         __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, online, algorithmFPType);
     }
-    else
-    {
-        services::SharedPtr<internal::PCACorrelationBaseIface<algorithmFPType> > hostImpl(new internal::PCACorrelationBase<algorithmFPType, cpu>());
-        _kernel = new internal::PCACorrelationKernelOnlineUCAPI<algorithmFPType>(hostImpl);
-    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -75,10 +70,6 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::comput
         __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), compute, data, partialResult,
                            parameter);
     }
-    else
-    {
-        return ((internal::PCACorrelationKernelOnlineUCAPI<algorithmFPType> *)(_kernel))->compute(data, partialResult, parameter);
-    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -99,11 +90,6 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::finali
     {
         __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), finalize, partialResult, parameter,
                            *eigenvectors, *eigenvalues);
-    }
-    else
-    {
-        return ((internal::PCACorrelationKernelOnlineUCAPI<algorithmFPType> *)(_kernel))
-            ->finalize(partialResult, parameter, *eigenvectors, *eigenvalues);
     }
 }
 

@@ -47,10 +47,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::DBSCANBatchKernel, algorithmFPType, method);
     }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::DBSCANBatchKernelUCAPI, algorithmFPType);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -91,12 +87,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
             __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeMemSave, ntData.get(),
                                ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
         }
-    }
-    else
-    {
-        // memorySavingMode flag is not applicable for DBSCAN on GPU
-        __DAAL_CALL_KERNEL_SYCL(env, internal::DBSCANBatchKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, ntData.get(),
-                                ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }
 }
 

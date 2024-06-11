@@ -47,10 +47,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::LogLossKernel, algorithmFPType, method);
     }
-    else
-    {
-        _kernel = new internal::LogLossKernelOneAPI<algorithmFPType, method>();
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -112,13 +108,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                            input->get(logistic_loss::data).get(), input->get(logistic_loss::dependentVariables).get(),
                            input->get(logistic_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
                            lipschitzConstant, parameter);
-    }
-    else
-    {
-        return ((internal::LogLossKernelOneAPI<algorithmFPType, method> *)(_kernel))
-            ->compute(input->get(logistic_loss::data).get(), input->get(logistic_loss::dependentVariables).get(),
-                      input->get(logistic_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection, lipschitzConstant,
-                      parameter);
     }
 }
 

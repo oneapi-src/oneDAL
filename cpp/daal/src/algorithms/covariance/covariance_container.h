@@ -54,10 +54,6 @@
         {                                                                                                           \
             __DAAL_INITIALIZE_KERNELS(KernelClass, algorithmFPType, ComputeMethod);                                 \
         }                                                                                                           \
-        else                                                                                                        \
-        {                                                                                                           \
-            _kernel = new oneapi::__DAAL_CONCAT(KernelClass, OneAPI)<algorithmFPType, ComputeMethod>();             \
-        }                                                                                                           \
     }
 
 #undef __DAAL_COVARIANCE_BATCH_CONTAINER_DESTRUCTOR
@@ -111,11 +107,6 @@
             __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, dataTable, covTable, meanTable, \
                                parameter);                                                                                                         \
         }                                                                                                                                          \
-        else                                                                                                                                       \
-        {                                                                                                                                          \
-            return ((oneapi::__DAAL_CONCAT(KernelClass, OneAPI) < algorithmFPType, ComputeMethod > *)(_kernel))                                    \
-                ->compute(dataTable, covTable, meanTable, parameter);                                                                              \
-        }                                                                                                                                          \
     }
 
 #undef __DAAL_COVARIANCE_ONLINE_CONTAINER_CONSTRUCTOR
@@ -137,10 +128,6 @@
         if (deviceInfo.isCpu)                                                                                           \
         {                                                                                                               \
             __DAAL_INITIALIZE_KERNELS(KernelClass, algorithmFPType, ComputeMethod);                                     \
-        }                                                                                                               \
-        else                                                                                                            \
-        {                                                                                                               \
-            __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::__DAAL_CONCAT(KernelClass, OneAPI), algorithmFPType, ComputeMethod); \
         }                                                                                                               \
     }
 
@@ -199,11 +186,6 @@
             __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), compute, dataTable, nObsTable,      \
                                crossProductTable, sumTable, parameter);                                                                       \
         }                                                                                                                                     \
-        else                                                                                                                                  \
-        {                                                                                                                                     \
-            __DAAL_CALL_KERNEL_SYCL(env, oneapi::__DAAL_CONCAT(KernelClass, OneAPI), __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), \
-                                    compute, dataTable, nObsTable, crossProductTable, sumTable, parameter);                                   \
-        }                                                                                                                                     \
     }
 
 #undef __DAAL_COVARIANCE_ONLINE_CONTAINER_FINALIZECOMPUTE
@@ -254,11 +236,6 @@
         {                                                                                                                                     \
             __DAAL_CALL_KERNEL(env, KernelClass, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), finalizeCompute, nObsTable,         \
                                crossProductTable, sumTable, covTable, meanTable, parameter);                                                  \
-        }                                                                                                                                     \
-        else                                                                                                                                  \
-        {                                                                                                                                     \
-            __DAAL_CALL_KERNEL_SYCL(env, oneapi::__DAAL_CONCAT(KernelClass, OneAPI), __DAAL_KERNEL_ARGUMENTS(algorithmFPType, ComputeMethod), \
-                                    finalizeCompute, nObsTable, crossProductTable, sumTable, covTable, meanTable, parameter);                 \
         }                                                                                                                                     \
     }
 

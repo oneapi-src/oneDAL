@@ -56,11 +56,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(Environment::env * 
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if ((method == training::normEqDense) && (!deviceInfo.isCpu))
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::BatchKernelOneAPI, algorithmFPType, training::normEqDense);
-    }
-    else
+    if (!(method == training::normEqDense) || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::BatchKernel, algorithmFPType, method);
     }
@@ -102,12 +98,6 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
                                *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
                                par->interceptFlag);
         }
-        else
-        {
-            __DAAL_CALL_KERNEL_SYCL(env, internal::BatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
-                                    *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
-                                    par->interceptFlag);
-        }
     }
     else
     {
@@ -128,11 +118,7 @@ OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(Environment::env 
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if ((method == training::normEqDense) && (!deviceInfo.isCpu))
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::OnlineKernelOneAPI, algorithmFPType, training::normEqDense);
-    }
-    else
+    if (!(method == training::normEqDense) || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::OnlineKernel, algorithmFPType, method);
     }
@@ -173,12 +159,6 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
             __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
                                *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), par->interceptFlag);
         }
-        else
-        {
-            __DAAL_CALL_KERNEL_SYCL(env, internal::OnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
-                                    *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()),
-                                    par->interceptFlag);
-        }
     }
     else
     {
@@ -218,12 +198,6 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
             __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), finalizeCompute,
                                *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
                                par->interceptFlag);
-        }
-        else
-        {
-            __DAAL_CALL_KERNEL_SYCL(env, internal::OnlineKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense),
-                                    finalizeCompute, *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()),
-                                    *(m->getBeta()), par->interceptFlag);
         }
     }
     else

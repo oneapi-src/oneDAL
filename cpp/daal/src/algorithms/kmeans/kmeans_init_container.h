@@ -50,10 +50,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::KMeansInitKernel, method, algorithmFPType);
     }
-    else
-    {
-        _kernel = new internal::KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>();
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -87,10 +83,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     {
         __DAAL_CALL_KERNEL(env, internal::KMeansInitKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, par,
                            *par->engine);
-    }
-    else
-    {
-        return ((internal::KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType> *)(_kernel))->compute(na, a, nr, r, par, *par->engine);
     }
 }
 

@@ -62,8 +62,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         dm::NumericTablePtr nt;
         if (deviceInfo.isCpu)
             nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTableIface::doAllocate, &st);
-        else
-            nt = dmi::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTableIface::doAllocate, &st);
 
         set(prediction, nt);
     }
@@ -72,8 +70,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         dm::NumericTablePtr nt;
         if (deviceInfo.isCpu)
             nt = dm::HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
-        else
-            nt = dmi::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
 
         set(probabilities, nt);
     }
@@ -82,8 +78,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         dm::NumericTablePtr nt;
         if (deviceInfo.isCpu)
             nt = dm::HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
-        else
-            nt = dmi::SyclHomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
 
         set(logProbabilities, nt);
     }

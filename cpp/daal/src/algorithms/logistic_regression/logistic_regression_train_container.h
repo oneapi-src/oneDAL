@@ -52,10 +52,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
     }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::TrainBatchKernelOneAPI, algorithmFPType, method);
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -82,11 +78,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     {
         __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                            daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::TrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
     }
 }
 

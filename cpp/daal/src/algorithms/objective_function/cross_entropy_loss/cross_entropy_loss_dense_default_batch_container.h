@@ -47,10 +47,6 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::CrossEntropyLossKernel, algorithmFPType, method);
     }
-    else
-    {
-        _kernel = new internal::CrossEntropyLossKernelOneAPI<algorithmFPType, method>();
-    }
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -111,13 +107,6 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                            input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
                            input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
                            lipschitzConstant, parameter);
-    }
-    else
-    {
-        return ((internal::CrossEntropyLossKernelOneAPI<algorithmFPType, method> *)(_kernel))
-            ->compute(input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
-                      input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
-                      lipschitzConstant, parameter);
     }
 }
 

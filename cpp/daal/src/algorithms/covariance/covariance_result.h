@@ -58,14 +58,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         set(mean, HomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
         DAAL_CHECK_STATUS_VAR(status);
     }
-    else
-    {
-        set(covariance, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
-        DAAL_CHECK_STATUS_VAR(status);
-
-        set(mean, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
-        DAAL_CHECK_STATUS_VAR(status);
-    }
 
     return status;
 }
@@ -91,11 +83,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     {
         set(covariance, HomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
         set(mean, HomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
-    }
-    else
-    {
-        set(covariance, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
-        set(mean, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
     }
 
     return status;

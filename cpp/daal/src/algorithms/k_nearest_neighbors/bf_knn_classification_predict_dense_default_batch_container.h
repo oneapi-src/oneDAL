@@ -37,10 +37,6 @@ BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Env
     {
         __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationPredictKernel, algorithmFpType);
     }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::KNNClassificationPredictKernelUCAPI, algorithmFpType);
-    }
 }
 
 template <typename algorithmFpType, Method method, CpuType cpu>
@@ -77,11 +73,6 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     {
         __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
                            label.get(), indices.get(), distances.get(), &kernelPar);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::KNNClassificationPredictKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(),
-                                m.get(), label.get(), indices.get(), distances.get(), par);
     }
 }
 

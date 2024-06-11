@@ -22,7 +22,6 @@
 */
 
 #include "algorithms/optimization_solver/objective_function/objective_function_types.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -34,7 +33,6 @@ namespace objective_function
 {
 namespace interface1
 {
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 /**
  * Allocates memory for storing results of the Objective function
@@ -67,10 +65,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         if (deviceInfo.isCpu)
         {
             nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
-        }
-        else
-        {
-            nt = SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
         }
         Argument::set(gradientIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }

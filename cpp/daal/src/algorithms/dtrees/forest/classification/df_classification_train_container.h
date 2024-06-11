@@ -49,11 +49,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (method == hist && !deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::ClassificationTrainBatchKernelOneAPI, algorithmFPType, method);
-    }
-    else
+    if (!(method == hist) || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::ClassificationTrainBatchKernel, algorithmFPType, method);
     }
@@ -85,12 +81,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const decision_forest::classification::training::Parameter * par = static_cast<decision_forest::classification::training::Parameter *>(_par);
     daal::services::Environment::env & env                           = *_env;
 
-    if (method == hist && !deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::ClassificationTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
-    }
-    else
+    if (!(method == hist) || deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::ClassificationTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                            daal::services::internal::hostApp(*input), x, y, w, *m, *result, *par);

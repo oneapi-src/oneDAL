@@ -47,23 +47,7 @@ Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIf
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (!deviceInfo.isCpu)
-    {
-        if (layout == dm::NumericTableIface::csrArray)
-        {
-            _SV = dmi::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
-                                                                services::internal::Buffer<size_t>(), nColumns, size_t(0),
-                                                                dm::CSRNumericTable::oneBased, &st);
-        }
-        else
-        {
-            _SV = dmi::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, dm::NumericTable::doNotAllocate, &st);
-        }
-        _SVCoeff = dmi::SyclHomogenNumericTable<modelFPType>::create(1, 0, dm::NumericTable::doNotAllocate, &st);
-        if (!st) return;
-        _SVIndices = dmi::SyclHomogenNumericTable<int>::create(1, 0, dm::NumericTable::doNotAllocate, &st);
-    }
-    else
+    if (deviceInfo.isCpu)
     {
         if (layout == dm::NumericTableIface::csrArray)
         {

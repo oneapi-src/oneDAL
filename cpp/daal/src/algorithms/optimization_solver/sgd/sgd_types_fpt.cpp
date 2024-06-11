@@ -89,10 +89,6 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
                 {
                     pTbl = dm::HomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
                 }
-                else
-                {
-                    pTbl = dmi::SyclHomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
-                }
                 DAAL_CHECK_MALLOC(pTbl.get())
                 pOpt->set(pastWorkValue, pTbl);
             }

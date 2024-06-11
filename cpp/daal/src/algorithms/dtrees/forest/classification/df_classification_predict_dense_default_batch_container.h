@@ -45,11 +45,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
-    if (!deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::PredictKernelOneAPI, algorithmFPType, method);
-    }
-    else
+    if (deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
     }
@@ -90,12 +86,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     const VotingMethod votingMethod = par->votingMethod;
 
-    if (!deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::PredictKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);
-    }
-    else
+    if (deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                            daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);

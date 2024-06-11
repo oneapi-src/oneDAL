@@ -77,13 +77,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
                 set(assignments, dm::HomogenNumericTable<int>::create(1, nRows, dm::NumericTable::doAllocate, &status));
             }
         }
-        else
-        {
-            set(centroids, dmi::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, nClusters, dm::NumericTable::doAllocate, &status));
-            set(objectiveFunction, dm::HomogenNumericTable<algorithmFPType>::create(1, 1, dm::NumericTable::doAllocate, &status));
-            set(nIterations, dm::HomogenNumericTable<int>::create(1, 1, dm::NumericTable::doAllocate, &status));
-            set(assignments, dmi::SyclHomogenNumericTable<int>::create(1, nRows, dm::NumericTable::doAllocate, &status));
-        }
     }
 
     return status;

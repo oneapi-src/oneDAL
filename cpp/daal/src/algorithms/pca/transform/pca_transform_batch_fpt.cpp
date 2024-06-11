@@ -23,7 +23,6 @@
 
 #include "algorithms/pca/transform/pca_transform_types.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/services/daal_strings.h"
 
 using namespace daal::services;
@@ -38,7 +37,6 @@ namespace transform
 {
 using namespace daal::services;
 using namespace daal::data_management;
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename algorithmFPType>
 DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
@@ -64,10 +62,6 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     if (deviceInfo.isCpu)
     {
         transformedDataNT = HomogenNumericTable<algorithmFPType>::create(nComponents, nInputs, NumericTable::doAllocate, &status);
-    }
-    else
-    {
-        transformedDataNT = SyclHomogenNumericTable<algorithmFPType>::create(nComponents, nInputs, NumericTable::doAllocate, &status);
     }
     DAAL_CHECK_STATUS_VAR(status);
 

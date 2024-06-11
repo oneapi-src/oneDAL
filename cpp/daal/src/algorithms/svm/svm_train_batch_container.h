@@ -49,11 +49,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
 {
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
-    if (method == thunder && !deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SVMTrainOneAPI, algorithmFPType, method);
-    }
-    else
+    if (!(method == thunder) || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, algorithmFPType);
     }
@@ -93,11 +89,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
-    if (method == thunder && !deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, x, *y, r, kernelPar);
-    }
-    else
+    if (!(method == thunder) || deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
     }
@@ -117,11 +109,7 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
 {
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
-    if (method == thunder && !deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SVMTrainOneAPI, algorithmFPType, method);
-    }
-    else
+    if (!(method == thunder) || deviceInfo.isCpu)
     {
         __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, algorithmFPType);
     }
@@ -151,11 +139,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     auto & context    = services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
-    if (method == thunder && !deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::SVMTrainOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, x, *y, r, kernelPar);
-    }
-    else
+    if (!(method == thunder) || deviceInfo.isCpu)
     {
         __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
     }

@@ -49,11 +49,6 @@ BatchContainer<algorithmFPType, correlationDense, cpu>::BatchContainer(daal::ser
     {
         __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, batch, algorithmFPType);
     }
-    else
-    {
-        services::SharedPtr<internal::PCACorrelationBaseIface<algorithmFPType> > hostImpl(new internal::PCACorrelationBase<algorithmFPType, cpu>());
-        _kernel = new internal::PCACorrelationKernelBatchUCAPI<algorithmFPType>(hostImpl);
-    }
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -93,12 +88,6 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
         __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, input->isCorrelation(),
                            parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute, *eigenvectors, *eigenvalues,
                            *means, *variances);
-    }
-    else
-    {
-        return ((internal::PCACorrelationKernelBatchUCAPI<algorithmFPType> *)(_kernel))
-            ->compute(input->isCorrelation(), parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute,
-                      *eigenvectors, *eigenvalues, *means, *variances);
     }
 }
 

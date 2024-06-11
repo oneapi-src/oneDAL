@@ -25,12 +25,10 @@
 
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/data_management/service_numeric_table.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "services/internal/execution_context.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 namespace daal
 {
@@ -61,14 +59,6 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
         for (size_t i = 1; i < lastPartialResultId + 1; i++)
         {
             Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-        }
-    }
-    else
-    {
-        set(nObservations, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &s));
-        for (size_t i = 1; i < lastPartialResultId + 1; i++)
-        {
-            Argument::set(i, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
         }
     }
     return s;

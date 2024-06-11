@@ -61,10 +61,6 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
         {
             nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTable::doAllocate, &status);
         }
-        else
-        {
-            nt = dmi::SyclHomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTable::doAllocate, &status);
-        }
         set(minimum, nt);
     }
     if (!get(nIterations))

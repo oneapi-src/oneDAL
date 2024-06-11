@@ -57,12 +57,6 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
         set(crossProduct, HomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
         set(sum, HomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
     }
-    else
-    {
-        set(nObservations, internal::SyclHomogenNumericTable<int>::create(1, 1, NumericTable::doAllocate, &status));
-        set(crossProduct, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, nColumns, NumericTable::doAllocate, &status));
-        set(sum, internal::SyclHomogenNumericTable<algorithmFPType>::create(nColumns, 1, NumericTable::doAllocate, &status));
-    }
     return status;
 }
 
