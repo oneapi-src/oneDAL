@@ -43,20 +43,17 @@ struct dense {};
 /// Tag-type that denotes :ref:`random_dense <kmeans_init_c_math_random_dense>`
 /// computational method.
 struct random_dense {};
-/// Tag-type that denotes :ref:`random_csr <kmeans_init_c_math_random_csr>`
-/// computational method.
+
 struct random_csr {};
 /// Tag-type that denotes :ref:`plus_plus_dense <kmeans_init_c_math_plus_plus_dense>`
 /// computational method.
 struct plus_plus_dense {};
-/// Tag-type that denotes :ref:`plus_plus_csr <kmeans_init_c_math_plus_plus_csr>`
-/// computational method.
+
 struct plus_plus_csr {};
 /// Tag-type that denotes :ref:`parallel_plus_dense <kmeans_init_c_math_parallel_plus_dense>`
 /// computational method.
 struct parallel_plus_dense {};
-/// Tag-type that denotes :ref:`parallel_plus_csr <kmeans_init_c_math_parallel_plus_csr>`
-/// computational method.
+
 struct parallel_plus_csr {};
 using by_default = dense;
 } // namespace v1
