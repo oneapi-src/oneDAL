@@ -25,6 +25,7 @@
 #define __PCA_PARTIALRESULT_CORRELATION_
 
 #include "algorithms/pca/pca_types.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {

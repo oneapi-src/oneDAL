@@ -23,6 +23,7 @@
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {

@@ -22,6 +22,7 @@
 */
 
 #include "algorithms/optimization_solver/objective_function/objective_function_types.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {

@@ -21,6 +21,7 @@
 //--
 */
 
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "algorithms/linear_model/linear_model_predict_types.h"
 #include "data_management/data/homogen_numeric_table.h"
 

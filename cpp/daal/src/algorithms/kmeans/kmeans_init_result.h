@@ -27,6 +27,7 @@
 #include "algorithms/kmeans/kmeans_init_types.h"
 #include "services/internal/sycl/execution_context.h"
 #include "services/internal/sycl/types.h"
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 using namespace daal::services::internal::sycl;
 

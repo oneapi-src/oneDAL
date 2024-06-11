@@ -15,6 +15,7 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/algorithms/linear_model/linear_model_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
 
