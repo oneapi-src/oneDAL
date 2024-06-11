@@ -53,13 +53,7 @@ using namespace daal::internal;
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (!(method == training::normEqDense) || deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::BatchKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::BatchKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -85,19 +79,13 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     Environment::env & env = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     if (method == training::normEqDense)
     {
         linear_regression::ModelNormEqPtr m = linear_regression::ModelNormEq::cast(result->get(model));
 
-        if (deviceInfo.isCpu)
-        {
-            __DAAL_CALL_KERNEL(env, internal::BatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
+        __DAAL_CALL_KERNEL(env, internal::BatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
                                *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
                                par->interceptFlag);
-        }
     }
     else
     {
@@ -115,13 +103,7 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
 template <typename algorithmFPType, training::Method method, CpuType cpu>
 OnlineContainer<algorithmFPType, method, cpu>::OnlineContainer(Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (!(method == training::normEqDense) || deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::OnlineKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::OnlineKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, training::Method method, CpuType cpu>
@@ -147,18 +129,12 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
 
     Environment::env & env = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     if (method == training::normEqDense)
     {
         linear_regression::ModelNormEqPtr m = linear_regression::ModelNormEq::cast(partialResult->get(training::partialModel));
 
-        if (deviceInfo.isCpu)
-        {
-            __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
+        __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
                                *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), par->interceptFlag);
-        }
     }
     else
     {
@@ -185,20 +161,14 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
     Parameter * par               = static_cast<Parameter *>(_par);
     Environment::env & env        = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     if (method == training::normEqDense)
     {
         linear_regression::ModelNormEqPtr pm = linear_regression::ModelNormEq::cast(partialResult->get(training::partialModel));
         linear_regression::ModelNormEqPtr m  = linear_regression::ModelNormEq::cast(result->get(training::model));
 
-        if (deviceInfo.isCpu)
-        {
-            __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), finalizeCompute,
+        __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), finalizeCompute,
                                *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
                                par->interceptFlag);
-        }
     }
     else
     {

@@ -43,13 +43,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method == defaultDense || method == momentum)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::SGDKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::SGDKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -76,15 +70,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * learningRateSequence = parameter->learningRateSequence.get();
     NumericTable * batchIndices         = parameter->batchIndices.get();
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method == defaultDense || method == momentum)
-    {
-        __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+    __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                            daal::services::internal::hostApp(*input), inputArgument, minimum.get(), nIterations, parameter, learningRateSequence,
                            batchIndices, optionalArgument, optionalResult, *parameter->engine);
-    }
 }
 
 } // namespace interface2

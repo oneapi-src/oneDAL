@@ -40,13 +40,7 @@ namespace dbscan
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method != defaultDense)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::DBSCANBatchKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::DBSCANBatchKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -71,22 +65,16 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
-
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method != defaultDense)
+    
+    if (par->memorySavingMode == false)
     {
-        if (par->memorySavingMode == false)
-        {
-            __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeNoMemSave, ntData.get(),
-                               ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
-        }
-        else
-        {
-            __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeMemSave, ntData.get(),
-                               ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
-        }
+        __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeNoMemSave, ntData.get(),
+                            ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
+    }
+    else
+    {
+        __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeMemSave, ntData.get(),
+                            ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }
 }
 

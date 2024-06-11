@@ -30,13 +30,7 @@ namespace prediction
 template <typename algorithmFpType, Method method, CpuType cpu>
 BatchContainer<algorithmFpType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationPredictKernel, algorithmFpType);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::KNNClassificationPredictKernel, algorithmFpType);
 }
 
 template <typename algorithmFpType, Method method, CpuType cpu>
@@ -55,8 +49,6 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     const data_management::NumericTablePtr label             = result->get(bf_knn_classification::prediction::prediction);
     const data_management::NumericTablePtr indices           = result->get(bf_knn_classification::prediction::indices);
     const data_management::NumericTablePtr distances         = result->get(bf_knn_classification::prediction::distances);
-    auto & context                                           = services::internal::getDefaultContext();
-    auto & deviceInfo                                        = context.getInfoDevice();
     const Parameter * const par                              = static_cast<const Parameter *>(_par);
 
     internal::KernelParameter kernelPar;
@@ -69,11 +61,8 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     kernelPar.engine            = par->engine->clone();
     kernelPar.resultsToEvaluate = par->resultsToEvaluate;
 
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
+    __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
                            label.get(), indices.get(), distances.get(), &kernelPar);
-    }
 }
 
 } // namespace prediction

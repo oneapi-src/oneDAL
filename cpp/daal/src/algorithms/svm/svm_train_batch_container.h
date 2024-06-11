@@ -47,12 +47,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (!(method == thunder) || deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, algorithmFPType);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -87,12 +82,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (!(method == thunder) || deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
-    }
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
 }
 } // namespace interface2
 
@@ -107,12 +97,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (!(method == thunder) || deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, algorithmFPType);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::SVMTrainImpl, method, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -137,12 +122,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (!(method == thunder) || deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
-    }
+    __DAAL_CALL_KERNEL(env, internal::SVMTrainImpl, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, x, weights, *y, r, kernelPar);
 }
 } // namespace internal
 } // namespace training

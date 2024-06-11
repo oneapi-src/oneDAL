@@ -40,13 +40,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::CrossEntropyLossKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::CrossEntropyLossKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -99,15 +93,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
     }
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::CrossEntropyLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+    __DAAL_CALL_KERNEL(env, internal::CrossEntropyLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                            input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
                            input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
                            lipschitzConstant, parameter);
-    }
 }
 
 } // namespace interface2

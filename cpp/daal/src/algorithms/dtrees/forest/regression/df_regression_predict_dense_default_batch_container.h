@@ -40,13 +40,7 @@ namespace prediction
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : PredictionContainerIface()
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::PredictKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -58,9 +52,6 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
@@ -71,11 +62,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+    __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
                            daal::services::internal::hostApp(*input), a, m, r);
-    }
 }
 
 } // namespace prediction

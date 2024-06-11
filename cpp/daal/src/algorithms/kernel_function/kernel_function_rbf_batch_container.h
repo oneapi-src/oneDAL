@@ -38,12 +38,7 @@ using namespace daal::data_management;
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (!deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::KernelImplRBF, method, algorithmFPType);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::KernelImplRBF, method, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -82,13 +77,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
             return services::Status(services::ErrorIncorrectTypeOfInputNumericTable);
     }
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], &kernelPar);
-    }
+    __DAAL_CALL_KERNEL(env, internal::KernelImplRBF, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, a[0], a[1], r[0], &kernelPar);
 }
 
 } // namespace rbf
