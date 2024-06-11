@@ -58,7 +58,7 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto [csr_data, column_indices, row_offsets] =
         csr_accessor<const Float>(static_cast<const csr_table&>(data))
             .pull(queue, { 0, -1 }, sparse_indexing::one_based);
- 
+
     auto csr_data_host =
         pr::ndarray<Float, 1>::wrap(csr_data.get_data(), csr_data.get_count()).to_host(queue);
     auto column_indices_host =
@@ -67,15 +67,14 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     auto row_offsets_host =
         pr::ndarray<std::int64_t, 1>::wrap(row_offsets.get_data(), row_offsets.get_count())
             .to_host(queue);
- 
-    table data_host = csr_table::wrap(queue,
-                                     csr_data_host.get_data(),
-                                     column_indices_host.get_data(),
-                                     row_offsets_host.get_data(),
-                                     row_count,
-                                     column_count,
-                                     sparse_indexing::one_based);
 
+    table data_host = csr_table::wrap(queue,
+                                      csr_data_host.get_data(),
+                                      column_indices_host.get_data(),
+                                      row_offsets_host.get_data(),
+                                      row_count,
+                                      column_count,
+                                      sparse_indexing::one_based);
 
     //number of trials to pick each centroid from, 2 + int(ln(cluster_count)) works better than vanilla kmeans++
     //https://github.com/scikit-learn/scikit-learn/blob/a63b021310ba13ea39ad3555f550d8aeec3002c5/sklearn/cluster/_kmeans.py#L108
@@ -109,24 +108,22 @@ static result_t call_daal_kernel(const context_gpu& ctx,
                    Method>()
             .compute(len_input, input, len_output, output, &par, *(par.engine));
     }));
-    
-    auto element_count = cluster_count * column_count;
-    auto arr_centroids_device = dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
-    auto* const arr_centroids_ptr = arr_centroids_device.get_mutable_data();
-    auto copy_to_device_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(arr_centroids_ptr, arr_centroids.get_data(), element_count * sizeof(float));
-    });
-    
+
+    // auto element_count = cluster_count * column_count;
+    // auto arr_centroids_device = dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
+    // auto* const arr_centroids_ptr = arr_centroids_device.get_mutable_data();
+    // auto copy_to_device_event = queue.submit([&](sycl::handler& cgh) {
+    //     cgh.memcpy(arr_centroids_ptr, arr_centroids.get_data(), element_count * sizeof(float));
+    // });
+
     return compute_result<task_t>().set_centroids(
         dal::detail::homogen_table_builder{}
-            .reset(arr_centroids_device, cluster_count, column_count)
+            .reset(arr_centroids, cluster_count, column_count)
             .build());
 }
 
 template <typename Float, typename Method>
-static result_t compute(const context_gpu& ctx, 
-                        const descriptor_t& desc, 
-                        const input_t& input) {
+static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float, Method>(ctx, desc, input.get_data());
 }
 

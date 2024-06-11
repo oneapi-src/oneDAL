@@ -32,7 +32,7 @@ struct infer_ops_dispatcher {
 template <typename Descriptor>
 struct infer_ops {
     using float_t = typename Descriptor::float_t;
-    using method_t = method::by_default;
+    using method_t = typename Descriptor::method_t;
     using task_t = typename Descriptor::task_t;
     using input_t = infer_input<task_t>;
     using result_t = infer_result<task_t>;

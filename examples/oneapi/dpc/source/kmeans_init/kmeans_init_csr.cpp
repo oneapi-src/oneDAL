@@ -69,7 +69,7 @@ const dal::csr_table make_device_csr_table_from_host_data(sycl::queue &q,
 }
 
 template <typename Method>
-void run(sycl::queue& q, const dal::table& x_train, const std::string& method_name) {
+void run(sycl::queue& q, const dal::table& x_train, const dal::table& x_test, const std::string& method_name) {
     constexpr std::int64_t cluster_count = 3;
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.0001;
@@ -84,7 +84,7 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
                                  .set_max_iteration_count(max_iteration_count)
                                  .set_accuracy_threshold(accuracy_threshold);
 
-    const auto result_train = dal::train(q, kmeans_desc, x_train);
+    const auto result_train = dal::train(q, kmeans_desc, x_train, result_init.get_centroids());
 
     std::cout << "Method: " << method_name << std::endl;
     std::cout << "=================================================================" << std::endl;
@@ -96,10 +96,24 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
               << ", Objective function value: " << result_train.get_objective_function_value()
               << '\n'
               << std::endl;
+
+
+    const auto kmeans_desc_infer =
+        dal::kmeans::descriptor<float, dal::kmeans::method::lloyd_csr>()
+            .set_cluster_count(3)
+            .set_max_iteration_count(5)
+            .set_result_options(dal::kmeans::result_options::compute_assignments)
+            .set_accuracy_threshold(0.001);
+
+    const auto result_test = dal::infer(q, kmeans_desc_infer, result_train.get_model(), x_test);
+
+    std::cout << "Infer result:\n" << result_test.get_responses() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
     // const auto train_data_file_name = get_data_path("kmeans_init_dense.csv");
+    
+
 
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
@@ -107,6 +121,8 @@ int main(int argc, char const* argv[]) {
                   << std::endl;
         auto q = sycl::queue{ d };
 
+        // const auto initial_centroids_file_name = get_data_path("kmeans_csr_train_centroids.csv");
+        // const auto initial_centroids = dal::read<dal::table>(q, dal::csv::data_source{ initial_centroids_file_name });
         constexpr std::int64_t row_count{ 13 };
         constexpr std::int64_t column_count{ 6 };
         constexpr std::int64_t element_count{ 26 };
@@ -129,8 +145,29 @@ int main(int argc, char const* argv[]) {
                                                                 x_column_indices_array,
                                                                 x_row_offsets_array);
 
-        run<dal::kmeans_init::method::plus_plus_csr>(q, x_train, "plus_plus_csr");
-        run<dal::kmeans_init::method::random_csr>(q, x_train, "random_csr");
+        constexpr std::int64_t test_row_count{ 6 };
+        constexpr std::int64_t test_element_count{ 12 };
+
+        float x_test_values_host[] = { 1.1, 1.1, 0.9, 0.9, 1.1, -1.1, 0.9, -0.9, -1.1, -1.1, -0.9, -1 };
+        std::int64_t x_test_column_indices_host[] = { 1, 2, 1, 2, 5, 6, 5, 6, 3, 4, 3, 4 };
+        std::int64_t x_test_row_offsets_host[] = { 1, 3, 5, 7, 9, 11, 13 };
+
+        auto x_test_values_array = dal::array<float>::empty(q, test_element_count, sycl::usm::alloc::device);
+        auto x_test_column_indices_array = dal::array<std::int64_t>::empty(q, test_element_count, sycl::usm::alloc::device);
+        auto x_test_row_offsets_array = dal::array<std::int64_t>::empty(q, test_row_count + 1, sycl::usm::alloc::device);
+
+        const auto x_test = make_device_csr_table_from_host_data(q,
+                                                                test_row_count,
+                                                                column_count,
+                                                                x_test_values_host,
+                                                                x_test_column_indices_host,
+                                                                x_test_row_offsets_host,
+                                                                x_test_values_array,
+                                                                x_test_column_indices_array,
+                                                                x_test_row_offsets_array);
+
+        run<dal::kmeans_init::method::plus_plus_csr>(q, x_train, x_test, "plus_plus_csr");
+        run<dal::kmeans_init::method::random_csr>(q, x_train, x_test, "random_csr");
         // run<dal::kmeans_init::method::plus_plus_csr>(q, x_train, "parallel_plus_csr");
     }
     return 0;
