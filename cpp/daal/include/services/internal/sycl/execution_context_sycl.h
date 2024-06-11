@@ -24,7 +24,6 @@
 
 #include <CL/cl.h>
 #include <sycl/sycl.hpp>
-#include <backend/opencl.hpp>
 
 #include "services/daal_string.h"
 #include "services/internal/hash_table.h"
@@ -45,162 +44,12 @@ namespace sycl
 {
 namespace interface1
 {
-class OpenClKernelFactory : public Base, public ClKernelFactoryIface
-{
-public:
-    explicit OpenClKernelFactory(::sycl::queue & deviceQueue)
-        : _currentProgramRef(nullptr), _executionTarget(ExecutionTargetIds::unspecified), _deviceQueue(deviceQueue)
-    {}
-
-    void build(ExecutionTargetId target, const char * name, const char * program, const char * options, Status & status) DAAL_C11_OVERRIDE
-    {
-        DAAL_ASSERT(name);
-        DAAL_ASSERT(program);
-
-        String key = name;
-        DAAL_CHECK_COND_ERROR(key.c_str(), status, ErrorMemoryAllocationFailed);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-        const bool res = programHashTable.contain(key, status);
-        DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-        if (!res)
-        {
-#ifndef DAAL_DISABLE_LEVEL_ZERO
-            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info< ::sycl::info::device::opencl_c_version>().empty();
-            if (isOpenCLBackendAvailable)
-            {
-#endif // DAAL_DISABLE_LEVEL_ZERO
-
-                // OpenCl branch
-                auto programPtr =
-                    OpenClProgramRef::create(::sycl::get_native< ::sycl::backend::opencl>(_deviceQueue.get_context()),
-                                             ::sycl::get_native< ::sycl::backend::opencl>(_deviceQueue.get_device()), name, program, options, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                programHashTable.add(key, programPtr, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                _currentProgramRef = programPtr.get();
-
-#ifndef DAAL_DISABLE_LEVEL_ZERO
-            }
-            else
-            {
-                // Level zero branch
-                if (nullptr == _levelZeroOpenClInteropContext.getOpenClDeviceRef().get())
-                {
-                    _levelZeroOpenClInteropContext.reset(_deviceQueue, status);
-                    DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-                }
-
-                auto programPtr =
-                    OpenClProgramRef::create(_levelZeroOpenClInteropContext.getOpenClContextRef().get(),
-                                             _levelZeroOpenClInteropContext.getOpenClDeviceRef().get(), _deviceQueue, name, program, options, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                programHashTable.add(key, programPtr, status);
-                DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-
-                _currentProgramRef = programPtr.get();
-            }
-#endif // DAAL_DISABLE_LEVEL_ZERO
-        }
-        else
-        {
-            _currentProgramRef = programHashTable.get(key, status).get();
-            DAAL_CHECK_STATUS_RETURN_VOID_IF_FAIL(status);
-        }
-
-        _executionTarget = target;
-    }
-
-    KernelPtr getKernel(const char * kernelName, Status & status) DAAL_C11_OVERRIDE
-    {
-        if (!_currentProgramRef)
-        {
-            status |= ErrorExecutionContext;
-            return KernelPtr();
-        }
-
-        String kernelNameStr = kernelName;
-        DAAL_CHECK_COND_ERROR(kernelNameStr.c_str(), status, ErrorMemoryAllocationFailed);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-        String key = _currentProgramRef->getName();
-        DAAL_CHECK_COND_ERROR(key.c_str(), status, ErrorMemoryAllocationFailed);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-        key.add(kernelNameStr);
-        DAAL_CHECK_COND_ERROR(key.c_str(), status, ErrorMemoryAllocationFailed);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-        bool res = kernelHashTable.contain(key, status);
-        DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-        if (res)
-        {
-            auto kernel = kernelHashTable.get(key, status);
-            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-            return kernel;
-        }
-        else
-        {
-            KernelPtr kernel;
-#ifndef DAAL_DISABLE_LEVEL_ZERO
-            const bool isOpenCLBackendAvailable = !_deviceQueue.get_device().template get_info< ::sycl::info::device::opencl_c_version>().empty();
-            if (isOpenCLBackendAvailable)
-            {
-#endif // DAAL_DISABLE_LEVEL_ZERO
-
-                // OpenCL branch
-                auto kernelRef = OpenClKernelRef(_currentProgramRef->get(), kernelNameStr, status);
-                DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-                kernel = OpenClKernelNative::create(_executionTarget, *_currentProgramRef, kernelRef, status);
-                DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-#ifndef DAAL_DISABLE_LEVEL_ZERO
-            }
-            else
-            {
-                // Level zero branch
-                auto kernelRef = OpenClKernelLevelZeroRef(*_currentProgramRef, kernelNameStr, status);
-                DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-                kernel = OpenClKernelLevelZero::create(_executionTarget, *_currentProgramRef, kernelRef, status);
-                DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-            }
-#endif // DAAL_DISABLE_LEVEL_ZERO
-            kernelHashTable.add(key, kernel, status);
-            DAAL_CHECK_STATUS_RETURN_IF_FAIL(status, KernelPtr());
-
-            return kernel;
-        }
-    }
-
-private:
-    static const size_t SIZE_HASHTABLE_PROGRAM = 1024;
-    static const size_t SIZE_HASHTABLE_KERNEL  = 4096;
-    HashTable<OpenClProgramRef, SIZE_HASHTABLE_PROGRAM> programHashTable;
-    HashTable<KernelIface, SIZE_HASHTABLE_KERNEL> kernelHashTable;
-
-    OpenClProgramRef * _currentProgramRef;
-#ifndef DAAL_DISABLE_LEVEL_ZERO
-    LevelZeroOpenClInteropContext _levelZeroOpenClInteropContext;
-#endif // DAAL_DISABLE_LEVEL_ZERO
-
-    ExecutionTargetId _executionTarget;
-    ::sycl::queue & _deviceQueue;
-};
-
 class [[deprecated("CPP SYCL interfaces have been removed as of 2024.0 release.")]] SyclExecutionContextImpl : public Base,
                                                                                                                public ExecutionContextIface
 {
 public:
     explicit SyclExecutionContextImpl(const ::sycl::queue & deviceQueue, const bool fromPython = false)
-        : _deviceQueue(deviceQueue), _kernelFactory(_deviceQueue), _kernelScheduler(_deviceQueue)
+        : _deviceQueue(deviceQueue), _kernelScheduler(_deviceQueue)
     {
         if (!fromPython)
         {
@@ -274,11 +123,6 @@ public:
         BufferFiller::fill(_deviceQueue, dest, value, status);
     }
 
-    ClKernelFactoryIface & getClKernelFactory() DAAL_C11_OVERRIDE
-    {
-        return _kernelFactory;
-    }
-
     InfoDevice & getInfoDevice() DAAL_C11_OVERRIDE
     {
         return _infoDevice;
@@ -291,7 +135,6 @@ public:
 
 private:
     ::sycl::queue _deviceQueue;
-    OpenClKernelFactory _kernelFactory;
     SyclKernelScheduler _kernelScheduler;
     InfoDevice _infoDevice;
 };

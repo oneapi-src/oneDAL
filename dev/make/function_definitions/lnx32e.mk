@@ -29,7 +29,7 @@ define set_daal_rt_deps
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnx32e.rt.seq := -lpthread $$(daaldep.lnx32e.rt.$$(COMPILER)) \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL \
+  $$(eval daaldep.lnx32e.rt.dpc := -lpthread \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnx32e.threxport := export_lnx32e.$$(BACKEND_CONFIG).def)
 

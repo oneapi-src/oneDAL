@@ -17,11 +17,6 @@ declare_onedal_extra_toolchain(
     name = "onedal_extra_toolchain",
 )
 
-load("@onedal//dev/bazel/deps:opencl.bzl", "opencl_repo")
-opencl_repo(
-    name = "opencl",
-)
-
 load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo")
 micromkl_repo(
     name = "micromkl",
