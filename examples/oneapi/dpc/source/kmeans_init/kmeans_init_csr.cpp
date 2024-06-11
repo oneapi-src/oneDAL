@@ -30,15 +30,16 @@
 
 namespace dal = oneapi::dal;
 
-const dal::csr_table make_device_csr_table_from_host_data(sycl::queue &q,
-                                                          std::int64_t row_count,
-                                                          std::int64_t column_count,
-                                                          const float * const x_values_host,
-                                                          const std::int64_t* const x_column_indices_host,
-                                                          const std::int64_t* x_row_offsets_host,
-                                                          const dal::array<float>& x_values_array,
-                                                          const dal::array<std::int64_t>& x_column_indices_array,
-                                                          const dal::array<std::int64_t>& x_row_offsets_array) {
+const dal::csr_table make_device_csr_table_from_host_data(
+    sycl::queue& q,
+    std::int64_t row_count,
+    std::int64_t column_count,
+    const float* const x_values_host,
+    const std::int64_t* const x_column_indices_host,
+    const std::int64_t* x_row_offsets_host,
+    const dal::array<float>& x_values_array,
+    const dal::array<std::int64_t>& x_column_indices_array,
+    const dal::array<std::int64_t>& x_row_offsets_array) {
     const std::int64_t element_count = x_values_array.get_count();
     const std::int64_t x_row_offsets_count = x_row_offsets_array.get_count();
 
@@ -69,7 +70,10 @@ const dal::csr_table make_device_csr_table_from_host_data(sycl::queue &q,
 }
 
 template <typename Method>
-void run(sycl::queue& q, const dal::table& x_train, const dal::table& x_test, const std::string& method_name) {
+void run(sycl::queue& q,
+         const dal::table& x_train,
+         const dal::table& x_test,
+         const std::string& method_name) {
     constexpr std::int64_t cluster_count = 3;
     constexpr std::int64_t max_iteration_count = 1000;
     constexpr double accuracy_threshold = 0.0001;
@@ -97,7 +101,6 @@ void run(sycl::queue& q, const dal::table& x_train, const dal::table& x_test, co
               << '\n'
               << std::endl;
 
-
     const auto kmeans_desc_infer =
         dal::kmeans::descriptor<float, dal::kmeans::method::lloyd_csr>()
             .set_cluster_count(3)
@@ -112,8 +115,6 @@ void run(sycl::queue& q, const dal::table& x_train, const dal::table& x_test, co
 
 int main(int argc, char const* argv[]) {
     // const auto train_data_file_name = get_data_path("kmeans_init_dense.csv");
-    
-
 
     for (auto d : list_devices()) {
         std::cout << "Running on " << d.get_platform().get_info<sycl::info::platform::name>()
@@ -127,44 +128,54 @@ int main(int argc, char const* argv[]) {
         constexpr std::int64_t column_count{ 6 };
         constexpr std::int64_t element_count{ 26 };
 
-        const float x_values_host[] = { 1, 1, 1.1, 1, 1, 1.1, 0.9, 1, -1, -1, -1.1, -1, -1, -1.1, -0.9, -1, -1, -0.9, 1, -1, 1.1, -1, 1, -1.1, 0.9, -1 };
-        const std::int64_t x_column_indices_host[] = { 1, 2, 1, 2, 1, 2, 1, 2, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 5, 6, 5, 6, 5, 6, 5, 6 };
-        const std::int64_t x_row_offsets_host[] = { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27 };
+        const float x_values_host[] = { 1,  1,    1.1, 1,  1,    1.1,  0.9, 1,  -1,
+                                        -1, -1.1, -1,  -1, -1.1, -0.9, -1,  -1, -0.9,
+                                        1,  -1,   1.1, -1, 1,    -1.1, 0.9, -1 };
+        const std::int64_t x_column_indices_host[] = { 1, 2, 1, 2, 1, 2, 1, 2, 3, 4, 3, 4, 3,
+                                                       4, 3, 4, 3, 4, 5, 6, 5, 6, 5, 6, 5, 6 };
+        const std::int64_t x_row_offsets_host[] = { 1,  3,  5,  7,  9,  11, 13,
+                                                    15, 17, 19, 21, 23, 25, 27 };
 
         auto x_values_array = dal::array<float>::empty(q, element_count, sycl::usm::alloc::device);
-        auto x_column_indices_array = dal::array<std::int64_t>::empty(q, element_count, sycl::usm::alloc::device);
-        auto x_row_offsets_array = dal::array<std::int64_t>::empty(q, row_count + 1, sycl::usm::alloc::device);
+        auto x_column_indices_array =
+            dal::array<std::int64_t>::empty(q, element_count, sycl::usm::alloc::device);
+        auto x_row_offsets_array =
+            dal::array<std::int64_t>::empty(q, row_count + 1, sycl::usm::alloc::device);
 
         const auto x_train = make_device_csr_table_from_host_data(q,
-                                                                row_count,
-                                                                column_count,
-                                                                x_values_host,
-                                                                x_column_indices_host,
-                                                                x_row_offsets_host,
-                                                                x_values_array,
-                                                                x_column_indices_array,
-                                                                x_row_offsets_array);
+                                                                  row_count,
+                                                                  column_count,
+                                                                  x_values_host,
+                                                                  x_column_indices_host,
+                                                                  x_row_offsets_host,
+                                                                  x_values_array,
+                                                                  x_column_indices_array,
+                                                                  x_row_offsets_array);
 
         constexpr std::int64_t test_row_count{ 6 };
         constexpr std::int64_t test_element_count{ 12 };
 
-        float x_test_values_host[] = { 1.1, 1.1, 0.9, 0.9, 1.1, -1.1, 0.9, -0.9, -1.1, -1.1, -0.9, -1 };
+        float x_test_values_host[] = { 1.1, 1.1,  0.9,  0.9,  1.1,  -1.1,
+                                       0.9, -0.9, -1.1, -1.1, -0.9, -1 };
         std::int64_t x_test_column_indices_host[] = { 1, 2, 1, 2, 5, 6, 5, 6, 3, 4, 3, 4 };
         std::int64_t x_test_row_offsets_host[] = { 1, 3, 5, 7, 9, 11, 13 };
 
-        auto x_test_values_array = dal::array<float>::empty(q, test_element_count, sycl::usm::alloc::device);
-        auto x_test_column_indices_array = dal::array<std::int64_t>::empty(q, test_element_count, sycl::usm::alloc::device);
-        auto x_test_row_offsets_array = dal::array<std::int64_t>::empty(q, test_row_count + 1, sycl::usm::alloc::device);
+        auto x_test_values_array =
+            dal::array<float>::empty(q, test_element_count, sycl::usm::alloc::device);
+        auto x_test_column_indices_array =
+            dal::array<std::int64_t>::empty(q, test_element_count, sycl::usm::alloc::device);
+        auto x_test_row_offsets_array =
+            dal::array<std::int64_t>::empty(q, test_row_count + 1, sycl::usm::alloc::device);
 
         const auto x_test = make_device_csr_table_from_host_data(q,
-                                                                test_row_count,
-                                                                column_count,
-                                                                x_test_values_host,
-                                                                x_test_column_indices_host,
-                                                                x_test_row_offsets_host,
-                                                                x_test_values_array,
-                                                                x_test_column_indices_array,
-                                                                x_test_row_offsets_array);
+                                                                 test_row_count,
+                                                                 column_count,
+                                                                 x_test_values_host,
+                                                                 x_test_column_indices_host,
+                                                                 x_test_row_offsets_host,
+                                                                 x_test_values_array,
+                                                                 x_test_column_indices_array,
+                                                                 x_test_row_offsets_array);
 
         run<dal::kmeans_init::method::plus_plus_csr>(q, x_train, x_test, "plus_plus_csr");
         run<dal::kmeans_init::method::random_csr>(q, x_train, x_test, "random_csr");

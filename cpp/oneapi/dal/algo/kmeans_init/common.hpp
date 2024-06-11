@@ -101,8 +101,9 @@ template <typename M>
 using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
 
 template <typename M>
-using enable_if_plus_plus_dense_or_csr = std::enable_if_t<std::is_same_v<M, method::plus_plus_dense> || std::is_same_v<M, method::plus_plus_csr>>;
-
+using enable_if_plus_plus_dense_or_csr =
+    std::enable_if_t<std::is_same_v<M, method::plus_plus_dense> ||
+                     std::is_same_v<M, method::plus_plus_csr>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
