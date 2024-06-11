@@ -24,7 +24,6 @@
 #include "oneapi/dal/table/csr_accessor.hpp"
 
 #include "oneapi/dal/detail/profiler.hpp"
-#include <iostream>
 
 namespace oneapi::dal::kmeans::backend {
 
