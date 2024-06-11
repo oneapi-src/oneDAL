@@ -110,7 +110,8 @@ static result_t call_daal_kernel(const context_gpu& ctx,
     }));
 
     auto element_count = cluster_count * column_count;
-    auto arr_centroids_device = dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
+    auto arr_centroids_device =
+        dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
     auto* const arr_centroids_ptr = arr_centroids_device.get_mutable_data();
     auto copy_to_device_event = queue.submit([&](sycl::handler& cgh) {
         cgh.memcpy(arr_centroids_device, arr_centroids.get_data(), element_count * sizeof(float));
