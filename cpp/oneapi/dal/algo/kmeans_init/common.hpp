@@ -86,7 +86,12 @@ constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method,
                                                             method::random_csr,
                                                             method::plus_plus_dense,
                                                             method::plus_plus_csr,
-                                                            method::parallel_plus_dense>;
+                                                            method::parallel_plus_dense,
+                                                            method::parallel_plus_csr>;
+
+template <typename Method>
+constexpr bool is_plus_plus_dense_or_csr_v =
+    dal::detail::is_one_of_v<Method, method::plus_plus_dense, method::plus_plus_csr>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::init>;
@@ -98,9 +103,7 @@ template <typename M>
 using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
 
 template <typename M>
-using enable_if_plus_plus_dense_or_csr =
-    std::enable_if_t<std::is_same_v<M, method::plus_plus_dense> ||
-                     std::is_same_v<M, method::plus_plus_csr>>;
+using enable_if_plus_plus_dense_or_csr = std::enable_if_t<is_plus_plus_dense_or_csr_v<M>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
