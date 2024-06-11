@@ -25,7 +25,7 @@
 #define __BF_KNN_CLASSIFICATION_TRAINING_RESULT_
 
 #include "algorithms/classifier/classifier_model.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
 
 namespace daal
@@ -53,33 +53,21 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     const size_t nRows = (static_cast<const classifier::prediction::InputIface *>(input))->getNumberOfRows();
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
     {
-        if (deviceInfo.isCpu)
-        {
-            set(prediction,
-                data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, &s));
-        }
+        set(prediction,
+            data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, &s));
     }
 
     if (s.ok() && (par->resultsToCompute & computeIndicesOfNeighbors))
     {
-        if (deviceInfo.isCpu)
-        {
-            set(indices, data_management::HomogenNumericTable<int>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, &s));
-        }
+        set(indices, data_management::HomogenNumericTable<int>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, &s));
     }
 
     if (s.ok() && (par->resultsToCompute & computeDistances))
     {
-        if (deviceInfo.isCpu)
-        {
-            set(distances,
+        set(distances,
                 data_management::HomogenNumericTable<algorithmFPType>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, &s));
-        }
     }
 
     return s;

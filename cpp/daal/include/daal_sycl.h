@@ -23,9 +23,6 @@
 #include "daal.h"
 
 #include "services/internal/execution_context.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
-#include "data_management/data/internal/numeric_table_sycl_soa.h"
-#include "data_management/data/internal/numeric_table_sycl_csr.h"
 
 namespace daal
 {
@@ -37,21 +34,6 @@ using services::internal::SyclExecutionContext;
 using services::internal::CpuExecutionContext;
 
 } // namespace services
-} // namespace daal
-
-namespace daal
-{
-namespace data_management
-{
-using data_management::internal::SyclNumericTable;
-using data_management::internal::SyclNumericTablePtr;
-using data_management::internal::SyclHomogenNumericTable;
-using data_management::internal::SyclSOANumericTable;
-using data_management::internal::SyclSOANumericTablePtr;
-using data_management::internal::SyclCSRNumericTable;
-using data_management::internal::SyclCSRNumericTablePtr;
-
-} // namespace data_management
 } // namespace daal
 
 #endif

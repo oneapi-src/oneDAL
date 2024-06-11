@@ -22,7 +22,6 @@
 */
 
 #include "algorithms/classifier/classifier_predict_types.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 
 namespace daal
 {
@@ -51,33 +50,27 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     const Parameter * par = static_cast<const Parameter *>(parameter);
     DAAL_CHECK(par, services::ErrorNullParameterNotSupported);
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     const size_t nRows    = (static_cast<const InputIface *>(input))->getNumberOfRows();
     const size_t nClasses = par->nClasses;
 
     if (par->resultsToEvaluate & computeClassLabels)
     {
         dm::NumericTablePtr nt;
-        if (deviceInfo.isCpu)
-            nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTableIface::doAllocate, &st);
+        nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTableIface::doAllocate, &st);
 
         set(prediction, nt);
     }
     if (par->resultsToEvaluate & computeClassProbabilities)
     {
         dm::NumericTablePtr nt;
-        if (deviceInfo.isCpu)
-            nt = dm::HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
+        nt = dm::HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
 
         set(probabilities, nt);
     }
     if (par->resultsToEvaluate & computeClassLogProbabilities)
     {
         dm::NumericTablePtr nt;
-        if (deviceInfo.isCpu)
-            nt = dm::HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
+        nt = dm::HomogenNumericTable<algorithmFPType>::create(nClasses, nRows, dm::NumericTableIface::doAllocate, &st);
 
         set(logProbabilities, nt);
     }

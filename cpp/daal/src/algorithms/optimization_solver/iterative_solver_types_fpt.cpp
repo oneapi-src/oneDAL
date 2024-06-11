@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -51,16 +51,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     services::Status status;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     if (!get(minimum))
     {
         dm::NumericTablePtr nt;
-        if (deviceInfo.isCpu)
-        {
-            nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTable::doAllocate, &status);
-        }
+        nt = dm::HomogenNumericTable<algorithmFPType>::create(1, nRows, dm::NumericTable::doAllocate, &status);
         set(minimum, nt);
     }
     if (!get(nIterations))

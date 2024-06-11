@@ -16,16 +16,11 @@
 
 #pragma once
 
-#ifdef ONEDAL_DATA_PARALLEL
-#include <daal/include/data_management/data/internal/numeric_table_sycl_homogen.h>
-#endif
-
 #include <daal/include/services/env_detect.h>
 
 #include "daal/src/data_management/service_numeric_table.h"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-#include "oneapi/dal/table/backend/interop/sycl_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_soa_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_csr_table_adapter.hpp"
@@ -266,49 +261,5 @@ inline table convert_from_daal_table(const daal::data_management::NumericTablePt
         return convert_from_daal_homogen_table<Data>(nt);
     }
 }
-
-#ifdef ONEDAL_DATA_PARALLEL
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const sycl::queue& queue,
-                                                                    const table& table) {
-    if (!table.has_data()) {
-        return daal::data_management::NumericTablePtr{};
-    }
-    return interop::sycl_table_adapter::create(queue, table);
-}
-
-template <typename Data>
-inline daal::data_management::NumericTablePtr convert_to_daal_table(const sycl::queue& queue,
-                                                                    const array<Data>& data,
-                                                                    std::int64_t row_count,
-                                                                    std::int64_t column_count) {
-    using daal::services::Status;
-    using daal::services::SharedPtr;
-    using daal::services::internal::Buffer;
-    using daal::data_management::internal::SyclHomogenNumericTable;
-    using dal::detail::integral_cast;
-
-    ONEDAL_ASSERT(data.get_count() == row_count * column_count);
-    ONEDAL_ASSERT(data.has_mutable_data());
-    ONEDAL_ASSERT(is_same_context(queue, data));
-
-    const SharedPtr<Data> data_shared{ data.get_mutable_data(), daal_object_owner{ data } };
-
-    Status status;
-    const Buffer<Data> buffer{ data_shared,
-                               integral_cast<std::size_t>(data.get_count()),
-                               queue,
-                               status };
-    status_to_exception(status);
-
-    const auto table =
-        SyclHomogenNumericTable<Data>::create(buffer,
-                                              integral_cast<std::size_t>(column_count),
-                                              integral_cast<std::size_t>(row_count),
-                                              &status);
-    status_to_exception(status);
-
-    return table;
-}
-#endif
 
 } // namespace oneapi::dal::backend::interop

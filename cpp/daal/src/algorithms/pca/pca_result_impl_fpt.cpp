@@ -22,7 +22,7 @@
 */
 
 #include "src/algorithms/pca/pca_result_impl.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -74,13 +74,7 @@ services::Status ResultImpl::allocate(const daal::algorithms::PartialResult * pa
 template <typename algorithmFPType>
 services::Status ResultImpl::allocate(size_t nFeatures, size_t nComponents, DAAL_UINT64 resultsToCompute)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        return __allocate__impl<algorithmFPType, data_management::HomogenNumericTable<algorithmFPType> >(nFeatures, nComponents, resultsToCompute);
-    }
+    return __allocate__impl<algorithmFPType, data_management::HomogenNumericTable<algorithmFPType> >(nFeatures, nComponents, resultsToCompute);
 }
 
 template <typename algorithmFPType, typename NumericTableType>

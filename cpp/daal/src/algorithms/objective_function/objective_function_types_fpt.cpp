@@ -22,7 +22,7 @@
 */
 
 #include "algorithms/optimization_solver/objective_function/objective_function_types.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -54,19 +54,13 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     services::Status status;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     const size_t nCols = algInput->get(argument)->getNumberOfColumns();
     const size_t nRows = algInput->get(argument)->getNumberOfRows();
 
     if (algParameter->resultsToCompute & gradient && !Argument::get(gradientIdx))
     {
         NumericTablePtr nt;
-        if (deviceInfo.isCpu)
-        {
-            nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
-        }
+        nt = HomogenNumericTable<algorithmFPType>::create(1, nRows, NumericTable::doAllocate, zero, &status);
         Argument::set(gradientIdx, staticPointerCast<NumericTable, SerializationIface>(nt));
     }
     if (algParameter->resultsToCompute & value && !Argument::get(valueIdx))

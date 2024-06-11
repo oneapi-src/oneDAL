@@ -23,7 +23,6 @@
 
 #include "algorithms/pca/transform/pca_transform_types.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "src/services/daal_strings.h"
 
 using namespace daal::services;
@@ -55,15 +54,10 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
 
     services::Status status;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     NumericTablePtr transformedDataNT;
 
-    if (deviceInfo.isCpu)
-    {
-        transformedDataNT = HomogenNumericTable<algorithmFPType>::create(nComponents, nInputs, NumericTable::doAllocate, &status);
-    }
+    transformedDataNT = HomogenNumericTable<algorithmFPType>::create(nComponents, nInputs, NumericTable::doAllocate, &status);
+
     DAAL_CHECK_STATUS_VAR(status);
 
     set(transformedData, transformedDataNT);
