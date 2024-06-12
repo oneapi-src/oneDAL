@@ -25,6 +25,7 @@
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/table/csr_accessor.hpp"
+// #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/algo/kmeans_init/backend/to_daal_method.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -109,14 +110,11 @@ static result_t call_daal_kernel(const context_gpu& ctx,
             .compute(len_input, input, len_output, output, &par, *(par.engine));
     }));
 
-    auto element_count = cluster_count * column_count;
-    auto arr_centroids_device =
-        dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
-    auto* const arr_centroids_ptr = arr_centroids_device.get_mutable_data();
-    auto copy_to_device_event = queue.submit([&](sycl::handler& cgh) {
-        cgh.memcpy(arr_centroids_device, arr_centroids.get_data(), element_count * sizeof(float));
-    });
-
+    // auto element_count = cluster_count * column_count;
+    // auto arr_centroids_device =
+    //     dal::array<float>::empty(queue, element_count, sycl::usm::alloc::device);
+    // const auto copy_event = queue.copy<Float>(arr_centroids_device.get_mutable_data(), arr_centroids.get_data(), element_count, {});
+    // sycl::event::wait_and_throw({ copy_event });
     return compute_result<task_t>().set_centroids(
         dal::detail::homogen_table_builder{}
             .reset(arr_centroids, cluster_count, column_count)
