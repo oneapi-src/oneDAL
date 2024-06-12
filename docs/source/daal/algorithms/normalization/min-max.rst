@@ -137,4 +137,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`normalization_minmax_batch.py`
+    - :daal4py_example:`normalization_minmax.py`

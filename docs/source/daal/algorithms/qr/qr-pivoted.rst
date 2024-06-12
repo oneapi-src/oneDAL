@@ -148,4 +148,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`pivoted_qr_batch.py`
+    - :daal4py_example:`pivoted_qr.py`

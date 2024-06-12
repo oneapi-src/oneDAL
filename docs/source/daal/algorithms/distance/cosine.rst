@@ -118,7 +118,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`cosine_distance_batch.py`
+    - :daal4py_example:`cosine_distance.py`
 
 Performance Considerations
 **************************
