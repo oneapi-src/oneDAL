@@ -17,6 +17,7 @@
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_predict_types.h"
 #include "algorithms/classifier/classifier_model.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_model_impl.h"
 #include "src/services/daal_strings.h"
 
 using namespace daal::data_management;
