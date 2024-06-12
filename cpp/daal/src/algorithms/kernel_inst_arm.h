@@ -58,7 +58,6 @@
         default:                                                                                                                   \
         {                                                                                                                          \
             using cntrTemplateInst = ContainerTemplate<__VA_ARGS__, sve>;                                                          \
-            static volatile services::internal::GpuSupportRegistrar<cntrTemplateInst> registrar;                                   \
             _cntr = (new cntrTemplateInst(daalEnv));                                                                               \
             break;                                                                                                                 \
         }                                                                                                                          \
