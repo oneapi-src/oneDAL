@@ -498,7 +498,6 @@ def _dal_module(name, lib_tag="dal", is_dpc=False, features=[],
             "avx512": [ "__CPU_TAG__=__CPU_TAG_AVX512__" ],
         },
         local_defines = local_defines + ([
-            "DAAL_SYCL_INTERFACE",
             "ONEDAL_DATA_PARALLEL"
         ] if is_dpc else []) + select({
             "@config//:test_fp64_disabled": [

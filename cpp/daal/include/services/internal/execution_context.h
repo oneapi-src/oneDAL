@@ -90,95 +90,13 @@ public:
     CpuExecutionContext() : ExecutionContext(new ImplType()) {}
 };
 /** @} */
-} // namespace interface1
 
-using interface1::ExecutionContext;
-using interface1::CpuExecutionContext;
-
-} // namespace internal
-} // namespace services
-} // namespace daal
-
-#ifdef DAAL_SYCL_INTERFACE
-    #include "services/internal/sycl/execution_context_sycl.h"
-
-namespace daal
-{
-namespace services
-{
-namespace internal
-{
-namespace interface1
-{
-/** @ingroup sycl
- * @{
- */
-
-/**
- *  <a name="DAAL-CLASS-SERVICES__SYCLEXECUTIONCONTEXT"></a>
- *  \brief Implementation of a device context class
- *  based on SYCL* queue object
- */
-class SyclExecutionContext : public ExecutionContext
-{
-public:
-    /** Constructor from SYCL* queue.
-     *  When this execution context is selected, all computations
-     *  are performed on the device associated with the queue
-     *  \param[in] deviceQueue SYCL* queue object to the device that is selected to perform computations
-     */
-    SyclExecutionContext(const ::sycl::queue & deviceQueue, const bool fromPython = false)
-        : ExecutionContext(createContext(deviceQueue, fromPython), !deviceQueue.get_device().is_cpu())
-    {}
-
-private:
-    static daal::services::internal::sycl::ExecutionContextIface * createContext(const ::sycl::queue & queue, const bool fromPython = false)
-    {
-        /* XXX: Workaround to fix performance on CPU: SYCL* runtime loads one
-                thread with active spin-lock that waits for submissions in a queue.
-                In CPU mode DAAL does not submit kernels, and runs CPU code via TBB.
-                Spin-lock is active while the queue persists. We do not persist
-                the queue and avoid running spin-lock in a queue while any DAAL
-                algorithm is running. */
-        if (queue.get_device().is_cpu())
-        {
-            return new daal::services::internal::sycl::CpuExecutionContextImpl();
-        }
-        else
-        {
-            try
-            {
-                return new daal::services::internal::sycl::SyclExecutionContextImpl(queue, fromPython);
-            }
-            catch (const std::runtime_error & e)
-            {
-                throw e;
-            }
-        }
-    }
-};
-/** @} */
-} // namespace interface1
-
-using interface1::SyclExecutionContext;
-
-} // namespace internal
-} // namespace services
-} // namespace daal
-#endif // DAAL_SYCL_INTERFACE
-
-namespace daal
-{
-namespace services
-{
-namespace internal
-{
-namespace interface1
-{
 DAAL_EXPORT sycl::ExecutionContextIface & getDefaultContext();
 
 } // namespace interface1
 
+using interface1::ExecutionContext;
+using interface1::CpuExecutionContext;
 using interface1::getDefaultContext;
 
 } // namespace internal
