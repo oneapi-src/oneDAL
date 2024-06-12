@@ -70,7 +70,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     services::Status status;
 
     Argument::set(centroids, data_management::SerializationIfacePtr(new data_management::HomogenNumericTable<algorithmFPType>(
-                                    nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate)));
+                                 nFeatures, kmPar->nClusters, data_management::NumericTable::doAllocate)));
     return status;
 }
 

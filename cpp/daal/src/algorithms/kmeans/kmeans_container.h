@@ -129,8 +129,8 @@ services::Status DistributedContainer<step1Local, algorithmFPType, method, cpu>:
 
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr,
-                           r, par);
+    __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep1Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
+                       par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -181,8 +181,8 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
 
     services::Status s;
 
-    s = __DAAL_CALL_KERNEL_STATUS(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a,
-                                      nr, r, par);
+    s = __DAAL_CALL_KERNEL_STATUS(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr,
+                                  r, par);
     dcInput->clear();
     return s;
 }
@@ -209,8 +209,8 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr,
-                           r, par);
+    __DAAL_CALL_KERNEL(env, internal::KMeansDistributedStep2Kernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), finalizeCompute, na, a, nr, r,
+                       par);
 }
 
 } // namespace interface2

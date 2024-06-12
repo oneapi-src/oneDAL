@@ -78,7 +78,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const VotingMethod votingMethod = par->votingMethod;
 
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);
+                       daal::services::internal::hostApp(*const_cast<Input *>(input)), a, m, r, prob, par->nClasses, votingMethod);
 }
 } // namespace interface3
 } // namespace prediction

@@ -75,8 +75,8 @@ services::Status BatchContainer<algorithmFPType, correlationDense, cpu>::compute
     }
 
     __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(batch, algorithmFPType), compute, input->isCorrelation(),
-                           parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute, *eigenvectors, *eigenvalues,
-                           *means, *variances);
+                       parameter->isDeterministic, *data, covarianceAlgorithm.get(), parameter->resultsToCompute, *eigenvectors, *eigenvalues, *means,
+                       *variances);
 }
 
 } // namespace interface3

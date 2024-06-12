@@ -79,16 +79,15 @@ protected:
         {
             services::Status status;
             dest = data_management::HomogenNumericTable<algorithmFPType>::create(value->getNumberOfColumns(), value->getNumberOfRows(),
-                                                                                    data_management::NumericTable::doAllocate, &status);
+                                                                                 data_management::NumericTable::doAllocate, &status);
             DAAL_CHECK_STATUS_VAR(status);
             data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
             DAAL_CHECK_STATUS_VAR(dest->getBlockOfRows(0, dest->getNumberOfRows(), data_management::writeOnly, destBD));
             DAAL_CHECK_STATUS_VAR(value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD));
             auto source      = srcBD.getBlockPtr();
             auto destination = destBD.getBlockPtr();
-            services::internal::daal_memcpy_s(
-                destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType), srcBD.getBlockPtr(),
-                srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
+            services::internal::daal_memcpy_s(destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType),
+                                              srcBD.getBlockPtr(), srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));
             DAAL_CHECK_STATUS_VAR(dest->releaseBlockOfRows(destBD));
             DAAL_CHECK_STATUS_VAR(value->releaseBlockOfRows(srcBD));
         }

@@ -83,9 +83,8 @@ Status BatchContainer<algorithmFPType, method, cpu>::compute()
     {
         linear_regression::ModelNormEqPtr m = linear_regression::ModelNormEq::cast(result->get(model));
 
-        __DAAL_CALL_KERNEL(env, internal::BatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
-                               *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
-                               par->interceptFlag);
+        __DAAL_CALL_KERNEL(env, internal::BatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute, *(input->get(data)),
+                           *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()), par->interceptFlag);
     }
     else
     {
@@ -133,8 +132,8 @@ Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     {
         linear_regression::ModelNormEqPtr m = linear_regression::ModelNormEq::cast(partialResult->get(training::partialModel));
 
-        __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute,
-                               *(input->get(data)), *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), par->interceptFlag);
+        __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), compute, *(input->get(data)),
+                           *(input->get(dependentVariables)), *(m->getXTXTable()), *(m->getXTYTable()), par->interceptFlag);
     }
     else
     {
@@ -167,8 +166,7 @@ Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute()
         linear_regression::ModelNormEqPtr m  = linear_regression::ModelNormEq::cast(result->get(training::model));
 
         __DAAL_CALL_KERNEL(env, internal::OnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, training::normEqDense), finalizeCompute,
-                               *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()),
-                               par->interceptFlag);
+                           *(pm->getXTXTable()), *(pm->getXTYTable()), *(m->getXTXTable()), *(m->getXTYTable()), *(m->getBeta()), par->interceptFlag);
     }
     else
     {

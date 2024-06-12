@@ -57,7 +57,7 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::comput
     data_management::NumericTablePtr data = input->get(pca::data);
 
     __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), compute, data, partialResult,
-                           parameter);
+                       parameter);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -72,7 +72,7 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::finali
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
     __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), finalize, partialResult, parameter,
-                           *eigenvectors, *eigenvalues);
+                       *eigenvectors, *eigenvalues);
 }
 
 } // namespace pca

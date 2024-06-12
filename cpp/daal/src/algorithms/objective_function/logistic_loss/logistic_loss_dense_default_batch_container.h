@@ -93,10 +93,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
     }
 
-    __DAAL_CALL_KERNEL(env, internal::LogLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                        input->get(logistic_loss::data).get(), input->get(logistic_loss::dependentVariables).get(),
-                        input->get(logistic_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
-                        lipschitzConstant, parameter);
+    __DAAL_CALL_KERNEL(env, internal::LogLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, input->get(logistic_loss::data).get(),
+                       input->get(logistic_loss::dependentVariables).get(), input->get(logistic_loss::argument).get(), value, hessian, gradient,
+                       nonSmoothTermValue, proximalProjection, lipschitzConstant, parameter);
 }
 
 } // namespace interface2

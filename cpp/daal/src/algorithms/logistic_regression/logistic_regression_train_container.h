@@ -66,7 +66,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env               = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
+                       daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

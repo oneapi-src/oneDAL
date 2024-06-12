@@ -60,8 +60,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, dataTable, result,
-                           par);
+    __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, dataTable, result, par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -89,7 +88,7 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::compute()
     daal::services::Environment::env & env = *_env;
 
     __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, dataTable,
-                           partialResult, par, isOnline);
+                       partialResult, par, isOnline);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -119,8 +118,8 @@ services::Status OnlineContainer<algorithmFPType, method, cpu>::finalizeCompute(
     NumericTable * variationTable = result->get(variation).get();
 
     __DAAL_CALL_KERNEL(env, internal::LowOrderMomentsOnlineKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), finalizeCompute,
-                        nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable, varianceTable, stDevTable,
-                        variationTable, par);
+                       nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable, varianceTable, stDevTable, variationTable,
+                       par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -148,7 +147,7 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     services::Status s;
 
     s = __DAAL_CALL_KERNEL_STATUS(env, internal::LowOrderMomentsDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                      collection, partialResult, par);
+                                  collection, partialResult, par);
 
     collection->clear();
     return s;
@@ -182,9 +181,9 @@ services::Status DistributedContainer<step2Master, algorithmFPType, method, cpu>
     NumericTable * stDevTable     = result->get(standardDeviation).get();
     NumericTable * variationTable = result->get(variation).get();
 
-    s = __DAAL_CALL_KERNEL_STATUS(env, internal::LowOrderMomentsDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method),
-                                    finalizeCompute, nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable,
-                                    varianceTable, stDevTable, variationTable, par);
+    s = __DAAL_CALL_KERNEL_STATUS(env, internal::LowOrderMomentsDistributedKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), finalizeCompute,
+                                  nObservationsTable, sumTable, sumSqTable, sumSqCenTable, meanTable, raw2MomTable, varianceTable, stDevTable,
+                                  variationTable, par);
 
     return s;
 }

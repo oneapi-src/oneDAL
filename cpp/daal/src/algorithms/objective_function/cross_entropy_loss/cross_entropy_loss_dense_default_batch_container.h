@@ -94,9 +94,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     }
 
     __DAAL_CALL_KERNEL(env, internal::CrossEntropyLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
-                           input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
-                           lipschitzConstant, parameter);
+                       input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
+                       input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
+                       lipschitzConstant, parameter);
 }
 
 } // namespace interface2

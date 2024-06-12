@@ -70,9 +70,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * learningRateSequence = parameter->learningRateSequence.get();
     NumericTable * batchIndices         = parameter->batchIndices.get();
 
-    __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), inputArgument, minimum.get(), nIterations, parameter, learningRateSequence,
-                           batchIndices, optionalArgument, optionalResult, *parameter->engine);
+    __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input),
+                       inputArgument, minimum.get(), nIterations, parameter, learningRateSequence, batchIndices, optionalArgument, optionalResult,
+                       *parameter->engine);
 }
 
 } // namespace interface2

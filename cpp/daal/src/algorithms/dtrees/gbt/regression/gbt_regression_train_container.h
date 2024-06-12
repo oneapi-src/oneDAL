@@ -82,7 +82,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(par->engine.get());
 
     __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
+                       daal::services::internal::hostApp(*input), x, y, *m, *result, *par, *engine);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

@@ -49,11 +49,11 @@ DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daa
     set(nObservationsCorrelation,
         data_management::HomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
     set(sumCorrelation, data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
-                                                                                        data_management::NumericTableIface::doAllocate, 0, &s));
+                                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
     set(crossProductCorrelation,
         data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                        (static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                        data_management::NumericTableIface::doAllocate, 0, &s));
+                                                                      (static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
 
     return s;
 };

@@ -62,7 +62,7 @@ services::Status BatchContainer<algorithmFpType, method, cpu>::compute()
     kernelPar.resultsToEvaluate = par->resultsToEvaluate;
 
     __DAAL_CALL_KERNEL(env, internal::KNNClassificationPredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFpType), compute, a.get(), m.get(),
-                           label.get(), indices.get(), distances.get(), &kernelPar);
+                       label.get(), indices.get(), distances.get(), &kernelPar);
 }
 
 } // namespace prediction

@@ -55,8 +55,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
 
     if (par->resultsToEvaluate & daal::algorithms::classifier::computeClassLabels)
     {
-        set(prediction,
-            data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, &s));
+        set(prediction, data_management::HomogenNumericTable<algorithmFPType>::create(1, nRows, data_management::NumericTableIface::doAllocate, &s));
     }
 
     if (s.ok() && (par->resultsToCompute & computeIndicesOfNeighbors))
@@ -67,7 +66,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     if (s.ok() && (par->resultsToCompute & computeDistances))
     {
         set(distances,
-                data_management::HomogenNumericTable<algorithmFPType>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, &s));
+            data_management::HomogenNumericTable<algorithmFPType>::create(par->k, nRows, data_management::NumericTableIface::doAllocate, &s));
     }
 
     return s;
