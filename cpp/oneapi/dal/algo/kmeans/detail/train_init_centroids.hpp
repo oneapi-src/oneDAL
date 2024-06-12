@@ -15,7 +15,7 @@
 *******************************************************************************/
 #include <daal/src/algorithms/kmeans/kmeans_init_kernel.h>
 
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/transfer.hpp"

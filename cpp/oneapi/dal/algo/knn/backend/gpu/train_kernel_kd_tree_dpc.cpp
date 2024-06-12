@@ -16,8 +16,7 @@
 
 #include "oneapi/dal/algo/knn/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/backend/dispatcher.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
-#include "oneapi/dal/backend/interop/error_converter.hpp"
+=#include "oneapi/dal/backend/interop/error_converter.hpp"
 
 namespace oneapi::dal::knn::backend {
 
