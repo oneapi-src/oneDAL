@@ -21,6 +21,7 @@
 #include "daal/src/data_management/service_numeric_table.h"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
+#include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/table/backend/interop/host_homogen_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_soa_table_adapter.hpp"
 #include "oneapi/dal/table/backend/interop/host_csr_table_adapter.hpp"
