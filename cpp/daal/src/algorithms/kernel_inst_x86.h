@@ -72,7 +72,7 @@
         default:                                                                                                                                 \
         {                                                                                                                                        \
             using cntrTemplateInst = ContainerTemplate<__VA_ARGS__, sse2>;                                                                       \
-            _cntr = (new cntrTemplateInst(daalEnv));                                                                                             \
+            _cntr                  = (new cntrTemplateInst(daalEnv));                                                                            \
             break;                                                                                                                               \
         }                                                                                                                                        \
         }                                                                                                                                        \
