@@ -24,6 +24,7 @@
 #ifndef __KERNEL_H__
 #define __KERNEL_H__
 
+#include "algorithms/algorithm_kernel.h"
 #include "services/daal_defines.h"
 #include "src/services/service_defines.h"
 #include "services/internal/daal_kernel_defines.h"
