@@ -27,7 +27,6 @@
 #define __PCA_TRANSFORM_CONTAINER_H__
 
 #include "src/algorithms/pca/transform/pca_transform_kernel.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {

@@ -29,7 +29,6 @@
 #include "algorithms/kmeans/kmeans_batch.h"
 #include "algorithms/kmeans/kmeans_distributed.h"
 #include "src/algorithms/kmeans/kmeans_lloyd_kernel.h"
-#include "services/internal/sycl/execution_context.h"
 
 #include "src/data_management/service_numeric_table.h"
 

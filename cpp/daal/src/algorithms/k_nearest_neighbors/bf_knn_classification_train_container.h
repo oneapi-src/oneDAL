@@ -18,7 +18,6 @@
 #ifndef __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 #define __BF_KNN_CLASSIFICATION_TRAIN_CONTAINER_H__
 
-#include "services/internal/sycl/execution_context.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
 #include "services/daal_shared_ptr.h"

@@ -630,7 +630,6 @@ jobs:
       ret_code=0
       python -m daal4py daal4py/tests/run_examples.py
       ret_code=$(($ret_code + $?))
-      python -m daal4py daal4py/tests/daal4py/sycl/sklearn_sycl.py
       ret_code=$(($ret_code + $?))
       exit $ret_code
     displayName: daal4py examples

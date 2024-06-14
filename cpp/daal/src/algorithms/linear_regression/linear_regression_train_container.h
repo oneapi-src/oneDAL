@@ -32,7 +32,6 @@
 #include "algorithms/linear_regression/linear_regression_ne_model.h"
 #include "algorithms/linear_regression/linear_regression_qr_model.h"
 #include "src/data_management/service_numeric_table.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {

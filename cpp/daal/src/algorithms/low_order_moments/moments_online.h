@@ -26,7 +26,6 @@
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/data_management/service_numeric_table.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "services/internal/execution_context.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;

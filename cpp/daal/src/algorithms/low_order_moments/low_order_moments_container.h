@@ -29,7 +29,6 @@
 #include "algorithms/moments/low_order_moments_online.h"
 #include "algorithms/moments/low_order_moments_distributed.h"
 #include "src/algorithms/low_order_moments/low_order_moments_kernel.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {

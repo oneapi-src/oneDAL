@@ -23,7 +23,6 @@
 
 #include "src/algorithms/linear_regression/linear_regression_ne_model_impl.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {

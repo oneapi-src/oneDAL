@@ -25,11 +25,7 @@
 #define __KMEANS_INIT_RESULT_
 
 #include "algorithms/kmeans/kmeans_init_types.h"
-#include "services/internal/sycl/execution_context.h"
-#include "services/internal/sycl/types.h"
 #include "data_management/data/homogen_numeric_table.h"
-
-using namespace daal::services::internal::sycl;
 
 namespace daal
 {

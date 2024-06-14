@@ -1,4 +1,4 @@
-/* file: bf_knn_classification_model_ucapi_impl.h */
+/* file: bf_knn_classification_model_impl.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
 *
@@ -15,8 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __BF_KNN_CLASSIFICATION_MODEL_UCAPI_IMPL_H__
-#define __BF_KNN_CLASSIFICATION_MODEL_UCAPI_IMPL_H__
+#ifndef __BF_KNN_CLASSIFICATION_MODEL_IMPL_
+#define __BF_KNN_CLASSIFICATION_MODEL_IMPL_
 
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "data_management/data/homogen_numeric_table.h"

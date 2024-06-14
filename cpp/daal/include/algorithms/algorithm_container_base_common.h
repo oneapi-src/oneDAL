@@ -29,7 +29,6 @@
 
 #include "algorithms/algorithm_container_base.h"
 #include "services/error_handling.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {

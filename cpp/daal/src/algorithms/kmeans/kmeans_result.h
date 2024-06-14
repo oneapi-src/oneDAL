@@ -25,8 +25,6 @@
 #define __KMEANS_RESULT_
 
 #include "algorithms/kmeans/kmeans_types.h"
-#include "services/internal/sycl/execution_context.h"
-#include "services/internal/sycl/types.h"
 #include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
@@ -37,7 +35,6 @@ namespace kmeans
 {
 namespace dm      = daal::data_management;
 namespace dmi     = daal::data_management::internal;
-namespace si_sycl = daal::services::internal::sycl;
 
 /**
  * Allocates memory to store the results of the K-Means algorithm

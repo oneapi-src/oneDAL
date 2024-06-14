@@ -6,7 +6,6 @@ daal_module(
     auto = True,
     deps = [
         "@onedal//cpp/daal:core",
-        "@onedal//cpp/daal:sycl",
         "@onedal//cpp/daal/src/algorithms/covariance:kernel",
         "@onedal//cpp/daal/src/algorithms/svd:kernel",
         "@onedal//cpp/daal/src/algorithms/normalization/zscore:kernel",
