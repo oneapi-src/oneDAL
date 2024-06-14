@@ -428,7 +428,7 @@ bool is_sorted(sycl::queue& queue,
                              count_descending_reduction,
                              [=](sycl::nd_item<1> idx, auto& count_descending) {
                                  const auto i = idx.get_global_id(0);
-                                 if (data[i] > data[i + 1])
+                                 if (i < count_m1 && data[i + 1] < data[i])
                                      count_descending.combine(1);
                              });
         })
