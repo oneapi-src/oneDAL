@@ -6,6 +6,7 @@ daal_module(
     auto = True,
     deps = [
         "@onedal//cpp/daal:core",
+        "@onedal//cpp/daal:engines",
         "@onedal//cpp/daal/src/algorithms/classifier:kernel",
     ],
 )

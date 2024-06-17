@@ -148,11 +148,17 @@ daal_module(
 )
 
 daal_module(
+    name = "engines",
+    deps = [
+        "@onedal//cpp/daal/src/algorithms/engines:kernel",
+    ],
+)
+
+daal_module(
     name = "core",
     deps = [
         ":services",
         ":data_management",
-        "@onedal//cpp/daal/src/algorithms/engines:kernel",
     ],
 )
 
