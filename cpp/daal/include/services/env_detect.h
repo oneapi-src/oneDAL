@@ -27,6 +27,7 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
+#include "services/error_handling.h"
 
 namespace daal
 {

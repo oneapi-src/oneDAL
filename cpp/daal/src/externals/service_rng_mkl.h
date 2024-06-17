@@ -27,7 +27,6 @@
 #include "vmlvsl.h"
 #include "src/externals/service_stat_rng_mkl.h"
 #include "src/externals/service_rng_common.h"
-#include "services/error_handling.h"
 
 // RNGs
 #define __DAAL_BRNG_MT2203                    VSL_BRNG_MT2203
