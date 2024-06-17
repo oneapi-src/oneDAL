@@ -327,9 +327,6 @@ public:
     using base_t::allreduce;
     using base_t::sendrecv_replace;
 
-    private:
-        thread_communicator_context& ctx_;
-    };
 #ifndef ONEDAL_DATA_PARALLEL
     explicit thread_communicator_impl(std::int64_t thread_count)
             : ctx_(thread_count),

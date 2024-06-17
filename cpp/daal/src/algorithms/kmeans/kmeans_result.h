@@ -33,8 +33,8 @@ namespace algorithms
 {
 namespace kmeans
 {
-namespace dm      = daal::data_management;
-namespace dmi     = daal::data_management::internal;
+namespace dm  = daal::data_management;
+namespace dmi = daal::data_management::internal;
 
 /**
  * Allocates memory to store the results of the K-Means algorithm
