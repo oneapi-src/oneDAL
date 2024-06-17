@@ -414,7 +414,9 @@ bool is_sorted(sycl::queue& queue,
 
     const auto count_m1 = count - 1LL;
     const auto wg_size = dal::backend::device_max_wg_size(queue);
-    const auto local_size = (wg_size < count_m1) ? wg_size : count_m1;
+    const size_t count_m1_unsigned = static_cast<size_t>(count_m1);
+
+    const size_t wg_count = (count_m1 % wg_size) ? count_m1 / wg_size + 1 : count_m1 / wg_size;
 
     // count the number of pairs of the subsequent elements in the data array that are sorted
     // in desccending order using sycl::reduction
@@ -424,11 +426,11 @@ bool is_sorted(sycl::queue& queue,
             auto count_descending_reduction =
                 sycl::reduction(count_buf, cgh, sycl::ext::oneapi::plus<std::int64_t>());
 
-            cgh.parallel_for(sycl::nd_range<1>{ count_m1, local_size },
+            cgh.parallel_for(sycl::nd_range<1>{ wg_count * wg_size, wg_size },
                              count_descending_reduction,
                              [=](sycl::nd_item<1> idx, auto& count_descending) {
                                  const auto i = idx.get_global_id(0);
-                                 if (i < count_m1 && data[i + 1] < data[i])
+                                 if (i < count_m1_unsigned && data[i + 1] < data[i])
                                      count_descending.combine(1);
                              });
         })
