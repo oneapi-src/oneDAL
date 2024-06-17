@@ -236,12 +236,13 @@ sycl::event transpose(sycl::queue& q,
 
     return event;
 }
+
 template <typename Float>
 sycl::event assign_clusters(sycl::queue& q,
                             const std::size_t row_count,
                             pr::sparse_matrix_handle& data_handle,
                             const pr::ndview<Float, 1>& data_squares,
-                            const pr::ndview<Float, 2>& centroids,
+                            const pr::ndview<Float, 2>& centroids_transposed,
                             const pr::ndview<Float, 1>& centroid_squares,
                             pr::ndview<Float, 2>& distances,
                             pr::ndview<std::int32_t, 2>& responses,
@@ -256,7 +257,7 @@ sycl::event assign_clusters(sycl::queue& q,
     auto dist_event = pr::gemm(q,
                                pr::transpose::nontrans,
                                data_handle,
-                               centroids,
+                               centroids_transposed,
                                distances,
                                Float(-2.0),
                                Float(0),
@@ -264,7 +265,7 @@ sycl::event assign_clusters(sycl::queue& q,
 
     const auto distances_ptr = distances.get_data();
 
-    const auto cluster_count = centroids.get_dimension(0);
+    const auto cluster_count = centroids_transposed.get_dimension(1);
     // based on bechmarks an optimal block size is equal to 8 work-group sizes
     const std::int64_t block_multiplier = 8;
     const std::int64_t row_block = block_multiplier * bk::device_max_wg_size(q);
