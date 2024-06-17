@@ -327,16 +327,6 @@ public:
     using base_t::allreduce;
     using base_t::sendrecv_replace;
 
-    class collective_operation_guard {
-    public:
-        explicit collective_operation_guard(thread_communicator_context& ctx) : ctx_(ctx) {
-            ctx_.enter_communication();
-        }
-
-        ~collective_operation_guard() {
-            ctx_.exit_communication();
-        }
-
     private:
         thread_communicator_context& ctx_;
     };
