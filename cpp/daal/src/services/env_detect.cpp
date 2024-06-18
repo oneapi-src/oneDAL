@@ -145,15 +145,8 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
-    std::cout << "~Env" << std::endl;
     daal::setNumberOfThreads(1, _globalControl, _schedulerHandle);
-    std::cout << "~Env1" << std::endl;
     daal::services::daal_free_buffers();
-    std::cout << "~Env2" << std::endl;
-    _daal_tbb_task_scheduler_free(_globalControl);
-    std::cout << "~Env3" << std::endl;
-    _daal_tbb_task_scheduler_free(_schedulerHandle);
-    std::cout << "~Env4" << std::endl;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)

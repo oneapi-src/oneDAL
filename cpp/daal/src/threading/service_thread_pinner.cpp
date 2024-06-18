@@ -22,7 +22,7 @@
 */
 #include "services/daal_defines.h"
 #include <memory>
-#include <iostream>
+
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 
     #include "src/threading/service_thread_pinner.h"
@@ -236,13 +236,11 @@ public:
 thread_pinner_impl_t::thread_pinner_impl_t(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
     : pinner_arena(nthreads = daal::threader_get_threads_number()), tbb::task_scheduler_observer(pinner_arena), topo_deleter(deleter)
 {
-    std::cout << "thread_pinner destr" << std::endl;
     do_pinning = (nthreads > 0) ? true : false;
     is_pinning.set(0);
 
     read_topo(status, nthreads, max_threads, &cpu_queue);
     observe(true);
-    std::cout << "thread_pinner destr the end" << std::endl;
     return;
 } /* thread_pinner_impl_t() */
 
