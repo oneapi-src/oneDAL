@@ -41,7 +41,8 @@ sycl::event compute_data_squares(sycl::queue& q,
                                  const pr::ndview<Float, 1>& values,
                                  const pr::ndview<std::int64_t, 1>& column_indices,
                                  const pr::ndview<std::int64_t, 1>& row_offsets,
-                                 pr::ndview<Float, 1>& squares) {
+                                 pr::ndview<Float, 1>& squares,
+                                 const event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_data_squares, q);
     return pr::reduce_by_rows(q,
                               values,
@@ -50,7 +51,8 @@ sycl::event compute_data_squares(sycl::queue& q,
                               sparse_indexing::zero_based,
                               squares,
                               pr::sum<Float>{},
-                              pr::square<Float>{});
+                              pr::square<Float>{},
+                              deps);
 }
 
 // Temporary function, TODO: replace this call with spgemm call
