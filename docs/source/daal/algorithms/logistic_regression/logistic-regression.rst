@@ -274,5 +274,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`log_reg_dense_batch.py`
-    - :daal4py_example:`log_reg_binary_dense_batch.py`
+    - :daal4py_example:`log_reg_dense.py`
+    - :daal4py_example:`log_reg_binary_dense.py`
