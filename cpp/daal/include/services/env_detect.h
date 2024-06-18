@@ -183,7 +183,10 @@ public:
         _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
     }
 
-    services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext() { return *_executionContext; }
+    services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext()
+    {
+        return *_executionContext;
+    }
 
 private:
     Environment();
