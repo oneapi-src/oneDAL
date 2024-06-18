@@ -64,13 +64,11 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
 #if defined(TARGET_X86_64)
-    #if defined(__DO_TBB_LAYER__)
     if (schedulerHandle)
     {
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
         schedulerHandle = nullptr;
     }
-    #endif
 #endif
 }
 
@@ -92,11 +90,9 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
 DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
 {
 #if defined(TARGET_X86_64)
-    #if defined(__DO_TBB_LAYER__)
     *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
     // It is necessary for initializing tbb in cases where DAAL does not use it.
     tbb::task_arena {}.initialize();
-    #endif
 #endif
     return 0;
 }
