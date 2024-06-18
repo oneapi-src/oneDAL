@@ -29,6 +29,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kernel_function::rbf::BatchContainer, batch, DAAL_FPTYPE, kernel_function::rbf::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kernel_function::rbf::BatchContainer, batch, DAAL_FPTYPE, kernel_function::rbf::fastCSR)
 } // namespace algorithms
 } // namespace daal

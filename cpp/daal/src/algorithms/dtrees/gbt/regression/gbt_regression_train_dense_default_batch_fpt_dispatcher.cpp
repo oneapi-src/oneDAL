@@ -27,7 +27,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(gbt::regression::training::BatchContainer, batch, DAAL_FPTYPE, gbt::regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::training::BatchContainer, batch, DAAL_FPTYPE, gbt::regression::training::defaultDense)
 
 namespace gbt
 {

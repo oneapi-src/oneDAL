@@ -29,6 +29,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(pca::transform::BatchContainer, batch, DAAL_FPTYPE, pca::transform::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::transform::BatchContainer, batch, DAAL_FPTYPE, pca::transform::defaultDense)
 }
 } // namespace daal

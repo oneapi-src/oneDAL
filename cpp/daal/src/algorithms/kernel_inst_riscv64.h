@@ -43,28 +43,4 @@
     template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, rv64> DAAL_KERNEL_RV64_CONTAINER(ContainerTemplate, __VA_ARGS__)>; \
     }
 
-#define __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, ClassName, BaseClassName, GetCpuid, ...)                      \
-    DAAL_KERNEL_RV64_CONTAINER1(ContainerTemplate, __VA_ARGS__)                                                                      \
-    namespace interface1                                                                                                             \
-    {                                                                                                                                \
-    template <>                                                                                                                      \
-    ClassName<Mode, ContainerTemplate<__VA_ARGS__, rv64> DAAL_KERNEL_RV64_CONTAINER(ContainerTemplate, __VA_ARGS__)>::ClassName(     \
-        daal::services::Environment::env * daalEnv)                                                                                  \
-        : BaseClassName(daalEnv), _cntr(NULL)                                                                                        \
-    {                                                                                                                                \
-        GetCpuid switch (__DAAL_KERNEL_MIN(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID, cpuid))                                         \
-        {                                                                                                                            \
-            DAAL_KERNEL_RV64_CONTAINER_CASE(ContainerTemplate, __VA_ARGS__)                                                          \
-        default:                                                                                                                     \
-        {                                                                                                                            \
-            using cntrTemplateInst = ContainerTemplate<__VA_ARGS__, rv64>;                                                           \
-            _cntr                  = (new cntrTemplateInst(daalEnv));                                                                \
-            break;                                                                                                                   \
-        }                                                                                                                            \
-        }                                                                                                                            \
-    }                                                                                                                                \
-                                                                                                                                     \
-    template class ClassName<Mode, ContainerTemplate<__VA_ARGS__, rv64> DAAL_KERNEL_RV64_CONTAINER(ContainerTemplate, __VA_ARGS__)>; \
-    }
-
 #endif
