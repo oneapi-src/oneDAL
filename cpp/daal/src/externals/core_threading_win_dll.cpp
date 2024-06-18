@@ -692,14 +692,14 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& init)
     return _daal_tbb_task_scheduler_free_ptr(init);
 }
 
-DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> init)
+DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> init, std::shared_ptr<void> control)
 {
     load_daal_thr_dll();
     if (_setNumberOfThreads_ptr == NULL)
     {
         _setNumberOfThreads_ptr = (_setNumberOfThreads_t)load_daal_thr_func("_setNumberOfThreads");
     }
-    return _setNumberOfThreads_ptr(numThreads, init);
+    return _setNumberOfThreads_ptr(numThreads, init, control);
 }
 
 DAAL_EXPORT void * _daal_threader_env()
