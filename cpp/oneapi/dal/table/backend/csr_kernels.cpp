@@ -416,7 +416,7 @@ bool is_sorted(sycl::queue& queue,
     const auto wg_size = dal::backend::device_max_wg_size(queue);
     const size_t count_m1_unsigned = static_cast<size_t>(count_m1);
 
-    const size_t wg_count = (count_m1 % wg_size) ? count_m1 / wg_size + 1 : count_m1 / wg_size;
+    const size_t wg_count = (count_m1 + wg_size - 1) / wg_size;
 
     // count the number of pairs of the subsequent elements in the data array that are sorted
     // in desccending order using sycl::reduction
