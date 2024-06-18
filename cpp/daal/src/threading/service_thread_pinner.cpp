@@ -21,6 +21,7 @@
 //--
 */
 #include "services/daal_defines.h"
+#include <memory>
 #if !(defined DAAL_THREAD_PINNING_DISABLED)
 
     #include "src/threading/service_thread_pinner.h"
@@ -335,20 +336,24 @@ thread_pinner_impl_t::~thread_pinner_impl_t()
 
 DAAL_EXPORT void * _getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
 {
+    static std::shared_ptr<daal::services::internal::thread_pinner_t> thread_pinner;
+    static std::mutex mutex;
     static bool pinner_created = false;
 
-    if (create_pinner == true || pinner_created == true)
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if (create_pinner && !pinner_created)
     {
-        static daal::services::internal::thread_pinner_t thread_pinner(read_topo, deleter);
-        if (thread_pinner.get_status() == 0)
+        auto new_pinner = std::make_shared<daal::services::internal::thread_pinner_t>(read_topo, deleter);
+        if (new_pinner->get_status() == 0)
         {
+            thread_pinner  = new_pinner;
             pinner_created = true;
-            return (void *)&thread_pinner;
         }
     }
 
-    return NULL;
-} /* thread_pinner_t* getThreadPinner() */
+    return new std::shared_ptr<daal::services::internal::thread_pinner_t>(thread_pinner);
+}
 
 DAAL_EXPORT void _thread_pinner_thread_pinner_init(void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
 {

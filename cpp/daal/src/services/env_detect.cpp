@@ -51,16 +51,10 @@ void daal_free_buffers();
 }
 } // namespace daal
 
-daal::services::Environment * daal::services::Environment::_instance = nullptr;
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    std::mutex _mutex;
-    std::lock_guard<std::mutex> guard(_mutex);
-    if (_instance == nullptr)
-    {
-        _instance = new daal::services::Environment();
-    }
-    return _instance;
+    static daal::services::Environment instance;
+    return &instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)

@@ -185,7 +185,7 @@ private:
 
     void _cpu_detect(int);
     void initNumberOfThreads();
-    static Environment * _instance;
+
     env _env;
     std::shared_ptr<void> _schedulerHandle;
     std::shared_ptr<void> _globalControl;
