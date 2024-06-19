@@ -251,4 +251,4 @@ Examples
 
     .. tab:: Python*
 
-        - :daal4py_example:`lbfgs_cr_entr_loss_batch.py`
+        - :daal4py_example:`lbfgs_cr_entr_loss.py`

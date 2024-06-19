@@ -255,4 +255,4 @@ Examples
 
     Batch Processing:
 
-    -  :daal4py_example:`svm_multiclass_batch.py`
+    -  :daal4py_example:`svm_multiclass.py`

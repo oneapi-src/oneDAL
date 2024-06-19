@@ -37,6 +37,7 @@ show_help() {
 --prefix:The path where OpenBLAS will be installed
 --version:The version of OpenBLAS to install. This is a git reference from the OpenBLAS repo, and defaults to ${BLAS_DEFAULT_VERSION}
 --sysroot:If cross-compiling with LLVM, determines the location of the target architecture sysroot
+--ilp64 <on/off>: whether or not to use the ILP64 build
 '
 }
 
@@ -74,6 +75,9 @@ while [[ $# -gt 0 ]]; do
         --sysroot)
         sysroot="$2"
         shift;;
+        --ilp64)
+        ilp64=on
+        shift;;
         --help)
         show_help
         exit 0
@@ -89,6 +93,7 @@ done
 target=${target:-ARMV8}
 host_compiler=${host_compiler:-gcc}
 compiler=${compiler:-aarch64-linux-gnu-gcc}
+openblas_ilp64=${ilp64:-on}
 
 target_arch=${target_arch:-$(uname -m)}
 OPENBLAS_DEFAULT_PREFIX="${ONEDAL_DIR}/__deps/openblas_${target_arch}"
@@ -159,6 +164,9 @@ pushd "${blas_src_dir}"
         USE_OPENMP=0
         USE_THREAD=0
         USE_LOCKING=1)
+  fi
+  if [ "${openblas_ilp64}" == "on" ]; then
+      make_options+=( 'BINARY=64' 'INTERFACE64=1' )
   fi
   # Clean
   echo make "${make_options[@]}" clean
