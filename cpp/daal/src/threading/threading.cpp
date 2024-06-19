@@ -24,7 +24,7 @@
 #include "src/threading/threading.h"
 #include "services/daal_memory.h"
 #include "src/algorithms/service_qsort.h"
-
+#include <iostream>
 #define TBB_PREVIEW_GLOBAL_CONTROL 1
 #define TBB_PREVIEW_TASK_ARENA     1
 
@@ -61,6 +61,9 @@ DAAL_EXPORT void _initializeSchedulerHandle(std::shared_ptr<void> _schedulerHand
 {
     if (!isInit)
     {
+        std::cout << "arena initialize" << std::endl;
+        tbb::task_arena arena;
+        arena.initialize();
         _schedulerHandle.reset();
         _schedulerHandle = std::static_pointer_cast<void>(std::make_shared<tbb::task_scheduler_handle>(tbb::attach()));
         isInit           = true;
@@ -71,6 +74,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
+    std::cout << "setnumber of threads" << std::endl;
     if (numThreads != 0)
     {
         _initializeSchedulerHandle(_schedulerHandle);

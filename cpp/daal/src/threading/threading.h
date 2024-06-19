@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include "services/daal_defines.h"
 #include <memory>
+#include <iostream>
 namespace daal
 {
 template <typename FPType>
@@ -186,6 +187,7 @@ inline size_t threader_get_threads_number()
 
 inline size_t setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl, std::shared_ptr<void> schedulerHandle)
 {
+    std::cout << "here set number of threads" << std::endl;
     return _setNumberOfThreads(numThreads, globalControl, schedulerHandle);
 }
 

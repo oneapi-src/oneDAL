@@ -177,16 +177,18 @@ DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t nu
         std::cout << "HT is enabled" << std::endl;
         /* Number of cores = number of cpu packages * number of cores per cpu package */
         int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
-
+        std::cout << "HT is enabled" << std::endl;
         /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (ncores < numThreads))
+        if ((ncores > 0) && (numThreads < ncores))
         {
+            std::cout << "HT is enabled if" << std::endl;
             daal::setNumberOfThreads(numThreads, _globalControl, _schedulerHandle);
         }
-    }
-    else
-    {
-        daal::setNumberOfThreads(1, _globalControl, _schedulerHandle);
+
+        else
+        {
+            daal::setNumberOfThreads(1, _globalControl, _schedulerHandle);
+        }
     }
 }
 
