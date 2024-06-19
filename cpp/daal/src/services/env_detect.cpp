@@ -127,34 +127,21 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
 DAAL_EXPORT daal::services::Environment::Environment() : _globalControl(nullptr), _schedulerHandle(nullptr)
 {
     std::cout << "constr" << std::endl;
-    _env.cpuid_init_flag = false;
-    _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
-DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
+DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment()
+{
+    std::cout << "copy constr" << std::endl;
+}
 
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
+    std::cout << "init" << std::endl;
     if (isInit) return;
-
+    std::cout << "init go" << std::endl;
     /* if HT enabled - set _numThreads to physical cores num */
-    if (daal::internal::ServiceInst::serv_get_ht())
-    {
-        std::cout << "HT is enabled" << std::endl;
-        /* Number of cores = number of cpu packages * number of cores per cpu package */
-        int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
-
-        /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
-        {
-            daal::services::Environment::setNumberOfThreads(ncores);
-        }
-    }
-    else
-    {
-        daal::services::Environment::setNumberOfThreads(1);
-    }
+    daal::services::Environment::setNumberOfThreads(1);
     std::cout << "HT is skipped" << std::endl;
     isInit = true;
 }
@@ -174,6 +161,7 @@ DAAL_EXPORT daal::services::Environment::~Environment()
 
 void daal::services::Environment::_cpu_detect(int enable)
 {
+    std::cout << "cpu_Detect" << std::endl;
     initNumberOfThreads();
     if (~size_t(0) == _env.cpuid)
     {
@@ -184,7 +172,22 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    daal::setNumberOfThreads(numThreads, _globalControl, _schedulerHandle);
+    if (daal::internal::ServiceInst::serv_get_ht())
+    {
+        std::cout << "HT is enabled" << std::endl;
+        /* Number of cores = number of cpu packages * number of cores per cpu package */
+        int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
+
+        /*  Re-set number of threads if ncores is valid and different to _numThreads */
+        if ((ncores > 0) && (ncores < numThreads))
+        {
+            daal::setNumberOfThreads(numThreads, _globalControl, _schedulerHandle);
+        }
+    }
+    else
+    {
+        daal::setNumberOfThreads(1, _globalControl, _schedulerHandle);
+    }
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const

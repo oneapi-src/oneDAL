@@ -24,7 +24,7 @@
 #include "services/daal_string.h"
 #include "src/services/service_data_utils.h"
 #include "src/externals/service_profiler.h"
-
+#include <iostream>
 using namespace daal::data_management;
 using namespace daal::services::internal;
 
@@ -240,6 +240,7 @@ Status QuickSelectIndexed::adjustIndexBuffer(uint32_t number, uint32_t size)
     Status status;
     if (_indexSize < newSize)
     {
+        std::cout << "here 0000" << std::endl;
         auto & context = Environment::getInstance()->getDefaultExecutionContext();
         _indices       = context.allocate(TypeIds::id<int>(), newSize, status);
         DAAL_CHECK_STATUS_VAR(status);
@@ -266,6 +267,7 @@ Status QuickSelectIndexed::init(Params & par)
     {
         values[i] = static_cast<float>(numbers[i]) / (_nRndSeq - 1);
     }
+    std::cout << "here 00001" << std::endl;
     auto & context = Environment::getInstance()->getDefaultExecutionContext();
     _rndSeq        = context.allocate(par.type, _nRndSeq, status);
     DAAL_CHECK_STATUS_VAR(status);
