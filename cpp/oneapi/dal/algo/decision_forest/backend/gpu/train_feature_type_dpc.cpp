@@ -251,9 +251,10 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     last_event = event;
 
     Index com_bin_count = 0;
+    std::int64_t rank_count = comm_.get_rank_count();
     // using std::int64_t instead of Index because of it is used as displ in gatherv
-    auto com_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
-    auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ comm_.get_rank_count() });
+    auto com_bin_count_arr = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
+    auto com_bin_offset_arr = pr::ndarray<std::int64_t, 1>::empty({ rank_count });
 
     std::int64_t lbc_64 = static_cast<std::int64_t>(local_bin_count);
     {
@@ -267,14 +268,14 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
         comm_.allreduce(com_bin_count).wait();
     }
 
-    pr::ndarray<Float, 1> com_bin_brd;
-    com_bin_brd = pr::ndarray<Float, 1>::empty(queue_, { com_bin_count }, sycl::usm::alloc::device);
+    auto com_bin_brd =
+        pr::ndarray<Float, 1>::empty(queue_, { com_bin_count }, sycl::usm::alloc::device);
 
     const std::int64_t* com_bin_count_ptr = com_bin_count_arr.get_data();
     std::int64_t* com_bin_offset_ptr = com_bin_offset_arr.get_mutable_data();
 
     std::int64_t offset = 0;
-    for (Index i = 0; i < comm_.get_rank_count(); ++i) {
+    for (Index i = 0; i < rank_count; ++i) {
         com_bin_offset_ptr[i] = offset;
         offset += com_bin_count_ptr[i];
     }
@@ -290,6 +291,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     }
 
     if (comm_.is_root_rank()) {
+        ONEDAL_PROFILER_TASK(sort_and_gather_on_main_rank);
         last_event = sort_inplace<Float, Index>(queue_, com_bin_brd, { last_event });
 
         // filter out fin bin set
@@ -334,10 +336,10 @@ sycl::event indexed_features<Float, Bin, Index>::compute_bins(
     sycl::event::wait_and_throw(deps);
 
     sycl::event last_event;
-
+    const std::int64_t rank_count = comm_.get_rank_count();
     auto [bin_borders_nd_device, bin_count, event] =
-        comm_.get_rank_count() > 1 ? gather_bin_borders_distr(values_nd, row_count_, deps)
-                                   : gather_bin_borders(values_nd, row_count_, deps);
+        rank_count > 1 ? gather_bin_borders_distr(values_nd, row_count_, deps)
+                       : gather_bin_borders(values_nd, row_count_, deps);
     last_event = event;
 
     const Index local_size = bk::device_max_sg_size(queue_);
