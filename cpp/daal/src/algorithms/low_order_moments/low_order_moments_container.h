@@ -33,7 +33,7 @@
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_distributed_oneapi.h"
 #include "services/internal/execution_context.h"
-
+#include <iostream>
 namespace daal
 {
 namespace algorithms
@@ -43,6 +43,7 @@ namespace low_order_moments
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
+    std::cout << "here batch" << std::endl;
     auto & context    = daal::services::internal::getDefaultContext();
     auto & deviceInfo = context.getInfoDevice();
 
@@ -59,12 +60,14 @@ BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Env
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 {
+    std::cout << "destr" << std::endl;
     __DAAL_DEINITIALIZE_KERNELS();
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
+    std::cout << "here batch1" << std::endl;
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 

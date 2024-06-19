@@ -29,7 +29,7 @@
 #include "services/error_handling.h"
 #include "services/env_detect.h"
 #include "algorithms/algorithm_types.h"
-
+#include <iostream>
 namespace daal
 {
 namespace algorithms
@@ -87,7 +87,11 @@ class AlgorithmIfaceImpl : public AlgorithmIface
 {
 public:
     /** Default constructor */
-    AlgorithmIfaceImpl() : _enableChecks(true) { getEnvironment(); }
+    AlgorithmIfaceImpl() : _enableChecks(true)
+    {
+        getEnvironment();
+        std::cout << "contr 3" << std::endl;
+    }
 
     virtual ~AlgorithmIfaceImpl() {}
 
@@ -116,6 +120,7 @@ private:
 protected:
     services::Status getEnvironment()
     {
+        std::cout << "getEnv method" << std::endl;
         int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
         if (cpuid < 0) return services::Status(services::ErrorCpuNotSupported);
         _env.cpuid           = cpuid;

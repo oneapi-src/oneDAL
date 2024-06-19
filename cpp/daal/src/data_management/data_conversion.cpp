@@ -25,13 +25,14 @@
 #include "src/externals/service_dispatch.h"
 #include "src/data_management/data_conversion_cpu.h"
 #include "data_management/data/internal/conversion.h"
-
+#include <iostream>
 namespace daal
 {
 namespace data_management
 {
 namespace internal
 {
+static bool isinit = false;
 /* only for AVX512 architecture with using intrinsics */
 #if defined(DAAL_INTEL_CPP_COMPILER)
 template <typename T>
@@ -42,6 +43,11 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * d
 
     if (!ptr)
     {
+        if (!isinit)
+        {
+            std::cout << "here 2" << std::endl;
+            isinit = true;
+        }
         int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
 
         switch (cpuid)

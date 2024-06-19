@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/cpu.hpp"
 #include "oneapi/dal/detail/global_context_impl.hpp"
 #include <daal/src/services/service_defines.h>
-
+#include <iostream>
 namespace oneapi::dal::detail {
 namespace v1 {
 
@@ -25,7 +25,8 @@ global_context_impl::global_context_impl() : cpu_info_(dal::detail::detect_top_c
     using daal::services::Environment;
     // Call to `getCpuId` changes global settings, in particular,
     // changes default number of threads in the threading layer
-    Environment::getInstance()->getCpuId();
+    // std::cout<<"here changes"<<std::endl;
+    // Environment::getInstance()->getCpuId();
 }
 
 } // namespace v1

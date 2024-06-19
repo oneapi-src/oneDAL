@@ -25,7 +25,7 @@
 #include "src/services/daal_version.h"
 #include "src/services/service_defines.h"
 #include "services/env_detect.h"
-
+#include <iostream>
 #ifndef DAAL_REF // temporary!!! should depend both on BACKEND and TARGETARCH
     #include "mkl_daal.h"
 static const char * cpu_long_names[] = { "Generic",
@@ -55,6 +55,8 @@ DAAL_EXPORT daal::services::LibraryVersionInfo::LibraryVersionInfo()
 #else
       processor(cpu_long_names[0])
 #endif
-{}
+{
+    std::cout << "here10000000" << std::endl;
+}
 
 DAAL_EXPORT daal::services::LibraryVersionInfo::~LibraryVersionInfo() {}

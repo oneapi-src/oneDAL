@@ -21,7 +21,7 @@ namespace oneapi::dal::detail {
 namespace v1 {
 
 const global_context_iface& global_context::get_global_context() {
-    [[maybe_unused]] static detail::global_context_impl init;
+    static detail::global_context_impl init;
     return init;
 }
 
