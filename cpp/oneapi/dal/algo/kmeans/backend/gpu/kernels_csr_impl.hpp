@@ -46,7 +46,7 @@ sycl::event compute_data_squares(sycl::queue& q,
                               values,
                               column_indices,
                               row_offsets,
-                              sparse_indexing::one_based,
+                              sparse_indexing::zero_based,
                               squares,
                               pr::sum<Float>{},
                               pr::square<Float>{});

@@ -87,7 +87,7 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto [arr_val, arr_col, arr_row] =
             csr_accessor<const Float>(data).pull(queue,
                                                  { 0, -1 },
-                                                 sparse_indexing::one_based,
+                                                 sparse_indexing::zero_based,
                                                  sycl::usm::alloc::device);
         auto values = pr::ndarray<Float, 1>::wrap(arr_val.get_data(), arr_val.get_count());
         auto column_indices =
