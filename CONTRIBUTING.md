@@ -23,6 +23,12 @@ We welcome community contributions to Intel(R) oneAPI Data Analytics Library. Yo
 
 Refer to our guidelines on [pull requests](#pull-requests) and [issues](#issues) before you proceed.
 
+## Contacting maintainers
+You may reach out to Intel project maintainers privately at onedal.maintainers@intel.com.
+Codeoners configuration define specific maintainers for coresponding code sections, however currently limited to Intel members only at this point. With futher migration to UXL we will be fixing this, but here are non Intel contacts: 
+For ARM specifics you may contact: @rakshithgb-fujitsu
+For RISC-V specifics you may contact: @keeranroth
+
 ## Issues
 
 Use [GitHub issues](https://github.com/oneapi-src/oneDAL/issues) to:
