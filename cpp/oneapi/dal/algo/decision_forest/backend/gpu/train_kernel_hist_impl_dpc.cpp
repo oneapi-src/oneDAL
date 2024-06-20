@@ -385,15 +385,16 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
     if (ctx.bootstrap_) {
         auto selected_row_global_host =
             pr::ndarray<Index, 1>::empty({ ctx.selected_row_total_count_ * ctx.tree_in_block_ });
-        pr::ndarray<Index, 1> selected_row_host;
+        pr::ndarray<Index, 1> selected_row;
         if (ctx.distr_mode_) {
-            selected_row_host = pr::ndarray<Index, 1>::empty(
-                { ctx.selected_row_total_count_ * ctx.tree_in_block_ });
+            selected_row =
+                pr::ndarray<Index, 1>::empty(queue_,
+                                             { ctx.selected_row_total_count_ * ctx.tree_in_block_ },
+                                             alloc::device);
         }
 
         Index* const selected_row_global_ptr = selected_row_global_host.get_mutable_data();
-        Index* const selected_row_ptr =
-            ctx.distr_mode_ ? selected_row_host.get_mutable_data() : nullptr;
+        Index* const selected_row_ptr = ctx.distr_mode_ ? selected_row.get_mutable_data() : nullptr;
         Index* const node_list_ptr = node_list_host.get_mutable_data();
 
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
@@ -407,44 +408,46 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                            ctx.row_total_count_);
 
             if (ctx.distr_mode_) {
+                auto device_array = selected_row_global_host.to_device(queue_);
+                Index* const selected_row_global_ptr_device = device_array.get_mutable_data();
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
-                Index* src = gen_row_idx_global_ptr;
+                Index* src =
+                    selected_row_global_ptr_device + ctx.selected_row_total_count_ * node_idx;
 
                 Index* const dst = selected_row_ptr + ctx.selected_row_total_count_ * node_idx;
 
-                auto [total_points_queue_size_arr, total_points_queue_size_event] =
-                    pr::ndarray<Index, 1>::full(queue_, 1, 0, sycl::usm::alloc::device);
-                total_points_queue_size_event.wait_and_throw();
-                Index* row_idx_ptr = total_points_queue_size_arr.get_mutable_data();
-
+                auto [row_index, row_index_event] =
+                    pr::ndarray<Index, 1>::full(queue_, 1, 0, alloc::device);
+                row_index_event.wait_and_throw();
+                Index* row_idx_ptr = row_index.get_mutable_data();
+                const sycl::nd_range<1> nd_range =
+                    bk::make_multiple_nd_range_1d(ctx.selected_row_total_count_, 1);
                 auto event_ = queue_.submit([&](sycl::handler& cgh) {
                     cgh.depends_on({ last_event });
-                    cgh.parallel_for(
-                        sycl::range<1>{ std::size_t(ctx.selected_row_total_count_) },
-                        [=](sycl::id<1> idx) {
-                            dst[idx] = 0;
-                            if (src[idx] >= ctx.global_row_offset_ &&
-                                src[idx] < (ctx.global_row_offset_ + ctx.row_count_)) {
-                                sycl::atomic_ref<
-                                    Index,
-                                    sycl::memory_order::relaxed,
-                                    sycl::memory_scope::device,
-                                    sycl::access::address_space::ext_intel_global_device_space>
-                                    counter_atomic(row_idx_ptr[0]);
-                                auto cur_idx = counter_atomic.fetch_add(1) - 1;
-                                dst[cur_idx] = src[idx] - ctx.global_row_offset_;
-                            }
-                        });
+                    cgh.parallel_for(nd_range, [=](sycl::nd_item<1> id) {
+                        auto idx = id.get_global_id(0);
+                        dst[idx] = 0;
+                        if (src[idx] >= ctx.global_row_offset_ &&
+                            src[idx] < (ctx.global_row_offset_ + ctx.row_count_)) {
+                            sycl::atomic_ref<
+                                Index,
+                                sycl::memory_order::relaxed,
+                                sycl::memory_scope::device,
+                                sycl::access::address_space::ext_intel_global_device_space>
+                                counter_atomic(row_idx_ptr[0]);
+                            auto cur_idx = counter_atomic.fetch_add(1);
+                            dst[cur_idx] = src[idx] - ctx.global_row_offset_;
+                        }
+                    });
                 });
                 event_.wait_and_throw();
-                node_ptr[impl_const_t::ind_lrc] =
-                    total_points_queue_size_arr.to_host(queue_).get_data()[0];
-                std::cout << node_ptr[impl_const_t::ind_lrc] << std::endl;
+                node_ptr[impl_const_t::ind_lrc] = row_index.to_host(queue_).get_data()[0];
+                selected_row_global_host.to_host(queue_);
             }
         }
 
         last_event = ctx.distr_mode_
-                         ? tree_order_level.assign_from_host(queue_, selected_row_host)
+                         ? tree_order_level.assign_from_host(queue_, selected_row.to_host(queue_))
                          : tree_order_level.assign_from_host(queue_, selected_row_global_host);
     }
     else {
