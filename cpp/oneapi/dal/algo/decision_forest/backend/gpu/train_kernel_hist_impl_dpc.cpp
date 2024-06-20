@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
-
+#include <iostream>
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel_hist_impl.hpp"
@@ -373,6 +373,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
     pr::ndarray<Index, 1>& tree_order_level,
     Index engine_offset,
     Index node_count) {
+    node_list_host.to_device(queue_);
     ONEDAL_PROFILER_TASK(gen_initial_tree_order, queue_);
 
     ONEDAL_ASSERT(node_list_host.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -411,15 +412,34 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
 
                 Index* const dst = selected_row_ptr + ctx.selected_row_total_count_ * node_idx;
 
-                Index row_idx = 0;
-                for (Index i = 0; i < ctx.selected_row_total_count_; ++i) {
-                    dst[i] = 0;
-                    if (src[i] >= ctx.global_row_offset_ &&
-                        src[i] < (ctx.global_row_offset_ + ctx.row_count_)) {
-                        dst[row_idx++] = src[i] - ctx.global_row_offset_;
-                    }
-                }
-                node_ptr[impl_const_t::ind_lrc] = row_idx;
+                auto [total_points_queue_size_arr, total_points_queue_size_event] =
+                    pr::ndarray<Index, 1>::full(queue_, 1, 0, sycl::usm::alloc::device);
+                total_points_queue_size_event.wait_and_throw();
+                Index* row_idx_ptr = total_points_queue_size_arr.get_mutable_data();
+
+                auto event_ = queue_.submit([&](sycl::handler& cgh) {
+                    cgh.depends_on({ last_event });
+                    cgh.parallel_for(
+                        sycl::range<1>{ std::size_t(ctx.selected_row_total_count_) },
+                        [=](sycl::id<1> idx) {
+                            dst[idx] = 0;
+                            if (src[idx] >= ctx.global_row_offset_ &&
+                                src[idx] < (ctx.global_row_offset_ + ctx.row_count_)) {
+                                sycl::atomic_ref<
+                                    Index,
+                                    sycl::memory_order::relaxed,
+                                    sycl::memory_scope::device,
+                                    sycl::access::address_space::ext_intel_global_device_space>
+                                    counter_atomic(row_idx_ptr[0]);
+                                auto cur_idx = counter_atomic.fetch_add(1) - 1;
+                                dst[cur_idx] = src[idx] - ctx.global_row_offset_;
+                            }
+                        });
+                });
+                event_.wait_and_throw();
+                node_ptr[impl_const_t::ind_lrc] =
+                    total_points_queue_size_arr.to_host(queue_).get_data()[0];
+                std::cout << node_ptr[impl_const_t::ind_lrc] << std::endl;
             }
         }
 
@@ -439,13 +459,16 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
             // in case of no bootstrap
             // it is valid case if this worker's rows set wasn't taken for tree build
             // i.e. row_count can be eq 0
-
             Index* node_list_ptr = node_list_host.get_mutable_data();
-
-            for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
-                Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
-                node_ptr[impl_const_t::ind_lrc] = row_count;
-            }
+            auto event = queue_.submit([&](sycl::handler& cgh) {
+                cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) },
+                                 [=](sycl::id<1> node_idx) {
+                                     Index* node_ptr =
+                                         node_list_ptr + node_idx * impl_const_t::node_prop_count_;
+                                     node_ptr[impl_const_t::ind_lrc] = row_count;
+                                 });
+            });
+            event.wait_and_throw();
         }
 
         if (row_count > 0) {
@@ -455,7 +478,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                                                                       stride);
         }
     }
-
+    node_list_host.to_host(queue_);
     return last_event;
 }
 
@@ -1885,6 +1908,36 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         de::check_mul_overflow(node_count, impl_const_t::node_prop_count_);
         de::check_mul_overflow(node_count, impl_const_t::node_imp_prop_count_);
+        // auto node_vs_tree_map_list =
+        //     pr::ndarray<Index, 1>::empty(queue_, { node_count }, alloc::device);
+        // auto level_node_list_init =
+        //     pr::ndarray<Index, 1>::empty(queue_,
+        //                                  { node_count * impl_const_t::node_prop_count_ },
+        //                                  alloc::device);
+
+        // auto tree_map = node_vs_tree_map_list.get_mutable_data();
+        // auto node_list_ptr = level_node_list_init.get_mutable_data();
+
+        // auto fill_event = queue_.submit([&](sycl::handler& cgh) {
+        //     cgh.depends_on({ last_event });
+        //     cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) }, [=](sycl::id<1> node) {
+        //         Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
+        //         tree_map[node] = iter + node;
+        //         node_ptr[impl_const_t::ind_ofs] =
+        //             ctx.selected_row_total_count_ * node; // local row offset
+        //         node_ptr[impl_const_t::ind_lrc] =
+        //             ctx.distr_mode_
+        //                 ? 0
+        //                 : ctx.selected_row_count_; // for distr_mode it will be updated during gen_initial_tree_order
+        //         node_ptr[impl_const_t::ind_grc] =
+        //             ctx.selected_row_total_count_; // global selected rows - it is already filtered for current block
+        //         node_ptr[impl_const_t::ind_lch_lrc] =
+        //             0; // for distr_mode it will be updated during tree_order_gen
+        //         node_ptr[impl_const_t::ind_fid] = impl_const_t::bad_val_;
+        //     });
+        // });
+        // fill_event.wait_and_throw();
+        // auto level_node_list_init_host = level_node_list_init.to_host(queue_);
         auto node_vs_tree_map_list_host = pr::ndarray<Index, 1>::empty({ node_count });
         auto level_node_list_init_host =
             pr::ndarray<Index, 1>::empty({ node_count * impl_const_t::node_prop_count_ });
