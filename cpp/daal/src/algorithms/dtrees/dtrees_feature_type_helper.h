@@ -102,7 +102,6 @@ public:
         DAAL_NEW_DELETE();
         IndexType numIndices     = 0;       //number of indices or bins
         ModelFPType * binBorders = nullptr; //right bin borders
-        ModelFPType min          = 0;       //used for random splitter, since all borders are known but min.
 
         services::Status allocBorders();
         ~FeatureEntry();
@@ -135,13 +134,6 @@ public:
         DAAL_ASSERT(isBinned(iCol));
         DAAL_ASSERT(iBin < numIndices(iCol));
         return _entries[iCol].binBorders[iBin];
-    }
-
-    //returns right border of the bin if the feature is a binned one
-    ModelFPType min(size_t iCol) const
-    {
-        DAAL_ASSERT(isBinned(iCol));
-        return _entries[iCol].min;
     }
 
     //for low-level optimization
