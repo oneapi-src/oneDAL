@@ -41,8 +41,9 @@ Use [GitHub issues](https://github.com/oneapi-src/oneDAL/issues) to:
 
 To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
+- Product using bazel system for validation and your changes should pass tests. Please add new tests as nessesary. [Bazel Guide for oneDAL](https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel)
 - Make sure your code is in line with our [coding style](#code-style) as `clang-format` is one of the checks in our public CI.
-- For a larger feature, provide a relevant example.
+- For a larger feature, provide a relevant example, and tests.
 - [Document](#documentation-guidelines) your code.
 - [Submit](https://github.com/oneapi-src/oneDAL/pulls) a pull request into the `main` branch.
 
