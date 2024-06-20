@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2022 Intel Corporation
+# Copyright 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,33 +14,14 @@
 # limitations under the License.
 #===============================================================================
 
-#++
-#  Intel compiler definitions for makefile
-#--
+load("@onedal//dev/bazel:repos.bzl", "repos")
 
-PLATs.icx = lnx32e mac32e
-
-CMPLRDIRSUFF.icx = _icx
-
-CORE.SERV.COMPILER.icx = generic
-
--Zl.icx =  -no-intel-lib=libirc
--DEBC.icx = -g
-
-COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type -Werror -Wdeprecated-declarations 
-
-
-link.dynamic.lnx.icx = icpx -m64
-
-pedantic.opts.icx = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wno-unused-parameter
-
-pedantic.opts.lnx.icx = $(pedantic.opts.icx)
-
-p4_OPT.icx   = $(-Q)march=nocona
-mc3_OPT.icx  = $(-Q)march=nehalem
-avx2_OPT.icx = $(-Q)march=haswell
-skx_OPT.icx  = $(-Q)march=skx
+dpl_repo = repos.prebuilt_libs_repo_rule(
+    includes = [
+        "include",
+    ],
+    libs = [
+        "lib",
+    ],
+    build_template = "@onedal//dev/bazel/deps:dpl.tpl.BUILD",
+)

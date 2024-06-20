@@ -82,6 +82,12 @@ ccl_repo(
     ],
 )
 
+load("@onedal//dev/bazel/deps:dpl.bzl", "dpl_repo")
+dpl_repo(
+    name = "dpl",
+    root_env_var = "DPL_ROOT",
+)
+
 load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
 mkl_repo(
     name = "mkl",
