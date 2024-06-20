@@ -20,7 +20,7 @@
 #include "oneapi/dal/detail/parameters/system_parameters_impl.hpp"
 #include <daal/src/services/service_defines.h>
 #include <daal/include/services/internal/daal_kernel_defines.h>
-#include <iostream>
+
 #include <sstream>
 
 namespace oneapi::dal::detail {

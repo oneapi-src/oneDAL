@@ -33,7 +33,7 @@
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_online_oneapi.h"
 #include "src/algorithms/low_order_moments/oneapi/low_order_moments_kernel_distributed_oneapi.h"
 #include "services/internal/execution_context.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms

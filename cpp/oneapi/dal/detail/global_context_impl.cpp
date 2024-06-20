@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/cpu.hpp"
 #include "oneapi/dal/detail/global_context_impl.hpp"
 #include <daal/src/services/service_defines.h>
-#include <iostream>
+
 namespace oneapi::dal::detail {
 namespace v1 {
 

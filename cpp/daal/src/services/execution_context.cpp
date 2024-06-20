@@ -17,7 +17,7 @@
 
 #include "services/internal/execution_context.h"
 #include "services/env_detect.h"
-#include <iostream>
+
 namespace daal
 {
 namespace services
@@ -26,7 +26,6 @@ namespace internal
 {
 namespace interface1
 {
-
 sycl::ExecutionContextIface & getDefaultContext()
 {
     return services::Environment::getInstance()->getDefaultExecutionContext();
