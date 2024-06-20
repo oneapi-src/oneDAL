@@ -28,7 +28,7 @@
 #include "services/internal/daal_kernel_defines.h"
 #include "algorithms/algorithm_types.h"
 #include "algorithms/algorithm_kernel.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -69,7 +69,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerIfaceImpl(daal::services::Environment::env * daalEnv) : _env(daalEnv), _kernel(NULL) { std::cout << "here 6" << std::endl; }
+    AlgorithmContainerIfaceImpl(daal::services::Environment::env * daalEnv) : _env(daalEnv), _kernel(NULL) {}
 
     virtual ~AlgorithmContainerIfaceImpl() DAAL_C11_OVERRIDE {}
 
@@ -77,11 +77,7 @@ public:
      * Sets the information about the environment
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    void setEnvironment(daal::services::Environment::env * daalEnv)
-    {
-        _env = daalEnv;
-        std::cout << "here 51" << std::endl;
-    }
+    void setEnvironment(daal::services::Environment::env * daalEnv) { _env = daalEnv; }
 
 protected:
     daal::services::Environment::env * _env;
@@ -105,7 +101,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) { std::cout << "here 54" << std::endl; }
+    AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
 
     virtual ~AlgorithmContainer() {}
 
@@ -160,10 +156,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<mode>(daalEnv), _in(0), _pres(0), _res(0), _par(0)
-    {
-        std::cout << "here 55" << std::endl;
-    }
+    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<mode>(daalEnv), _in(0), _pres(0), _res(0), _par(0) {}
 
     virtual ~AlgorithmContainerImpl() {}
 

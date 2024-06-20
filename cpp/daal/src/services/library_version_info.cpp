@@ -55,8 +55,6 @@ DAAL_EXPORT daal::services::LibraryVersionInfo::LibraryVersionInfo()
 #else
       processor(cpu_long_names[0])
 #endif
-{
-    std::cout << "here10000000" << std::endl;
-}
+{}
 
 DAAL_EXPORT daal::services::LibraryVersionInfo::~LibraryVersionInfo() {}

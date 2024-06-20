@@ -28,8 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
-#include <mutex>
-#include <iostream>
+
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
 
@@ -43,7 +42,6 @@
 
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;
-static bool isInstance                                                = false;
 
 namespace daal
 {
@@ -53,18 +51,21 @@ void daal_free_buffers();
 }
 } // namespace daal
 
+std::mutex daal::services::Environment::_mutex;
+daal::services::Environment * daal::services::Environment::_instance = nullptr;
+
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
-    static std::mutex mt;
-    std::lock_guard<std::mutex> guard(mt);
-    if (!isInstance)
+    //Double-Checked Locking
+    if (_instance == nullptr)
     {
-        std::cout << "get_instance" << std::endl;
+        std::lock_guard<std::mutex> guard(_mutex);
+        if (_instance == nullptr)
+        {
+            _instance = new Environment();
+        }
     }
-    isInstance = true;
-    static daal::services::Environment instance;
-
-    return &instance;
+    return _instance;
 }
 
 DAAL_EXPORT int daal::services::Environment::getCpuId(int enable)
@@ -124,44 +125,43 @@ daal::services::Environment::LibraryThreadingType __daal_serv_get_thr_set()
     return daal_thr_set;
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl(nullptr), _schedulerHandle(nullptr)
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
-    std::cout << "constr" << std::endl;
+    _env.cpuid_init_flag = false;
+    _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
-DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment()
-{
-    std::cout << "copy constr" << std::endl;
-}
+DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
 
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
-    std::cout << "init" << std::endl;
     if (isInit) return;
-    std::cout << "init go" << std::endl;
     /* if HT enabled - set _numThreads to physical cores num */
-    daal::services::Environment::setNumberOfThreads(1);
-    std::cout << "HT is skipped" << std::endl;
+    if (daal::internal::ServiceInst::serv_get_ht())
+    {
+        /* Number of cores = number of cpu packages * number of cores per cpu package */
+        int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
+
+        /*  Re-set number of threads if ncores is valid and different to _numThreads */
+        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
+        {
+            daal::services::Environment::setNumberOfThreads(ncores);
+        }
+    }
     isInit = true;
 }
 
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
-    std::cout << "~Env" << std::endl;
-    daal::services::Environment::setNumberOfThreads(1);
-    std::cout << "~Env1" << std::endl;
     daal::services::daal_free_buffers();
-    std::cout << "~Env2" << std::endl;
     _daal_tbb_task_scheduler_free(_globalControl);
-    std::cout << "~Env3" << std::endl;
-    _daal_tbb_task_scheduler_free(_schedulerHandle);
-    std::cout << "~Env4" << std::endl;
+    _daal_tbb_task_scheduler_handle_finalize(_schedulerHandle);
+    delete _instance;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
 {
-    std::cout << "cpu_Detect" << std::endl;
     initNumberOfThreads();
     if (~size_t(0) == _env.cpuid)
     {
@@ -172,24 +172,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    if (daal::internal::ServiceInst::serv_get_ht())
-    {
-        std::cout << "HT is enabled" << std::endl;
-        /* Number of cores = number of cpu packages * number of cores per cpu package */
-        int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
-        std::cout << "HT is enabled" << std::endl;
-        /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (numThreads < ncores))
-        {
-            std::cout << "HT is enabled if" << std::endl;
-            daal::setNumberOfThreads(numThreads, _globalControl, _schedulerHandle);
-        }
-
-        else
-        {
-            daal::setNumberOfThreads(1, _globalControl, _schedulerHandle);
-        }
-    }
+    daal::setNumberOfThreads(numThreads, &_globalControl, &_schedulerHandle);
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const

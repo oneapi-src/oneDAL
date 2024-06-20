@@ -63,12 +63,10 @@ private:
 
 execution_context_guard::execution_context_guard(const sycl::queue& queue) {
     auto ctx = execution_context_cache::get_instance().lookup(queue);
-    std::cout << "here ctx 1" << std::endl;
     daal::services::Environment::getInstance()->setDefaultExecutionContext(ctx);
 }
 
 execution_context_guard::~execution_context_guard() {
-    std::cout << "here ctx 0" << std::endl;
     daal::services::Environment::getInstance()->setDefaultExecutionContext(
         daal::services::internal::CpuExecutionContext());
 }

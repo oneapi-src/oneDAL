@@ -29,7 +29,7 @@
 #include "services/internal/daal_kernel_defines.h"
 #include "services/internal/gpu_support_checker.h"
 #include "services/internal/execution_context.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -59,7 +59,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) { std::cout << "here 4" << std::endl; }
+    AlgorithmContainer(daal::services::Environment::env * daalEnv) : AlgorithmContainerIfaceImpl(daalEnv) {}
 
     virtual ~AlgorithmContainer() DAAL_C11_OVERRIDE {}
 
@@ -97,10 +97,7 @@ public:
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
      */
-    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<batch>(daalEnv), _par(0), _in(0), _res(0)
-    {
-        std::cout << "here 5" << std::endl;
-    };
+    AlgorithmContainerImpl(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainer<batch>(daalEnv), _par(0), _in(0), _res(0) {};
 
     virtual ~AlgorithmContainerImpl() {}
 

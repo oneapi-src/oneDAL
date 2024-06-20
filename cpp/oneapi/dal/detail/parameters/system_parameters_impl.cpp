@@ -28,7 +28,6 @@ namespace v1 {
 
 system_parameters_impl::system_parameters_impl() {
     using daal::services::Environment;
-    std::cout << "here2121212" << std::endl;
     Environment* env = Environment::getInstance();
     sys_info_["top_enabled_cpu_extension"] =
         from_daal_cpu_type(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID);

@@ -26,8 +26,7 @@
 
 #include <stdint.h>
 #include "services/daal_defines.h"
-#include <memory>
-#include <iostream>
+
 namespace daal
 {
 template <typename FPType>
@@ -102,9 +101,10 @@ extern "C"
     DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t);
     DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr);
 
-    DAAL_EXPORT void _daal_tbb_task_scheduler_free(std::shared_ptr<void> globalControl);
-    DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl, std::shared_ptr<void> schedulerHandle);
-    DAAL_EXPORT void _initializeSchedulerHandle(std::shared_ptr<void> schedulerHandle);
+    DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
+    DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle);
+    DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle);
+    DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle);
 
     DAAL_EXPORT void * _daal_threader_env();
 
@@ -185,15 +185,14 @@ inline size_t threader_get_threads_number()
     return threader_env()->getNumberOfThreads();
 }
 
-inline size_t setNumberOfThreads(const size_t numThreads, std::shared_ptr<void> globalControl, std::shared_ptr<void> schedulerHandle)
+inline void initializeSchedulerHandle(void ** schedulerHandle)
 {
-    std::cout << "here set number of threads" << std::endl;
-    return _setNumberOfThreads(numThreads, globalControl, schedulerHandle);
+    _initializeSchedulerHandle(schedulerHandle);
 }
 
-inline void initializeSchedulerHandle(std::shared_ptr<void> schedulerHandle)
+inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle)
 {
-    return _initializeSchedulerHandle(schedulerHandle);
+    return _setNumberOfThreads(numThreads, globalControl, schedulerHandle);
 }
 
 template <typename F>

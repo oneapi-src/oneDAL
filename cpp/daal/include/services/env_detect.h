@@ -186,9 +186,12 @@ private:
     void _cpu_detect(int);
     void initNumberOfThreads();
 
+    static Environment * _instance;
+    static std::mutex _mutex;
+
     env _env;
-    std::shared_ptr<void> _schedulerHandle;
-    std::shared_ptr<void> _globalControl;
+    void * _schedulerHandle;
+    void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
