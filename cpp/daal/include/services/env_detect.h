@@ -193,6 +193,11 @@ private:
     void * _schedulerHandle;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
+    static void cleanup()
+    {
+        delete _instance;
+        _instance = nullptr;
+    }
 };
 } // namespace interface1
 

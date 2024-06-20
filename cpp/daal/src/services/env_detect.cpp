@@ -63,6 +63,7 @@ DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstan
         if (_instance == nullptr)
         {
             _instance = new Environment();
+            std::atexit(cleanup);
         }
     }
     return _instance;
@@ -157,7 +158,6 @@ DAAL_EXPORT daal::services::Environment::~Environment()
     daal::services::daal_free_buffers();
     _daal_tbb_task_scheduler_free(_globalControl);
     _daal_tbb_task_scheduler_handle_finalize(_schedulerHandle);
-    delete _instance;
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
