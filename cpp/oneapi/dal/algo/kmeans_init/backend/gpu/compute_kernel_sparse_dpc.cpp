@@ -36,7 +36,6 @@ using input_t = compute_input<task_t>;
 using result_t = compute_result<task_t>;
 using descriptor_t = ki::detail::descriptor_base<task_t>;
 
-
 template <typename Float, typename Method>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
     constexpr bool is_random_csr = std::is_same_v<Method, method::random_csr>;
@@ -44,8 +43,7 @@ static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const 
     constexpr bool is_parallel_plus_csr = std::is_same_v<Method, method::parallel_plus_csr>;
     using msg = dal::detail::error_messages;
     if constexpr (is_random_csr || is_plus_plus_csr || is_parallel_plus_csr) {
-        throw unimplemented(
-            msg::kmeans_init_csr_methods_are_not_implemented_for_gpu());
+        throw unimplemented(msg::kmeans_init_csr_methods_are_not_implemented_for_gpu());
     }
 }
 
@@ -57,7 +55,6 @@ struct compute_kernel_gpu<Float, Method, task::init> {
         return compute<Float, Method>(ctx, desc, input);
     }
 };
-
 
 template struct compute_kernel_gpu<float, method::random_csr, task::init>;
 template struct compute_kernel_gpu<double, method::random_csr, task::init>;
