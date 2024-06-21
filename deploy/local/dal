@@ -33,9 +33,9 @@ if { $tcl_version < $min_tcl_ver } {
 set scriptpath "${ModulesCurrentModulefile}"
 set scriptpath "[file dirname [file normalize "$scriptpath/___"]]"
 
-# define componentroot, modulefileroot, modulefilename and modulefilever
+# define componentroot, modulefilepath, modulefilename and modulefilever
 set modulefilename "[file tail [file dirname "${scriptpath}"]]"
-set modulefilever "[file tail "$scriptpath"]"
+set modulefilever "[file tail "${scriptpath}"]"
 set modulefilepath "${scriptpath}"
 set componentroot "[file dirname [file dirname [file dirname [file dirname "${scriptpath}"]]]]"
 
@@ -51,8 +51,7 @@ set moduleinfoname [file dirname [module-info name]]
 
 proc ModulesHelp { } {
     global moduleinfoname
-    global modulefilever
-    module whatis "${modulefilename}/${modulefilever}"
+    puts "module whatis ${moduleinfoname}"
 }
 
 ##############################################################################
@@ -61,14 +60,8 @@ proc ModulesHelp { } {
 
 # Set intermediate variables
 set dalroot "$componentroot"
-set daalroot "$componentroot/$modulefilever"
-if {[string equal [info machine] "aarch64"]} {
-    set daal_target_arch "arm"
-} else {
-    set daal_target_arch "intel64"
-}
 
-module-whatis "oneAPI Data Analytics Library for $daal_target_arch."
+set daal_target_arch "intel64"
 
 # Setup environment variables
 setenv          DAL_MAJOR_BINARY   1
