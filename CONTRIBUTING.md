@@ -29,7 +29,7 @@ You may reach out to Intel project maintainers privately at onedal.maintainers@i
 
 For ARM specifics you may contact: [@rakshithgb-fujitsu](https://github.com/rakshithgb-fujitsu/)
 
-For RISC-V specifics you may contact: [@keeranroth](https://github.com/@keeranroth/)
+For RISC-V specifics you may contact: [@keeranroth](https://github.com/keeranroth/)
 
 ## Issues
 
