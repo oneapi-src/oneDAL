@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
@@ -129,6 +130,10 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<std::int64_t, 1>::wrap(arr_col.get_data(), arr_col.get_count());
         auto row_offsets =
             pr::ndarray<std::int64_t, 1>::wrap(arr_row.get_data(), arr_row.get_count());
+
+        pr::sparse_matrix_handle data_handle(queue);
+        auto set_csr_data_event = pr::set_csr_data(queue, data_handle, data);
+
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
@@ -145,6 +150,9 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
+        auto arr_centroids_trans = pr::ndarray<Float, 2>::empty(queue,
+                                                                { column_count, cluster_count },
+                                                                sycl::usm::alloc::device);
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 
@@ -152,12 +160,14 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                                          arr_centroids,
                                                                          arr_centroid_squares,
                                                                          { data_squares_event });
+
+        auto trans_event = transpose(queue, arr_centroids, arr_centroids_trans);
+
         auto assign_event = assign_clusters(queue,
-                                            values,
-                                            column_indices,
-                                            row_offsets,
+                                            row_count,
+                                            data_handle,
                                             arr_data_squares,
-                                            arr_centroids,
+                                            arr_centroids_trans,
                                             arr_centroid_squares,
                                             distances,
                                             arr_responses,

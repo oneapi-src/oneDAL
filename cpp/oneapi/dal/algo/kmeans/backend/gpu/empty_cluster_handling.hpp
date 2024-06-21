@@ -17,7 +17,10 @@
 #pragma once
 
 #include "oneapi/dal/backend/communicator.hpp"
+#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+
+#include <tuple>
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -70,6 +73,15 @@ auto find_candidates(sycl::queue& queue,
                      const pr::ndarray<std::int32_t, 1>& counters,
                      const bk::event_vector& deps = {})
     -> std::tuple<centroid_candidates<Float>, sycl::event>;
+
+template <typename Float>
+sycl::event copy_candidates_from_data(sycl::queue& queue,
+                                      const pr::ndview<Float, 1>& values,
+                                      const pr::ndview<std::int64_t, 1>& column_indices,
+                                      const pr::ndview<std::int64_t, 1>& row_offsets,
+                                      const centroid_candidates<Float>& candidates,
+                                      pr::ndview<Float, 2>& centroids_trans,
+                                      const bk::event_vector& deps);
 
 template <typename Float>
 auto fill_empty_clusters(sycl::queue& queue,
@@ -141,6 +153,39 @@ inline auto handle_empty_clusters(sycl::queue& queue,
         correct_objective_function(queue, candidates, { find_candidates_event });
 
     return { correction, fill_event };
+}
+
+/// Handling empty clusters.
+/// @param[in] ctx              GPU context structure
+/// @param[in] row_count        A number of rows in the dataset
+/// @param[out] responses       An array of cluster assignments with :expr:`row_count x 1` dimensions
+/// @param[out] cluster_counts  An array of cluster counts with :expr:`cluster_count x 1` dimensions
+/// @param[out] dists           An array of closest distances to cluster with :expr:`row_count x 1` dimensions
+/// @param[in] deps             An event vector of dependencies for specified kernel
+template <typename Float>
+inline std::tuple<Float, sycl::event> handle_empty_clusters(const bk::context_gpu& ctx,
+                                  const pr::ndview<Float, 1>& values,
+                                  const pr::ndview<std::int64_t, 1>& column_indices,
+                                  const pr::ndview<std::int64_t, 1>& row_offsets,
+                                  const std::int64_t row_count,
+                                  pr::ndarray<Float, 2>& centorids,
+                                  const std::int64_t candidate_count,
+                                  pr::ndarray<std::int32_t, 2>& responses,
+                                  pr::ndarray<std::int32_t, 1>& cluster_counts,
+                                  pr::ndarray<Float, 2>& dists,
+                                  const bk::event_vector& deps = {}) {
+    auto& queue = ctx.get_queue();
+
+    auto [candidates, find_candidates_event] =
+        find_candidates(queue, candidate_count, dists, cluster_counts, deps);
+
+    auto copy_event = copy_candidates_from_data(queue, values, column_indices, row_offsets, candidates,
+                                                centorids, { find_candidates_event });
+
+    const Float correction =
+        correct_objective_function(queue, candidates, { find_candidates_event });
+
+    return { correction, copy_event };
 }
 
 } // namespace oneapi::dal::kmeans::backend

@@ -21,8 +21,12 @@
 #include "oneapi/dal/algo/kmeans/detail/train_init_centroids.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas.hpp"
+#include "oneapi/dal/algo/kmeans/backend/gpu/empty_cluster_handling.hpp"
 
 #include "oneapi/dal/detail/profiler.hpp"
+
+
+#include <tuple>
 
 namespace oneapi::dal::kmeans::backend {
 
@@ -141,9 +145,10 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
 
             sycl::event trans_event =
                 transpose(queue, iter == 0 ? arr_initial : arr_centroids, arr_centroids_trans);
+
             auto assign_event =
                 assign_clusters(queue,
-                                arr_row.get_count() - 1,
+                                row_count,
                                 data_handle,
                                 arr_data_squares,
                                 arr_centroids_trans,
@@ -152,6 +157,7 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                 arr_responses,
                                 arr_closest_distances,
                                 { trans_event, centroid_squares_event, last_event });
+
             auto count_event = count_clusters(queue,
                                               arr_responses,
                                               cluster_count,
@@ -165,22 +171,17 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                 count_reduce_event.wait();
             }
 
-            auto empty_cluster_event = handle_empty_clusters(ctx,
-                                                             row_count,
-                                                             arr_responses,
-                                                             cluster_counts,
-                                                             arr_closest_distances,
-                                                             { count_event });
-
             auto objective_function = calc_objective_function(queue,
                                                               arr_closest_distances,
-                                                              { empty_cluster_event, count_event });
+                                                              { count_event });
 
             {
                 // Reduce objective function value over all ranks
                 auto obj_func_reduce_event = comm.allreduce(objective_function);
                 obj_func_reduce_event.wait();
             }
+
+
             auto update_event = update_centroids(queue,
                                                  comm,
                                                  values,
@@ -189,10 +190,30 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                  column_count,
                                                  arr_responses,
                                                  arr_centroids,
-                                                 cluster_counts,
-                                                 { count_event });
+                                                 cluster_counts);
 
-            last_event = update_event;
+            const std::int64_t empty_cluster_count =
+                count_empty_clusters(queue, cluster_count, cluster_counts, { count_event });
+
+            Float correction(0);
+            sycl::event empty_cluster_event;
+            if (empty_cluster_count > 0) {
+                std::tie(correction, empty_cluster_event) = handle_empty_clusters(ctx,
+                                                             values,
+                                                             column_indices,
+                                                             row_offsets,
+                                                             row_count,
+                                                             arr_centroids,
+                                                             empty_cluster_count,
+                                                             arr_responses,
+                                                             cluster_counts,
+                                                             arr_closest_distances,
+                                                             { update_event });
+            }
+
+            objective_function += correction;
+
+            last_event = empty_cluster_event;
 
             if (accuracy_threshold > 0 &&
                 objective_function + accuracy_threshold > prev_objective_function) {
@@ -206,17 +227,19 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                iter == 0 ? arr_initial : arr_centroids,
                                                arr_centroid_squares,
                                                { last_event });
+
+        sycl::event trans_event = transpose(queue, arr_centroids, arr_centroids_trans);
+
         auto assign_event = assign_clusters(queue,
-                                            values,
-                                            column_indices,
-                                            row_offsets,
+                                            row_count,
+                                            data_handle,
                                             arr_data_squares,
-                                            iter == 0 ? arr_initial : arr_centroids,
+                                            arr_centroids_trans,
                                             arr_centroid_squares,
                                             distances,
                                             arr_responses,
                                             arr_closest_distances,
-                                            { last_event, centroid_squares_event });
+                                            { trans_event, centroid_squares_event, last_event });
         auto objective_function =
             calc_objective_function(queue,
                                     arr_closest_distances,
