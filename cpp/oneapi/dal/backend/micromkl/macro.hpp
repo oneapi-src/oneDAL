@@ -24,7 +24,7 @@
 #endif
 
 #define STRINGIFY(x) #x
-#define EXPAND(...)  __VA_ARGS__
+#define DAL_EXPAND(...)  __VA_ARGS__
 
 #ifdef ONEDAL_REF
 #define FUNC_NAME(prefix, name)          name
@@ -54,20 +54,20 @@
     DISPATCH_FUNC_CPU(nominal_cpu, actual_cpu, prefix, name, argdecl, argcall)
 
 #if defined(TARGET_X86_64)
-#define FUNC_AVX512(...) EXPAND(FUNC_CPU(avx512, avx512, __VA_ARGS__))
-#define FUNC_AVX2(...)   EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
+#define FUNC_AVX512(...) DAL_EXPAND(FUNC_CPU(avx512, avx512, __VA_ARGS__))
+#define FUNC_AVX2(...)   DAL_EXPAND(FUNC_CPU(avx2, avx2, __VA_ARGS__))
 #elif defined(TARGET_ARM)
-#define FUNC_A8SVE(...) EXPAND(FUNC_CPU(sve, sve, __VA_ARGS__))
+#define FUNC_A8SVE(...) DAL_EXPAND(FUNC_CPU(sve, sve, __VA_ARGS__))
 #elif defined(TARGET_RISCV64)
-#define FUNC_RV64(...) EXPAND(FUNC_CPU(rv64, rv64, __VA_ARGS__))
+#define FUNC_RV64(...) DAL_EXPAND(FUNC_CPU(rv64, rv64, __VA_ARGS__))
 #endif
 
 #ifdef __APPLE__
-#define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, avx2, __VA_ARGS__))
-#define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, avx2, __VA_ARGS__))
+#define FUNC_SSE42(...) DAL_EXPAND(FUNC_CPU(sse42, avx2, __VA_ARGS__))
+#define FUNC_SSE2(...)  DAL_EXPAND(FUNC_CPU(sse2, avx2, __VA_ARGS__))
 #else
-#define FUNC_SSE42(...) EXPAND(FUNC_CPU(sse42, sse42, __VA_ARGS__))
-#define FUNC_SSE2(...)  EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
+#define FUNC_SSE42(...) DAL_EXPAND(FUNC_CPU(sse42, sse42, __VA_ARGS__))
+#define FUNC_SSE2(...)  DAL_EXPAND(FUNC_CPU(sse2, sse2, __VA_ARGS__))
 #endif
 
 #if defined(TARGET_X86_64)
@@ -103,36 +103,36 @@
     template void name<DISPATCH_ID_NAME(cpu), Float> argdecl(Float);
 
 #ifdef ONEDAL_CPU_DISPATCH_A8SVE
-#define INSTANTIATE_A8SVE(...) EXPAND(INSTANTIATE_CPU(sve, __VA_ARGS__))
+#define INSTANTIATE_A8SVE(...) DAL_EXPAND(INSTANTIATE_CPU(sve, __VA_ARGS__))
 #else
 #define INSTANTIATE_A8SVE(...)
 #endif
 
 #ifdef ONEDAL_CPU_DISPATCH_AVX512
-#define INSTANTIATE_AVX512(...) EXPAND(INSTANTIATE_CPU(avx512, __VA_ARGS__))
+#define INSTANTIATE_AVX512(...) DAL_EXPAND(INSTANTIATE_CPU(avx512, __VA_ARGS__))
 #else
 #define INSTANTIATE_AVX512(...)
 #endif
 
 #ifdef ONEDAL_CPU_DISPATCH_AVX2
-#define INSTANTIATE_AVX2(...) EXPAND(INSTANTIATE_CPU(avx2, __VA_ARGS__))
+#define INSTANTIATE_AVX2(...) DAL_EXPAND(INSTANTIATE_CPU(avx2, __VA_ARGS__))
 #else
 #define INSTANTIATE_AVX2(...)
 #endif
 
 #ifdef ONEDAL_CPU_DISPATCH_SSE42
-#define INSTANTIATE_SSE42(...) EXPAND(INSTANTIATE_CPU(sse42, __VA_ARGS__))
+#define INSTANTIATE_SSE42(...) DAL_EXPAND(INSTANTIATE_CPU(sse42, __VA_ARGS__))
 #else
 #define INSTANTIATE_SSE42(...)
 #endif
 
 #ifdef ONEDAL_CPU_DISPATCH_RV64
-#define INSTANTIATE_RV64(...) EXPAND(INSTANTIATE_CPU(rv64, __VA_ARGS__))
+#define INSTANTIATE_RV64(...) DAL_EXPAND(INSTANTIATE_CPU(rv64, __VA_ARGS__))
 #else
 #define INSTANTIATE_RV64(...)
 #endif
 
-#define INSTANTIATE_SSE2(...) EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
+#define INSTANTIATE_SSE2(...) DAL_EXPAND(INSTANTIATE_CPU(sse2, __VA_ARGS__))
 
 #if defined(TARGET_X86_64)
 #define INSTANTIATE_FLOAT(name, Float, argdecl) \
