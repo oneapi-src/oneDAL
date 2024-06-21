@@ -27,9 +27,9 @@ Refer to our guidelines on [pull requests](#pull-requests) and [issues](#issues)
 You may reach out to Intel project maintainers privately at onedal.maintainers@intel.com.
 [Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts: 
 
-For ARM specifics you may contact: @rakshithgb-fujitsu
+For ARM specifics you may contact: [@rakshithgb-fujitsu](https://github.com/rakshithgb-fujitsu/)
 
-For RISC-V specifics you may contact: @keeranroth
+For RISC-V specifics you may contact: [@keeranroth](https://github.com/@keeranroth/)
 
 ## Issues
 
