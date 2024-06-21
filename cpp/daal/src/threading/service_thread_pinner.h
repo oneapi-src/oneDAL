@@ -122,12 +122,7 @@ public:
 
 inline thread_pinner_t * getThreadPinner(bool create_pinner, void (*read_topo)(int &, int &, int &, int **), void (*deleter)(void *))
 {
-    auto pinner_ptr = static_cast<std::shared_ptr<daal::services::internal::thread_pinner_t> *>(_getThreadPinner(create_pinner, read_topo, deleter));
-    if (pinner_ptr)
-    {
-        return pinner_ptr->get();
-    }
-    return nullptr;
+    return (thread_pinner_t *)_getThreadPinner(create_pinner, read_topo, deleter);
 }
 
 } // namespace internal

@@ -21,7 +21,7 @@
 #include <daal/src/services/service_defines.h>
 #include <daal/include/services/internal/execution_context.h>
 #include <daal/include/services/internal/utilities.h>
-#include <iostream>
+
 namespace oneapi::dal::backend::interop {
 
 using daal_sycl_ex_ctx_t = daal::services::internal::SyclExecutionContext;

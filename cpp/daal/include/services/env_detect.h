@@ -28,8 +28,6 @@
 #include "services/base.h"
 #include "services/daal_defines.h"
 #include "services/internal/execution_context.h"
-#include <memory>
-#include <mutex>
 
 namespace daal
 {
@@ -186,18 +184,10 @@ private:
     void _cpu_detect(int);
     void initNumberOfThreads();
 
-    static Environment * _instance;
-    static std::mutex _mutex;
-
     env _env;
     void * _schedulerHandle;
     void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
-    static void cleanup()
-    {
-        delete _instance;
-        _instance = nullptr;
-    }
 };
 } // namespace interface1
 

@@ -42,7 +42,6 @@
 
 using namespace daal::services;
 
-static std::mutex global_mutex;
 static bool isInitialized = false;
 DAAL_EXPORT void * _threaded_scalable_malloc(const size_t size, const size_t alignment)
 {
@@ -56,7 +55,6 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 {
-    std::lock_guard<std::mutex> guard(global_mutex);
     if (globalControl)
     {
         delete reinterpret_cast<tbb::global_control *>(globalControl);
@@ -66,7 +64,6 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
 {
-    std::lock_guard<std::mutex> guard(global_mutex);
     if (!isInitialized)
     {
         *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
@@ -75,7 +72,6 @@ DAAL_EXPORT void _initializeSchedulerHandle(void ** schedulerHandle)
 }
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandle)
 {
-    std::lock_guard<std::mutex> guard(global_mutex);
     if (schedulerHandle)
     {
         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
@@ -85,18 +81,20 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_handle_finalize(void *& schedulerHandl
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl, void ** schedulerHandle)
 {
-    static tbb::spin_mutex mt;
-    tbb::spin_mutex::scoped_lock lock(mt);
-    if (numThreads != 0)
+    if (!isInitialized)
     {
-        _initializeSchedulerHandle(schedulerHandle);
-        _daal_tbb_task_scheduler_free(*globalControl);
-        *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
-        daal::threader_env()->setNumberOfThreads(numThreads);
-        return numThreads;
+        if (numThreads != 0)
+        {
+            _initializeSchedulerHandle(schedulerHandle);
+            _daal_tbb_task_scheduler_free(*globalControl);
+            *globalControl = reinterpret_cast<void *>(new tbb::global_control(tbb::global_control::max_allowed_parallelism, numThreads));
+            daal::threader_env()->setNumberOfThreads(numThreads);
+            return numThreads;
+        }
+        daal::threader_env()->setNumberOfThreads(1);
+        return 1;
     }
-    daal::threader_env()->setNumberOfThreads(1);
-    return 1;
+    return numThreads;
 }
 
 DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func)
