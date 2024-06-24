@@ -25,15 +25,15 @@ CMPLRDIRSUFF.icx =
 CORE.SERV.COMPILER.icx = generic
 
 -Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib=libirc
--DEBC.icx = -g
+-DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g)
 
--Qopt = $(if $(OS_is_win),-qopt-,-qopt-)
+-Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icx = icx -m64 \
                      -Werror -Wreturn-type -qopenmp-simd
 
 
-COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -WX -Qopenmp-simd -Wno-deprecated-declarations
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -WX -Qopenmp-simd -Wno-deprecated-declarations -Qdiag-disable:10441
 
 link.dynamic.lnx.icx = icx -m64
 link.dynamic.win.icx = icx -m64
