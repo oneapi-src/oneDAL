@@ -287,7 +287,8 @@ public:
         return _csr->releaseSparseBlock(block);
     }
 
-    //calculate distance from current trial center to the rows in the block and update min distance
+    // For each data point from the provided data block, calculate squared distance
+    // from current trial center to the rows in the block and update min distance
     algorithmFPType updateMinDistForITrials(algorithmFPType * const pDistSq, size_t iTrials, size_t nRowsToProcess,
                                             const algorithmFPType * const pData, const size_t * const colIdx, const size_t * const rowIdx,
                                             const algorithmFPType * const pLastAddedCenter, const algorithmFPType * const aWeights,

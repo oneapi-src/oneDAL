@@ -103,7 +103,7 @@ template <typename M>
 using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
 
 template <typename M>
-using enable_if_plus_plus_dense_or_csr = std::enable_if_t<is_plus_plus_dense_or_csr_v<M>>;
+using enable_if_plus_plus = std::enable_if_t<is_plus_plus_dense_or_csr_v<M>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -200,12 +200,12 @@ public:
     /// of trials is 2 + int(log(cluster_count))
     /// @invariant :expr:`local_trials > 0` or :expr`local_trials = -1`
     /// @remark default = -1
-    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense_or_csr<M>>
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus<M>>
     auto& get_local_trials_count() const {
         return base_t::get_local_trials_count();
     }
 
-    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense_or_csr<M>>
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus<M>>
     auto& set_local_trials_count(std::int64_t value = -1) {
         base_t::set_local_trials_count_impl(value);
         return *this;

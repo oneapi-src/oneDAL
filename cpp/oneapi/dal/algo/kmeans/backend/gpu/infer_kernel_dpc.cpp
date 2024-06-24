@@ -176,12 +176,10 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             }
             result.set_objective_function_value(objective_function);
         }
-        if (desc.get_result_options().test(result_options::compute_assignments)) {
-            result.set_responses(
-                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
-                                         row_count,
-                                         1));
-        }
+
+        // By default result_options::compute_assignments
+        result.set_responses(
+            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
         return result;
     }

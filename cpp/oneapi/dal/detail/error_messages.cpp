@@ -181,7 +181,7 @@ MSG(input_model_centroids_cc_neq_input_data_cc,
 MSG(input_model_centroids_rc_neq_desc_cluster_count,
     "Input model centroids row count is not equal to descriptor cluster count")
 MSG(kmeans_init_csr_methods_are_not_implemented_for_gpu,
-    "K-Means init methods for csr data are not implemented for GPU")
+    "K-Means init methods for CSR data are not implemented for GPU")
 MSG(kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu,
     "K-Means init++ parallel dense method is not implemented for GPU")
 MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu,
