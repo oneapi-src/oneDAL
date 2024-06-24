@@ -33,7 +33,7 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue& queue) {
     const auto data_file_name = get_data_path("data/pca_normalized.csv");
-
+    const std::int64_t nBlocks = 10;
     const auto data = dal::read<dal::table>(queue, dal::csv::data_source{ data_file_name });
 
     const auto pca_desc = dal::pca::descriptor{};
@@ -45,12 +45,12 @@ void run(sycl::queue& queue) {
     auto input_vec = split_table_by_rows<float>(queue, data, rank_count);
 
     auto input_blocks = split_table_by_rows<float>(queue, input_vec[rank_id], nBlocks);
-    dal::covariance::partial_train_result<> partial_result;
+    dal::pca::partial_train_result<> partial_result;
 
     for (std::int64_t i = 0; i < nBlocks; i++) {
-        partial_result = dal::partial_train(queue, cov_desc, partial_result, input_blocks[i]);
+        partial_result = dal::partial_train(queue, pca_desc, partial_result, input_blocks[i]);
     }
-    const auto result = dal::preview::finalize_train(comm, cov_desc, partial_result);
+    const auto result = dal::preview::finalize_train(comm, pca_desc, partial_result);
 
     if (comm.get_rank() == 0) {
         std::cout << "Eigenvectors:\n" << result.get_eigenvectors() << std::endl;

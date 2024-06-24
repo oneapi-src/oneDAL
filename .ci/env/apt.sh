@@ -63,10 +63,12 @@ function install_qemu_emulation_apt {
 }
 
 function install_qemu_emulation_deb {
-    qemu_deb=qemu-user-static_8.2.2+ds-2+b1_amd64.deb
-    wget http://ftp.de.debian.org/debian/pool/main/q/qemu/${qemu_deb}
+    qemu_deb=qemu-user-static_8.2.1+ds-1~bpo12+1_amd64.deb
+    set -eo pipefail
+    wget http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}
     sudo dpkg -i ${qemu_deb}
     sudo systemctl restart systemd-binfmt.service
+    set +eo pipefail
 }
 
 function install_llvm_version {

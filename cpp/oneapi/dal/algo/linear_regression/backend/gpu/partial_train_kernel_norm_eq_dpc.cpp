@@ -45,11 +45,11 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
 
     constexpr auto alloc = sycl::usm::alloc::device;
 
-    const bool beta = desc.get_compute_intercept();
+    const bool compute_intercept = desc.get_compute_intercept();
 
     const auto feature_count = input.get_data().get_column_count();
     const auto response_count = input.get_responses().get_column_count();
-    const std::int64_t ext_feature_count = feature_count + beta;
+    const std::int64_t ext_feature_count = feature_count + compute_intercept;
 
     const pr::ndshape<2> xty_shape{ response_count, ext_feature_count };
     const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
@@ -74,8 +74,10 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
                                                                input_.get_partial_xty(),
                                                                sycl::usm::alloc::device);
         auto copy_xty_event = copy(queue, xty, xty_nd, { fill_xty_event });
-        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx, { copy_xtx_event });
-        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { copy_xty_event });
+        auto last_xtx_event =
+            update_xtx(queue, compute_intercept, data_nd, xtx, { copy_xtx_event });
+        auto last_xty_event =
+            update_xty(queue, compute_intercept, data_nd, res_nd, xty, { copy_xty_event });
 
         result.set_partial_xtx(homogen_table::wrap(xtx.flatten(queue, { last_xtx_event }),
                                                    ext_feature_count,
@@ -97,8 +99,10 @@ static partial_train_result<Task> call_dal_kernel(const context_gpu& ctx,
         auto [xtx, fill_xtx_event] =
             pr::ndarray<Float, 2, pr::ndorder::c>::zeros(queue, xtx_shape, alloc);
 
-        auto last_xty_event = update_xty(queue, beta, data_nd, res_nd, xty, { fill_xty_event });
-        auto last_xtx_event = update_xtx(queue, beta, data_nd, xtx, { fill_xtx_event });
+        auto last_xty_event =
+            update_xty(queue, compute_intercept, data_nd, res_nd, xty, { fill_xty_event });
+        auto last_xtx_event =
+            update_xtx(queue, compute_intercept, data_nd, xtx, { fill_xtx_event });
 
         result.set_partial_xtx(homogen_table::wrap(xtx.flatten(queue, { last_xtx_event }),
                                                    ext_feature_count,

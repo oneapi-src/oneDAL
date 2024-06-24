@@ -310,6 +310,8 @@ MSG(l1_coef_neq_zero,
     "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
 MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
     "LogisticRegression is not implemented for CPU")
+MSG(log_reg_sparse_method_is_not_implemented_for_cpu,
+    "LogisticRegression does not have sparsity support for CPU")
 MSG(unknown_optimizer, "Custom optimizers are not supported, use on of provided by the library")
 
 /* Decision Forest */
