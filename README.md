@@ -132,7 +132,11 @@ To report a vulnerability, refer to [Intel vulnerability reporting policy](https
 
 ### Contribute <!-- omit in toc -->
 
-We welcome community contributions. Check our [contributing guidelines](CONTRIBUTING.md) to learn more.
+We welcome community contributions. Check our [contributing guidelines](CONTRIBUTING.md) to learn more. You can also contact the oneDAL team via [UXL Foundation Slack] using
+[#onedal] channel.
+
+[UXL Foundation Slack]: https://slack-invite.uxlfoundation.org/
+[#onedal]: https://uxlfoundation.slack.com/channels/onedal
 
 ## License <!-- omit in toc -->
 
