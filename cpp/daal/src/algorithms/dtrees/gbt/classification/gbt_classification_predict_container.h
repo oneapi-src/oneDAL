@@ -70,8 +70,11 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
                                result->get(classifier::prediction::probabilities).get() :
                                nullptr);
 
+    const bool predShapContributions = par->resultsToCompute & shapContributions;
+    const bool predShapInteractions  = par->resultsToCompute & shapInteractions;
     __DAAL_CALL_KERNEL(env, internal::PredictKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                       daal::services::internal::hostApp(*input), a, m, r, prob, par->nClasses, par->nIterations);
+                       daal::services::internal::hostApp(*input), a, m, r, prob, par->nClasses, par->nIterations, predShapContributions,
+                       predShapInteractions);
 }
 
 } // namespace interface2

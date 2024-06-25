@@ -143,9 +143,11 @@ void Result::set(ResultId id, const NumericTablePtr & value)
  */
 services::Status Result::check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const
 {
+    using algorithms::regression::prediction::Result;
+
     Status s;
-    DAAL_CHECK_STATUS(s, algorithms::regression::prediction::Result::check(input, par, method));
-    const auto inputCast                              = static_cast<const algorithms::gbt::regression::prediction::Input *>(input);
+    DAAL_CHECK_STATUS(s, Result::check(input, par, method));
+    const auto inputCast                              = static_cast<const prediction::Input *>(input);
     const prediction::Parameter * regressionParameter = static_cast<const prediction::Parameter *>(par);
     size_t expectedNColumns                           = 1;
     if (regressionParameter->resultsToCompute & shapContributions)

@@ -339,7 +339,7 @@ services::Status PredictRegressionTask<algorithmFPType, cpu>::predictContributio
         for (size_t currentTreeIndex = iTree; currentTreeIndex < iTree + nTrees; ++currentTreeIndex)
         {
             const gbt::internal::GbtDecisionTree * currentTree = _aTree[currentTreeIndex];
-            st |= gbt::treeshap::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, &_featHelper,
+            st |= gbt::treeshap::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(currentTree, currentX, phi, 1, &_featHelper,
                                                                                                      condition, conditionFeature);
         }
 
