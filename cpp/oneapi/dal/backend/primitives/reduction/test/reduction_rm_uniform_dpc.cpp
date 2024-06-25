@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <type_traits>
 
 #include "oneapi/dal/test/engine/common.hpp"
@@ -39,7 +40,11 @@ using reduction_types = std::tuple<std::tuple<float, sum<float>, identity<float>
                                    std::tuple<float, sum<float>, abs<float>>,
                                    std::tuple<double, sum<double>, identity<double>>,
                                    std::tuple<double, sum<double>, square<double>>,
-                                   std::tuple<double, sum<double>, abs<double>>>;
+                                   std::tuple<double, sum<double>, abs<double>>,
+                                   std::tuple<float, logical_or<float>, isinfornan<float>>,
+                                   std::tuple<float, logical_or<float>, isinf<float>>,
+                                   std::tuple<double, logical_or<double>, isinfornan<double>>,
+                                   std::tuple<double, logical_or<double>, isinf<double>>>;
 
 template <typename Param>
 class reduction_rm_test_uniform : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
@@ -119,6 +124,14 @@ public:
                 return (arg_ * arg_);
             }
         }
+        if (std::is_same_v<logical_or<float_t>, binary_t>) {
+            if (std::is_same_v<isinf<float_t>, unary_t>) {
+                return static_cast<float>(std::isinf(arg_));
+            }
+            if (std::is_same_v<isinfornan<float_t>, unary_t>) {
+                return static_cast<float>(std::isinf(arg_) || std::isnan(arg_));
+            }
+        }
         ONEDAL_ASSERT(false);
         return 0;
     }
@@ -155,6 +168,14 @@ public:
             }
             if (std::is_same_v<square<float_t>, unary_t>) {
                 return (arg_ * arg_);
+            }
+        }
+        if (std::is_same_v<logical_or<float_t>, binary_t>) {
+            if (std::is_same_v<isinf<float_t>, unary_t>) {
+                return static_cast<float_t>(std::isinf(arg_));
+            }
+            if (std::is_same_v<isinfornan<float_t>, unary_t>) {
+                return static_cast<float_t>(std::isinf(arg_) || std::isnan(arg_));
             }
         }
         ONEDAL_ASSERT(false);

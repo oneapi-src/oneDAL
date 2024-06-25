@@ -19,8 +19,8 @@ rem %1 - Make target
 rem %2 - Compiler
 rem %3 - Instruction set
 
-for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
-echo CPUCOUNT=%CPUCOUNT%
+set errorcode=0
+echo CPUCOUNT=%NUMBER_OF_PROCESSORS%
 
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
@@ -29,15 +29,16 @@ echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
 echo call .ci\env\tbb.bat
-call .ci\env\tbb.bat
+if "%TBBROOT%"=="" if not exist .\__deps\tbb\win\tbb call .ci\env\tbb.bat || set errorcode=1
 
 echo call .\dev\download_micromkl.bat
-call .\dev\download_micromkl.bat
+if "%MKLGPUFPKROOT%"=="" if not exist .\__deps\mklgpufpk\win call .\dev\download_micromkl.bat || set errorcode=1
 
 echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+if "%VISUALSTUDIOVERSION%"=="" call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
 
-echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
-make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
+echo make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3
+make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
 
-cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -P cmake\scripts\generate_config.cmake
+cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake || set errorcode=1
+EXIT /B %errorcode%

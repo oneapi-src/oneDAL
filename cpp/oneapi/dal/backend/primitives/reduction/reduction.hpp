@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "oneapi/dal/table/csr.hpp"
 #include "oneapi/dal/backend/primitives/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/reduction/functors.hpp"
@@ -105,6 +106,61 @@ inline sycl::event reduce_by_columns(sycl::queue& q,
                   "UnaryOp must be a special unary operation defined "
                   "at the primitives level");
     return reduce_by_columns_impl(q, input, output, binary, unary, deps, override_init);
+}
+
+template <typename Float, typename BinaryOp, typename UnaryOp>
+sycl::event reduce_by_rows_impl(sycl::queue& q,
+                                const ndview<Float, 1>& values,
+                                const ndview<std::int64_t, 1>& column_indices,
+                                const ndview<std::int64_t, 1>& row_offsets,
+                                const dal::sparse_indexing indexing,
+                                ndview<Float, 1>& output,
+                                const BinaryOp& binary,
+                                const UnaryOp& unary,
+                                const event_vector& deps,
+                                bool override_init = true);
+
+/// Reduces `input` rows in CSR format and put result into output
+///
+/// @tparam Float       Floating-point type used to perform computations
+/// @tparam BinaryOp    Type of binary operator functor
+/// @tparam UnaryOp     Type of unary operator functor
+///
+/// @param[in] queue            SYCL queue
+/// @param[in] values           An input of values array in CSR format
+/// @param[in] column_indices   An input of column indices array in CSR format
+/// @param[in] row_offsets      An input of row offsets array in CSR format
+/// @param[in] indexing         CSR indexing type. It can be `one_based` or `zero_based`
+/// @param[out] output          The result of reduction
+/// @param[in] deps             A vector of `sycl::event`s that represents list of dependencies
+template <typename Float, typename BinaryOp, typename UnaryOp>
+inline sycl::event reduce_by_rows(sycl::queue& q,
+                                  const ndview<Float, 1>& values,
+                                  const ndview<std::int64_t, 1>& column_indices,
+                                  const ndview<std::int64_t, 1>& row_offsets,
+                                  const dal::sparse_indexing indexing,
+                                  ndview<Float, 1>& output,
+                                  const BinaryOp& binary = BinaryOp{},
+                                  const UnaryOp& unary = UnaryOp{},
+                                  const event_vector& deps = {},
+                                  bool override_init = true) {
+    ONEDAL_PROFILER_TASK(reduction.reduce_by_rows, q);
+    static_assert(dal::detail::is_tag_one_of_v<BinaryOp, reduce_binary_op_tag>,
+                  "BinaryOp must be a special binary operation defined "
+                  "at the primitives level");
+    static_assert(dal::detail::is_tag_one_of_v<UnaryOp, reduce_unary_op_tag>,
+                  "UnaryOp must be a special unary operation defined "
+                  "at the primitives level");
+    return reduce_by_rows_impl(q,
+                               values,
+                               column_indices,
+                               row_offsets,
+                               indexing,
+                               output,
+                               binary,
+                               unary,
+                               deps,
+                               override_init);
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,39 +17,39 @@
 #include <type_traits>
 
 #include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/objective_function/logloss_functors.hpp"
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/csr_table_builder.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
+#include "oneapi/dal/table/csr_accessor.hpp"
 #include "oneapi/dal/detail/debug.hpp"
 
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
-using oneapi::dal::detail::operator<<;
-
 namespace te = dal::test::engine;
 
-template <ndorder order>
-struct order_tag {
-    static constexpr ndorder value = order;
+template <bool fit_intercept>
+struct fit_intercept_tag {
+    static constexpr bool value = fit_intercept;
 };
 
-using c_order = order_tag<ndorder::c>;
-using f_order = order_tag<ndorder::f>;
+using use_fit_intercept = fit_intercept_tag<true>;
+using no_fit_intercept = fit_intercept_tag<false>;
+
+using logloss_types = COMBINE_TYPES((float, double), (use_fit_intercept, no_fit_intercept));
+
+#define IS_CLOSE(ftype, real, expected, rtol, atol) \
+    REQUIRE(abs(real - expected) < atol);           \
+    REQUIRE(abs(real - expected) / std::max(std::abs(expected), (ftype)1.0) < rtol);
 
 template <typename Param>
-class logloss_test : public te::float_algo_fixture<Param> {
+class logloss_test : public te::float_algo_fixture<std::tuple_element_t<0, Param>> {
 public:
-    using float_t = Param;
-
-    void check_val(const float_t real,
-                   const float_t expected,
-                   const float_t rtol,
-                   const float_t atol) {
-        REQUIRE(abs(real - expected) < atol);
-        REQUIRE(abs(real - expected) / std::max(std::abs(expected), (float_t)1.0) < rtol);
-    }
+    using float_t = std::tuple_element_t<0, Param>;
+    bool fit_intercept_ = std::tuple_element_t<1, Param>::value;
 
     void generate_input(std::int64_t n = -1, std::int64_t p = -1) {
         if (n == -1 || p == -1) {
@@ -60,7 +60,6 @@ public:
             this->n_ = n;
             this->p_ = p;
         }
-
         const auto dataframe =
             GENERATE_DATAFRAME(te::dataframe_builder{ n_, p_ }.fill_uniform(-0.5, 0.5));
         const auto parameters =
@@ -70,6 +69,32 @@ public:
         this->labels_ =
             ndarray<std::int32_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
 
+        std::srand(2007 + n_);
+        auto* const ptr_lab = this->labels_.get_mutable_data();
+        for (std::int64_t i = 0; i < n_; ++i) {
+            ptr_lab[i] = std::rand() % 2;
+        }
+    }
+
+    void generate_sparse_input(std::int64_t n = -1, std::int64_t p = -1) {
+        if (n == -1 || p == -1) {
+            this->n_ = GENERATE(7, 827, 13, 216);
+            this->p_ = GENERATE(4, 17, 41, 256);
+        }
+        else {
+            this->n_ = n;
+            this->p_ = p;
+        }
+
+        auto builder = te::csr_table_builder<float_t>(n_, p_, 0.3, sparse_indexing::zero_based);
+        this->data_ = builder.build_csr_table(this->get_policy());
+        this->dense_data_ = builder.build_dense_table();
+
+        const auto parameters =
+            GENERATE_DATAFRAME(te::dataframe_builder{ 1, p_ + 1 }.fill_uniform(-1, 1));
+        this->params_ = parameters.get_table(this->get_homogen_table_id());
+        this->labels_ =
+            ndarray<std::int32_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
         std::srand(2007 + n_);
         auto* const ptr_lab = this->labels_.get_mutable_data();
         for (std::int64_t i = 0; i < n_; ++i) {
@@ -91,6 +116,57 @@ public:
         test_input(data_host, params_host, this->labels_, L1, L2, fit_intercept, batch_test);
 
         SUCCEED();
+    }
+
+    void run_sparse_test(const float_t L2 = 0, bool fit_intercept = true) {
+        constexpr float_t rtol = sizeof(float_t) > 4 ? 1e-6 : 5e-4;
+        constexpr float_t atol = sizeof(float_t) > 4 ? 1e-6 : 1e-1;
+
+        REQUIRE(this->data_.get_kind() == csr_table::kind());
+
+        auto data_array = row_accessor<const float_t>{ this->dense_data_ }.pull(this->get_queue());
+        auto data_host = ndarray<float_t, 2>::wrap(data_array.get_data(), { n_, p_ });
+
+        std::int64_t dim = fit_intercept ? this->p_ + 1 : this->p_;
+        auto param_array = row_accessor<const float_t>{ this->params_ }.pull(this->get_queue());
+        auto params_host = ndarray<float_t, 1>::wrap(param_array.get_data(), { dim });
+        auto params_gpu = params_host.to_device(this->get_queue());
+        auto labels_gpu = this->labels_.to_device(this->get_queue());
+
+        float_t gth_logloss =
+            naive_logloss(data_host, params_host, this->labels_, float_t(0), L2, fit_intercept);
+
+        auto gth_probs =
+            ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
+        naive_probabilities(data_host, params_host, this->labels_, gth_probs, fit_intercept);
+
+        auto gth_gradient =
+            ndarray<float_t, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::host);
+        naive_derivative(data_host,
+                         gth_probs,
+                         params_host,
+                         this->labels_,
+                         gth_gradient,
+                         float_t(0),
+                         L2,
+                         fit_intercept);
+
+        auto gth_hessian = ndarray<float_t, 2>::empty(this->get_queue(),
+                                                      { p_ + 1, p_ + 1 },
+                                                      sycl::usm::alloc::host);
+        naive_hessian(data_host, gth_probs, gth_hessian, L2, fit_intercept);
+
+        test_functors(data_,
+                      labels_gpu,
+                      params_gpu,
+                      gth_gradient,
+                      gth_hessian,
+                      gth_logloss,
+                      L2,
+                      fit_intercept,
+                      false,
+                      rtol,
+                      atol);
     }
 
     void test_gold_input(bool fit_intercept = true) {
@@ -181,7 +257,7 @@ public:
         logloss_reg_event.wait_and_throw();
 
         const float_t val_logloss1 = out_logloss.to_host(this->get_queue(), {}).at(0);
-        check_val(val_logloss1, logloss, rtol, atol);
+        IS_CLOSE(float_t, val_logloss1, logloss, rtol, atol);
 
         auto fill_event = fill<float_t>(this->get_queue(), out_logloss, float_t(0), {});
         auto [out_derivative, out_der_e] =
@@ -206,7 +282,7 @@ public:
         auto out_derivative_host = out_derivative.to_host(this->get_queue());
 
         const float_t val_logloss2 = out_logloss.to_host(this->get_queue(), {}).at(0);
-        check_val(val_logloss2, logloss, rtol, atol);
+        IS_CLOSE(float_t, val_logloss2, logloss, rtol, atol);
 
         auto [out_derivative2, out_der_e2] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { dim }, sycl::usm::alloc::device);
@@ -265,30 +341,30 @@ public:
                              atol);
 
         if (L1 == 0) {
-            std::int64_t bsz = -1;
-            if (batch_test) {
-                bsz = GENERATE(4, 8, 16, 20, 37, 512);
-            }
-            // logloss_function has different regularization so we need to multiply it by 2 to allign with other implementations
-            auto functor = logloss_function<float_t>(this->get_queue(),
-                                                     data_,
-                                                     labels_gpu,
-                                                     L2 * 2,
-                                                     fit_intercept,
-                                                     bsz);
-            auto set_point_event = functor.update_x(params_gpu, true, {});
-            wait_or_pass(set_point_event).wait_and_throw();
-
-            check_val(logloss, functor.get_value(), rtol, atol);
-            auto grad_func = functor.get_gradient();
-            auto grad_func_host = grad_func.to_host(this->get_queue());
-            std::int64_t dim = fit_intercept ? p + 1 : p;
-            for (std::int64_t i = 0; i < dim; ++i) {
-                check_val(out_derivative_host.at(i), grad_func_host.at(i), rtol, atol);
-            }
-            base_matrix_operator<float_t>& hessp = functor.get_hessian_product();
-            test_hessian_product(hessian_host, hessp, fit_intercept, L2, rtol, atol);
+            test_functors(data_,
+                          labels_gpu,
+                          params_gpu,
+                          out_derivative_host,
+                          hessian_host,
+                          logloss,
+                          L2,
+                          fit_intercept,
+                          batch_test,
+                          rtol,
+                          atol);
         }
+    }
+
+    float_t clip_prob(float_t prob) {
+        constexpr float_t bottom = sizeof(float_t) > 4 ? 1e-15 : 1e-7;
+        constexpr float_t top = float_t(1.0) - bottom;
+        if (prob < bottom) {
+            prob = bottom;
+        }
+        if (prob > top) {
+            prob = top;
+        }
+        return prob;
     }
 
     float_t test_predictions_and_logloss(const ndview<float_t, 2>& data_host,
@@ -313,7 +389,7 @@ public:
             if (fit_intercept) {
                 pred += params_host.at(0);
             }
-            float_t prob = 1 / (1 + std::exp(-pred));
+            float_t prob = clip_prob(float_t(1.0) / (1 + std::exp(-pred)));
             logloss -=
                 labels_host.at(i) * std::log(prob) + (1 - labels_host.at(i)) * std::log(1 - prob);
             float_t out_val = probabilities.at(i);
@@ -327,15 +403,16 @@ public:
         return logloss;
     }
 
-    double naive_logloss(const ndview<float_t, 2>& data_host,
-                         const ndview<float_t, 1>& params_host,
-                         const ndview<std::int32_t, 1>& labels_host,
-                         const float_t L1,
-                         const float_t L2,
-                         bool fit_intercept) {
+    float_t naive_logloss(const ndview<float_t, 2>& data_host,
+                          const ndview<float_t, 1>& params_host,
+                          const ndview<std::int32_t, 1>& labels_host,
+                          float_t L1,
+                          float_t L2,
+                          bool fit_intercept) {
         const std::int64_t n = data_host.get_dimension(0);
         const std::int64_t p = data_host.get_dimension(1);
 
+        // We use double for gth computation to achieve better precision
         double logloss = 0;
         std::int64_t st = fit_intercept;
         for (std::int64_t i = 0; i < n; ++i) {
@@ -346,7 +423,10 @@ public:
             if (fit_intercept) {
                 pred += (double)params_host.at(0);
             }
-            logloss += std::log(1 + std::exp(-(2 * labels_host.at(i) - 1) * pred));
+            // We cast argument to float_t to ensure correct clipping
+            double prob = clip_prob(float_t(1.0) / (float_t)(1 + std::exp(-pred)));
+            logloss -=
+                labels_host.at(i) * std::log(prob) + (1 - labels_host.at(i)) * std::log(1 - prob);
         }
         for (std::int64_t i = 0; i < p; ++i) {
             logloss += L1 * abs(params_host.at(i + st));
@@ -364,14 +444,14 @@ public:
         const std::int64_t p = data.get_dimension(1);
         std::int64_t st_ind = fit_intercept;
         for (std::int64_t i = 0; i < n; ++i) {
-            float_t pred = 0;
+            double pred = 0;
             for (std::int64_t j = 0; j < p; ++j) {
                 pred += params.at(j + st_ind) * data.at(i, j);
             }
             if (fit_intercept) {
                 pred += params.at(0);
             }
-            out_prob.at(i) = float_t(1) / (1 + std::exp(-pred));
+            out_prob.at(i) = clip_prob((double)1 / (1 + std::exp(-pred)));
         }
     }
 
@@ -458,7 +538,7 @@ public:
                          fit_intercept);
 
         for (std::int64_t i = 0; i < dim; ++i) {
-            check_val(out_derivative.at(i), derivative.at(i), rtol, atol);
+            IS_CLOSE(float_t, out_derivative.at(i), derivative.at(i), rtol, atol);
         }
     }
 
@@ -477,7 +557,7 @@ public:
 
         for (std::int64_t i = 0; i <= p; ++i) {
             for (std::int64_t j = 0; j <= p; ++j) {
-                check_val(out_hessian.at(i, j), hessian.at(i, j), rtol, atol);
+                IS_CLOSE(float_t, out_hessian.at(i, j), hessian.at(i, j), rtol, atol);
             }
         }
     }
@@ -507,20 +587,62 @@ public:
             auto out_vector_host = out_vector.to_host(this->get_queue());
             const std::int64_t st = fit_intercept ? 0 : 1;
 
+            // We use double for gth computations to achieve better precision
             for (std::int64_t i = st; i < p + 1; ++i) {
-                float_t correct = 0;
+                double correct = 0;
                 for (std::int64_t j = st; j < p + 1; ++j) {
-                    correct += vec_host.at(j - st) * hessian_host.at(i, j);
+                    correct += static_cast<double>(vec_host.at(j - st)) *
+                               static_cast<double>(hessian_host.at(i, j));
                 }
-                check_val(out_vector_host.at(i - st), correct, rtol, atol);
+                IS_CLOSE(float_t, out_vector_host.at(i - st), (float_t)correct, rtol, atol);
             }
         }
+    }
+
+    void test_functors(table& data,
+                       ndview<std::int32_t, 1>& labels_gpu,
+                       ndview<float_t, 1>& params_gpu,
+                       ndview<float_t, 1>& gth_grad,
+                       ndview<float_t, 2>& gth_hessian,
+                       float_t gth_logloss,
+                       const float_t L2 = 0,
+                       bool fit_intercept = true,
+                       bool batch_test = false,
+                       const float_t rtol = 1e-3,
+                       const float_t atol = 1e-3) {
+        const std::int64_t p = gth_hessian.get_dimension(0) - 1;
+        std::int64_t bsz = -1;
+        if (batch_test) {
+            bsz = GENERATE(4, 8, 16, 20, 37, 512);
+        }
+        // logloss_function has different regularization so we need to multiply it by 2 to align with other implementations
+
+        auto functor = logloss_function<float_t>(this->get_queue(),
+                                                 data,
+                                                 labels_gpu,
+                                                 L2 * 2,
+                                                 fit_intercept,
+                                                 bsz);
+        auto set_point_event = functor.update_x(params_gpu, true, {});
+        wait_or_pass(set_point_event).wait_and_throw();
+
+        IS_CLOSE(float_t, gth_logloss, functor.get_value(), rtol, atol);
+        auto grad_func = functor.get_gradient();
+        auto grad_func_host = grad_func.to_host(this->get_queue());
+        std::int64_t dim = fit_intercept ? p + 1 : p;
+
+        for (std::int64_t i = 0; i < dim; ++i) {
+            IS_CLOSE(float_t, gth_grad.at(i), grad_func_host.at(i), rtol, atol);
+        }
+        base_matrix_operator<float_t>& hessp = functor.get_hessian_product();
+        test_hessian_product(gth_hessian, hessp, fit_intercept, L2, rtol, atol);
     }
 
 protected:
     std::int64_t n_;
     std::int64_t p_;
     table data_;
+    table dense_data_;
     table params_;
     ndarray<std::int32_t, 1> labels_;
 };

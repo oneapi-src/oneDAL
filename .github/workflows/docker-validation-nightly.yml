@@ -9,24 +9,28 @@ on:
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
-      - .ci/env
-      - .ci/scripts
+      - '.ci/env/**'
+      - '.ci/scripts/**'
   push:
     branches:
       - main
     paths:
       - .github/workflows/docker-validation-nightly.yml
       - dev/docker/onedal-dev.Dockerfile
-      - .ci/env
-      - .ci/scripts
+      - '.ci/env/**'
+      - '.ci/scripts/**'
+
+permissions:
+  contents: read
 
 jobs:
   validate:
     name: Docker validation
+    if: github.repository == 'oneapi-src/oneDAL'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       - name: Build docker image
         run: docker build . --file dev/docker/onedal-dev.Dockerfile --tag onedal-dev:latest
       - name: Building oneDAL

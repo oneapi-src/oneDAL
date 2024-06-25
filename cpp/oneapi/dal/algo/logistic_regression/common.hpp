@@ -44,12 +44,15 @@ namespace method {
 namespace v1 {
 /// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
+/// Tag-type that denotes :ref:`sparse <logreg_t_math_sparse>` computational method.
+struct sparse {};
 
 /// Alias tag-type for the dense_batch method
 using by_default = dense_batch;
 } // namespace v1
 
 using v1::dense_batch;
+using v1::sparse;
 using v1::by_default;
 
 } // namespace method
@@ -68,6 +71,7 @@ namespace detail {
 ONEDAL_EXPORT result_option_id get_intercept_id();
 ONEDAL_EXPORT result_option_id get_coefficients_id();
 ONEDAL_EXPORT result_option_id get_iterations_count_id();
+ONEDAL_EXPORT result_option_id get_inner_iterations_count_id();
 
 } // namespace detail
 
@@ -83,6 +87,9 @@ const inline result_option_id coefficients = detail::get_coefficients_id();
 
 /// Return the number of iterations made by optimizer
 const inline result_option_id iterations_count = detail::get_iterations_count_id();
+
+/// Return the number of subiterations made by optimizer. Only available for newton-cg optimizer
+const inline result_option_id inner_iterations_count = detail::get_inner_iterations_count_id();
 
 } // namespace result_options
 
@@ -101,7 +108,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::dense_batch, method::sparse>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
@@ -164,7 +172,7 @@ namespace v1 {
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
-///                     be :expr:`method::dense_batch`.
+///                     be :expr:`method::dense_batch` or :expr:`method::sparse`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::classification`.
 /// @tparam Optimizer   The descriptor of the optimizer used for minimization. Can

@@ -49,7 +49,7 @@ inline std::int32_t row_partitioning_kernel(sycl::nd_item<2> item,
 
     for (std::int32_t i = partition_start + local_id; i < partition_start + full_group_size;
          i += local_size) {
-        sg.barrier();
+        sycl::group_barrier(sg);
         bool inside = i < partition_end;
         Float cur_value = inside ? values[i] : 0.0;
         std::int32_t cur_index = i < partition_end ? indices[i] : -1;

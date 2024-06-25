@@ -157,4 +157,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`univariate_outlier_batch.py`
+    - :daal4py_example:`univariate_outlier.py`

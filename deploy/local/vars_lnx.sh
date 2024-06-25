@@ -4,6 +4,7 @@
 
 #===============================================================================
 # Copyright 2014 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -223,6 +224,19 @@ if [ ! -d $__daal_tmp_dir ]; then
     __daal_tmp_dir=${component_root}
 fi
 
+ARCH_ONEDAL=${ARCH_ONEDAL:-$(uname -m)}
+
+if [ "${ARCH_ONEDAL}" = "x86_64" ]; then
+    ARCH_DIR_ONEDAL="intel64"
+elif [ "${ARCH_ONEDAL}" = "aarch64" ]; then
+    ARCH_DIR_ONEDAL="arm"
+elif [ "${ARCH_ONEDAL}" = "riscv64" ]; then
+    ARCH_DIR_ONEDAL="riscv64"
+else
+    echo "Unsupported CPU architecture '${ARCH_ONEDAL}'"
+    exit 1
+fi
+
 if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
 # case "${my_script_path}" in
   # *"env"*)
@@ -239,8 +253,8 @@ if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
       export LD_LIBRARY_PATH="$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     else
       export CPATH="$__daal_tmp_dir/include${CPATH+:${CPATH}}"
-      export LIBRARY_PATH="$__daal_tmp_dir/lib/intel64${LIBRARY_PATH+:${LIBRARY_PATH}}"
-      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/intel64${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
+      export LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR_ONEDAL${LIBRARY_PATH+:${LIBRARY_PATH}}"
+      export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR_ONEDAL${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     fi
   # ;;
 else   # must be a consolidated layout

@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include <type_traits>
+#include <random>
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"

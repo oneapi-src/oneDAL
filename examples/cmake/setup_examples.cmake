@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2023 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -101,6 +102,18 @@ endfunction()
 function (add_examples examples_paths)
     foreach(example_file_path ${examples_paths})
         get_filename_component(example ${example_file_path} NAME_WE)
+
+        # Detect CPU architecture
+        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+            set(CPU_ARCHITECTURE "intel_intel64")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+            set(CPU_ARCHITECTURE "arm_aarch64")
+        elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "riscv64")
+            set(CPU_ARCHITECTURE "riscv64_riscv64")
+        else()
+            message(FATAL_ERROR "Unkown architecture ${CMAKE_SYSTEM_PROCESSOR}")
+        endif()
+
         add_executable(${example} ${example_file_path})
         target_include_directories(${example} PRIVATE ${oneDAL_INCLUDE_DIRS})
         if (UNIX AND NOT APPLE)
@@ -110,7 +123,7 @@ function (add_examples examples_paths)
         endif()
         target_compile_options(${example} PRIVATE ${ONEDAL_CUSTOM_COMPILE_OPTIONS})
         target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS})
-        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/intel_intel64_${LINK_TYPE}")
+        set_target_properties(${example} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/${CPU_ARCHITECTURE}_${LINK_TYPE}")
     endforeach()
     set_common_compiler_options()
 endfunction()

@@ -42,6 +42,8 @@ public:
     explicit descriptor_impl() = default;
 
     bool compute_intercept = true;
+    double alpha = 0;
+
     result_option_id result_options = get_default_result_options<Task>();
 };
 
@@ -79,6 +81,16 @@ bool descriptor_base<Task>::get_compute_intercept() const {
 template <typename Task>
 void descriptor_base<Task>::set_compute_intercept_impl(bool compute_intercept) {
     impl_->compute_intercept = compute_intercept;
+}
+
+template <typename Task>
+double descriptor_base<Task>::get_alpha() const {
+    return impl_->alpha;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_alpha_impl(double value) {
+    impl_->alpha = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::regression>;

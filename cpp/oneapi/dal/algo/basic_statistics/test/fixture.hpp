@@ -45,6 +45,8 @@ public:
     using method_t = std::tuple_element_t<1, TestType>;
     using input_t = bs::compute_input<>;
     using result_t = bs::compute_result<>;
+    using partial_input_t = bs::partial_compute_input<>;
+    using partial_result_t = bs::partial_compute_result<>;
     using descriptor_t = bs::descriptor<float_t, method_t>;
     using csr_table = dal::csr_table;
 
@@ -105,7 +107,8 @@ public:
         check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
-    void csr_general_checks(const te::csr_table_builder& data, bs::result_option_id compute_mode) {
+    void csr_general_checks(const te::csr_table_builder<>& data,
+                            bs::result_option_id compute_mode) {
         const auto desc =
             bs::descriptor<float_t, basic_statistics::method::sparse>{}.set_result_options(
                 compute_mode);
@@ -119,7 +122,7 @@ public:
 
     // TODO: Fix DAAL code. On big datasets there is an error in computing.
     // To reproduce it remove this check from test case in batch.cpp
-    bool not_cpu_friendly(const te::csr_table_builder& data) {
+    bool not_cpu_friendly(const te::csr_table_builder<>& data) {
         auto policy = this->get_policy();
         return (data.row_count_ > 100 || data.column_count_ > 100) && policy.is_cpu();
     }

@@ -28,50 +28,71 @@ namespace pr = dal::backend::primitives;
 
 template <typename Float>
 struct kernels_fp {
-    static std::int64_t get_block_size_in_rows(sycl::queue& queue, std::int64_t column_count);
-    static std::int64_t get_part_count_for_partial_centroids(sycl::queue& queue,
-                                                             std::int64_t column_count,
-                                                             std::int64_t cluster_count);
+    template <bool use_weights>
+    static sycl::event get_cores_send_recv_replace_impl(sycl::queue& queue,
+                                                        const pr::ndview<Float, 2>& data,
+                                                        const pr::ndview<Float, 2>& data_replace,
+                                                        const pr::ndview<Float, 2>& weights,
+                                                        pr::ndview<std::int32_t, 1>& cores,
+                                                        pr::ndview<Float, 1>& neighbours,
+                                                        Float epsilon,
+                                                        std::int64_t min_observations,
+                                                        const bk::event_vector& deps);
+    static sycl::event get_cores_send_recv_replace(sycl::queue& queue,
+                                                   const pr::ndview<Float, 2>& data,
+                                                   const pr::ndview<Float, 2>& data_replace,
+                                                   const pr::ndview<Float, 2>& weights,
+                                                   pr::ndview<std::int32_t, 1>& cores,
+                                                   pr::ndview<Float, 1>& neighbours,
+                                                   Float epsilon,
+                                                   std::int64_t min_observations,
+                                                   const bk::event_vector& deps = {});
     template <bool use_weights>
     static sycl::event get_cores_impl(sycl::queue& queue,
                                       const pr::ndview<Float, 2>& data,
                                       const pr::ndview<Float, 2>& weights,
                                       pr::ndview<std::int32_t, 1>& cores,
+                                      pr::ndview<Float, 1>& neighbours,
                                       Float epsilon,
                                       std::int64_t min_observations,
-                                      std::int64_t block_start,
-                                      std::int64_t block_end,
                                       const bk::event_vector& deps);
+
     static sycl::event get_cores(sycl::queue& queue,
                                  const pr::ndview<Float, 2>& data,
                                  const pr::ndview<Float, 2>& weights,
                                  pr::ndview<std::int32_t, 1>& cores,
+                                 pr::ndview<Float, 1>& neighbours,
                                  Float epsilon,
                                  std::int64_t min_observations,
-                                 std::int64_t block_start = -1,
-                                 std::int64_t block_end = -1,
                                  const bk::event_vector& deps = {});
+
     static std::int32_t start_next_cluster(sycl::queue& queue,
                                            const pr::ndview<std::int32_t, 1>& cores,
                                            pr::ndview<std::int32_t, 1>& responses,
                                            const bk::event_vector& deps = {});
 
-    static sycl::event update_queue(sycl::queue& queue,
-                                    const pr::ndview<Float, 2>& data,
-                                    const pr::ndview<std::int32_t, 1>& cores,
-                                    pr::ndview<std::int32_t, 1>& algo_queue,
-                                    std::int32_t queue_begin,
-                                    std::int32_t queue_end,
-                                    pr::ndview<std::int32_t, 1>& responses,
-                                    pr::ndview<std::int32_t, 1>& queue_front,
-                                    Float epsilon,
-                                    std::int32_t cluster_id,
-                                    std::int64_t block_start = -1,
-                                    std::int64_t block_end = -1,
-                                    const bk::event_vector& deps = {});
-    static std::int32_t get_queue_front(sycl::queue& queue,
-                                        const pr::ndarray<std::int32_t, 1>& queue_front,
-                                        const bk::event_vector& deps = {});
+    static sycl::event update_points_queue(sycl::queue& queue,
+                                           const pr::ndview<Float, 2>& data,
+                                           const pr::ndview<std::int32_t, 1>& cores,
+                                           pr::ndview<Float, 2>& current_queue,
+                                           pr::ndview<std::int32_t, 1>& responses,
+                                           pr::ndview<std::int32_t, 1>& queue_size,
+                                           pr::ndview<bool, 1>& indices_cores,
+                                           Float epsilon,
+                                           std::int32_t cluster_id,
+                                           const bk::event_vector& deps = {});
+
+    static sycl::event fill_current_points_queue(sycl::queue& queue,
+                                                 const pr::ndview<Float, 2>& data,
+                                                 const pr::ndview<bool, 1>& indices,
+                                                 pr::ndview<Float, 2>& current_queue,
+                                                 pr::ndview<std::int32_t, 1>& queue_size_arr,
+                                                 std::int64_t block_start,
+                                                 const bk::event_vector& deps = {});
+
+    static std::int32_t get_points_queue_size(sycl::queue& queue,
+                                              const pr::ndarray<std::int32_t, 1>& queue_front,
+                                              const bk::event_vector& deps = {});
 };
 
 sycl::event set_queue_ptr(sycl::queue& queue,
@@ -84,6 +105,11 @@ sycl::event set_arr_value(sycl::queue& queue,
                           std::int32_t offset,
                           std::int32_t value,
                           const bk::event_vector& deps = {});
+sycl::event set_init_index(sycl::queue& queue,
+                           pr::ndview<bool, 1>& arr,
+                           std::int32_t index,
+                           bool value,
+                           const bk::event_vector& deps = {});
 std::int64_t count_cores(sycl::queue& queue, const pr::ndview<std::int32_t, 1>& cores);
 #endif
 

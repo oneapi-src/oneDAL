@@ -18,8 +18,8 @@
 
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/finalize_train_kernel.hpp"
-#include "oneapi/dal/backend/interop/common.hpp"
 
+#include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -28,7 +28,6 @@ namespace oneapi::dal::pca::backend {
 
 using dal::backend::context_cpu;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
-using model_t = model<task::dim_reduction>;
 
 namespace interop = dal::backend::interop;
 
@@ -44,11 +43,16 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
                                                           const partial_train_result<Task>& input) {
     const std::int64_t component_count =
         get_component_count(desc, input.get_partial_crossproduct());
+    ONEDAL_ASSERT(component_count > 0);
     const std::int64_t column_count = input.get_partial_crossproduct().get_column_count();
+    ONEDAL_ASSERT(column_count > 0);
     auto rows_count_global =
         row_accessor<const Float>(input.get_partial_n_rows()).pull({ 0, -1 })[0];
+    ONEDAL_ASSERT(rows_count_global > 0);
+
     auto result = train_result<task::dim_reduction>{}.set_result_options(desc.get_result_options());
     daal::services::SharedPtr<DataCollection> DataCollectionPtr;
+
     auto arr_eigvec = array<Float>::empty(column_count * column_count);
     auto arr_eigval = array<Float>::empty(1 * column_count);
     auto reshaped_eigvec = array<Float>::empty(1 * component_count);
@@ -72,6 +76,7 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
     if (desc.get_data_normalization() == normalization::zscore) {
         dtype = daal_pca::internal::normalizedDataset;
     }
+
     interop::status_to_exception(
         interop::call_daal_kernel_finalize_merge<Float, daal_svd_kernel_t>(ctx,
                                                                            dtype,
@@ -90,25 +95,20 @@ static train_result<Task> call_daal_kernel_finalize_train(const context_cpu& ctx
         const auto daal_singular_values =
             interop::convert_to_daal_homogen_table(reshaped_eigval, 1, component_count);
         result.set_singular_values(homogen_table::wrap(reshaped_eigval, 1, component_count));
-        if (desc.get_normalization_mode() == normalization::mean_center) {
-            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-                return daal_svd_kernel_t<Float, cpu_type>().computeEigenValues(
-                    *daal_singular_values,
-                    *daal_eigenvalues,
-                    rows_count_global);
-            });
 
-            interop::status_to_exception(status);
-            result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
+        if (desc.get_normalization_mode() == normalization::mean_center) {
+            interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+                return daal_svd_kernel_t<
+                           Float,
+                           dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>()
+                    .computeEigenValues(*daal_singular_values,
+                                        *daal_eigenvalues,
+                                        rows_count_global);
+            }));
         }
         else {
             result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
         }
-    }
-
-    if (desc.whiten()) {
-        result.set_eigenvalues(homogen_table::wrap(reshaped_eigval, 1, component_count));
     }
 
     return result;

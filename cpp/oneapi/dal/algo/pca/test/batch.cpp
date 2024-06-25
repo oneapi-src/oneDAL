@@ -30,7 +30,6 @@ template <typename TestType>
 class pca_batch_test : public pca_test<TestType, pca_batch_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batch]", pca_types) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const te::dataframe data =
@@ -52,35 +51,7 @@ TEMPLATE_LIST_TEST_M(pca_batch_test, "pca common flow", "[pca][integration][batc
 TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca on gold data",
                      "[pca][integration][batch][gold]",
-                     pca_types_svd) {
-    SKIP_IF(this->not_available_on_device());
-    SKIP_IF(this->not_float64_friendly());
-
-    const std::int64_t component_count = 0;
-    const bool deterministic = true;
-    const auto pca_desc = this->get_descriptor(component_count, deterministic);
-    const auto gold_data = this->get_gold_data();
-
-    const auto pca_result = te::train(this->get_policy(), pca_desc, gold_data);
-    const auto eigenvalues = pca_result.get_singular_values();
-    const auto eigenvectors = pca_result.get_eigenvectors();
-
-    INFO("check eigenvalues") {
-        const auto gold_eigenvalues = this->get_gold_eigenvalues();
-        this->check_eigenvalues(gold_eigenvalues, eigenvalues);
-    }
-
-    INFO("check eigenvectors") {
-        const auto gold_eigenvectors = this->get_gold_eigenvectors();
-        this->check_eigenvectors(gold_eigenvectors, eigenvectors);
-    }
-}
-
-TEMPLATE_LIST_TEST_M(pca_batch_test,
-                     "pca on gold data",
-                     "[pca][integration][batch][gold]",
-                     pca_types_cov) {
-    SKIP_IF(this->not_available_on_device());
+                     pca_types) {
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
@@ -92,21 +63,21 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
     const auto eigenvalues = pca_result.get_eigenvalues();
     const auto eigenvectors = pca_result.get_eigenvectors();
 
-    INFO("check eigenvalues") {
+    SECTION("check eigenvalues") {
         const auto gold_eigenvalues = this->get_gold_eigenvalues();
         this->check_eigenvalues(gold_eigenvalues, eigenvalues);
     }
 
-    INFO("check eigenvectors") {
+    SECTION("check eigenvectors") {
         const auto gold_eigenvectors = this->get_gold_eigenvectors();
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
     }
 }
+
 TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca common flow higgs",
                      "[external-dataset][pca][integration][batch]",
                      pca_types) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
@@ -122,7 +93,6 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
                      "pca with cov",
                      "[pca][integration][precomputed][batch]",
                      pca_types_precomputed) {
-    SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
 
     const std::int64_t component_count = 0;
@@ -135,12 +105,12 @@ TEMPLATE_LIST_TEST_M(pca_batch_test,
 
     const auto eigenvectors = pca_result.get_eigenvectors();
 
-    INFO("check eigenvalues") {
+    SECTION("check eigenvalues") {
         const auto gold_eigenvalues = this->get_gold_eigenvalues();
         this->check_eigenvalues(gold_eigenvalues, eigenvalues);
     }
 
-    INFO("check eigenvectors") {
+    SECTION("check eigenvectors") {
         const auto gold_eigenvectors = this->get_gold_eigenvectors();
         this->check_eigenvectors(gold_eigenvectors, eigenvectors);
     }

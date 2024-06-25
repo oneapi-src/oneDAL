@@ -34,6 +34,10 @@ result_option_id get_iterations_count_id() {
     return result_option_id{ result_option_id::make_by_index(2) };
 }
 
+result_option_id get_inner_iterations_count_id() {
+    return result_option_id{ result_option_id::make_by_index(3) };
+}
+
 template <typename Task>
 result_option_id get_default_result_options() {
     return result_option_id{};

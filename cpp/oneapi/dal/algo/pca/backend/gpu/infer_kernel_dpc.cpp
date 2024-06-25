@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/table/row_accessor.hpp"
+
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
@@ -30,7 +30,6 @@ namespace bk = oneapi::dal::backend;
 using dal::backend::context_gpu;
 using alloc = sycl::usm::alloc;
 
-using model_t = model<task::dim_reduction>;
 using input_t = infer_input<task::dim_reduction>;
 using result_t = infer_result<task::dim_reduction>;
 using descriptor_t = detail::descriptor_base<task::dim_reduction>;
@@ -135,21 +134,20 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
         pr::ndarray<Float, 2>::empty(queue, { row_count, column_count }, alloc::device);
 
     auto copy_event = copy(queue, data_to_xtx, data_nd, {});
-    copy_event.wait_and_throw();
 
-    sycl::event mean_centered_event;
     if (desc.get_normalization_mode() != normalization::none && model.get_means().has_data()) {
         const auto means = model.get_means();
         const auto means_nd = pr::table2ndarray_1d<Float>(queue, means, alloc::device);
-        mean_centered_event = get_centered(queue, data_to_xtx, means_nd, { copy_event });
+        auto mean_centered_event = get_centered(queue, data_to_xtx, means_nd, { copy_event });
+        mean_centered_event.wait_and_throw();
     }
 
-    sycl::event scaled_event;
     if (desc.get_normalization_mode() == normalization::zscore &&
         model.get_variances().has_data()) {
         const auto variances = model.get_variances();
         const auto variances_nd = pr::table2ndarray_1d<Float>(queue, variances, alloc::device);
-        scaled_event = get_scaled(queue, data_to_xtx, variances_nd, { mean_centered_event });
+        auto scaled_event = get_scaled(queue, data_to_xtx, variances_nd, { copy_event });
+        scaled_event.wait_and_throw();
     }
 
     const auto eigenvectors_nd = pr::table2ndarray<Float>(queue, eigenvectors, alloc::device);
@@ -165,19 +163,18 @@ static result_t infer(const context_gpu& ctx, const descriptor_t& desc, const in
                               res_nd,
                               Float(1.0),
                               Float(0.0),
-                              { scaled_event });
-        gemm_event.wait_and_throw();
+                              { copy_event });
     }
 
-    sycl::event whiten_event;
-    if (desc.whiten() && model.get_eigenvalues().has_data()) {
-        const auto eigenvalues = model.get_eigenvalues();
+    if (desc.whiten() && eigenvalues.has_data()) {
         const auto eigenvalues_nd = pr::table2ndarray_1d<Float>(queue, eigenvalues, alloc::device);
-        whiten_event = get_whitened(queue, res_nd, eigenvalues_nd, { gemm_event });
+        auto whiten_event = get_whitened(queue, res_nd, eigenvalues_nd, { gemm_event });
+        whiten_event.wait_and_throw();
     }
 
-    return result_t{}.set_transformed_data(
-        homogen_table::wrap(res_nd.flatten(queue, { whiten_event }), row_count, component_count));
+    auto flattened_result = res_nd.flatten(queue, { gemm_event });
+    auto wrapped_result = homogen_table::wrap(flattened_result, row_count, component_count);
+    return result_t{}.set_transformed_data(wrapped_result);
 }
 
 template <typename Float>

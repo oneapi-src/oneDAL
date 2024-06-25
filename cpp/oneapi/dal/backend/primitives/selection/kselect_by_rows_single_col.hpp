@@ -168,7 +168,7 @@ private:
                         value = handle ? cur_val : value;
                     }
 
-                    sg.barrier();
+                    sycl::group_barrier(sg);
 
                     const Float final_value =
                         sycl::reduce_over_group(sg, value, sycl::ext::oneapi::minimum<Float>());

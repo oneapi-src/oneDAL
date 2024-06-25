@@ -392,7 +392,7 @@ inline sycl::event copy_all2all(sycl::queue& queue,
         event = memcpy_host2usm(queue, dest, src, sizeof(T) * n, deps);
     }
     else {
-        copy(dest, src, sizeof(T) * n);
+        memcpy(dest, src, sizeof(T) * n);
     }
     return event;
 }

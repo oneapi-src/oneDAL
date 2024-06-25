@@ -66,7 +66,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`qr_batch.py`
+    - :daal4py_example:`qr.py`
 
     Online Processing:
 

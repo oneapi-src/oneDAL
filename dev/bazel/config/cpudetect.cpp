@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +15,21 @@
 * limitations under the License.
 *******************************************************************************/
 
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+    #define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+    #define TARGET_ARM
+#endif
+
+#if defined(__riscv) && (__riscv_xlen == 64)
+    #define TARGET_RISCV64
+#endif
+
+#if defined(TARGET_X86_64)
 #include <immintrin.h>
+#endif
 
 #if defined(_MSC_VER)
 #if (_MSC_FULL_VER >= 160040219)
@@ -154,20 +169,27 @@ int check_sse42_features() {
 }
 
 std::string detect_cpu() {
-    try_enable_avx512f_on_macos();
 
-    if (check_avx512_features()) {
-        return "avx512";
-    }
-    else if (check_avx2_features()) {
-        return "avx2";
-    }
-    else if (check_sse42_features()) {
-        return "sse42";
-    }
-    else {
-        return "sse2";
-    }
+    #if defined(TARGET_X86_64)
+        try_enable_avx512f_on_macos();
+
+        if (check_avx512_features()) {
+            return "avx512";
+        }
+        else if (check_avx2_features()) {
+            return "avx2";
+        }
+        else if (check_sse42_features()) {
+            return "sse42";
+        }
+        else {
+            return "sse2";
+        }
+    #elif defined(TARGET_ARM)
+        return "sve";
+    #elif defined(TARGET_RISCV64)
+        return "rv64";
+    #endif
 }
 
 int main(int argc, char const *argv[]) {

@@ -24,11 +24,11 @@
 namespace oneapi::dal::csv::detail {
 namespace v1 {
 
-template <typename Object, typename Policy, typename... Options>
+template <typename Object, typename Float, typename Policy, typename... Options>
 struct read_ops_dispatcher;
 
-template <typename Object>
-struct read_ops_dispatcher<Object, dal::detail::host_policy> {
+template <typename Object, typename Float>
+struct read_ops_dispatcher<Object, Float, dal::detail::host_policy> {
     Object operator()(const dal::detail::host_policy& policy,
                       const data_source_base& ds,
                       const dal::preview::csv::read_args<Object>& args) const {
@@ -40,8 +40,8 @@ struct read_ops_dispatcher<Object, dal::detail::host_policy> {
     }
 };
 
-template <>
-struct ONEDAL_EXPORT read_ops_dispatcher<table, dal::detail::host_policy> {
+template <typename Float>
+struct read_ops_dispatcher<table, Float, dal::detail::host_policy> {
     table operator()(const dal::detail::host_policy& policy,
                      const data_source_base& ds,
                      const dal::csv::read_args<table>& args) const;
@@ -49,8 +49,8 @@ struct ONEDAL_EXPORT read_ops_dispatcher<table, dal::detail::host_policy> {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <>
-struct ONEDAL_EXPORT read_ops_dispatcher<table, dal::detail::data_parallel_policy> {
+template <typename Float>
+struct read_ops_dispatcher<table, Float, dal::detail::data_parallel_policy> {
     table operator()(const dal::detail::data_parallel_policy& ctx,
                      const data_source_base& ds,
                      const dal::csv::read_args<table>& args) const;
@@ -61,8 +61,9 @@ struct ONEDAL_EXPORT read_ops_dispatcher<table, dal::detail::data_parallel_polic
 template <typename Object, typename DataSource>
 struct read_ops;
 
-template <typename Object>
-struct read_ops<Object, data_source> {
+template <typename Object, typename DataSource>
+struct read_ops {
+    using float_t = typename DataSource::float_t;
     using input_t = dal::preview::csv::read_args<Object>;
     using result_t = Object;
 
@@ -75,14 +76,15 @@ struct read_ops<Object, data_source> {
     template <typename Policy>
     auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
-        auto result = read_ops_dispatcher<Object, Policy>()(ctx, ds, args);
+        auto result = read_ops_dispatcher<Object, float_t, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }
 };
 
-template <>
-struct read_ops<table, data_source> {
+template <typename DataSource>
+struct read_ops<table, DataSource> {
+    using float_t = typename DataSource::float_t;
     using input_t = read_args<table>;
     using result_t = table;
 
@@ -95,7 +97,7 @@ struct read_ops<table, data_source> {
     template <typename Policy>
     auto operator()(const Policy& ctx, const data_source_base& ds, const input_t& args) const {
         check_preconditions(ds, args);
-        const auto result = read_ops_dispatcher<table, Policy>()(ctx, ds, args);
+        const auto result = read_ops_dispatcher<table, float_t, Policy>()(ctx, ds, args);
         check_postconditions(ds, args, result);
         return result;
     }

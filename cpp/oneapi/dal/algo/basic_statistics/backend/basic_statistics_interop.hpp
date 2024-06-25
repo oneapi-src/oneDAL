@@ -31,6 +31,14 @@ namespace bk = dal::backend;
 using task_t = task::compute;
 using descriptor_t = detail::descriptor_base<task_t>;
 
+///  A function that dispatches the necessary partial option results
+///  based on the input descriptor
+///
+/// @tparam Float  Floating-point type used to perform computations
+///
+/// @param[in]  desc  The input descriptor for the algorithm
+///
+/// @return The descriptor for partial part of the online alogrithm
 template <typename Float>
 inline auto get_desc_to_compute(const descriptor_t& desc) {
     const auto res_op = desc.get_result_options();
@@ -60,6 +68,14 @@ inline auto get_desc_to_compute(const descriptor_t& desc) {
     return local_desc;
 }
 
+///  A function that dispatches the necessary DAAL analogue of option results
+///  based on the input descriptor
+///
+/// @tparam Float  Floating-point type used to perform computations
+///
+/// @param[in]  desc  The input descriptor for the algorithm
+///
+/// @return DAAL basic statistics estimations
 inline auto get_daal_estimates_to_compute(const descriptor_t& desc) {
     const auto res_op = desc.get_result_options();
     const auto res_min_max = result_options::min | result_options::max;
@@ -79,6 +95,15 @@ inline auto get_daal_estimates_to_compute(const descriptor_t& desc) {
     return daal_lom::estimatesAll;
 }
 
+///  A wrapper that creates and fills the results of the basic statisctics algorithm
+///
+/// @tparam Float  Floating-point type used to perform computations
+/// @tparam Task   Tag-type that specifies the type of the problem to solve.
+///
+/// @param[in]  desc         The input descriptor for the algorithm
+/// @param[in]  daal_result  The DAAL format results
+///
+/// @return oneDAL format basic statistics results
 template <typename Float, typename Task>
 inline auto get_result(const descriptor_t& desc, const daal_lom::Result& daal_result) {
     compute_result<Task> res;

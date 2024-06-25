@@ -16,12 +16,20 @@
 #===============================================================================
 
 os=$(uname)
+ARCH=$(uname -m)
 if [ "${os}" = "Linux" ]; then
-  echo lnx32e
+  if [ "${ARCH}" = "x86_64" ]; then
+    echo lnx32e
+  elif [ "${ARCH}" = "aarch64" ]; then
+    echo lnxarm
+  else
+    echo "Unkown architecture: ${ARCH}"
+    exit 1
+  fi
 elif [ "${os}" = "Darwin" ]; then
   echo mac32e
 elif [[ "${os}" =~ "MSYS" || "${os}" =~ "CYGWIN" ]]; then
   echo win32e
 else
-  echo "UnknownOS"
+  echo "Unknown OS: ${os}"
 fi

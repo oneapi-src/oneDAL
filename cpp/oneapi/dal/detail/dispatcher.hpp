@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,22 +17,38 @@
 
 #pragma once
 
+#include <daal/include/services/daal_defines.h>
+
 namespace oneapi::dal::detail {
 namespace v1 {
 
+#if defined(TARGET_X86_64)
 struct cpu_dispatch_sse2 {};
 struct cpu_dispatch_sse42 {};
 struct cpu_dispatch_avx2 {};
 struct cpu_dispatch_avx512 {};
-
 using cpu_dispatch_default = cpu_dispatch_sse2;
+#elif defined(TARGET_ARM)
+struct cpu_dispatch_sve {};
+using cpu_dispatch_default = cpu_dispatch_sve;
+#elif defined(TARGET_RISCV64)
+struct cpu_dispatch_rv64 {};
+using cpu_dispatch_default = cpu_dispatch_rv64;
+#endif
 
 } // namespace v1
 
+#if defined(TARGET_X86_64)
 using v1::cpu_dispatch_sse2;
 using v1::cpu_dispatch_sse42;
 using v1::cpu_dispatch_avx2;
 using v1::cpu_dispatch_avx512;
+#elif defined(TARGET_ARM)
+using v1::cpu_dispatch_sve;
+#elif defined(TARGET_RISCV64)
+using v1::cpu_dispatch_rv64;
+#endif
+
 using v1::cpu_dispatch_default;
 
 } // namespace oneapi::dal::detail

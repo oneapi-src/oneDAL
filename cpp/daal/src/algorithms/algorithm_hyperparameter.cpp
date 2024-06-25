@@ -1,6 +1,7 @@
 /** file algorithm_hyperparameter.cpp */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,10 +67,10 @@ struct HyperparameterImpl : public HyperparameterBaseImpl
 
 protected:
     /** Stores integer hyperparameters of the algorithm */
-    HashTable<sse2, uint32_t, DAAL_INT64> _iHT;
+    HashTable<DAAL_BASE_CPU, uint32_t, DAAL_INT64> _iHT;
 
     /** Stores floating point hyperparameters of the algorithm */
-    HashTable<sse2, uint32_t, double> _dHT;
+    HashTable<DAAL_BASE_CPU, uint32_t, double> _dHT;
 };
 
 } // namespace internal

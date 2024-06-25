@@ -1,5 +1,7 @@
+'''generate_pkgconfig.py'''
 #===============================================================================
 # Copyright 2021 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +21,21 @@ import sys
 import glob
 import argparse
 from sys import platform
+import platform as plt
+
+def detect_cpu_architecture():
+    """
+    Detect CPU architecture
+    """
+    architecture = plt.machine()
+    if architecture in ('x86_64', 'AMD64'):
+        return 'x86_64'
+    elif architecture.startswith('arm') or architecture == 'aarch64':
+        return 'aarch64'
+    else:
+        sys.stderr.write(f"Unknown Architecture {architecture} Detected. " \
+                         "Only 'x86_64', 'AMD64' and 'aarch64' supported.\n")
+        sys.exit(1)
 
 LIBS_PAR_STAT, LIBS_PAR_DYN = [], []
 
@@ -45,9 +62,18 @@ RESULT_PKG_CONFIGS = {
     },
 }
 
+ARCH = detect_cpu_architecture()
+
 if platform in ["linux2", "linux"]:
     PREF_LIB = "lib"
-    LIBDIR = 'lib/intel64'
+
+    if ARCH == 'x86_64':
+        LIBDIR = 'lib/intel64'
+    elif ARCH == 'aarch64':
+        LIBDIR = 'lib/arm'
+    else:
+        sys.stderr.write(f"Unknown CPU architecture '{ARCH}'\n")
+
     SUFF_DYN_LIB = ".so"
     SUFF_STAT_LIB = ".a"
     TBB_LIBS = "-ltbb -ltbbmalloc"

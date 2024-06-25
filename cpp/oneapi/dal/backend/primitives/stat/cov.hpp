@@ -52,6 +52,7 @@ sycl::event covariance(sycl::queue& q,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
                        bool bias,
+                       bool assume_centered,
                        const event_vector& deps = {});
 
 /// Compute variances
@@ -83,7 +84,6 @@ sycl::event correlation(sycl::queue& q,
                         std::int64_t row_count,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
-                        ndview<Float, 1>& tmp,
                         const event_vector& deps = {});
 
 /// Computes correlation matrix from covariance matrix
@@ -102,7 +102,6 @@ sycl::event correlation_from_covariance(sycl::queue& q,
                                         std::int64_t row_count,
                                         const ndview<Float, 2>& cov,
                                         ndview<Float, 2>& corr,
-                                        ndview<Float, 1>& tmp,
                                         bool bias,
                                         const event_vector& deps = {});
 
