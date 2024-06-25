@@ -43,6 +43,22 @@ using namespace daal::data_management;
 using namespace daal::internal;
 using namespace daal::services::internal;
 
+template <CpuType cpu, typename F>
+void conditional_threader_for(bool condition, size_t n, size_t threadsRequest, const F & processIteration)
+{
+    if (condition)
+    {
+        daal::threader_for(n, threadsRequest, processIteration);
+    }
+    else
+    {
+        for (size_t i = 0; i < n; i++)
+        {
+            processIteration(i);
+        }
+    }
+}
+
 template <typename algorithmFPType, CpuType cpu>
 Status MergeKernel<algorithmFPType, cpu>::merge(const NumericTable & partialTable, algorithmFPType * result, bool threadingCondition)
 {
@@ -53,7 +69,7 @@ Status MergeKernel<algorithmFPType, cpu>::merge(const NumericTable & partialTabl
     algorithmFPType * partialResult = const_cast<algorithmFPType *>(block.get());
 
     size_t resultSize = nRows * partialTable.getNumberOfColumns();
-    daal::conditional_threader_for(threadingCondition, resultSize, [=](size_t i) { result[i] += partialResult[i]; });
+    conditional_threader_for<cpu>(threadingCondition, resultSize, resultSize, [=](size_t i) { result[i] += partialResult[i]; });
     return Status();
 }
 
