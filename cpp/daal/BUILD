@@ -143,6 +143,7 @@ daal_module(
     name = "threading_tbb",
     srcs = glob(["src/threading/**/*.cpp"]),
     local_defines = [
+        "__DO_TBB_LAYER__",
         "__TBB_NO_IMPLICIT_LINKAGE",
         "__TBB_LEGACY_MODE",
         "TBB_SUPPRESS_DEPRECATED_MESSAGES",
