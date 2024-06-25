@@ -63,13 +63,13 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
-// #if defined(TARGET_X86_64)
-//     if (schedulerHandle)
-//     {
-//         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
-//         schedulerHandle = nullptr;
-//     }
-// #endif
+    // #if defined(TARGET_X86_64)
+    //     if (schedulerHandle)
+    //     {
+    //         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+    //         schedulerHandle = nullptr;
+    //     }
+    // #endif
 }
 
 DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
