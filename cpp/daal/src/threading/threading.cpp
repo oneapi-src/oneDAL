@@ -65,6 +65,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
 {
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
+    tbb::task_arena {}.initialize();
     if (numThreads != 0)
     {
         _daal_tbb_task_scheduler_free(*globalControl);
