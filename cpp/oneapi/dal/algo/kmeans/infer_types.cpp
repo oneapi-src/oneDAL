@@ -84,9 +84,6 @@ void infer_result<Task>::set_result_options_impl(const result_option_id& value) 
 
 template <typename Task>
 const table& infer_result<Task>::get_responses() const {
-    if (!get_result_options().test(result_options::compute_assignments)) {
-        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
-    }
     return impl_->responses;
 }
 
@@ -100,9 +97,6 @@ double infer_result<Task>::get_objective_function_value() const {
 
 template <typename Task>
 void infer_result<Task>::set_responses_impl(const table& value) {
-    if (!get_result_options().test(result_options::compute_assignments)) {
-        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
-    }
     impl_->responses = value;
 }
 
