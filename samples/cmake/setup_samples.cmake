@@ -111,7 +111,7 @@ function(add_samples samples_paths)
         set_target_properties(${sample} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/${CPU_ARCHITECTURE}_${LINK_TYPE}")
 
         add_custom_target(run_${sample}
-            COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} \\
+            COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG}
                     ${MPIEXEC_MAX_NUMPROCS} -ppn ${MPIEXEC_NUMPROCS_PER_NODE} $<TARGET_FILE:${sample}>
             DEPENDS ${sample}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
