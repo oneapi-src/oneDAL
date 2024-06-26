@@ -63,6 +63,8 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
 
 DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
 {
+    // Note: TBB 13 deletes task_scheduler_handle itself during the destruction of thread context
+
     // #if defined(TARGET_X86_64)
     //     if (schedulerHandle)
     //     {
