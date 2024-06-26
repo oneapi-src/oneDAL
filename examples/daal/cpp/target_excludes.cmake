@@ -42,16 +42,7 @@ elseif((CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64") AND
        (CMAKE_C_COMPILER MATCHES "gcc"))
     set(EXCLUDE_LIST
         ${EXCLUDE_LIST}
-        "cholesky_dense_batch"
-        "cor_csr_distr"
-        "cor_csr_online"
-        "cov_csr_distr"
-        "cov_csr_online"
         "enable_thread_pinning"
-        "lin_reg_metrics_dense_batch"
-        "lin_reg_qr_dense_batch"
-        "lin_reg_qr_dense_online"
-        "out_detect_mult_dense_batch"
     )
 elseif((CMAKE_SYSTEM_PROCESSOR STREQUAL "riscv64") AND
        (CMAKE_C_COMPILER MATCHES "clang"))

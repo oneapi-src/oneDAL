@@ -151,7 +151,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`multivariate_outlier_batch.py`
+    - :daal4py_example:`multivariate_outlier.py`
 
 Performance Considerations
 **************************

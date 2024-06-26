@@ -120,4 +120,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`stump_classification_batch.py`
+    - :daal4py_example:`stump_classification.py`
