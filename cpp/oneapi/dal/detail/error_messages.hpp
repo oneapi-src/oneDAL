@@ -220,6 +220,7 @@ public:
     MSG(input_model_centroids_are_empty);
     MSG(input_model_centroids_cc_neq_input_data_cc);
     MSG(input_model_centroids_rc_neq_desc_cluster_count);
+    MSG(kmeans_init_csr_methods_are_not_implemented_for_gpu);
     MSG(kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu);
     MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu);
     MSG(objective_function_value_lt_zero);

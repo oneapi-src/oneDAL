@@ -187,7 +187,7 @@ KMEANS_BADARG_TEST("throws if infer data is empty") {
     REQUIRE_THROWS_AS(infer(kmeans_desc, model, homogen_table{}), domain_error);
 }
 
-KMEANS_BADARG_TEST("throws if assignments are not available") {
+KMEANS_BADARG_TEST("throws if assignments are not set by default") {
     const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->cluster_count);
     const auto result =
         train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
@@ -200,7 +200,7 @@ KMEANS_BADARG_TEST("throws if assignments are not available") {
     const auto model = infer(kmeans_desc_infer, result, this->get_train_data());
 
     REQUIRE_NOTHROW(model.get_objective_function_value());
-    REQUIRE_THROWS_AS((model.get_responses()), domain_error);
+    REQUIRE_NOTHROW(model.get_responses());
 }
 
 KMEANS_BADARG_TEST("throws if objective function is not available") {

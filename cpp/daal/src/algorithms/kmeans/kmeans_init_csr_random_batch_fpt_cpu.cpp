@@ -39,7 +39,7 @@ template class BatchContainer<DAAL_FPTYPE, randomCSR, DAAL_CPU>;
 }
 namespace internal
 {
-template class KMeansInitKernel<randomCSR, DAAL_FPTYPE, DAAL_CPU>;
+template class DAAL_EXPORT KMeansInitKernel<randomCSR, DAAL_FPTYPE, DAAL_CPU>;
 } // namespace internal
 } // namespace init
 } // namespace kmeans

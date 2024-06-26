@@ -43,19 +43,28 @@ struct dense {};
 /// Tag-type that denotes :ref:`random_dense <kmeans_init_c_math_random_dense>`
 /// computational method.
 struct random_dense {};
+
+struct random_csr {};
 /// Tag-type that denotes :ref:`plus_plus_dense <kmeans_init_c_math_plus_plus_dense>`
 /// computational method.
 struct plus_plus_dense {};
+
+struct plus_plus_csr {};
 /// Tag-type that denotes :ref:`parallel_plus_dense <kmeans_init_c_math_parallel_plus_dense>`
 /// computational method.
 struct parallel_plus_dense {};
+
+struct parallel_plus_csr {};
 using by_default = dense;
 } // namespace v1
 
 using v1::dense;
 using v1::random_dense;
+using v1::random_csr;
 using v1::plus_plus_dense;
+using v1::plus_plus_csr;
 using v1::parallel_plus_dense;
+using v1::parallel_plus_csr;
 using v1::by_default;
 
 } // namespace method
@@ -74,8 +83,15 @@ template <typename Method>
 constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method,
                                                             method::dense,
                                                             method::random_dense,
+                                                            method::random_csr,
                                                             method::plus_plus_dense,
-                                                            method::parallel_plus_dense>;
+                                                            method::plus_plus_csr,
+                                                            method::parallel_plus_dense,
+                                                            method::parallel_plus_csr>;
+
+template <typename Method>
+constexpr bool is_plus_plus_dense_or_csr_v =
+    dal::detail::is_one_of_v<Method, method::plus_plus_dense, method::plus_plus_csr>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::init>;
@@ -87,7 +103,7 @@ template <typename M>
 using enable_if_not_default_dense = std::enable_if_t<is_not_default_dense<M>>;
 
 template <typename M>
-using enable_if_plus_plus_dense = std::enable_if_t<std::is_same_v<M, method::plus_plus_dense>>;
+using enable_if_plus_plus = std::enable_if_t<is_plus_plus_dense_or_csr_v<M>>;
 
 template <typename Task = task::by_default>
 class descriptor_base : public base {
@@ -184,12 +200,12 @@ public:
     /// of trials is 2 + int(log(cluster_count))
     /// @invariant :expr:`local_trials > 0` or :expr`local_trials = -1`
     /// @remark default = -1
-    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus<M>>
     auto& get_local_trials_count() const {
         return base_t::get_local_trials_count();
     }
 
-    template <typename M = Method, typename = detail::v1::enable_if_plus_plus_dense<M>>
+    template <typename M = Method, typename = detail::v1::enable_if_plus_plus<M>>
     auto& set_local_trials_count(std::int64_t value = -1) {
         base_t::set_local_trials_count_impl(value);
         return *this;
