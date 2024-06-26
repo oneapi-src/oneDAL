@@ -297,6 +297,7 @@ public:
         algorithmFPType sumOfDist2            = algorithmFPType(0);
         size_t csrCursor                      = 0u;
         algorithmFPType pLastAddedCenterSumSq = algorithmFPType(0.);
+        // Calculate sum of squares of the last added center
         for (size_t iCol = 0u; iCol < dim; iCol++)
         {
             pLastAddedCenterSumSq += pLastAddedCenter[iCol] * pLastAddedCenter[iCol];
@@ -307,7 +308,9 @@ public:
             algorithmFPType dist2 = pLastAddedCenterSumSq;
             const size_t nValues  = rowIdx[iRow + 1] - rowIdx[iRow];
 
-            //distance from the lastAddedCenter to the current row, dist2 = x^2 + y^2 - 2xy
+            // Add sum of squares of the current row to the sum of squares of the last added center
+            // Subtract 2 * product of non-zero element of current row and the element at the same index in the lastAddedCenter
+            // This gives squared distance between last added center and current row using x^2 + y^2 - 2xy
             for (size_t i = 0u; i < nValues; i++, csrCursor++)
             {
                 dist2 += pData[csrCursor] * pData[csrCursor] - 2 * pData[csrCursor] * pLastAddedCenter[colIdx[csrCursor] - 1];
