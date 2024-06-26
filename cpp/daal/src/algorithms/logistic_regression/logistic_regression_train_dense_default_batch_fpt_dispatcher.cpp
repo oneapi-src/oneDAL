@@ -28,8 +28,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(logistic_regression::training::BatchContainer, batch, DAAL_FPTYPE,
-                                           logistic_regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logistic_regression::training::BatchContainer, batch, DAAL_FPTYPE, logistic_regression::training::defaultDense)
 
 namespace logistic_regression
 {

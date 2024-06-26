@@ -18,7 +18,6 @@
 #include "oneapi/dal/algo/knn/backend/gpu/infer_kernel.hpp"
 
 #include "oneapi/dal/backend/interop/common.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 
 #include "oneapi/dal/detail/common.hpp"

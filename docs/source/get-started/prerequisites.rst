@@ -33,5 +33,4 @@ directory.
 The dependencies needed to build examples with SYCL extensions:
 
 - |dpcpp_comp|_ 2021.1 release or later (for support)
-- OpenCL™ runtime 1.2 or later (to run the SYCL runtime)
 - GNU\* Make on Linux\*, nmake on Windows\*

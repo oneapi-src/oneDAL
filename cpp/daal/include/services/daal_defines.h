@@ -124,18 +124,6 @@
     #define DAAL_THREAD_PINNING_DISABLED
 #endif
 
-#ifdef DAAL_SYCL_INTERFACE
-    #include <sycl/sycl.hpp>
-    #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
-        #define DAAL_SYCL_INTERFACE_USM
-    #endif
-    #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191024))
-        #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-    #elif (defined(COMPUTECPP_VERSION_MAJOR) && (COMPUTECPP_VERSION_MAJOR >= 1) && (COMPUTECPP_VERSION_MINOR >= 1) && (COMPUTECPP_VERSION_PATCH >= 6))
-        #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-    #endif
-#endif
-
 #if !(defined(__linux__) || defined(_WIN64))
     #define DAAL_DISABLE_LEVEL_ZERO
 #endif

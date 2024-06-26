@@ -123,23 +123,6 @@ daal_module(
 )
 
 daal_module(
-    name = "sycl",
-    hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
-    srcs = glob(["src/sycl/**/*.cpp"]),
-    deps = select({
-            "@config//:backend_ref": [
-                                    ":services",
-                                    "@onedal//cpp/daal/src/algorithms/engines:kernel",
-                                        ],
-            "//conditions:default": [
-                                    ":services",
-                                    "@onedal//cpp/daal/src/algorithms/engines:kernel",
-                                    "@micromkl_dpc//:headers",
-                                    ],
-        }),
-)
-
-daal_module(
     name = "threading_tbb",
     srcs = glob(["src/threading/**/*.cpp"]),
     local_defines = [
@@ -162,6 +145,13 @@ daal_module(
                                       "@tbb//:tbbmalloc",
                                     ],
         }),
+)
+
+daal_module(
+    name = "engines",
+    deps = [
+        "@onedal//cpp/daal/src/algorithms/engines:kernel",
+    ],
 )
 
 daal_module(

@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(decision_forest::regression::prediction::BatchContainer, batch, DAAL_FPTYPE,
-                                           decision_forest::regression::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::regression::prediction::BatchContainer, batch, DAAL_FPTYPE,
+                                      decision_forest::regression::prediction::defaultDense)
 }
 } // namespace daal

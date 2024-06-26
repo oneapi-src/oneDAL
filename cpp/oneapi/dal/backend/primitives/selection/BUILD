@@ -12,9 +12,6 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:heap",
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
-    extra_deps = [
-        "@onedal//cpp/daal:sycl",
-    ],
 )
 
 dal_test_suite(

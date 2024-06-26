@@ -22,8 +22,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(bf_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
-                                           bf_knn_classification::prediction::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(bf_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+                                      bf_knn_classification::prediction::defaultDense)
 
 namespace bf_knn_classification
 {

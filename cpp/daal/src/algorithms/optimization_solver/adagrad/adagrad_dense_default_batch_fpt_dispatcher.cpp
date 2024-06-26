@@ -25,8 +25,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::adagrad::BatchContainer, batch, DAAL_FPTYPE,
-                                           optimization_solver::adagrad::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::adagrad::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::adagrad::defaultDense)
 
 namespace optimization_solver
 {

@@ -29,7 +29,6 @@
 #include "algorithms/dbscan/dbscan_batch.h"
 #include "algorithms/dbscan/dbscan_distributed.h"
 #include "src/algorithms/dbscan/dbscan_kernel.h"
-#include "src/algorithms/dbscan/oneapi/dbscan_kernel_ucapi.h"
 #include "src/services/service_algo_utils.h"
 
 namespace daal
@@ -41,17 +40,7 @@ namespace dbscan
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method != defaultDense)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::DBSCANBatchKernel, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::DBSCANBatchKernelUCAPI, algorithmFPType);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::DBSCANBatchKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -77,27 +66,15 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     Parameter * par                        = static_cast<Parameter *>(_par);
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method != defaultDense)
+    if (par->memorySavingMode == false)
     {
-        if (par->memorySavingMode == false)
-        {
-            __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeNoMemSave, ntData.get(),
-                               ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
-        }
-        else
-        {
-            __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeMemSave, ntData.get(),
-                               ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
-        }
+        __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeNoMemSave, ntData.get(),
+                           ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }
     else
     {
-        // memorySavingMode flag is not applicable for DBSCAN on GPU
-        __DAAL_CALL_KERNEL_SYCL(env, internal::DBSCANBatchKernelUCAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType), compute, ntData.get(),
-                                ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
+        __DAAL_CALL_KERNEL(env, internal::DBSCANBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), computeMemSave, ntData.get(),
+                           ntWeights.get(), ntAssignments.get(), ntNClusters.get(), ntCoreIndices.get(), ntCoreObservations.get(), par);
     }
 }
 

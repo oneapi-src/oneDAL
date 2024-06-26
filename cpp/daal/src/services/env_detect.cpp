@@ -129,7 +129,6 @@ DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _g
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
-    this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}

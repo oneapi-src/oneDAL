@@ -103,7 +103,6 @@ LIBS := $(ONEDAL_LIBS) \
         -ltbb \
         -ltbbmalloc \
         -lpthread \
-        -lOpenCL \
         -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \

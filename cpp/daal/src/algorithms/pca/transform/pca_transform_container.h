@@ -27,8 +27,6 @@
 #define __PCA_TRANSFORM_CONTAINER_H__
 
 #include "src/algorithms/pca/transform/pca_transform_kernel.h"
-#include "services/internal/execution_context.h"
-#include "src/algorithms/pca/transform/oneapi/pca_transform_dense_default_batch_oneapi.h"
 
 namespace daal
 {
@@ -41,17 +39,7 @@ namespace transform
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv) : AnalysisContainerIface<batch>(daalEnv)
 {
-    auto & context    = daal::services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::TransformKernel, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(oneapi::internal::TransformKernelOneAPI, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::TransformKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, transform::Method method, CpuType cpu>
@@ -73,19 +61,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    auto & context    = daal::services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::TransformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *(input->get(data)),
-                           *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, oneapi::internal::TransformKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                *(input->get(data)), *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
-    }
+    __DAAL_CALL_KERNEL(env, internal::TransformKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, *(input->get(data)),
+                       *(input->get(eigenvectors)), pMeans, pVariances, pEigenvalues, *(result->get(transformedData)));
 }
 
 } // namespace transform

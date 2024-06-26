@@ -24,7 +24,7 @@
 #include "algorithms/optimization_solver/iterative_solver/iterative_solver_types.h"
 #include "algorithms/optimization_solver/sgd/sgd_types.h"
 #include "src/services/service_data_utils.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -80,19 +80,9 @@ services::Status Result::allocate(const daal::algorithms::Input * input, const d
         DAAL_ASSERT(miniBatch <= services::internal::MaxVal<int>::get())
         if (method == (int)miniBatch)
         {
-            auto & context    = services::internal::getDefaultContext();
-            auto & deviceInfo = context.getInfoDevice();
-
             if (!pOpt->get(pastWorkValue))
             {
-                if (deviceInfo.isCpu)
-                {
-                    pTbl = dm::HomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
-                }
-                else
-                {
-                    pTbl = dmi::SyclHomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
-                }
+                pTbl = dm::HomogenNumericTable<algorithmFPType>::create(1, argumentSize, dm::NumericTable::doAllocate, 0.0, &s);
                 DAAL_CHECK_MALLOC(pTbl.get())
                 pOpt->set(pastWorkValue, pTbl);
             }
