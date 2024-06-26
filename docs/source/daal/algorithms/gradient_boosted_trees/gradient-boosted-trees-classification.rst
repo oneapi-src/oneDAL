@@ -196,5 +196,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`gradient_boosted_classification_batch.py`
-    - :daal4py_example:`gradient_boosted_classification_traverse_batch.py`
+    - :daal4py_example:`gradient_boosted_classification.py`
+    - :daal4py_example:`gradient_boosted_classification_traverse.py`
