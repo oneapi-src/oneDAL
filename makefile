@@ -757,7 +757,7 @@ ifeq ($(BUILD_PARAMETERS_LIB),yes)
 $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y): \
-    $(WORKDIR.lib)/$(oneapi_y) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(WORKDIR.lib)/$(oneapi_y) $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(daaldep.rt.seq)
@@ -794,7 +794,7 @@ ifeq ($(BUILD_PARAMETERS_LIB),yes)
 $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y.dpc): \
-    $(WORKDIR.lib)/$(oneapi_y.dpc) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
+    $(WORKDIR.lib)/$(oneapi_y.dpc) $(daaldep.math_backend.ext) \
     $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(daaldep.rt.dpc)
