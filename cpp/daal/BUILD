@@ -130,6 +130,8 @@ daal_module(
             "@config//:backend_ref": [
                                     ":services",
                                     "@onedal//cpp/daal/src/algorithms/engines:kernel",
+                                    "@micromkl_dpc//:headers",
+                                    "@dpl//:headers",
                                         ],
             "//conditions:default": [
                                     ":services",
