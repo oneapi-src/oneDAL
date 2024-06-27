@@ -976,6 +976,7 @@ $(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(R
 endif
 endif
 
+#TODO: looks like onedal_sycl is not necessary, have to remove it everywhere and doublecheck it
 ifneq ($(MKLGPUFPKDIR),)
 # Copies the file to the destination directory and renames daal -> onedal
 # $1: Path to the file to be copied
