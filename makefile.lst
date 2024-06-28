@@ -228,6 +228,7 @@ ONEAPI.ALGOS :=          \
     dbscan               \
     decision_forest      \
     decision_tree        \
+    finiteness_checker   \
     kmeans               \
     kmeans_init          \
     knn                  \

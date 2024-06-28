@@ -18,6 +18,7 @@ ALGOS = [
     "cosine_distance",
     "dbscan",
     "decision_tree",
+    "finiteness_checker",
     "jaccard",
     "kmeans",
     "kmeans_init",
