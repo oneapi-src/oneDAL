@@ -79,7 +79,6 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               const descriptor_t& params,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        auto& comm = ctx.get_communicator();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
@@ -164,26 +163,11 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               cluster_counts,
                                               { assign_event });
 
-            {
-                // Cluster counters over all ranks in case of distributed computing
-                auto count_reduce_event =
-                    comm.allreduce(cluster_counts.flatten(queue, { count_event }));
-                count_reduce_event.wait();
-            }
-
             auto objective_function = calc_objective_function(queue,
                                                               arr_closest_distances,
                                                               { count_event });
 
-            {
-                // Reduce objective function value over all ranks
-                auto obj_func_reduce_event = comm.allreduce(objective_function);
-                obj_func_reduce_event.wait();
-            }
-
-
             auto update_event = update_centroids(queue,
-                                                 comm,
                                                  values,
                                                  column_indices,
                                                  row_offsets,
@@ -244,11 +228,6 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             calc_objective_function(queue,
                                     arr_closest_distances,
                                     { last_event, centroid_squares_event, assign_event });
-        {
-            // Reduce objective function value over all ranks
-            auto obj_func_reduce_event = comm.allreduce(objective_function);
-            obj_func_reduce_event.wait();
-        }
 
         model<task::clustering> model;
         model.set_centroids(
