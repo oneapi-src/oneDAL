@@ -22,18 +22,16 @@ MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklfpk/$(_OS)/*),$(DIR)/__deps/mklfpk,
             $(error Can`t find MKLFPK libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLFPKROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib
-
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLROOT)))
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
 MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
 
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl.hpp
+mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a)
 
 daaldep.math_backend.incdir := $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include)
-daaldep.math_backend_oneapi.incdir := $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include)
 
 daaldep.lnx32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
 daaldep.lnx32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential.$a
@@ -72,4 +70,5 @@ daaldep.vml     := $(daaldep.$(PLAT).vml)
 daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 
 daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(daaldep.math_backend.thr)
+daaldep.math_backend.sycl := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(daaldep.math_backend.thr)
 daaldep.math_backend.oneapi := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl)

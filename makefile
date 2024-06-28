@@ -273,14 +273,6 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
 
 
 #============================= MKL folders =====================================
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
-
-MKLGPUFPKDIR:=  $(MKLROOT)
-MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
-MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
-
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a)
-mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 

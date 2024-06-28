@@ -14,7 +14,8 @@ cc_library(
         "include/oneapi/mkl/vm/device/detail/*.hpp",
         "include/oneapi/mkl/rng/*.hpp",
         "include/oneapi/mkl/rng/detail/*.hpp",
-        "include/oneapi/mkl/rng/device/*.hpp"
+        "include/oneapi/mkl/rng/device/*.hpp",
+        "include/oneapi/mkl/rng/device/detail/*.hpp"
     ]),
     includes = [
         "include",
@@ -28,6 +29,7 @@ cc_library(
         "include/oneapi/mkl/vm/device/detail",
         "include/oneapi/mkl/rng",
         "include/oneapi/mkl/rng/device",
+        "include/oneapi/mkl/rng/device/detail",
         "include/oneapi/mkl/rng/detail" ],
     defines = [
         "MKL_ILP64"
