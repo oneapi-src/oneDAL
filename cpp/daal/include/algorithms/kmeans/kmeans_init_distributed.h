@@ -233,7 +233,7 @@ public:
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTED"></a>
  *  \brief Base class representing K-Means algorithm initialization in the distributed processing mode
  */
-class DAAL_EXPORT DistributedBase : public daal::algorithms::Analysis<distributed>
+class DistributedBase : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::kmeans::init::Parameter ParameterType;
@@ -290,7 +290,7 @@ class DAAL_EXPORT Distributed;
  *      - Result class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public DistributedBase
+class Distributed<step1Local, algorithmFPType, method> : public DistributedBase
 {
 public:
     typedef algorithms::kmeans::init::Input InputType;
@@ -427,7 +427,7 @@ private:
  *      - Result class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public DistributedBase
+class Distributed<step2Master, algorithmFPType, method> : public DistributedBase
 {
 public:
     typedef algorithms::kmeans::init::DistributedStep2MasterInput InputType;
@@ -572,7 +572,7 @@ private:
  * <a name="DAAL-CLASS-ALGORITHMS__KMEANS__INIT__DISTRIBUTEDPLUSPLUS"></a>
  *  \brief Base class representing K-Means algorithm initialization in the distributed processing mode
  */
-class DAAL_EXPORT DistributedStep2LocalPlusPlusBase : public daal::algorithms::Analysis<distributed>
+class DistributedStep2LocalPlusPlusBase : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::kmeans::init::DistributedStep2LocalPlusPlusParameter ParameterType;
@@ -607,7 +607,7 @@ protected:
 *      - DistributedStep2LocalPlusPlusPartialResult class
 */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Local, algorithmFPType, method> : public DistributedStep2LocalPlusPlusBase
+class Distributed<step2Local, algorithmFPType, method> : public DistributedStep2LocalPlusPlusBase
 {
 public:
     typedef algorithms::kmeans::init::DistributedStep2LocalPlusPlusInput InputType;
@@ -725,7 +725,7 @@ private:
 *      - DistributedStep3MasterPlusPlusPartialResult class
 */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step3Master, algorithmFPType, method> : public DistributedBase
+class Distributed<step3Master, algorithmFPType, method> : public DistributedBase
 {
 public:
     typedef algorithms::kmeans::init::DistributedStep3MasterPlusPlusInput InputType;
@@ -841,7 +841,7 @@ private:
 *      - DistributedStep4LocalPlusPlusPartialResult class
 */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step4Local, algorithmFPType, method> : public DistributedBase
+class Distributed<step4Local, algorithmFPType, method> : public DistributedBase
 {
 public:
     typedef algorithms::kmeans::init::DistributedStep4LocalPlusPlusInput InputType;
@@ -953,7 +953,7 @@ private:
 *      - DistributedStep5MasterPlusPlusPartialResult class
 */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step5Master, algorithmFPType, method> : public DistributedBase
+class Distributed<step5Master, algorithmFPType, method> : public DistributedBase
 {
 public:
     typedef algorithms::kmeans::init::DistributedStep5MasterPlusPlusInput InputType;

@@ -54,6 +54,10 @@ if [ -x "$(command -v icc)" ]; then
     echo "ICC:"
     icc --version
 fi
+if [ -x "$(command -v icx)" ]; then
+    echo "ICX:"
+    icx --version
+fi
 if [ -x "$(command -v icpx)" ]; then
     echo "ICPX:"
     icpx --version

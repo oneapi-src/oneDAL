@@ -123,7 +123,7 @@ public:
  *      - \ref Method  Initialization methods of the implicit ALS algorithm in the distributed processing mode
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = fastCSR>
-class DAAL_EXPORT Distributed
+class Distributed
 {};
 
 /**
@@ -138,7 +138,7 @@ class DAAL_EXPORT Distributed
  *      - \ref Method  Initialization methods of the implicit ALS algorithm in the first step of the distributed processing mode
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Training<distributed>
+class Distributed<step1Local, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::implicit_als::training::init::DistributedInput<step1Local> InputType;
@@ -237,7 +237,7 @@ private:
  *      - \ref Method  Initialization methods of the implicit ALS algorithm in the second step of the distributed processing mode
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Local, algorithmFPType, method> : public Training<distributed>
+class Distributed<step2Local, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::implicit_als::training::init::DistributedInput<step2Local> InputType;

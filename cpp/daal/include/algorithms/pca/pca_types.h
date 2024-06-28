@@ -167,7 +167,7 @@ namespace interface1
 /**
     * <a name="DAAL-CLASS-ALGORITHMS__PCA__INPUTIFACE"></a>
     * \brief Abstract class that specifies interface for classes that declare input of the PCA algorithm */
-class DAAL_EXPORT InputIface : public daal::algorithms::Input
+class InputIface : public daal::algorithms::Input
 {
 public:
     InputIface(size_t nElements);
@@ -465,7 +465,7 @@ public:
     * \brief Class that specifies the parameters of the PCA algorithm in the online computing mode
     */
 template <typename algorithmFPType, Method method>
-class OnlineParameter : public BaseParameter<algorithmFPType, method>
+class DAAL_EXPORT OnlineParameter : public BaseParameter<algorithmFPType, method>
 {};
 
 /**
@@ -473,7 +473,7 @@ class OnlineParameter : public BaseParameter<algorithmFPType, method>
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the online computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT OnlineParameter<algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
+class OnlineParameter<algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
 {
 public:
     /** Constructs PCA parameters */
@@ -495,7 +495,7 @@ public:
     * \brief Class that specifies the parameters of the PCA SVD algorithm in the online computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT OnlineParameter<algorithmFPType, svdDense> : public BaseParameter<algorithmFPType, svdDense>
+class OnlineParameter<algorithmFPType, svdDense> : public BaseParameter<algorithmFPType, svdDense>
 {
 public:
     /** Constructs PCA parameters */
@@ -521,7 +521,7 @@ class DistributedParameter : public BaseParameter<algorithmFPType, method>
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the distributed computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT DistributedParameter<step2Master, algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
+class DistributedParameter<step2Master, algorithmFPType, correlationDense> : public BaseParameter<algorithmFPType, correlationDense>
 {
 public:
     /** Constructs PCA parameters */
@@ -551,18 +551,18 @@ class DistributedInput
     * \brief Input objects for the PCA Correlation algorithm in the distributed processing mode
     */
 template <>
-class DAAL_EXPORT DistributedInput<correlationDense> : public InputIface
+class DistributedInput<correlationDense> : public InputIface
 {
 public:
-    DistributedInput();
-    DistributedInput(const DistributedInput & other);
+    DAAL_EXPORT DistributedInput();
+    DAAL_EXPORT DistributedInput(const DistributedInput & other);
 
     /**
         * Sets input objects for the PCA on the second step in the distributed processing mode
         * \param[in] id    Identifier of the input object
         * \param[in] ptr   Input object that corresponds to the given identifier
         */
-    void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
+    DAAL_EXPORT void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
         * Gets input objects for the PCA on the second step in the distributed processing mode
@@ -582,7 +582,7 @@ public:
         * \param[in] id      Identifier of the argument
         * \param[in] value   Pointer to the argument
         */
-    void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<correlationDense> > & value);
+    DAAL_EXPORT void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<correlationDense> > & value);
 
     /**
         * Returns the number of columns in the input data set
@@ -604,18 +604,18 @@ public:
     * \brief Input objects of the PCA SVD algorithm in the distributed processing mode
     */
 template <>
-class DAAL_EXPORT DistributedInput<svdDense> : public InputIface
+class DistributedInput<svdDense> : public InputIface
 {
 public:
-    DistributedInput();
-    DistributedInput(const DistributedInput & other);
+    DAAL_EXPORT DistributedInput();
+    DAAL_EXPORT DistributedInput(const DistributedInput & other);
 
     /**
         * Sets input objects for the PCA on the second step in the distributed processing mode
         * \param[in] id    Identifier of the input object
         * \param[in] ptr   Input object that corresponds to the given identifier
         */
-    void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
+    DAAL_EXPORT void set(Step2MasterInputId id, const data_management::DataCollectionPtr & ptr);
 
     /**
         * Gets input objects for the PCA algorithm on the second step in the distributed processing mode
@@ -629,7 +629,7 @@ public:
         * \param[in] id      Identifier of the input object
         * \param[in] value   Pointer to the input object
         */
-    void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<svdDense> > & value);
+    DAAL_EXPORT void add(Step2MasterInputId id, const services::SharedPtr<PartialResult<svdDense> > & value);
 
     /**
         * Retrieves specific partial result from the input objects of the PCA algorithm on the second step in the distributed processing mode
@@ -681,7 +681,7 @@ public:
 * \brief Class that specifies the parameters of the PCA algorithm in the batch computing mode
 */
 template <typename algorithmFPType, Method method>
-class BatchParameter
+class DAAL_EXPORT BatchParameter
 {};
 
 /**
@@ -689,7 +689,7 @@ class BatchParameter
     * \brief Class that specifies the parameters of the PCA Correlation algorithm in the batch computing mode
     */
 template <typename algorithmFPType>
-class DAAL_EXPORT BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
+class BatchParameter<algorithmFPType, correlationDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */
@@ -711,7 +711,7 @@ public:
 * \brief Class that specifies the parameters of the PCA SVD algorithm in the batch computing mode
 */
 template <typename algorithmFPType>
-class DAAL_EXPORT BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
+class BatchParameter<algorithmFPType, svdDense> : public BaseBatchParameter
 {
 public:
     /** Constructs PCA parameters */

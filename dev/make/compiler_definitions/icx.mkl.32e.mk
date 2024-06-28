@@ -18,29 +18,41 @@
 #  Intel compiler definitions for makefile
 #--
 
-PLATs.icx = lnx32e mac32e
+PLATs.icx = lnx32e win32e
 
-CMPLRDIRSUFF.icx = _icx
+CMPLRDIRSUFF.icx =
 
 CORE.SERV.COMPILER.icx = generic
 
--Zl.icx =  -no-intel-lib=libirc
--DEBC.icx = -g
+-Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib=libirc
+-DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g)
 
-COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type
+-Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
+
+COMPILER.lnx.icx = icx -m64 \
+                     -Werror -Wreturn-type -qopenmp-simd
 
 
-link.dynamic.lnx.icx = icpx -m64
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -WX -Qopenmp-simd -Wno-deprecated-declarations -Qdiag-disable:10441
+
+link.dynamic.lnx.icx = icx -m64
+link.dynamic.win.icx = icx -m64
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
                       -Wextra \
+                      -Wwritable-strings \
+                      -Wno-unused-parameter
+
+pedantic.opts.icx_win = -Wall \
+                      -Wextra \
+                      -Wwritable-strings \
                       -Wno-unused-parameter
 
 pedantic.opts.lnx.icx = $(pedantic.opts.icx)
+pedantic.opts.win.icx = $(pedantic.opts.icx_win)
 
-p4_OPT.icx   = $(-Q)march=nocona
-mc3_OPT.icx  = $(-Q)march=nehalem
-avx2_OPT.icx = $(-Q)march=haswell
-skx_OPT.icx  = $(-Q)march=skx
+p4_OPT.icx   = -march=nocona
+mc3_OPT.icx  = -march=nehalem
+avx2_OPT.icx = -march=haswell
+skx_OPT.icx  = -march=skx

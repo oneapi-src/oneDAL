@@ -34,11 +34,11 @@ namespace pca
 {
 /** Constructs PCA parameters */
 template <typename algorithmFPType>
-DAAL_EXPORT OnlineParameter<algorithmFPType, correlationDense>::OnlineParameter(const services::SharedPtr<covariance::OnlineImpl> & covariance)
+OnlineParameter<algorithmFPType, correlationDense>::OnlineParameter(const services::SharedPtr<covariance::OnlineImpl> & covariance)
     : covariance(covariance) {};
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status OnlineParameter<algorithmFPType, correlationDense>::check() const
+services::Status OnlineParameter<algorithmFPType, correlationDense>::check() const
 {
     DAAL_CHECK(covariance, services::ErrorNullAuxiliaryAlgorithm);
     return services::Status();

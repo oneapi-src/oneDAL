@@ -46,8 +46,7 @@ using namespace daal::services;
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status OnlinePartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                 const int method)
+Status OnlinePartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     auto pDataCollection13 = new DataCollection();
     auto pDataCollection12 = new DataCollection();
@@ -58,8 +57,7 @@ DAAL_EXPORT Status OnlinePartialResult::allocate(const daal::algorithms::Input *
 }
 
 template <typename algorithmFPType>
-DAAL_EXPORT Status OnlinePartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                   const int method)
+Status OnlinePartialResult::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     get(outputOfStep1ForStep3)->clear();
     get(outputOfStep1ForStep2)->clear();
@@ -74,7 +72,7 @@ DAAL_EXPORT Status OnlinePartialResult::initialize(const daal::algorithms::Input
  * \param[in]  par  Reference to the object with the algorithm parameters
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t n, Parameter & par)
+Status OnlinePartialResult::addPartialResultStorage(size_t m, size_t n, Parameter & par)
 {
     DataCollectionPtr rCollection = staticPointerCast<DataCollection, SerializationIface>(Argument::get(outputOfStep1ForStep2));
     Status st;

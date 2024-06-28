@@ -42,7 +42,7 @@ namespace interface1
  * <a name="DAAL-CLASS-ALGORITHMS__ENGINES__BATCHBASE"></a>
  *  \brief Class representing an engine
  */
-class DAAL_EXPORT BatchBase : public daal::algorithms::Analysis<batch>
+class BatchBase : public daal::algorithms::Analysis<batch>
 {
 public:
     typedef algorithms::engines::Input InputType;

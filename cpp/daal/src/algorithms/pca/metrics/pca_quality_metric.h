@@ -43,7 +43,7 @@ namespace explained_variance
 * \param[in] method  Algorithm method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
+services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
 {
     size_t nComponents = (static_cast<const Parameter *>(par))->nComponents;
     if (nComponents == 0)

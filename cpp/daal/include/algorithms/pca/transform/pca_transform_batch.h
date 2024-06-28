@@ -82,7 +82,7 @@ public:
 *      - \ref Method   Computation methods for the PCA transformation algorithm
 */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Batch : public daal::algorithms::Analysis<batch>
+class Batch : public daal::algorithms::Analysis<batch>
 {
 public:
     typedef algorithms::pca::transform::Input InputType;

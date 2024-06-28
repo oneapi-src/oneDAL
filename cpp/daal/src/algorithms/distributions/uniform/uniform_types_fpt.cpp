@@ -36,13 +36,13 @@ namespace interface1
   * Check the correctness of the %Parameter object
   */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Parameter<algorithmFPType>::check() const
+services::Status Parameter<algorithmFPType>::check() const
 {
     DAAL_CHECK_EX(a < b, services::ErrorIncorrectParameter, services::ParameterName, aStr());
     return services::Status();
 }
 
-template DAAL_EXPORT services::Status Parameter<DAAL_FPTYPE>::check() const;
+template services::Status Parameter<DAAL_FPTYPE>::check() const;
 
 } // namespace interface1
 } // namespace uniform
