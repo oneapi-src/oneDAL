@@ -25,7 +25,6 @@
 
 #include "oneapi/dal/detail/profiler.hpp"
 
-
 #include <tuple>
 
 namespace oneapi::dal::kmeans::backend {
@@ -153,17 +152,16 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             sycl::event trans_event =
                 transpose(queue, iter == 0 ? arr_initial : arr_centroids, arr_centroids_trans);
 
-            auto assign_event =
-                assign_clusters(queue,
-                                row_count,
-                                data_handle,
-                                arr_data_squares,
-                                arr_centroids_trans,
-                                arr_centroid_squares,
-                                distances,
-                                arr_responses,
-                                arr_closest_distances,
-                                { trans_event, centroid_squares_event });
+            auto assign_event = assign_clusters(queue,
+                                                row_count,
+                                                data_handle,
+                                                arr_data_squares,
+                                                arr_centroids_trans,
+                                                arr_centroid_squares,
+                                                distances,
+                                                arr_responses,
+                                                arr_closest_distances,
+                                                { trans_event, centroid_squares_event });
 
             auto count_event = count_clusters(queue,
                                               arr_responses,
@@ -171,9 +169,8 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               cluster_counts,
                                               { assign_event });
 
-            auto objective_function = calc_objective_function(queue,
-                                                              arr_closest_distances,
-                                                              { count_event });
+            auto objective_function =
+                calc_objective_function(queue, arr_closest_distances, { count_event });
 
             auto update_event = update_centroids(queue,
                                                  values,
@@ -190,17 +187,18 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             Float correction(0);
             sycl::event empty_cluster_event;
             if (empty_cluster_count > 0) {
-                std::tie(correction, empty_cluster_event) = handle_empty_clusters(ctx,
-                                                             values,
-                                                             column_indices,
-                                                             row_offsets,
-                                                             row_count,
-                                                             arr_centroids,
-                                                             empty_cluster_count,
-                                                             arr_responses,
-                                                             cluster_counts,
-                                                             arr_closest_distances,
-                                                             { update_event });
+                std::tie(correction, empty_cluster_event) =
+                    handle_empty_clusters(ctx,
+                                          values,
+                                          column_indices,
+                                          row_offsets,
+                                          row_count,
+                                          arr_centroids,
+                                          empty_cluster_count,
+                                          arr_responses,
+                                          cluster_counts,
+                                          arr_closest_distances,
+                                          { update_event });
             }
 
             objective_function += correction;
