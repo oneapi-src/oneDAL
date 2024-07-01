@@ -323,5 +323,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`kdtree_knn_classification_batch.py`
-    - :daal4py_example:`bf_knn_classification_batch.py`
+    - :daal4py_example:`kdtree_knn_classification.py`
+    - :daal4py_example:`bf_knn_classification.py`

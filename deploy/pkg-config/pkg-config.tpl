@@ -22,7 +22,7 @@ includedir=${{prefix}}/include
 #info
 Name: oneDAL
 Description: Intel(R) oneAPI Data Analytics Library
-Version: 2024.5
+Version: 2024.6
 URL: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onedal.html
 #Link line
 Libs: {libs}

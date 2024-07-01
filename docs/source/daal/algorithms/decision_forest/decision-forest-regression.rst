@@ -174,6 +174,6 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`decision_forest_regression_default_dense_batch.py`
-    - :daal4py_example:`decision_forest_regression_hist_batch.py`
-    - :daal4py_example:`decision_forest_regression_traverse_batch.py`
+    - :daal4py_example:`decision_forest_regression_default_dense.py`
+    - :daal4py_example:`decision_forest_regression_hist.py`
+    - :daal4py_example:`decision_forest_regression_traverse.py`

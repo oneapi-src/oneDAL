@@ -185,4 +185,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`saga_batch.py`
+    - :daal4py_example:`saga.py`

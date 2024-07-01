@@ -137,4 +137,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`pca_transform_batch.py`
+    - :daal4py_example:`pca_transform.py`

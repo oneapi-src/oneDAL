@@ -264,7 +264,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`svm_batch.py`
+    - :daal4py_example:`svm.py`
 
 Performance Considerations
 **************************

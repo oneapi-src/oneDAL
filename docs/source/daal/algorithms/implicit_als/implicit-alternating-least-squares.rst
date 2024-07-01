@@ -130,7 +130,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`implicit_als_batch.py`
+    - :daal4py_example:`implicit_als.py`
 
 
 Performance Considerations

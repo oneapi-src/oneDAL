@@ -77,7 +77,7 @@ Examples
 
       Batch Processing:
 
-      - :daal4py_example:`svd_batch.py`
+      - :daal4py_example:`svd.py`
 
       Online Processing:
 

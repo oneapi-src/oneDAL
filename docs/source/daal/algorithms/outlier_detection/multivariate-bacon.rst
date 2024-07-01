@@ -156,4 +156,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`bacon_outlier_batch.py`
+    - :daal4py_example:`bacon_outlier.py`

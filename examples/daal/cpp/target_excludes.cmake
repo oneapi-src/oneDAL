@@ -42,10 +42,6 @@ elseif((CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64") AND
        (CMAKE_C_COMPILER MATCHES "gcc"))
     set(EXCLUDE_LIST
         ${EXCLUDE_LIST}
-        "cor_csr_distr"
-        "cor_csr_online"
-        "cov_csr_distr"
-        "cov_csr_online"
         "enable_thread_pinning"
     )
 elseif((CMAKE_SYSTEM_PROCESSOR STREQUAL "riscv64") AND

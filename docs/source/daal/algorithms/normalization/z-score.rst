@@ -191,4 +191,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`normalization_zscore_batch.py`
+    - :daal4py_example:`normalization_zscore.py`

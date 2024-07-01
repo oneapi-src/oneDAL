@@ -23,6 +23,14 @@ We welcome community contributions to Intel(R) oneAPI Data Analytics Library. Yo
 
 Refer to our guidelines on [pull requests](#pull-requests) and [issues](#issues) before you proceed.
 
+## Contacting maintainers
+You may reach out to Intel project maintainers privately at onedal.maintainers@intel.com.
+[Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts: 
+
+For ARM specifics you may contact: [@rakshithgb-fujitsu](https://github.com/rakshithgb-fujitsu/)
+
+For RISC-V specifics you may contact: [@keeranroth](https://github.com/keeranroth/)
+
 ## Issues
 
 Use [GitHub issues](https://github.com/oneapi-src/oneDAL/issues) to:
@@ -35,8 +43,9 @@ Use [GitHub issues](https://github.com/oneapi-src/oneDAL/issues) to:
 
 To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
+- Product uses bazel for validation and your changes should pass tests. Please add new tests as necessary. [Bazel Guide for oneDAL](https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel)
 - Make sure your code is in line with our [coding style](#code-style) as `clang-format` is one of the checks in our public CI.
-- For a larger feature, provide a relevant example.
+- For a larger feature, provide a relevant example, and tests.
 - [Document](#documentation-guidelines) your code.
 - [Submit](https://github.com/oneapi-src/oneDAL/pulls) a pull request into the `main` branch.
 

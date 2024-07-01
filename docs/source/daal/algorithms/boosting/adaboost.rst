@@ -141,4 +141,4 @@ Examples
   
   .. tab:: Python*
 
-    - :daal4py_example:`adaboost_batch.py`
+    - :daal4py_example:`adaboost.py`

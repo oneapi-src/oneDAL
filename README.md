@@ -38,9 +38,24 @@ Deprecation Notice: The Java interfaces are removed from the oneDAL library.
 
 ## Installation
 
-Check [System Requirements](https://oneapi-src.github.io/oneDAL/system-requirements.html) before installing oneDAL.
+Check the [System Requirements](https://oneapi-src.github.io/oneDAL/system-requirements.html) before installing to ensure compatibility with your system.
 
-You can [download the specific version of oneDAL](https://github.com/oneapi-src/oneDAL/releases) or [install it from sources](INSTALL.md).
+There are several options available for installing oneDAL:
+
+- **Binary Distribution**: You can download pre-built binary packages from the following sources:
+    - Intel® oneAPI:
+        - Download as Part of the [Intel® oneAPI Base Toolkit](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onedal.html#gs.8xrue2)
+        - Download as the Stand-Alone [Intel® oneAPI Data Analytics Library](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onedal.html#gs.8xrue2)
+    - Anaconda:
+        | Channel | Version |
+        |:-------:|:-------:|
+        | intel | [![Anaconda-Server Intel Badge](https://anaconda.org/intel/dal-devel/badges/version.svg)](https://anaconda.org/intel/dal-devel) |
+        | conda-forge | [![Anaconda-Server Conda-forge Badge](https://anaconda.org/conda-forge/dal-devel/badges/version.svg)](https://anaconda.org/conda-forge/dal-devel) |
+
+    - [NuGet](https://www.nuget.org/packages/inteldal.devel.linux-x64)
+
+- **Source Distribution**: You can build the library from source. To do this, [download the specific version of oneDAL](https://github.com/oneapi-src/oneDAL/releases) from the official GitHub repository and follow the instructions in the [INSTALL.md](INSTALL.md).
+
 
 ## Examples
 
@@ -117,7 +132,11 @@ To report a vulnerability, refer to [Intel vulnerability reporting policy](https
 
 ### Contribute <!-- omit in toc -->
 
-We welcome community contributions. Check our [contributing guidelines](CONTRIBUTING.md) to learn more.
+We welcome community contributions. Check our [contributing guidelines](CONTRIBUTING.md) to learn more. You can also contact the oneDAL team via [UXL Foundation Slack] using
+[#onedal] channel.
+
+[UXL Foundation Slack]: https://slack-invite.uxlfoundation.org/
+[#onedal]: https://uxlfoundation.slack.com/channels/onedal
 
 ## License <!-- omit in toc -->
 

@@ -124,7 +124,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`correlation_distance_batch.py`
+    - :daal4py_example:`correlation_distance.py`
 
 Performance Considerations
 **************************

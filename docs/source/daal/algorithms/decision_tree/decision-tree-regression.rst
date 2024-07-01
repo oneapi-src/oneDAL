@@ -167,5 +167,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`decision_tree_regression_batch.py`
-    - :daal4py_example:`decision_tree_regression_traverse_batch.py`
+    - :daal4py_example:`decision_tree_regression.py`
+    - :daal4py_example:`decision_tree_regression_traverse.py`

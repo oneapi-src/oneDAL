@@ -226,8 +226,8 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`sgd_logistic_loss_batch.py`
-    - :daal4py_example:`sgd_mse_batch.py`
+    - :daal4py_example:`sgd_logistic_loss.py`
+    - :daal4py_example:`sgd_mse.py`
 
 .. Python*:
 
