@@ -114,7 +114,6 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        auto& comm = ctx.get_communicator();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
@@ -152,9 +151,6 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
-        auto arr_centroids_trans = pr::ndarray<Float, 2>::empty(queue,
-                                                                { column_count, cluster_count },
-                                                                sycl::usm::alloc::device);
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 
@@ -163,26 +159,21 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                                          arr_centroid_squares,
                                                                          { data_squares_event });
 
-        auto trans_event = transpose(queue, arr_centroids, arr_centroids_trans);
-
         auto assign_event =
             assign_clusters(queue,
                             row_count,
                             data_handle,
                             arr_data_squares,
-                            arr_centroids_trans,
+                            arr_centroids,
                             arr_centroid_squares,
                             distances,
                             arr_responses,
                             arr_closest_distances,
-                            { data_squares_event, centroid_squares_event, trans_event });
+                            { data_squares_event, centroid_squares_event });
 
         auto objective_function =
             calc_objective_function(queue, arr_closest_distances, { assign_event });
-        {
-            // Reduce objective function value over all ranks
-            comm.allreduce(objective_function).wait();
-        }
+
         auto result = infer_result<task::clustering>{};
         result.set_objective_function_value(objective_function);
 
