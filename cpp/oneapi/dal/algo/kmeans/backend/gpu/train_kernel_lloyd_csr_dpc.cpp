@@ -80,16 +80,13 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
-        const auto data = static_cast<const csr_table&>(input.get_data());
+        const csr_table& data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
         const std::int64_t cluster_count = params.get_cluster_count();
         const std::int64_t max_iteration_count = params.get_max_iteration_count();
         const double accuracy_threshold = params.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
-
-        pr::sparse_matrix_handle data_handle(queue);
-        auto set_csr_data_event = pr::set_csr_data(queue, data_handle, data);
 
         auto [arr_val, arr_col, arr_row] =
             csr_accessor<const Float>(data).pull(queue,
@@ -101,6 +98,17 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<std::int64_t, 1>::wrap(arr_col.get_data(), arr_col.get_count());
         auto row_offsets =
             pr::ndarray<std::int64_t, 1>::wrap(arr_row.get_data(), arr_row.get_count());
+
+        pr::sparse_matrix_handle data_handle(queue);
+        auto set_csr_data_event = pr::set_csr_data(queue,
+                                                   data_handle,
+                                                   row_count,
+                                                   column_count,
+                                                   sparse_indexing::zero_based,
+                                                   arr_val.get_data(),
+                                                   arr_col.get_data(),
+                                                   arr_row.get_data());
+
         auto arr_initial = get_initial_centroids<Float, method::lloyd_csr>(ctx, params, input);
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
@@ -155,7 +163,7 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                 distances,
                                 arr_responses,
                                 arr_closest_distances,
-                                { trans_event, centroid_squares_event, last_event });
+                                { trans_event, centroid_squares_event });
 
             auto count_event = count_clusters(queue,
                                               arr_responses,

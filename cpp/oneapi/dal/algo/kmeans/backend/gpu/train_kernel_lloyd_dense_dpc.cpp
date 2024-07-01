@@ -158,6 +158,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
                                arr_objective_function,
                                arr_responses,
                                { centroids_event, data_squares_event, centroid_squares_event });
+
             centroids_event = update_clusters_event;
             if (accuracy_threshold > 0 &&
                 objective_function + accuracy_threshold > prev_objective_function) {
