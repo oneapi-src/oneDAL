@@ -129,9 +129,7 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::ndarray<Float, 2>::empty(queue,
                                                           { cluster_count, column_count },
                                                           sycl::usm::alloc::device);
-        auto arr_centroids_trans = pr::ndarray<Float, 2>::empty(queue,
-                                                                { column_count, cluster_count },
-                                                                sycl::usm::alloc::device);
+
 
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
@@ -149,19 +147,16 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                    arr_centroid_squares,
                                                    { last_event });
 
-            sycl::event trans_event =
-                transpose(queue, iter == 0 ? arr_initial : arr_centroids, arr_centroids_trans);
-
             auto assign_event = assign_clusters(queue,
                                                 row_count,
                                                 data_handle,
                                                 arr_data_squares,
-                                                arr_centroids_trans,
+                                                iter == 0 ? arr_initial : arr_centroids,
                                                 arr_centroid_squares,
                                                 distances,
                                                 arr_responses,
                                                 arr_closest_distances,
-                                                { trans_event, centroid_squares_event });
+                                                { centroid_squares_event });
 
             auto count_event = count_clusters(queue,
                                               arr_responses,
@@ -195,7 +190,6 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                           row_count,
                                           arr_centroids,
                                           empty_cluster_count,
-                                          arr_responses,
                                           cluster_counts,
                                           arr_closest_distances,
                                           { update_event });
@@ -218,18 +212,16 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                arr_centroid_squares,
                                                { last_event });
 
-        sycl::event trans_event = transpose(queue, arr_centroids, arr_centroids_trans);
-
         auto assign_event = assign_clusters(queue,
                                             row_count,
                                             data_handle,
                                             arr_data_squares,
-                                            arr_centroids_trans,
+                                            iter == 0 ? arr_initial : arr_centroids,
                                             arr_centroid_squares,
                                             distances,
                                             arr_responses,
                                             arr_closest_distances,
-                                            { trans_event, centroid_squares_event, last_event });
+                                            { centroid_squares_event, last_event });
         auto objective_function =
             calc_objective_function(queue,
                                     arr_closest_distances,

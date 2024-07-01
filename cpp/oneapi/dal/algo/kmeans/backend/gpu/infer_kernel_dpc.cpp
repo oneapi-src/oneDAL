@@ -112,7 +112,6 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        auto& comm = ctx.get_communicator();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
@@ -150,9 +149,6 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
-        auto arr_centroids_trans = pr::ndarray<Float, 2>::empty(queue,
-                                                                { column_count, cluster_count },
-                                                                sycl::usm::alloc::device);
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 

@@ -149,13 +149,13 @@ static auto copy_candidates_from_data(sycl::queue& queue,
 }
 
 template <typename Float>
-sycl::event copy_candidates_from_data(sycl::queue& queue,
-                                      const pr::ndview<Float, 1>& values,
-                                      const pr::ndview<std::int64_t, 1>& column_indices,
-                                      const pr::ndview<std::int64_t, 1>& row_offsets,
-                                      const centroid_candidates<Float>& candidates,
-                                      pr::ndview<Float, 2>& centroids,
-                                      const bk::event_vector& deps) {
+auto copy_candidates_from_data(sycl::queue& queue,
+                               const pr::ndview<Float, 1>& values,
+                               const pr::ndview<std::int64_t, 1>& column_indices,
+                               const pr::ndview<std::int64_t, 1>& row_offsets,
+                               const centroid_candidates<Float>& candidates,
+                               pr::ndview<Float, 2>& centroids,
+                               const bk::event_vector& deps) -> sycl::event {
     ONEDAL_PROFILER_TASK(copy_candidates, queue);
     ONEDAL_ASSERT(centroids.get_dimension(0) >= candidates.get_candidate_count());
 
@@ -469,14 +469,14 @@ auto fill_empty_clusters(sycl::queue& queue,
                                       const centroid_candidates<Float>& candidates,            \
                                       pr::ndview<Float, 2>& centroids,                         \
                                       const bk::event_vector& deps) -> sycl::event;            \
-    template sycl::event copy_candidates_from_data(                                            \
+    template auto copy_candidates_from_data(                                                   \
         sycl::queue& queue,                                                                    \
         const pr::ndview<Float, 1>& values,                                                    \
         const pr::ndview<std::int64_t, 1>& column_indices,                                     \
         const pr::ndview<std::int64_t, 1>& row_offsets,                                        \
         const centroid_candidates<Float>& candidates,                                          \
         pr::ndview<Float, 2>& centroids,                                                       \
-        const bk::event_vector& deps);
+        const bk::event_vector& deps) -> sycl::event;
 
 INSTANTIATE(float)
 INSTANTIATE(double)

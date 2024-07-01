@@ -56,12 +56,28 @@ sycl::event compute_data_squares(sycl::queue& q,
                               deps);
 }
 
+/// Transpose 2d ndview
+///
+/// @tparam Float   The type of elements in the input and output ndviews.
+///                 The `Float` type should be at least `float` or `double`.
+///
+/// @param[in] q        The SYCL* queue object
+/// @param[in] src      Input 2d ndview of size [n x p]
+/// @param[out] dst     Resulting ndview of size [p x n]
+/// @param deps         Events indicating availability of the input and output views
+///                     for reading or writing
+/// @return             SYCL* enevt indicating availability of the output view
+///                     for reading or writing
 template <typename Float>
 sycl::event transpose(sycl::queue& q,
                       const pr::ndview<Float, 2>& src,
                       pr::ndview<Float, 2>& dst,
                       const event_vector& deps = {}) {
     const auto src_shape = src.get_shape();
+    ONEDAL_ASSERT(src_shape[0] > 0);
+    ONEDAL_ASSERT(src_shape[1] > 0);
+    ONEDAL_ASSERT(src_shape[0] == dst.get_dimension(1));
+    ONEDAL_ASSERT(src_shape[1] == dst.get_dimension(0));
     const auto row_count = src_shape[0];
     const auto col_count = src_shape[1];
 
@@ -86,13 +102,20 @@ sycl::event assign_clusters(sycl::queue& q,
                             const std::size_t row_count,
                             pr::sparse_matrix_handle& data_handle,
                             const pr::ndview<Float, 1>& data_squares,
-                            const pr::ndview<Float, 2>& centroids_transposed,
+                            const pr::ndview<Float, 2>& centroids,
                             const pr::ndview<Float, 1>& centroid_squares,
                             pr::ndview<Float, 2>& distances,
                             pr::ndview<std::int32_t, 2>& responses,
                             pr::ndview<Float, 2>& closest_dists,
                             const event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(assign_clusters, q);
+
+    auto centroids_transposed = pr::ndarray<Float, 2>::empty(q,
+                                                             { centroids.get_dimension(1), centroids.get_dimension(0) },
+                                                             sycl::usm::alloc::device);
+
+    sycl::event transpose_event = transpose(q, centroids, centroids_transposed, deps);
+
     // Calculate rest part of distances
     auto dist_event = pr::gemm(q,
                                pr::transpose::nontrans,
@@ -101,8 +124,7 @@ sycl::event assign_clusters(sycl::queue& q,
                                distances,
                                Float(-2.0),
                                Float(0),
-                               deps);
-
+                               { transpose_event } );
     auto selection_event = kernels_fp<Float>::select(q,
                                                      distances,
                                                      centroid_squares,
