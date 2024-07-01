@@ -109,7 +109,10 @@ sycl::event assign_clusters(sycl::queue& q,
                                                      closest_dists,
                                                      responses,
                                                      { dist_event });
-    return kernels_fp<Float>::complete_closest_distances(q, data_squares, closest_dists, { selection_event });
+    return kernels_fp<Float>::complete_closest_distances(q,
+                                                         data_squares,
+                                                         closest_dists,
+                                                         { selection_event });
 }
 
 // Calculates an objective function, which is sum of all distances from points to centroid.
@@ -174,7 +177,7 @@ sycl::event update_centroids(sycl::queue& q,
 
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, wg_size, wg_count);
     const std::int64_t global_size = wg_count * wg_size;
-    auto range = bk::make_multiple_nd_range_2d( { global_size, num_clusters }, { wg_size, 1 } );
+    auto range = bk::make_multiple_nd_range_2d({ global_size, num_clusters }, { wg_size, 1 });
 
     auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(clean_event);
@@ -190,9 +193,9 @@ sycl::event update_centroids(sycl::queue& q,
 
             const auto local_id = it.get_local_id(0);
 
-            Float * local_accessor_ptr =
+            Float* local_accessor_ptr =
                 local_centroids.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            Float * local_centroid_ptr = local_accessor_ptr + local_id * column_count;
+            Float* local_centroid_ptr = local_accessor_ptr + local_id * column_count;
 
             for (auto idx = 0; idx < column_count; ++idx) {
                 local_centroid_ptr[idx] = 0;
