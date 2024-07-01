@@ -8,7 +8,6 @@ dal_module(
     name = "lapack",
     auto = True,
     dal_deps = [
-        "@onedal//cpp/oneapi/dal/backend/micromkl",
         "@onedal//cpp/oneapi/dal/backend/primitives:blas",
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
     ],

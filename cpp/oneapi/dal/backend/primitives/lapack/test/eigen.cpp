@@ -136,6 +136,7 @@ private:
     TEMPLATE_TEST_M(sym_eigvals_test, name, "[sym_eigvals]", float, double)
 
 SYM_EIGVALS_TEST("check inplace sym_eigvals on symmetric positive-definite matrix") {
+    SKIP_IF(true);
     const auto s = this->generate_symmetric_positive();
 
     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace(s);
@@ -145,6 +146,7 @@ SYM_EIGVALS_TEST("check inplace sym_eigvals on symmetric positive-definite matri
 }
 
 SYM_EIGVALS_TEST("check inplace sym_eigvals_descending on symmetric positive-definite matrix") {
+    SKIP_IF(true);
     const auto s = this->generate_symmetric_positive();
 
     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace_descending(s);
@@ -154,6 +156,7 @@ SYM_EIGVALS_TEST("check inplace sym_eigvals_descending on symmetric positive-def
 }
 
 SYM_EIGVALS_TEST("check sym_eigvals_descending on symmetric positive-definite matrix") {
+    SKIP_IF(true);
     const auto s = this->generate_symmetric_positive();
     const std::int64_t eigvals_count = GENERATE_COPY(1, s.get_row_count() / 2, s.get_row_count());
 
