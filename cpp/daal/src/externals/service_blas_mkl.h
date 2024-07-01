@@ -126,9 +126,9 @@ struct MklBlas<double, cpu>
     static void xxsyr(const char * uplo, const DAAL_INT * n, const double * alpha, const double * x, const DAAL_INT * incx, double * a,
                       const DAAL_INT * lda)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, dsyr, (uplo, (MKL_INT *)n, alpha, x, (MKL_INT *)incx, a, (MKL_INT *)lda));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xgemm(const char * transa, const char * transb, const DAAL_INT * p, const DAAL_INT * ny, const DAAL_INT * n, const double * alpha,
@@ -159,10 +159,10 @@ struct MklBlas<double, cpu>
     static void xxsymm(char * side, char * uplo, DAAL_INT * m, DAAL_INT * n, double * alpha, double * a, DAAL_INT * lda, double * b, DAAL_INT * ldb,
                        double * beta, double * c, DAAL_INT * ldc)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, dsymm,
                           (side, uplo, (MKL_INT *)m, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, b, (MKL_INT *)ldb, beta, c, (MKL_INT *)ldc));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xgemv(const char * trans, const DAAL_INT * m, const DAAL_INT * n, const double * alpha, const double * a, const DAAL_INT * lda,
@@ -174,9 +174,9 @@ struct MklBlas<double, cpu>
     static void xxgemv(const char * trans, const DAAL_INT * m, const DAAL_INT * n, const double * alpha, const double * a, const DAAL_INT * lda,
                        const double * x, const DAAL_INT * incx, const double * beta, double * y, const DAAL_INT * incy)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, dgemv, (trans, (MKL_INT *)m, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, x, (MKL_INT *)incx, beta, y, (MKL_INT *)incy));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xaxpy(DAAL_INT * n, double * a, double * x, DAAL_INT * incx, double * y, DAAL_INT * incy)
@@ -186,9 +186,9 @@ struct MklBlas<double, cpu>
 
     static void xxaxpy(const DAAL_INT * n, const double * a, const double * x, const DAAL_INT * incx, double * y, const DAAL_INT * incy)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, daxpy, ((MKL_INT *)n, a, x, (MKL_INT *)incx, y, (MKL_INT *)incy));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static double xxdot(const DAAL_INT * n, const double * x, const DAAL_INT * incx, const double * y, const DAAL_INT * incy)
@@ -228,9 +228,9 @@ struct MklBlas<float, cpu>
     static void xxsyr(const char * uplo, const DAAL_INT * n, const float * alpha, const float * x, const DAAL_INT * incx, float * a,
                       const DAAL_INT * lda)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, ssyr, (uplo, (MKL_INT *)n, alpha, x, (MKL_INT *)incx, a, (MKL_INT *)lda));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xgemm(const char * transa, const char * transb, const DAAL_INT * p, const DAAL_INT * ny, const DAAL_INT * n, const float * alpha,
@@ -261,10 +261,10 @@ struct MklBlas<float, cpu>
     static void xxsymm(char * side, char * uplo, DAAL_INT * m, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * b, DAAL_INT * ldb,
                        float * beta, float * c, DAAL_INT * ldc)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, ssymm,
                           (side, uplo, (MKL_INT *)m, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, b, (MKL_INT *)ldb, beta, c, (MKL_INT *)ldc));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xgemv(const char * trans, const DAAL_INT * m, const DAAL_INT * n, const float * alpha, const float * a, const DAAL_INT * lda,
@@ -276,9 +276,9 @@ struct MklBlas<float, cpu>
     static void xxgemv(const char * trans, const DAAL_INT * m, const DAAL_INT * n, const float * alpha, const float * a, const DAAL_INT * lda,
                        const float * x, const DAAL_INT * incx, const float * beta, float * y, const DAAL_INT * incy)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, sgemv, (trans, (MKL_INT *)m, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, x, (MKL_INT *)incx, beta, y, (MKL_INT *)incy));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xaxpy(DAAL_INT * n, float * a, float * x, DAAL_INT * incx, float * y, DAAL_INT * incy)
@@ -288,9 +288,9 @@ struct MklBlas<float, cpu>
 
     static void xxaxpy(const DAAL_INT * n, const float * a, const float * x, const DAAL_INT * incx, float * y, const DAAL_INT * incy)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, saxpy, ((MKL_INT *)n, a, x, (MKL_INT *)incx, y, (MKL_INT *)incy));
-        fpk_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static float xxdot(const DAAL_INT * n, const float * x, const DAAL_INT * incx, const float * y, const DAAL_INT * incy)
