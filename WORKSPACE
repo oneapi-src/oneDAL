@@ -33,8 +33,8 @@ micromkl_repo(
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_2024-02-20.tgz",
-    sha256 = "1c60914461aafa5e5512181c7d5c1fdbdeff83746dbd980fe97074a3b65fc1ed",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20240605.tgz",
+    sha256 = "0787a92e9580ed6b9fb97d054a0ed77994dbc18b4b3fb099451cb1e6ebdf4f16",
 )
 
 load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
