@@ -159,17 +159,16 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                                          arr_centroid_squares,
                                                                          { data_squares_event });
 
-        auto assign_event =
-            assign_clusters(queue,
-                            row_count,
-                            data_handle,
-                            arr_data_squares,
-                            arr_centroids,
-                            arr_centroid_squares,
-                            distances,
-                            arr_responses,
-                            arr_closest_distances,
-                            { data_squares_event, centroid_squares_event });
+        auto assign_event = assign_clusters(queue,
+                                            row_count,
+                                            data_handle,
+                                            arr_data_squares,
+                                            arr_centroids,
+                                            arr_centroid_squares,
+                                            distances,
+                                            arr_responses,
+                                            arr_closest_distances,
+                                            { data_squares_event, centroid_squares_event });
 
         auto objective_function =
             calc_objective_function(queue, arr_closest_distances, { assign_event });
