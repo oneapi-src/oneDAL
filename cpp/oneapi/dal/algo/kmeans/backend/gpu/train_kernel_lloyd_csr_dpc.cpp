@@ -145,7 +145,6 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                    iter == 0 ? arr_initial : arr_centroids,
                                                    arr_centroid_squares,
                                                    { last_event });
-
             auto assign_event = assign_clusters(queue,
                                                 row_count,
                                                 data_handle,
@@ -210,7 +209,6 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                iter == 0 ? arr_initial : arr_centroids,
                                                arr_centroid_squares,
                                                { last_event });
-
         auto assign_event = assign_clusters(queue,
                                             row_count,
                                             data_handle,
@@ -220,7 +218,7 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                             distances,
                                             arr_responses,
                                             arr_closest_distances,
-                                            { centroid_squares_event, last_event });
+                                            { last_event, centroid_squares_event });
         auto objective_function =
             calc_objective_function(queue,
                                     arr_closest_distances,
