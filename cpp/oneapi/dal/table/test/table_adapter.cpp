@@ -38,6 +38,31 @@ TEST("SOA adapter is used") {
     REQUIRE(dynamic_cast<backend::interop::host_soa_table_adapter*>(dt.get()) != nullptr);
 }
 
+TEST("Can create SOA table adapter") {
+    constexpr float src1[] = { 1.f, 2.f };
+    constexpr float src2[] = { 3.f, 4.f, 5.f };
+
+    auto arr1 = array<float>::wrap(src1, 2l);
+    auto arr2 = array<float>::wrap(src2, 3l);
+
+    chunked_array<float> chunked1(2);
+    chunked1.set_chunk(0l, arr1);
+    chunked1.set_chunk(1l, arr2);
+    ONEDAL_ASSERT(chunked1.get_count() == 5l);
+
+    chunked_array<float> chunked2(2);
+    chunked2.set_chunk(0l, arr2);
+    chunked2.set_chunk(1l, arr1);
+    ONEDAL_ASSERT(chunked2.get_count() == 5l);
+
+    auto table = heterogen_table::wrap( //
+        chunked1,
+        chunked2);
+
+    auto dt = backend::interop::convert_to_daal_table(table);
+    REQUIRE(dynamic_cast<backend::interop::host_heterogen_table_adapter*>(dt.get()) != nullptr);
+}
+
 TEST("CSR adapter is used, one-based indexing") {
     const float data[] = { 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 11.0f, 8.0f };
     const std::int64_t column_indices[] = { 1, 2, 4, 3, 2, 4, 2 };

@@ -14,12 +14,31 @@
 * limitations under the License.
 *******************************************************************************/
 
+#pragma once
+
 #include <daal/include/data_management/data/data_dictionary.h>
-#include "oneapi/dal/table/homogen.hpp"
+#include <daal/include/data_management/data/csr_numeric_table.h>
+#include <daal/include/data_management/data/soa_numeric_table.h>
+#include <daal/include/data_management/data/homogen_numeric_table.h>
+
+#include "oneapi/dal/table/common.hpp"
 
 namespace oneapi::dal::backend::interop {
 
 namespace daal_dm = daal::data_management;
+
+template <typename Type>
+using shared_t = daal::services::SharedPtr<Type>;
+
+using soa_table_t = daal_dm::SOANumericTable;
+using csr_table_t = daal_dm::CSRNumericTable;
+template <typename Type>
+using homogen_table_t = daal_dm::CSRNumericTable;
+
+using soa_table_ptr_t = shared_t<soa_table_t>;
+using csr_table_ptr_t = shared_t<csr_table_t>;
+template <typename Type>
+using homogen_table_ptr_t = shared_t<homogen_table_t<Type>>;
 
 template <typename Body>
 static daal::services::Status convert_exception_to_status(Body&& body) {
@@ -37,23 +56,18 @@ static daal::services::Status convert_exception_to_status(Body&& body) {
     }
 }
 
-static daal_dm::features::FeatureType get_daal_feature_type(feature_type t) {
-    switch (t) {
-        case feature_type::nominal: return daal_dm::features::DAAL_CATEGORICAL;
-        case feature_type::ordinal: return daal_dm::features::DAAL_ORDINAL;
-        case feature_type::interval: return daal_dm::features::DAAL_CONTINUOUS;
-        case feature_type::ratio: return daal_dm::features::DAAL_CONTINUOUS;
-        default: throw dal::internal_error(detail::error_messages::unsupported_feature_type());
-    }
-}
+ONEDAL_EXPORT daal_dm::features::FeatureType get_daal_feature_type(feature_type t);
 
-static void convert_feature_information_to_daal(const table_metadata& src,
-                                                daal_dm::NumericTableDictionary& dst) {
-    ONEDAL_ASSERT(std::size_t(src.get_feature_count()) == dst.getNumberOfFeatures());
-    for (std::int64_t i = 0; i < src.get_feature_count(); i++) {
-        auto& daal_feature = dst[i];
-        daal_feature.featureType = get_daal_feature_type(src.get_feature_type(i));
-    }
-}
+ONEDAL_EXPORT feature_type get_daal_feature_type(daal_dm::features::FeatureType t);
+
+ONEDAL_EXPORT void convert_feature_information_to_daal(const table_metadata& src,
+                                                       daal_dm::NumericTableDictionary& dst);
+
+ONEDAL_EXPORT void convert_feature_information_from_daal(const daal_dm::NumericTableDictionary& src,
+                                                         table_metadata& dst);
+
+ONEDAL_EXPORT daal_dm::NumericTableDictionaryPtr convert(const table_metadata& src);
+
+ONEDAL_EXPORT table_metadata convert(const daal_dm::NumericTableDictionaryPtr& src);
 
 } // namespace oneapi::dal::backend::interop

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright 2023 Intel Corporation
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,4 +14,23 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/table/backend/interop/table_conversion.hpp"
+#pragma once
+
+#include "oneapi/dal/common.hpp"
+#include "oneapi/dal/detail/common.hpp"
+#include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
+
+namespace oneapi::dal::backend::interop {
+
+template <typename Op, typename OnUnknown>
+constexpr auto inline dispatch_by_table_type(Op&& op, OnUnknown&& on_unknown, data_type dtype) {
+    switch (dtype) {
+        case data_type::int32: return op(std::int32_t{});
+        case data_type::float64: return op(double{});
+        case data_type::float32: return op(float{});
+        default: return on_unknown(dtype);
+    }
+}
+
+} // namespace oneapi::dal::backend::interop
