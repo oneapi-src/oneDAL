@@ -165,7 +165,6 @@ sycl::event kernels_fp<Float>::select(sycl::queue& queue,
     for (std::int64_t block_index = 0; block_index < blocking.get_block_count(); ++block_index) {
         const auto first_row = blocking.get_block_start_index(block_index);
         const auto last_row = blocking.get_block_end_index(block_index);
-
         const auto curr_block = last_row - first_row;
         ONEDAL_ASSERT(curr_block > 0);
 

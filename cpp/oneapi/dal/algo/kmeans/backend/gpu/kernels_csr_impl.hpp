@@ -110,9 +110,10 @@ sycl::event assign_clusters(sycl::queue& q,
                             const event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(assign_clusters, q);
 
-    auto centroids_transposed = pr::ndarray<Float, 2>::empty(q,
-                                                             { centroids.get_dimension(1), centroids.get_dimension(0) },
-                                                             sycl::usm::alloc::device);
+    auto centroids_transposed =
+        pr::ndarray<Float, 2>::empty(q,
+                                     { centroids.get_dimension(1), centroids.get_dimension(0) },
+                                     sycl::usm::alloc::device);
 
     sycl::event transpose_event = transpose(q, centroids, centroids_transposed, deps);
 
@@ -124,7 +125,7 @@ sycl::event assign_clusters(sycl::queue& q,
                                distances,
                                Float(-2.0),
                                Float(0),
-                               { transpose_event } );
+                               { transpose_event });
     auto selection_event = kernels_fp<Float>::select(q,
                                                      distances,
                                                      centroid_squares,
