@@ -28,7 +28,7 @@
 #include <mkl_vsl_functions.h>
 #include "src/externals/service_memory.h"
 #include "src/externals/service_stat_rng_mkl.h"
-
+#include "mkl_daal.h"
 typedef void (*func_type)(DAAL_INT, DAAL_INT, DAAL_INT, void *);
 
 #undef __DAAL_VSLFN_CALL
@@ -136,25 +136,17 @@ extern "C"
 
     static void _daal_mkl_threader_for(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
     {
-        // // fpk_vsl_serv_threader_for(n, threads_request, a, func);
-        for (DAAL_INT i = 0; i < n; i++)
-        {
-            func(i, 0, 1, a);
-        }
+        mkl_vsl_serv_threader_for(n, threads_request, a, func);
     }
 
     static void _daal_mkl_threader_for_ordered(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
     {
-        // fpk_vsl_serv_threader_for_ordered(n, threads_request, a, func);
-        for (DAAL_INT i = 0; i < n; i++)
-        {
-            func(i, 0, 1, a);
-        }
+        mkl_vsl_serv_threader_for_ordered(n, threads_request, a, func);
     }
 
     static void _daal_mkl_threader_sections(DAAL_INT threads_request, void * a, func_type func)
     {
-        func(0, 0, 1, a);
+        mkl_vsl_serv_threader_sections(threads_request, a, func);
     }
 
     static void _daal_mkl_threader_ordered(DAAL_INT i, DAAL_INT th_idx, DAAL_INT th_num, void * a, func_type func)
@@ -164,7 +156,7 @@ extern "C"
 
     static DAAL_INT _daal_mkl_threader_get_max_threads()
     {
-        return 224;
+        return mkl_vsl_serv_threader_get_num_threads_limit();
     }
 }
 

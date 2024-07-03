@@ -26,65 +26,7 @@
 
 #include "services/daal_defines.h"
 #include <mkl.h>
-
-#if !defined(__DAAL_CONCAT4)
-    #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)
-    #define __DAAL_CONCAT41(a, b, c, d) a##b##c##d
-#endif
-
-#if !defined(__DAAL_CONCAT5)
-    #define __DAAL_CONCAT5(a, b, c, d, e)  __DAAL_CONCAT51(a, b, c, d, e)
-    #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
-#endif
-
-#if defined(__APPLE__)
-    #define __DAAL_MKL_SSE2  avx_
-    #define __DAAL_MKL_SSE42 avx_
-#else
-    #define __DAAL_MKL_SSE2  sse2_
-    #define __DAAL_MKL_SSE42 sse42_
-#endif
-
-//#define __DAAL_MKLFN(f_cpu, f_pref, f_name)              __DAAL_CONCAT4(fpk_, f_pref, f_cpu, f_name)
-#define __DAAL_MKLFN(f_cpu, f_pref, f_name)              f_name
-#define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
-#define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)
-
-#define __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)             \
-    if (avx512 == cpu)                                         \
-    {                                                          \
-        __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
-    }                                                          \
-    if (avx2 == cpu)                                           \
-    {                                                          \
-        __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
-    }                                                          \
-    if (sse42 == cpu)                                          \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
-    }                                                          \
-    if (sse2 == cpu)                                           \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
-    }
-
-#define __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)                    \
-    if (avx512 == cpu)                                                \
-    {                                                                 \
-        return __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
-    }                                                                 \
-    if (avx2 == cpu)                                                  \
-    {                                                                 \
-        return __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
-    }                                                                 \
-    if (sse42 == cpu)                                                 \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
-    }                                                                 \
-    if (sse2 == cpu)                                                  \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
-    }
+#include "mkl_daal.h"
 
 namespace daal
 {
@@ -136,7 +78,7 @@ struct MklBlas<double, cpu>
                       const DAAL_INT * ldaty)
     {
         __DAAL_MKLFN_CALL(
-            blas_, dgemm,
+            blas_, xdgemm,
             (transa, transb, (MKL_INT *)p, (MKL_INT *)ny, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, y, (MKL_INT *)ldy, beta, aty, (MKL_INT *)ldaty));
     }
 
@@ -145,7 +87,7 @@ struct MklBlas<double, cpu>
                        const DAAL_INT * ldaty)
     {
         __DAAL_MKLFN_CALL(
-            blas_, dgemm,
+            blas_, xdgemm,
             (transa, transb, (MKL_INT *)p, (MKL_INT *)ny, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, y, (MKL_INT *)ldy, beta, aty, (MKL_INT *)ldaty));
     }
 
@@ -216,7 +158,9 @@ struct MklBlas<float, cpu>
     static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * beta, float * ata,
                        DAAL_INT * ldata)
     {
+        int old_threads = mkl_serv_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, ssyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
+        mkl_serv_set_num_threads_local(old_threads);
     }
 
     static void xsyr(const char * uplo, const DAAL_INT * n, const float * alpha, const float * x, const DAAL_INT * incx, float * a,
@@ -237,7 +181,7 @@ struct MklBlas<float, cpu>
                       const float * a, const DAAL_INT * lda, const float * y, const DAAL_INT * ldy, const float * beta, float * aty,
                       const DAAL_INT * ldaty)
     {
-        __DAAL_MKLFN_CALL(
+        __DAAL_MKLFN_CALL_(
             blas_, sgemm,
             (transa, transb, (MKL_INT *)p, (MKL_INT *)ny, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, y, (MKL_INT *)ldy, beta, aty, (MKL_INT *)ldaty));
     }
@@ -246,7 +190,7 @@ struct MklBlas<float, cpu>
                        const float * a, const DAAL_INT * lda, const float * y, const DAAL_INT * ldy, const float * beta, float * aty,
                        const DAAL_INT * ldaty)
     {
-        __DAAL_MKLFN_CALL(
+        __DAAL_MKLFN_CALL_(
             blas_, sgemm,
             (transa, transb, (MKL_INT *)p, (MKL_INT *)ny, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, y, (MKL_INT *)ldy, beta, aty, (MKL_INT *)ldaty));
     }

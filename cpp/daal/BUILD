@@ -23,6 +23,17 @@ daal_module(
         }),
 )
 
+cc_library(
+    name = "mkl_include",
+    hdrs = glob(["cpp/daal/src/externals/mkl_daal.h"]),
+    deps = [
+        "@mkl//:mkl_thr",
+        "@mkl//:libmkl_sequential",
+        "@mkl//:headers",
+        "@mkl//:mkl_core",
+    ],
+)
+
 daal_module(
     name = "mathbackend_thread",
     override_deps_lib_tag = True,
@@ -60,6 +71,7 @@ daal_module(
                                    "@openblas//:headers",
                                  ],
         "//conditions:default": [
+                                    ":mkl_include",
                                   ":public_includes",
                                   "@mkl//:headers",
                                 ],
@@ -82,6 +94,7 @@ daal_module(
     ],
     deps = [
         ":includes",
+        ":mkl_include",
     ],
 )
 
@@ -90,6 +103,7 @@ daal_module(
     hdrs = glob(["src/threading/**/*.h"]),
     deps = [
         ":service_headers",
+        ":mkl_include",
     ],
 )
 
@@ -106,6 +120,7 @@ daal_module(
         ":service_headers",
         ":threading_headers",
         ":microvmlipp",
+        ":mkl_include",
     ],
 )
 
@@ -115,6 +130,7 @@ daal_module(
     srcs = glob(["src/data_management/**/*.cpp"]),
     deps = [
         ":services",
+        ":mkl_include",
     ],
 )
 

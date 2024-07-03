@@ -28,6 +28,7 @@
 #include <mkl.h>
 #include <mkl_service.h>
 #include <string.h>
+#include "mkl_daal.h"
 
 namespace daal
 {
