@@ -28,6 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
+#include <iostream>
 
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
@@ -127,9 +128,11 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
 
 DAAL_EXPORT daal::services::Environment::Environment() /* : _globalControl {}*/
 {
+    std::cerr << "Environment constructor" << std::endl;
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
+    daal::services::Environment::initNumberOfThreads();
 }
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
@@ -137,14 +140,8 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-        // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
-        // destruction of the calling thread.
-        // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
-        // instance, it blocks the calling thread until the completion of all worker
-        // threads that were implicitly created by the library.
-#if defined(TARGET_X86_64)
-    daal::setSchedulerHandle(&_schedulerHandle);
-#endif
+    std::cerr << "Inside init" << std::endl;
+
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -152,16 +149,24 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
         int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
 
         /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
+
+        std::cerr << "Init with " << ncores << std::endl;
+        if (ncores > 0)
         {
             daal::services::Environment::setNumberOfThreads(ncores);
         }
+    }
+    else
+    {
+        std::cerr << "Init with " << (_daal_threader_get_max_threads()) << std::endl;
+        daal::services::Environment::setNumberOfThreads(_daal_threader_get_max_threads());
     }
     isInit = true;
 }
 
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
+    std::cerr << "Env destructor" << std::endl;
     daal::services::daal_free_buffers();
     // _daal_tbb_task_scheduler_free(_globalControl);
 }
@@ -178,7 +183,7 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
-    daal::setNumberOfThreads(numThreads /*, &_globalControl*/);
+    daal::setNumberOfThreads(numThreads);
 }
 
 DAAL_EXPORT size_t daal::services::Environment::getNumberOfThreads() const

@@ -35,10 +35,42 @@
 #include <tbb/global_control.h>
 #include <tbb/task_arena.h>
 #include "services/daal_atomic_int.h"
+#include <iostream>
 
 #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
     #include <tbb/task.h>
 #endif
+
+namespace daal
+{
+ThreaderEnvironment::ThreaderEnvironment() : _numberOfThreads(1), _taskArena(nullptr)
+{
+    std::cout << "ThreaderEnv constructor" << std::endl;
+}
+ThreaderEnvironment::~ThreaderEnvironment()
+{
+    std::cerr << "ThreaderEnv destructor" << std::endl;
+    if (_taskArena)
+    {
+        delete reinterpret_cast<tbb::task_arena *>(_taskArena);
+        _taskArena = nullptr;
+    }
+}
+void ThreaderEnvironment::setNumberOfThreads(size_t value)
+{
+    std::cerr << "setNumberOfThreads from " << (_numberOfThreads) << " to " << value << std::endl;
+    if (_taskArena)
+    {
+        delete reinterpret_cast<tbb::task_arena *>(_taskArena);
+        _taskArena = nullptr;
+    }
+    if (value > 1)
+    {
+        _taskArena = reinterpret_cast<void *>(new tbb::task_arena(value));
+    }
+    _numberOfThreads = value;
+}
+} // namespace daal
 
 using namespace daal::services;
 
@@ -52,24 +84,14 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
     scalable_aligned_free(ptr);
 }
 
-DAAL_EXPORT void _daal_tbb_task_arena_free(void *& taskArena)
-{
-    // void* taskArena = daal::threader_env()->getTaskArena();
-    if (taskArena)
-    {
-        delete reinterpret_cast<tbb::task_arena *>(taskArena);
-        taskArena = nullptr;
-    }
-}
-
-DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
-{
-    if (globalControl)
-    {
-        delete reinterpret_cast<tbb::global_control *>(globalControl);
-        globalControl = nullptr;
-    }
-}
+// DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
+// {
+//     if (globalControl)
+//     {
+//         delete reinterpret_cast<tbb::global_control *>(globalControl);
+//         globalControl = nullptr;
+//     }
+// }
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads)
 {
@@ -79,13 +101,11 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads)
     {
         const size_t maxNumThreads     = _daal_threader_get_max_threads();
         const size_t limitedNumThreads = numThreads < maxNumThreads ? numThreads : maxNumThreads;
-        void *& taskArena              = daal::threader_env()->getTaskArena();
-        _daal_tbb_task_arena_free(taskArena);
-        taskArena = reinterpret_cast<void *>(new tbb::task_arena(limitedNumThreads));
+        std::cerr << "_set nthreads " << numThreads << "(max " << maxNumThreads << ")" << std::endl;
         daal::threader_env()->setNumberOfThreads(limitedNumThreads);
         return limitedNumThreads;
     }
-    _daal_tbb_task_arena_free(daal::threader_env()->getTaskArena());
+    std::cerr << "_set nthreads 1" << std::endl;
     daal::threader_env()->setNumberOfThreads(1);
     return 1;
 }
@@ -215,7 +235,6 @@ DAAL_EXPORT int64_t _daal_parallel_reduce_int32_int64(int32_t n, int64_t init, c
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {
         tbb::task_arena * taskArena = reinterpret_cast<tbb::task_arena *>(daal::threader_env()->getTaskArena());
-        // ?????
         return taskArena->execute([&] {
             return tbb::parallel_reduce(
                 tbb::blocked_range<int32_t>(0, n), init,

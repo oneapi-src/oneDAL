@@ -100,9 +100,7 @@ extern "C"
     DAAL_EXPORT void _daal_del_task_group(void * taskGroupPtr);
     DAAL_EXPORT void _daal_run_task_group(void * taskGroupPtr, daal::task * t);
     DAAL_EXPORT void _daal_wait_task_group(void * taskGroupPtr);
-
-    DAAL_EXPORT void _daal_tbb_task_arena_free(void *& taskArena);
-    DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
+    // DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl);
     DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads);
 
     DAAL_EXPORT void * _daal_threader_env();
@@ -166,11 +164,11 @@ inline void threaded_scalable_free(void * ptr)
 class ThreaderEnvironment
 {
 public:
-    ThreaderEnvironment() : _numberOfThreads(1 /*_daal_threader_get_max_threads()*/) {}
-    ~ThreaderEnvironment() { _daal_tbb_task_arena_free(_taskArena); }
+    ThreaderEnvironment();
+    ~ThreaderEnvironment();
     size_t getNumberOfThreads() const { return _numberOfThreads; }
-    void setNumberOfThreads(size_t value) { _numberOfThreads = value; }
-    void *& getTaskArena() { return _taskArena; }
+    void * getTaskArena() const { return _taskArena; };
+    void setNumberOfThreads(size_t value);
 
 private:
     size_t _numberOfThreads;
