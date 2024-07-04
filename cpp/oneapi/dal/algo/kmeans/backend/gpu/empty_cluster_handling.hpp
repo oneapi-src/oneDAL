@@ -17,7 +17,6 @@
 #pragma once
 
 #include "oneapi/dal/backend/communicator.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
 #include <tuple>
@@ -190,7 +189,7 @@ inline auto handle_empty_clusters(sycl::queue& queue,
 
 /// Fills centroids that correspond to the empty clusters using input data in CSR layout
 ///
-/// @param[in] ctx              GPU context structure
+/// @param[in] queue            The DPC++ queue
 /// @param[in] values           An array of size [n + 1] of data values in the CSR layout,
 ///                             where $n$ is the number of rows in the input dataset
 /// @param[in] column_indices   An array of column indices in the CSR layout
@@ -211,7 +210,7 @@ inline auto handle_empty_clusters(sycl::queue& queue,
 ///                             for reading or writing.
 template <typename Float>
 inline std::tuple<Float, sycl::event> handle_empty_clusters(
-    const bk::context_gpu& ctx,
+    sycl::queue& queue,
     const pr::ndview<Float, 1>& values,
     const pr::ndview<std::int64_t, 1>& column_indices,
     const pr::ndview<std::int64_t, 1>& row_offsets,
@@ -221,8 +220,6 @@ inline std::tuple<Float, sycl::event> handle_empty_clusters(
     pr::ndarray<std::int32_t, 1>& cluster_counts,
     pr::ndarray<Float, 2>& dists,
     const bk::event_vector& deps = {}) {
-    auto& queue = ctx.get_queue();
-
     auto [candidates, find_candidates_event] =
         find_candidates(queue, candidate_count, dists, cluster_counts, deps);
 

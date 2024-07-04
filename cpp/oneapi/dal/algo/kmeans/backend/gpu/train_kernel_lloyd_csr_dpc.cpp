@@ -181,7 +181,7 @@ struct train_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             sycl::event empty_cluster_event;
             if (empty_cluster_count > 0) {
                 std::tie(correction, empty_cluster_event) =
-                    handle_empty_clusters(ctx,
+                    handle_empty_clusters(queue,
                                           values,
                                           column_indices,
                                           row_offsets,
