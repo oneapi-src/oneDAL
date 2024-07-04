@@ -42,9 +42,8 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
     template struct ONEDAL_EXPORT                                         \
         infer_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
-#define INSTANTIATE_SINGLE_NODE(F, M, T)                                  \
-    template struct ONEDAL_EXPORT                                         \
-        infer_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
+#define INSTANTIATE_SINGLE_NODE(F, M, T) \
+    template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::lloyd_dense, task::clustering)
 INSTANTIATE(double, method::lloyd_dense, task::clustering)
