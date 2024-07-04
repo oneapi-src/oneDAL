@@ -198,7 +198,6 @@ private:
     void initNumberOfThreads();
 
     env _env;
-    // void * _globalControl;
     SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
