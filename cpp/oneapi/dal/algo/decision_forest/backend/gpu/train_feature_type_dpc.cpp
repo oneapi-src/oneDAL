@@ -94,6 +94,7 @@ sycl::event indexed_features<Float, Bin, Index>::collect_bin_borders(
     const pr::ndarray<Index, 1>& bin_offsets_nd,
     pr::ndarray<Float, 1>& bin_borders_nd,
     Index max_bins,
+    pr::ndarray<Index, 1>& unique_nd,
     const bk::event_vector& deps) {
     ONEDAL_ASSERT(values_nd.get_count() == row_count);
     ONEDAL_ASSERT(bin_offsets_nd.get_count() == max_bins);
@@ -104,11 +105,22 @@ sycl::event indexed_features<Float, Bin, Index>::collect_bin_borders(
     const Float* values = values_nd.get_data();
     const Index* bin_offsets = bin_offsets_nd.get_data();
     Float* bin_borders = bin_borders_nd.get_mutable_data();
-
+    Index* unique_bin_count = unique_nd.get_mutable_data();
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<1> idx) {
-            bin_borders[idx] = values[bin_offsets[idx]];
+            Float bin_border_value = values[bin_offsets[idx]];
+
+            // Filtering unique bin borders
+            if (idx == 0 || bin_border_value != bin_borders[idx - 1]) {
+                bin_borders[idx] = bin_border_value;
+                sycl::atomic_ref<Index,
+                                 sycl::memory_order::relaxed,
+                                 sycl::memory_scope::device,
+                                 sycl::access::address_space::ext_intel_global_device_space>
+                    counter_atomic(unique_bin_count[0]);
+                counter_atomic.fetch_add(1);
+            }
         });
     });
 
@@ -182,15 +194,14 @@ std::tuple<pr::ndarray<Float, 1>, Index, sycl::event>
 indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float, 1>& values_nd,
                                                         Index row_count,
                                                         const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(indexed_features.gather_bin_borders, queue_);
+    ONEDAL_PROFILER_TASK(indexed_features.gather_bin_borders_local, queue_);
 
     ONEDAL_ASSERT(values_nd.get_count() == row_count);
-
     sycl::event::wait_and_throw(deps);
-
     const Index max_bins = std::min(max_bins_, row_count);
-
     auto bin_offsets_nd_host = pr::ndarray<Index, 1>::empty({ max_bins });
+    auto [bin_unique, bin_unique_event] =
+        pr::ndarray<Index, 1>::full(queue_, 1, 0, sycl::usm::alloc::device);
     auto bin_borders_nd_device =
         pr::ndarray<Float, 1>::empty(queue_, { max_bins }, sycl::usm::alloc::device);
 
@@ -209,21 +220,14 @@ indexed_features<Float, Bin, Index>::gather_bin_borders(const pr::ndarray<Float,
                                           bin_offsets_nd_,
                                           bin_borders_nd_device,
                                           max_bins,
-                                          { deps });
+                                          bin_unique,
+                                          { bin_unique_event });
 
-    Index bin_count = 0;
-    auto bin_borders_nd_host = bin_borders_nd_device.to_host(queue_, { last_event });
-    auto bin_borders_ptr = bin_borders_nd_host.get_mutable_data();
+    last_event.wait_and_throw();
 
-    for (Index i = 0; i < max_bins; ++i) {
-        if (0 == bin_count ||
-            (bin_count > 0 && bin_borders_ptr[i] != bin_borders_ptr[bin_count - 1])) {
-            bin_borders_ptr[bin_count] = bin_borders_ptr[i];
-            bin_count++;
-        }
-    }
+    Index bin_count = bin_unique.to_host(queue_).get_data()[0];
 
-    bin_borders_nd_device = bin_borders_nd_host.slice(0, bin_count).to_device(queue_);
+    bin_borders_nd_device = bin_borders_nd_device.slice(0, bin_count);
 
     return std::make_tuple(bin_borders_nd_device, bin_count, last_event);
 }
@@ -234,7 +238,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
     const pr::ndarray<Float, 1>& values_nd,
     Index row_count,
     const bk::event_vector& deps) {
-    ONEDAL_PROFILER_TASK(indexed_features.gather_bin_borders, queue_);
+    ONEDAL_PROFILER_TASK(indexed_features.gather_bin_borders_distr, queue_);
 
     ONEDAL_ASSERT(values_nd.get_count() == row_count);
 
@@ -296,7 +300,7 @@ indexed_features<Float, Bin, Index>::gather_bin_borders_distr(
 
         // filter out fin bin set
         auto [fin_borders_nd_device_temp, fin_bin_count_temp, event] =
-            gather_bin_borders(com_bin_brd, com_bin_count);
+            gather_bin_borders(com_bin_brd, com_bin_count, { last_event });
         event.wait_and_throw();
 
         bin_borders_nd_device = fin_borders_nd_device_temp;

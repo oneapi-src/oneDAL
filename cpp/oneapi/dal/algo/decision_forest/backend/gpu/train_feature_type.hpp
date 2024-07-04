@@ -89,6 +89,7 @@ private:
                                     const pr::ndarray<Index, 1>& bin_offsets_nd,
                                     pr::ndarray<Float, 1>& bin_borders_nd,
                                     Index max_bins,
+                                    pr::ndarray<Index, 1>& unique_offsets_nd,
                                     const bk::event_vector& deps = {});
 
     std::tuple<pr::ndarray<Float, 1>, Index, sycl::event> gather_bin_borders(

@@ -44,9 +44,11 @@ void infer_kernel_impl<Float, Index, Task>::validate_input(const descriptor_t& d
     if (data.get_row_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
     }
+
     if (data.get_column_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
     }
+
     if (model.get_tree_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_number_of_trees());
     }
@@ -67,6 +69,7 @@ void infer_kernel_impl<Float, Index, Task>::init_params(infer_context_t& ctx,
         ctx.class_count = de::integral_cast<Index>(desc.get_class_count());
         ctx.voting_mode = desc.get_voting_mode();
     }
+
     ctx.row_count = de::integral_cast<Index>(data.get_row_count());
     ctx.column_count = de::integral_cast<Index>(data.get_column_count());
 
