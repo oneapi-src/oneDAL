@@ -138,6 +138,8 @@ sycl::event assign_clusters(sycl::queue& q,
     ONEDAL_PROFILER_TASK(assign_clusters, q);
 
     // Workaround. Sparce gemm cannot accept transposed dense inputs for now.
+    // TODO: Remove separate transpore and pass centroids.t() into gemm after updating
+    //       to MKL that supports transposed dense input matrix.
     auto centroids_transposed =
         pr::ndarray<Float, 2>::empty(q,
                                      { centroids.get_dimension(1), centroids.get_dimension(0) },
@@ -232,7 +234,7 @@ sycl::event update_centroids(sycl::queue& q,
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, centroids_elem_count, sizeof(Float));
     const auto centroids_num_bytes = centroids_elem_count * sizeof(Float);
 
-    auto clean_event = q.memset(centroids_ptr, 0, centroids_num_bytes);
+    auto clean_event = q.memset(centroids_ptr, 0, centroids_num_bytes, deps);
 
     const auto local_size = bk::device_max_sg_size(q);
     const size_t row_count_unsigned = static_cast<size_t>(row_count);
@@ -246,7 +248,6 @@ sycl::event update_centroids(sycl::queue& q,
     // Compute sum of data points belonging to each centroid
     auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(clean_event);
-        cgh.depends_on(deps);
         // Allocate storage for partial sums of data points at each worker in dense format
         local_accessor_rw_t<Float> local_sums(local_size * column_count, cgh);
         cgh.parallel_for(range, [=](sycl::nd_item<2> it) {
