@@ -98,6 +98,7 @@ static auto fill_empty_cluster_indices(sycl::queue& queue,
         if (host_counters_ptr[i] > 0) {
             continue;
         }
+
         host_empty_cluster_indices_ptr[counter] = i;
         counter++;
     }
@@ -172,17 +173,15 @@ auto copy_candidates_from_data(sycl::queue& queue,
 
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-
-        const auto range = sycl::range(candidate_count);
-        cgh.parallel_for(range, [=](auto id) {
+        cgh.parallel_for(sycl::range(candidate_count), [=](auto id) {
             const std::int64_t dst_i = empty_cluster_indices_ptr[id];
             const std::int64_t src_i = candidate_indices_ptr[id];
             const std::int64_t begin_idx = row_offsets_ptr[src_i];
             const std::int64_t end_idx = row_offsets_ptr[src_i + 1];
-            for (auto j = 0; j < column_count; ++j) {
+            for (std::int64_t j = 0; j < column_count; ++j) {
                 centroids_ptr[dst_i * column_count + j] = Float(0.0);
             }
-            for (auto j = begin_idx; j < end_idx; ++j) {
+            for (std::int64_t j = begin_idx; j < end_idx; ++j) {
                 centroids_ptr[dst_i * column_count + column_indices_ptr[j]] = values_ptr[j];
             }
         });
