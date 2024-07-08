@@ -115,7 +115,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`cholesky_batch.py`
+    - :daal4py_example:`cholesky.py`
 
 
 Performance Considerations

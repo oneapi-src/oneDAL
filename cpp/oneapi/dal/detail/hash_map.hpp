@@ -71,6 +71,14 @@ public:
     }
 
     ~hash_map() {
+        for (std::int64_t i = 0; i < capacity_; i++) {
+            entry_ptr current = entries_[i];
+            while (current) {
+                entry_ptr next = current->get_next();
+                delete current;
+                current = next;
+            }
+        }
         delete[] entries_;
         entries_ = nullptr;
         capacity_ = 0;

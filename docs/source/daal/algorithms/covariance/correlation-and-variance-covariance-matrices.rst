@@ -88,7 +88,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`covariance_batch.py`
+    - :daal4py_example:`covariance.py`
 
     Online Processing:
 
