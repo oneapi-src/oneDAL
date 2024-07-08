@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include <limits>
-#include <math>
+#include <cmath>
 
 #include "oneapi/dal/algo/finiteness_checker/compute.hpp"
 
