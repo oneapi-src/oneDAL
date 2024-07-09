@@ -63,7 +63,6 @@ private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
 };
 
-
 /// @tparam Task Tag-type that specifies the type of the problem to solve. Can
 ///              be :expr:`task::compute`.
 template <typename Task = task::by_default>
