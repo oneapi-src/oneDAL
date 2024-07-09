@@ -456,7 +456,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`em_gmm_batch.py`
+    - :daal4py_example:`em_gmm.py`
 
 Performance Considerations
 ==========================

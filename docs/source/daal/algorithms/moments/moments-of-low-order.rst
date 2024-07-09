@@ -108,7 +108,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`low_order_moms_dense_batch.py`
+    - :daal4py_example:`low_order_moms_dense.py`
 
     Online Processing:
 

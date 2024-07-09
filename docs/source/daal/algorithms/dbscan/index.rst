@@ -92,7 +92,7 @@ Examples
 
    Batch Processing:
 
-   - :daal4py_example:`dbscan_batch.py`
+   - :daal4py_example:`dbscan.py`
 
    Distributed Processing:
 
