@@ -55,7 +55,7 @@ public:
 
 using finiteness_types = COMBINE_TYPES((float, double), (finiteness_checker::method::dense));
 
-TEMPLATE_LIST_TEST_M(finiteness_checker_array_test,
+TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
                      "finiteness checker typical",
                      "[finiteness_checker][integration][batch]",
                      finiteness_types) {
@@ -81,7 +81,7 @@ TEMPLATE_LIST_TEST_M(finiteness_checker_array_test,
     this->check_finiteness(x_data, allowNaN, value, x_data_table_id);
 }
 
-TEMPLATE_LIST_TEST_M(finiteness_checker_single_test,
+TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
                      "finiteness_checker compute one element matrix",
                      "[finiteness_checker][integration][batch]",
                      finiteness_types) {
