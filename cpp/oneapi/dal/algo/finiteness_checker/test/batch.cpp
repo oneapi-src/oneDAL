@@ -69,9 +69,9 @@ TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
                            te::dataframe_builder{ 1100, 50 }.fill_normal(0, 1, 7777));
     auto x_data_mutable = x_data.get_array().get_mutable_data();
     const double value = GENERATE(0.0,
-                           -std::numeric_limits<double>::infinity(),
-                           std::numeric_limits<double>::infinity(),
-                           std::numeric_limits<double>::quiet_NaN());
+                                  -std::numeric_limits<double>::infinity(),
+                                  std::numeric_limits<double>::infinity(),
+                                  std::numeric_limits<double>::quiet_NaN());
     const bool allowNaN = GENERATE(0, 1);
     x_data_mutable[45] = value;
 
@@ -89,9 +89,9 @@ TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
 
     // Initialize values to doubles
     const double value = GENERATE(0.0,
-                           -std::numeric_limits<double>::infinity(),
-                           std::numeric_limits<double>::infinity(),
-                           std::numeric_limits<double>::quiet_NaN());
+                                  -std::numeric_limits<double>::infinity(),
+                                  std::numeric_limits<double>::infinity(),
+                                  std::numeric_limits<double>::quiet_NaN());
     const bool allowNaN = GENERATE(0, 1);
 
     const te::dataframe x_data = GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill(value));
