@@ -29,7 +29,7 @@ define set_daal_rt_deps
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnxriscv64.rt.seq := -lpthread $$(daaldep.lnxriscv64.rt.$$(COMPILER)) \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxriscv64.rt.dpc := -lpthread \
+  $$(eval daaldep.lnxriscv64.rt.dpc := -lpthread -lOpenCL \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnxriscv64.threxport := export_lnxriscv64.$$(BACKEND_CONFIG).def)
 
