@@ -34,7 +34,7 @@ public:
 
     void check_finiteness(const te::dataframe& x_data,
                           bool allowNaN,
-                          const double value,
+                          double value,
                           const te::table_id& x_data_table_id) {
         CAPTURE(allowNaN);
         const table x = x_data.get_table(this->get_policy(), x_data_table_id);
@@ -68,7 +68,7 @@ TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
                            te::dataframe_builder{ 250, 50 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 1100, 50 }.fill_normal(0, 1, 7777));
     auto x_data_mutable = x_data.get_array().get_mutable_data();
-    const value = GENERATE(0.0,
+    const double value = GENERATE(0.0,
                            -std::numeric_limits<double>::infinity(),
                            std::numeric_limits<double>::infinity(),
                            std::numeric_limits<double>::quiet_NaN());
@@ -88,7 +88,7 @@ TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
     SKIP_IF(this->not_float64_friendly());
 
     // Initialize values to doubles
-    const value = GENERATE(0.0,
+    const double value = GENERATE(0.0,
                            -std::numeric_limits<double>::infinity(),
                            std::numeric_limits<double>::infinity(),
                            std::numeric_limits<double>::quiet_NaN());
