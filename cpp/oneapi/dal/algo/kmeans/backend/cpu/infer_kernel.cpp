@@ -103,10 +103,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
             .compute(input, output, &par);
     }));
 
-    // result_options::compute_assignments is always set
+    // Responses or assignments are always set
     result.set_responses(
         dal::detail::homogen_table_builder{}.reset(arr_responses, row_count, 1).build());
 
+    // Objective function value is set only if it was requested
     if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
         result.set_objective_function_value(static_cast<double>(arr_objective_function_value[0]));
     }
