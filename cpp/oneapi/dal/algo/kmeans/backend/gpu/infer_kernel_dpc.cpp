@@ -96,12 +96,12 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             result.set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
         }
-        if (desc.get_result_options().test(result_options::compute_assignments)) {
-            result.set_responses(
-                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
-                                         row_count,
-                                         1));
-        }
+
+        // Responses are set by default
+        result.set_responses(
+            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
+                                        row_count,
+                                        1));
 
         return result;
     }
@@ -177,7 +177,7 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             result.set_objective_function_value(objective_function);
         }
 
-        // By default result_options::compute_assignments
+        // Responses are set by default
         result.set_responses(
             dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
