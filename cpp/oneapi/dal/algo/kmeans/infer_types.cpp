@@ -83,21 +83,11 @@ void infer_result<Task>::set_result_options_impl(const result_option_id& value) 
 }
 
 template <typename Task>
-const table& infer_result<Task>::get_responses() const {
-    return impl_->responses;
-}
-
-template <typename Task>
 double infer_result<Task>::get_objective_function_value() const {
     if (!get_result_options().test(result_options::compute_exact_objective_function)) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     return impl_->objective_function_value;
-}
-
-template <typename Task>
-void infer_result<Task>::set_responses_impl(const table& value) {
-    impl_->responses = value;
 }
 
 template <typename Task>
