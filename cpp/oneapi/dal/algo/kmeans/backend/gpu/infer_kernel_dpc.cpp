@@ -99,9 +99,7 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
 
         // Responses are set by default
         result.set_responses(
-            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
-                                        row_count,
-                                        1));
+            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
         return result;
     }
