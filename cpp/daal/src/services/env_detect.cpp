@@ -28,6 +28,7 @@
 #include "src/externals/service_service.h"
 #include "src/threading/threading.h"
 #include "services/error_indexes.h"
+#include <iostream>
 
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
@@ -127,6 +128,7 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
 
 DAAL_EXPORT daal::services::Environment::Environment()
 {
+    std::cout << "Env constructor" << std::endl;
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
     this->setDefaultExecutionContext(internal::CpuExecutionContext());
@@ -138,6 +140,7 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
+    std::cout << "Inside init number of threads" << std::endl;
 
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
@@ -149,11 +152,13 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 
         if (ncores > 0)
         {
+            std::cout << "(ht enabled) init with " << ncores << std::endl;
             daal::services::Environment::setNumberOfThreads(ncores);
         }
     }
     else
     {
+        std::cout << "(ht disabled) init with " << _daal_threader_get_max_threads() << std::endl;
         daal::services::Environment::setNumberOfThreads(_daal_threader_get_max_threads());
     }
     isInit = true;
@@ -161,6 +166,7 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
+    std::cout << "Env destructor" << std::endl;
     daal::services::daal_free_buffers();
 }
 

@@ -35,6 +35,7 @@
 #include <tbb/global_control.h>
 #include <tbb/task_arena.h>
 #include "services/daal_atomic_int.h"
+#include <iostream>
 
 #if defined(TBB_INTERFACE_VERSION) && TBB_INTERFACE_VERSION >= 12002
     #include <tbb/task.h>
@@ -42,17 +43,23 @@
 
 namespace daal
 {
-ThreaderEnvironment::ThreaderEnvironment() : _numberOfThreads(1), _taskArena(nullptr) {}
+ThreaderEnvironment::ThreaderEnvironment() : _numberOfThreads(1), _taskArena(nullptr)
+{
+    std::cout << "threader env constructor" << std::endl;
+}
 ThreaderEnvironment::~ThreaderEnvironment()
 {
+    std::cout << "threader env destructor" << std::endl;
     if (_taskArena)
     {
+        std::cout << "delete task arena" << std::endl;
         delete reinterpret_cast<tbb::task_arena *>(_taskArena);
         _taskArena = nullptr;
     }
 }
 void ThreaderEnvironment::setNumberOfThreads(size_t value)
 {
+    std::cout << "set number of threads from " << _numberOfThreads << " to " << value << std::endl;
     if (_taskArena)
     {
         delete reinterpret_cast<tbb::task_arena *>(_taskArena);
@@ -80,12 +87,14 @@ DAAL_EXPORT void _threaded_scalable_free(void * ptr)
 
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads)
 {
+    std::cout << "set nthreads " << numThreads << std::endl;
     static tbb::spin_mutex mt;
     tbb::spin_mutex::scoped_lock lock(mt);
     if (numThreads > 1)
     {
         const size_t maxNumThreads     = _daal_threader_get_max_threads();
         const size_t limitedNumThreads = numThreads < maxNumThreads ? numThreads : maxNumThreads;
+        std::cout << "Set number of threads to " << limitedNumThreads << " max(" << maxNumThreads << ")" << std::endl;
         daal::threader_env()->setNumberOfThreads(limitedNumThreads);
         return limitedNumThreads;
     }
