@@ -559,7 +559,7 @@ jobs:
     displayName: 'bazel-cache-limit'
 
 - job: LinuxDaal4py
-  # dependsOn: LinuxMakeGNU_MKL
+  dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -572,15 +572,15 @@ jobs:
       Python311:
         python.version: '3.11'
   steps:
-  # - task: DownloadPipelineArtifact@2
-  #   inputs:
-  #     artifact: '$(platform.type) build'
-  #     path: $(Pipeline.Workspace)
-  # - script: .ci/env/apt.sh dev-base
-  #   displayName: 'apt-get'
-  # - script: |
-  #     .ci/scripts/describe_system.sh
-  #   displayName: 'System info'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: '$(platform.type) build'
+      path: $(Pipeline.Workspace)
+  - script: .ci/env/apt.sh dev-base
+    displayName: 'apt-get'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
   - script: |
       conda update -y -q conda
       conda create -q -y -n CB -c conda-forge python=$(python.version) tbb mpich
