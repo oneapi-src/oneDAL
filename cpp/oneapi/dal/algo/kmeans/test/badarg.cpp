@@ -194,10 +194,9 @@ KMEANS_BADARG_TEST(
     const auto result =
         train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
 
-    const auto kmeans_desc_infer = this->get_descriptor().set_cluster_count(this->cluster_count)
+    const auto kmeans_desc_infer = this->get_descriptor().set_cluster_count(this->cluster_count);
 
-                                       const auto model =
-        infer(kmeans_desc_infer, result, this->get_train_data());
+    const auto model = infer(kmeans_desc_infer, result, this->get_train_data());
     REQUIRE_NOTHROW(model.get_responses());
     REQUIRE_THROWS_AS(model.get_objective_function_value(), domain_error);
 }
@@ -216,18 +215,6 @@ KMEANS_BADARG_TEST("throws if objective function value is set in result options 
     const auto model = infer(kmeans_desc_infer, result, this->get_train_data());
     REQUIRE_NOTHROW(model.get_responses());
     REQUIRE_NOTHROW(model.get_objective_function_value());
-}
-
-KMEANS_BADARG_TEST("throws if response and objective function value are not returned by default.") {
-    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->cluster_count);
-
-    const auto result =
-        train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
-
-    const auto model = infer(kmeans_desc, result, this->get_train_data());
-
-    REQUIRE_NOTHROW(model.get_objective_function_value());
-    REQUIRE_NOTHROW(model.get_responses());
 }
 
 } // namespace oneapi::dal::kmeans::test
