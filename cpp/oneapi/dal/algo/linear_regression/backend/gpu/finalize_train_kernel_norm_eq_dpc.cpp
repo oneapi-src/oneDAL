@@ -23,10 +23,10 @@
 
 namespace oneapi::dal::linear_regression::backend {
 
-namespace be = dal::backend;
+namespace bk = dal::backend;
 
 template <typename Float, typename Task>
-static train_result<Task> finalize_train(const be::context_gpu& ctx,
+static train_result<Task> finalize_train(const bk::context_gpu& ctx,
                                          const detail::descriptor_base<Task>& desc,
                                          const detail::train_parameters<Task>& params,
                                          const partial_train_result<Task>& input) {
@@ -35,7 +35,7 @@ static train_result<Task> finalize_train(const be::context_gpu& ctx,
 
 template <typename Float, typename Task>
 struct finalize_train_kernel_gpu<Float, method::norm_eq, Task> {
-    train_result<Task> operator()(const be::context_gpu& ctx,
+    train_result<Task> operator()(const bk::context_gpu& ctx,
                                   const detail::descriptor_base<Task>& desc,
                                   const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const {

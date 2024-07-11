@@ -59,6 +59,21 @@ train_result<Task> finalize_train_kernel_norm_eq_impl<Float, Task>::operator()(
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(q, betas_size, alloc);
 
+    if (comm_.get_rank_count() > 1) {
+        {
+            ONEDAL_PROFILER_TASK(xtx_allreduce);
+            auto xtx_arr =
+                dal::array<Float>::wrap(q, xtx_nd.get_mutable_data(), xtx_nd.get_count());
+            comm_.allreduce(xtx_arr).wait();
+        }
+        {
+            ONEDAL_PROFILER_TASK(xty_allreduce);
+            auto xty_arr =
+                dal::array<Float>::wrap(q, xty_nd.get_mutable_data(), xty_nd.get_count());
+            comm_.allreduce(xty_arr).wait();
+        }
+    }
+
     double alpha = desc.get_alpha();
     sycl::event ridge_event;
     if (alpha != 0.0) {
