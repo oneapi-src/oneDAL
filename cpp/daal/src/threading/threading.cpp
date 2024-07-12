@@ -43,9 +43,15 @@
 
 namespace daal
 {
-ThreaderEnvironment::ThreaderEnvironment() : _numberOfThreads(1), _taskArena(nullptr)
+ThreaderEnvironment::ThreaderEnvironment() : _numberOfThreads(1), _taskArena(nullptr), _schedulerHandle(nullptr)
 {
     std::cout << "threader env constructor" << std::endl;
+    #if defined(TARGET_X86_64)
+    _schedulerHandle = reinterpret_cast<void*>(new tbb::task_scheduler_handle(tbb::attach {}));
+    #endif
+    tbb::task_arena {}.initialize();
+    std::cout << "threader env constructor end" << std::endl;
+    
 }
 ThreaderEnvironment::~ThreaderEnvironment()
 {
@@ -55,6 +61,7 @@ ThreaderEnvironment::~ThreaderEnvironment()
         std::cout << "delete task arena" << std::endl;
         delete reinterpret_cast<tbb::task_arena *>(_taskArena);
         _taskArena = nullptr;
+        std::cout << "after delete task arena" << std::endl;
     }
 }
 void ThreaderEnvironment::setNumberOfThreads(size_t value)
@@ -67,7 +74,9 @@ void ThreaderEnvironment::setNumberOfThreads(size_t value)
     }
     if (value > 1)
     {
-        _taskArena = reinterpret_cast<void *>(new tbb::task_arena(value));
+        tbb::task_arena* arenaPtr = new tbb::task_arena(value);
+        // arenaPtr->initialize();
+        _taskArena = reinterpret_cast<void *>(arenaPtr);
     }
     _numberOfThreads = value;
 }

@@ -172,6 +172,7 @@ public:
 private:
     size_t _numberOfThreads;
     void * _taskArena;
+    void * _schedulerHandle;
 };
 
 inline ThreaderEnvironment * threader_env()
