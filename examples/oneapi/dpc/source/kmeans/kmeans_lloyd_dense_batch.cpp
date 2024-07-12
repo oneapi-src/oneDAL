@@ -59,7 +59,6 @@ void run(sycl::queue &q) {
         dal::kmeans::descriptor<>()
             .set_cluster_count(20)
             .set_max_iteration_count(5)
-            .set_result_options(dal::kmeans::result_options::compute_assignments)
             .set_accuracy_threshold(0.001);
 
     const auto result_test = dal::infer(q, kmeans_desc_infer, result_train.get_model(), x_test);
