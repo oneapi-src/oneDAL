@@ -558,6 +558,20 @@ jobs:
       fi
     displayName: 'bazel-cache-limit'
 
+- job: LinuxValgrind
+  # dependsOn: LinuxBazel
+  timeoutInMinutes: 0
+  pool:
+    vmImage: '$(VM_IMAGE)'
+  steps:
+  - script: |
+      valgrind_location=$(which valgrind)
+      echo "Valgrind location: $valgrind_location"
+      source .ci/env/valgrind_setup.sh
+    displayName: 'install-valgrind'
+
+
+
 - job: LinuxDaal4py
   dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
