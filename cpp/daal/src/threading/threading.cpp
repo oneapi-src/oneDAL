@@ -46,12 +46,11 @@ namespace daal
 ThreaderEnvironment::ThreaderEnvironment() : _numberOfThreads(1), _taskArena(nullptr), _schedulerHandle(nullptr)
 {
     std::cout << "threader env constructor" << std::endl;
-    #if defined(TARGET_X86_64)
-    _schedulerHandle = reinterpret_cast<void*>(new tbb::task_scheduler_handle(tbb::attach {}));
-    #endif
+#if defined(TARGET_X86_64)
+    _schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+#endif
     tbb::task_arena {}.initialize();
     std::cout << "threader env constructor end" << std::endl;
-    
 }
 ThreaderEnvironment::~ThreaderEnvironment()
 {
@@ -63,6 +62,19 @@ ThreaderEnvironment::~ThreaderEnvironment()
         _taskArena = nullptr;
         std::cout << "after delete task arena" << std::endl;
     }
+#if defined(TARGET_X86_64)
+    if (_schedulerHandle)
+    {
+        std::cout << "scheduler handle finalize" << std::endl;
+        tbb::task_scheduler_handle * schedulerHandle = reinterpret_cast<tbb::task_scheduler_handle *>(_schedulerHandle);
+        std::cout << "after reinterpret_cast" << std::endl;
+        tbb::finalize(*schedulerHandle);
+        std::cout << "after finalize" << std::endl;
+        delete schedulerHandle;
+        _schedulerHandle = nullptr;
+        std::cout << "after scheduler handle delete" << std::endl;
+    }
+#endif
 }
 void ThreaderEnvironment::setNumberOfThreads(size_t value)
 {
@@ -74,7 +86,7 @@ void ThreaderEnvironment::setNumberOfThreads(size_t value)
     }
     if (value > 1)
     {
-        tbb::task_arena* arenaPtr = new tbb::task_arena(value);
+        tbb::task_arena * arenaPtr = new tbb::task_arena(value);
         // arenaPtr->initialize();
         _taskArena = reinterpret_cast<void *>(arenaPtr);
     }
