@@ -68,7 +68,8 @@ ThreaderEnvironment::~ThreaderEnvironment()
         std::cout << "scheduler handle finalize" << std::endl;
         tbb::task_scheduler_handle * schedulerHandle = reinterpret_cast<tbb::task_scheduler_handle *>(_schedulerHandle);
         std::cout << "after reinterpret_cast" << std::endl;
-        tbb::finalize(*schedulerHandle);
+        std::cout << "--- no finalize ---" << std::endl;
+        // tbb::finalize(*schedulerHandle);
         std::cout << "after finalize" << std::endl;
         delete schedulerHandle;
         _schedulerHandle = nullptr;
