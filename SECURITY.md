@@ -19,13 +19,13 @@
 
 As an open-source project, we understand the importance of and responsibility
 for security. This Security Policy outlines our guidelines and procedures to
-ensure the highest level of security and trust for Intel(R) oneAPI Data Analytics Library.
+ensure the highest level of security and trust for oneDAL
 
 ## Supported Versions
 
 Security vulnerabilities are fixed in the [latest version][1]
 and delivered as a patch release. We don't guarantee security fixes to be
-back-ported to older Intel(R) oneAPI Data Analytics Library versions.
+back-ported to older oneDAL versions.
 
 ## Report a Vulnerability
 
@@ -52,16 +52,16 @@ Along with the report, provide the following info:
 
 ### When Should I Report a Vulnerability?
 
-* You think you discovered a potential security vulnerability in Intel(R) oneAPI Data Analytics Library.
-* You are unsure how the potential vulnerability affects Intel(R) oneAPI Data Analytics Library.
+* You think you discovered a potential security vulnerability in oneDAL
+* You are unsure how the potential vulnerability affects oneDAL
 * You think you discovered a vulnerability in another project or 3rd party
-component on which Intel(R) oneAPI Data Analytics Library depends. If the issue is not fixed in the 3rd party
+component on which oneDAL depends. If the issue is not fixed in the 3rd party
 component, try to report directly there first.
 
 ### When Should I NOT Report a Vulnerability?
 
 * You got an automated scan hit and are unable to provide details.
-* You need help using Intel(R) oneAPI Data Analytics Library for security.
+* You need help using oneDAL for security.
 * You need help applying security-related updates.
 * Your issue is not security-related.
 
@@ -69,7 +69,7 @@ component, try to report directly there first.
 
 We aim to respond quickly to your inquiry and coordinate a fix and
 disclosure with you. All confirmed security vulnerabilities will be addressed
-according to severity level and impact on Intel(R) oneAPI Data Analytics Library. Normally, security issues are fixed in the next planned release.
+according to severity level and impact on oneDAL Normally, security issues are fixed in the next planned release.
 
 ## Disclosure Policy
 
@@ -89,3 +89,5 @@ an issue or a pull request to this repository. **Do not** report
 potential vulnerabilities or security flaws via a pull request.
 
 [1]: https://github.com/oneapi-src/oneDAL/releases
+[2]: https://github.com/oneapi-src/oneDAL/security/advisories/new
+[3]: https://github.com/oneapi-src/oneDAL/security/advisories

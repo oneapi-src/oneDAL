@@ -583,7 +583,7 @@ jobs:
     displayName: 'System info'
   - script: |
       conda update -y -q conda
-      conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
+      conda create -q -y -n CB -c conda-forge python=$(python.version) tbb mpich
     displayName: 'Conda create'
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git daal4py
