@@ -43,8 +43,8 @@ bool compute_finiteness(sycl::queue& queue,
         ONEDAL_PROFILER_TASK(finiteness_checker.reduce, queue);
         out = pr::reduce_1d(queue, data_1d, pr::logical_or<Float>{}, pr::isinfornan<Float>{}, deps);
     }
-
-    return static_cast<bool>(out);
+    // invert out to match daal implementation (assert result is finite)
+    return !static_cast<bool>(out);
 }
 
 template <typename Float>
