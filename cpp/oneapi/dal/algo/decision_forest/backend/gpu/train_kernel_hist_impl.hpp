@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
-
+#include "oneapi/dal/backend/primitives/rng/rng.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine_collection.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
@@ -79,7 +79,7 @@ private:
                                           Index class_count) const;
 
     sycl::event gen_initial_tree_order(train_context_t& ctx,
-                                       rng_engine_list_t& rng_engine_list,
+                                       std::vector<std::uint8_t*>& engine_arr,
                                        pr::ndarray<Index, 1>& node_list,
                                        pr::ndarray<Index, 1>& tree_order_level,
                                        Index engine_offset,
