@@ -36,4 +36,34 @@ void uniform_gen_gpu(sycl::queue& queue,
     mkl::rng::save_state(engine, state);
 }
 
+template <typename Float>
+void uniform_gen_gpu_float(sycl::queue& queue,
+                           std::int64_t count_,
+                           Float* dst,
+                           std::uint8_t* state,
+                           Float a,
+                           Float b) {
+    std::int64_t count = static_cast<std::int64_t>(count_);
+
+    auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mt19937>(queue, state);
+
+    oneapi::mkl::rng::uniform<Float> distr(a, b);
+
+    auto event = oneapi::mkl::rng::generate(distr, engine, count, dst, {});
+    event.wait_and_throw();
+
+    mkl::rng::save_state(engine, state);
+}
+
+#define INSTANTIATE(F)                                                         \
+    template ONEDAL_EXPORT void uniform_gen_gpu_float<F>(sycl::queue & queue,  \
+                                                         std::int64_t count_,  \
+                                                         F * dst,              \
+                                                         std::uint8_t * state, \
+                                                         F a,                  \
+                                                         F b);
+
+INSTANTIATE(float)
+INSTANTIATE(double)
+
 } // namespace oneapi::dal::backend::primitives

@@ -29,6 +29,14 @@ void uniform_gen_gpu(sycl::queue& queue,
                      int a,
                      int b);
 
+template <typename Float>
+void uniform_gen_gpu_float(sycl::queue& queue,
+                           std::int64_t count_,
+                           Float* dst,
+                           std::uint8_t* state,
+                           Float a,
+                           Float b);
+
 #endif
 
 } // namespace oneapi::dal::backend::primitives

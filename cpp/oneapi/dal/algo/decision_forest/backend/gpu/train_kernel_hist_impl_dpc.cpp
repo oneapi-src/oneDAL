@@ -424,8 +424,13 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                         }
                     });
                 });
-                event_.wait_and_throw();
-                node_ptr[impl_const_t::ind_lrc] = row_index.to_host(queue_).get_data()[0];
+                auto set_event = queue_.submit([&](sycl::handler& cgh) {
+                    cgh.depends_on(event_);
+                    cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
+                        node_ptr[impl_const_t::ind_lrc] = row_idx_ptr[0];
+                    });
+                });
+                set_event.wait_and_throw();
             }
         }
 
@@ -445,21 +450,22 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
             // i.e. row_count can be eq 0
 
             Index* node_list_ptr = node_list_host.get_mutable_data();
+            auto set_event = queue_.submit([&](sycl::handler& cgh) {
+                cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) }, [=](sycl::id<1> idx) {
+                    Index* node_ptr = node_list_ptr + idx * impl_const_t::node_prop_count_;
+                    node_ptr[impl_const_t::ind_lrc] = row_count;
+                });
+            });
+            set_event.wait_and_throw();
 
-            for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
-                Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
-                node_ptr[impl_const_t::ind_lrc] = row_count;
+            if (row_count > 0) {
+                last_event = train_service_kernels_.initialize_tree_order(tree_order_level,
+                                                                          node_count,
+                                                                          row_count,
+                                                                          stride);
             }
         }
-
-        if (row_count > 0) {
-            last_event = train_service_kernels_.initialize_tree_order(tree_order_level,
-                                                                      node_count,
-                                                                      row_count,
-                                                                      stride);
-        }
     }
-
     return last_event;
 }
 
@@ -1890,38 +1896,44 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         de::check_mul_overflow(node_count, impl_const_t::node_prop_count_);
         de::check_mul_overflow(node_count, impl_const_t::node_imp_prop_count_);
-        auto node_vs_tree_map_list_host = pr::ndarray<Index, 1>::empty({ node_count });
-        auto level_node_list_init_host =
-            pr::ndarray<Index, 1>::empty({ node_count * impl_const_t::node_prop_count_ });
+        auto node_vs_tree_map_list =
+            pr::ndarray<Index, 1>::empty(queue_, { node_count }, alloc::device);
+        auto level_node_list_init =
+            pr::ndarray<Index, 1>::empty(queue_,
+                                         { node_count * impl_const_t::node_prop_count_ },
+                                         alloc::device);
 
-        auto tree_map = node_vs_tree_map_list_host.get_mutable_data();
-        auto node_list_ptr = level_node_list_init_host.get_mutable_data();
+        auto tree_map = node_vs_tree_map_list.get_mutable_data();
+        auto node_list_ptr = level_node_list_init.get_mutable_data();
 
-        for (Index node = 0; node < node_count; ++node) {
-            Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
-            tree_map[node] = iter + node;
-            node_ptr[impl_const_t::ind_ofs] =
-                ctx.selected_row_total_count_ * node; // local row offset
-            node_ptr[impl_const_t::ind_lrc] =
-                ctx.distr_mode_
-                    ? 0
-                    : ctx.selected_row_count_; // for distr_mode it will be updated during gen_initial_tree_order
-            node_ptr[impl_const_t::ind_grc] =
-                ctx.selected_row_total_count_; // global selected rows - it is already filtered for current block
-            node_ptr[impl_const_t::ind_lch_lrc] =
-                0; // for distr_mode it will be updated during tree_order_gen
-            node_ptr[impl_const_t::ind_fid] = impl_const_t::bad_val_;
-        }
+        auto fill_event = queue_.submit([&](sycl::handler& cgh) {
+            cgh.depends_on({ last_event });
+            cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) }, [=](sycl::id<1> node) {
+                Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
+                tree_map[node] = iter + node;
+                node_ptr[impl_const_t::ind_ofs] =
+                    ctx.selected_row_total_count_ * node; // local row offset
+                node_ptr[impl_const_t::ind_lrc] =
+                    ctx.distr_mode_
+                        ? 0
+                        : ctx.selected_row_count_; // for distr_mode it will be updated during gen_initial_tree_order
+                node_ptr[impl_const_t::ind_grc] =
+                    ctx.selected_row_total_count_; // global selected rows - it is already filtered for current block
+                node_ptr[impl_const_t::ind_lch_lrc] =
+                    0; // for distr_mode it will be updated during tree_order_gen
+                node_ptr[impl_const_t::ind_fid] = impl_const_t::bad_val_;
+            });
+        });
+        fill_event.wait_and_throw();
 
         last_event = gen_initial_tree_order(ctx,
                                             states,
-                                            level_node_list_init_host,
+                                            level_node_list_init,
                                             tree_order_lev_,
                                             iter,
                                             node_count);
 
-        auto node_vs_tree_map_list = node_vs_tree_map_list_host.to_device(queue_);
-        level_node_lists.push_back(level_node_list_init_host.to_device(queue_));
+        level_node_lists.push_back(level_node_list_init);
 
         last_event = compute_initial_histogram(ctx,
                                                response_nd_,
