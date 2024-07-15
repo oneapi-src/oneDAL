@@ -107,7 +107,7 @@ public:
 
     typedef algorithms::gbt::classification::prediction::Input InputType;
     typedef algorithms::gbt::classification::prediction::Parameter ParameterType;
-    typedef typename super::ResultType ResultType;
+    typedef algorithms::gbt::classification::prediction::Result ResultType;
 
     InputType input; /*!< %Input objects of the algorithm */
 
@@ -153,6 +153,12 @@ public:
     virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
 
     /**
+     * Returns the structure that contains the result of model-based prediction
+     * \return Structure that contains the result of the model-based prediction
+     */
+    ResultPtr getResult() { return ResultType::cast(_result); }
+
+    /**
      * Returns a pointer to the newly allocated gradient boosted trees prediction algorithm with a copy of input objects
      * and parameters of this gradient boosted trees prediction algorithm
      * \return Pointer to the newly allocated algorithm
@@ -164,7 +170,7 @@ protected:
 
     services::Status allocateResult() DAAL_C11_OVERRIDE
     {
-        services::Status s = _result->allocate<algorithmFPType>(&input, _par, 0);
+        services::Status s = getResult()->template allocate<algorithmFPType>(&input, _par, 0);
         _res               = _result.get();
         return s;
     }
@@ -173,6 +179,7 @@ protected:
     {
         _in = &input;
         _ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
+        _result.reset(new ResultType());
     }
 
 private:
