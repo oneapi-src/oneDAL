@@ -25,7 +25,6 @@
 #define __SERVICE_RNG_MKL_H__
 
 #include <mkl.h>
-#include "mkl_daal.h"
 #include "src/externals/service_stat_rng_mkl.h"
 #include "src/externals/service_rng_common.h"
 
