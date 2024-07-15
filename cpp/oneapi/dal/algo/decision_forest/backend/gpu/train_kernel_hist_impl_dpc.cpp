@@ -411,7 +411,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
 
             if (ctx.distr_mode_) {
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
-                Index* src = gen_row_idx_global_ptr;
 
                 Index* const dst = selected_row_ptr + ctx.selected_row_total_count_ * node_idx;
 
@@ -426,8 +425,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                     cgh.parallel_for(nd_range, [=](sycl::nd_item<1> id) {
                         auto idx = id.get_global_id(0);
                         dst[idx] = 0;
-                        if (src[idx] >= ctx.global_row_offset_ &&
-                            src[idx] < (ctx.global_row_offset_ + ctx.row_count_)) {
+                        if (gen_row_idx_global_ptr[idx] >= ctx.global_row_offset_ &&
+                            gen_row_idx_global_ptr[idx] <
+                                (ctx.global_row_offset_ + ctx.row_count_)) {
                             sycl::atomic_ref<
                                 Index,
                                 sycl::memory_order::relaxed,
@@ -435,18 +435,12 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                                 sycl::access::address_space::ext_intel_global_device_space>
                                 counter_atomic(row_idx_ptr[0]);
                             auto cur_idx = counter_atomic.fetch_add(1);
-                            dst[cur_idx] = src[idx] - ctx.global_row_offset_;
+                            dst[cur_idx] = gen_row_idx_global_ptr[idx] - ctx.global_row_offset_;
                         }
                     });
                 });
-
-                auto set_event = queue_.submit([&](sycl::handler& cgh) {
-                    cgh.depends_on({ event_ });
-                    cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
-                        node_ptr[impl_const_t::ind_lrc] = row_idx_ptr[0];
-                    });
-                });
-                set_event.wait_and_throw();
+                event_.wait_and_throw();
+                node_ptr[impl_const_t::ind_lrc] = row_index.to_host(queue_).get_data()[0];
             }
         }
 
