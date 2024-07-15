@@ -62,7 +62,7 @@ public:
     train_kernel_hist_impl(const bk::context_gpu& ctx)
             : queue_(ctx.get_queue()),
               comm_(ctx.get_communicator()),
-              train_service_kernels_(queue_) {}
+              train_service_kernels_(ctx.get_queue()) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc,
@@ -86,9 +86,6 @@ private:
                                        Index node_count);
 
     void validate_input(const descriptor_t& desc, const table& data, const table& labels) const;
-
-    Index get_row_total_count(bool distr_mode, Index row_count);
-    Index get_global_row_offset(bool distr_mode, Index row_count);
 
     /// Initializes `ctx` training context structure based on data and
     /// descriptor class. Filling and calculating all parameters in context,
