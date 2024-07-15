@@ -36,7 +36,6 @@ public:
                           bool allowNaN,
                           double value,
                           const te::table_id& x_data_table_id) {
-        CAPTURE(allowNaN);
         const table x = x_data.get_table(this->get_policy(), x_data_table_id);
 
         INFO("create descriptor");
@@ -44,8 +43,8 @@ public:
             finiteness_checker::descriptor<Float, Method>{}.set_allow_NaN(allowNaN);
 
         INFO("run compute");
-        const auto compute_result = this->compute(finiteness_desc, x);
-        if (compute_result != (std::isinf(value) || std::isnan(value) && allowNaN)) {
+        const bool compute_result = this->compute(finiteness_desc, x).get_finite();
+        if (compute_result == (std::isinf(value) || (std::isnan(value) && !allowNaN))) {
             CAPTURE(compute_result, value, allowNaN);
             FAIL();
         }
@@ -55,7 +54,7 @@ public:
 
 using finiteness_types = COMBINE_TYPES((float, double), (finiteness_checker::method::dense));
 
-TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
+TEMPLATE_LIST_TEST_M(finite_checker_batch_test,
                      "finiteness checker typical",
                      "[finiteness_checker][integration][batch]",
                      finiteness_types) {
@@ -81,7 +80,7 @@ TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
     this->check_finiteness(x_data, allowNaN, value, x_data_table_id);
 }
 
-TEMPLATE_LIST_TEST_M(finiteness_checker_batch_test,
+TEMPLATE_LIST_TEST_M(finite_checker_batch_test,
                      "finiteness_checker compute one element matrix",
                      "[finiteness_checker][integration][batch]",
                      finiteness_types) {
