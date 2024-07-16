@@ -19,4 +19,4 @@
 Threading Layer
 ^^^^^^^^^^^^^^^
 
-DEscription of the threading layer to go here.
+oneDAL uses Intel oneAPI Threading Building Blocks (Intel oneTBB)
