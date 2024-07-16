@@ -25,7 +25,7 @@ Refer to our guidelines on [pull requests](#pull-requests) and [issues](#issues)
 
 ## Contacting maintainers
 You may reach out to Intel project maintainers privately at onedal.maintainers@intel.com.
-[Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts: 
+[Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts:
 
 For ARM specifics you may contact: [@rakshithgb-fujitsu](https://github.com/rakshithgb-fujitsu/)
 
@@ -68,6 +68,12 @@ Refer to [ClangFormat documentation](https://clang.llvm.org/docs/ClangFormat.htm
 ### Coding Guidelines
 
 For your convenience we also added [coding guidelines](http://oneapi-src.github.io/oneDAL/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
+
+## Custom Components
+
+### Threading Layer
+
+In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form so called [threading layer](http://oneapi-src.github.io/oneDAL/contribution/threading.html).
 
 ## Documentation Guidelines
 
