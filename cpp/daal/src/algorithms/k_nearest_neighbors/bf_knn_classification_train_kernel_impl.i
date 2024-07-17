@@ -22,6 +22,7 @@
 #include "services/daal_defines.h"
 
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_impl.i"
 
 namespace daal
