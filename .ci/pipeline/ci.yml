@@ -114,7 +114,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
+      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -201,7 +201,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"clang" | "18" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
+      key: '"clang" | "18" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -293,7 +293,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"clang" | "riscv64" | "openblas" | "$(OPENBLAS_VERSION)"'
+      key: '"clang" | "riscv64" | "openblas" | "$(OPENBLAS_VERSION)" | "ILP64"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -363,7 +363,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"gcc" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)"'
+      key: '"gcc" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -583,7 +583,7 @@ jobs:
     displayName: 'System info'
   - script: |
       conda update -y -q conda
-      conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
+      conda create -q -y -n CB -c conda-forge python=$(python.version) tbb mpich
     displayName: 'Conda create'
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git daal4py

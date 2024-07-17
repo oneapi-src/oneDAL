@@ -138,7 +138,7 @@ Examples
 
       Batch Processing:
 
-      - :daal4py_example:`pca_batch.py`
+      - :daal4py_example:`pca.py`
 
       Distributed Processing:
 

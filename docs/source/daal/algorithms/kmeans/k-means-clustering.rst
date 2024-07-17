@@ -289,7 +289,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`kmeans_batch.py`
+    - :daal4py_example:`kmeans.py`
 
     Distributed Processing
 

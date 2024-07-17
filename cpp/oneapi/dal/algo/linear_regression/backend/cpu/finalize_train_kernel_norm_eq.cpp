@@ -31,11 +31,10 @@
 
 namespace oneapi::dal::linear_regression::backend {
 
-using daal::services::Status;
 using dal::backend::context_cpu;
 
-namespace be = dal::backend;
-namespace pr = be::primitives;
+namespace bk = dal::backend;
+namespace pr = bk::primitives;
 namespace interop = dal::backend::interop;
 namespace daal_lr = daal::algorithms::linear_regression;
 namespace daal_rr = daal::algorithms::ridge_regression;
@@ -65,10 +64,10 @@ static daal_lr_hyperparameters_t convert_parameters(const detail::train_paramete
 }
 
 template <typename Float, typename Task>
-static train_result<Task> call_daal_kernel(const context_cpu& ctx,
-                                           const detail::descriptor_base<Task>& desc,
-                                           const detail::train_parameters<Task>& params,
-                                           const partial_train_result<Task>& input) {
+static train_result<Task> call_daal_kernel_finalize(const context_cpu& ctx,
+                                                    const detail::descriptor_base<Task>& desc,
+                                                    const detail::train_parameters<Task>& params,
+                                                    const partial_train_result<Task>& input) {
     using dal::detail::check_mul_overflow;
 
     using model_t = model<Task>;
@@ -94,38 +93,27 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         auto ridge_matrix_array = array<Float>::full(1, static_cast<Float>(alpha));
         auto ridge_matrix = interop::convert_to_daal_homogen_table<Float>(ridge_matrix_array, 1, 1);
 
-        {
-            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-                return online_rr_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
-                                                                             *xty_daal_table,
-                                                                             *xtx_daal_table,
-                                                                             *xty_daal_table,
-                                                                             *betas_daal_table,
-                                                                             compute_intercept,
-                                                                             *ridge_matrix);
-            });
-
-            interop::status_to_exception(status);
-        }
+        interop::status_to_exception(
+            interop::call_daal_kernel_finalize_compute<Float, online_rr_kernel_t>(ctx,
+                                                                                  *xtx_daal_table,
+                                                                                  *xty_daal_table,
+                                                                                  *xtx_daal_table,
+                                                                                  *xty_daal_table,
+                                                                                  *betas_daal_table,
+                                                                                  compute_intercept,
+                                                                                  *ridge_matrix));
     }
     else {
         const daal_lr_hyperparameters_t& hp = convert_parameters<Float>(params);
-
-        {
-            const auto status = dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
-                constexpr auto cpu_type = interop::to_daal_cpu_type<decltype(cpu)>::value;
-                return online_lr_kernel_t<Float, cpu_type>().finalizeCompute(*xtx_daal_table,
-                                                                             *xty_daal_table,
-                                                                             *xtx_daal_table,
-                                                                             *xty_daal_table,
-                                                                             *betas_daal_table,
-                                                                             compute_intercept,
-                                                                             &hp);
-            });
-
-            interop::status_to_exception(status);
-        }
+        interop::status_to_exception(
+            interop::call_daal_kernel_finalize_compute<Float, online_lr_kernel_t>(ctx,
+                                                                                  *xtx_daal_table,
+                                                                                  *xty_daal_table,
+                                                                                  *xtx_daal_table,
+                                                                                  *xty_daal_table,
+                                                                                  *betas_daal_table,
+                                                                                  compute_intercept,
+                                                                                  &hp));
     }
 
     auto betas_table = homogen_table::wrap(betas_arr, response_count, feature_count + 1);
@@ -167,11 +155,11 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
 }
 
 template <typename Float, typename Task>
-static train_result<Task> train(const context_cpu& ctx,
-                                const detail::descriptor_base<Task>& desc,
-                                const detail::train_parameters<Task>& params,
-                                const partial_train_result<Task>& input) {
-    return call_daal_kernel<Float>(ctx, desc, params, input);
+static train_result<Task> finalize_train(const context_cpu& ctx,
+                                         const detail::descriptor_base<Task>& desc,
+                                         const detail::train_parameters<Task>& params,
+                                         const partial_train_result<Task>& input) {
+    return call_daal_kernel_finalize<Float>(ctx, desc, params, input);
 }
 
 template <typename Float, typename Task>
@@ -180,7 +168,7 @@ struct finalize_train_kernel_cpu<Float, method::norm_eq, Task> {
                                   const detail::descriptor_base<Task>& desc,
                                   const detail::train_parameters<Task>& params,
                                   const partial_train_result<Task>& input) const {
-        return train<Float, Task>(ctx, desc, params, input);
+        return finalize_train<Float, Task>(ctx, desc, params, input);
     }
 };
 
