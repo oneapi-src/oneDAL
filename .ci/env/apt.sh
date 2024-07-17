@@ -32,7 +32,7 @@ function add_repo {
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.1
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.2
     sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
 }
 
