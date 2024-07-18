@@ -358,7 +358,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
     pr::ndarray<Index, 1>& node_list_host,
     pr::ndarray<Index, 1>& tree_order_level,
     Index engine_offset,
-    Index node_count) {
+    Index node_count,
+    const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(gen_initial_tree_order, queue_);
 
     ONEDAL_ASSERT(node_list_host.get_count() == node_count * impl_const_t::node_prop_count_);
@@ -392,7 +393,8 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                                 gen_row_idx_global_ptr,
                                 rng_engine_list[engine_offset + node_idx],
                                 0,
-                                ctx.row_total_count_);
+                                ctx.row_total_count_,
+                                { deps });
 
             if (ctx.distr_mode_) {
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
@@ -1867,7 +1869,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     rng_engine_list_t engine_arr = collection([&](std::size_t i, std::size_t& skip) {
         skip = i * skip_num;
-        oneapi::mkl::rng::mt19937 engine(queue_, skip);
+        oneapi::mkl::rng::mrg32k3a engine(queue_, skip);
         auto mem_size = oneapi::mkl::rng::get_state_size(engine);
         std::uint8_t* mem_buf = new std::uint8_t[mem_size];
         oneapi::mkl::rng::save_state(engine, mem_buf);
@@ -1924,14 +1926,14 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
                 node_ptr[impl_const_t::ind_fid] = impl_const_t::bad_val_;
             });
         });
-        fill_event.wait_and_throw();
 
         last_event = gen_initial_tree_order(ctx,
                                             states,
                                             level_node_list_init,
                                             tree_order_lev_,
                                             iter,
-                                            node_count);
+                                            node_count,
+                                            { fill_event });
 
         level_node_lists.push_back(level_node_list_init);
 

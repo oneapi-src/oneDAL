@@ -83,7 +83,8 @@ private:
                                        pr::ndarray<Index, 1>& node_list,
                                        pr::ndarray<Index, 1>& tree_order_level,
                                        Index engine_offset,
-                                       Index node_count);
+                                       Index node_count,
+                                       const bk::event_vector& deps = {});
 
     void validate_input(const descriptor_t& desc, const table& data, const table& labels) const;
 

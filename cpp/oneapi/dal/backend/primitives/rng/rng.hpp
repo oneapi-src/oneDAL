@@ -27,7 +27,15 @@ void uniform_gen_gpu(sycl::queue& queue,
                      int* dst,
                      std::uint8_t* state,
                      int a,
-                     int b);
+                     int b,
+                     const event_vector& deps = {});
+
+void uniform_without_replacement_gen_gpu(sycl::queue& queue,
+                                         std::int64_t count_,
+                                         int* dst,
+                                         std::uint8_t* state,
+                                         int a,
+                                         int b);
 
 template <typename Float>
 void uniform_gen_gpu_float(sycl::queue& queue,
