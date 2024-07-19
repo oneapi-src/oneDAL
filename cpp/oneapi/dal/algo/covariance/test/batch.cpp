@@ -26,70 +26,43 @@ template <typename TestType>
 class covariance_batch_test : public covariance_test<TestType, covariance_batch_test<TestType>> {};
 
 TEMPLATE_LIST_TEST_M(covariance_batch_test,
-                     "covariance  fill_normal common flow",
-                     "[covariance][integration][batch]",
+                     "covariance common flow",
+                     "[covariance][integration][online]",
                      covariance_types) {
     SKIP_IF(this->not_float64_friendly());
 
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+
+    const bool assume_centered = GENERATE(true, false);
+    INFO("assume_centered=" << assume_centered);
+    const bool bias = GENERATE(true, false);
+    INFO("bias=" << bias);
+    const cov::result_option_id result_option =
+        GENERATE(covariance::result_options::means,
+                 covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix |
+                     covariance::result_options::means);
+    INFO("result_option=" << result_option);
+
+    auto cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                        .set_result_options(result_option)
+                        .set_assume_centered(assume_centered)
+                        .set_bias(bias);
+
     const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 4, 4 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 250, 250 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777));
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
+                       te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
+                       te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
+
+    INFO("num_rows=" << input.get_row_count());
+    INFO("num_columns=" << input.get_column_count());
 
     // Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
-    this->general_checks(input, input_data_table_id);
-    this->general_checks_assume_centered(input, input_data_table_id);
-}
-
-TEMPLATE_LIST_TEST_M(covariance_batch_test,
-                     "covariance compute one element matrix",
-                     "[covariance][integration][batch]",
-                     covariance_types) {
-    SKIP_IF(this->not_float64_friendly());
-    const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1, 1 }.fill_normal(0, 1, 7777));
-
-    // Homogen floating point type is the same as algorithm's floating point type
-    const auto input_data_table_id = this->get_homogen_table_id();
-    this->general_checks(input, input_data_table_id);
-}
-
-TEMPLATE_LIST_TEST_M(covariance_batch_test,
-                     "covariance fill_uniform common flow",
-                     "[covariance][integration][batch]",
-                     covariance_types) {
-    SKIP_IF(this->not_float64_friendly());
-
-    const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 100, 10 }.fill_uniform(0, 1, 7777),
-                           te::dataframe_builder{ 100, 10 }.fill_uniform(-10, 10, 7777),
-                           te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
-                           te::dataframe_builder{ 500, 250 }.fill_uniform(0, 1, 7777));
-
-    // Homogen floating point type is the same as algorithm's floating point type
-    const auto input_data_table_id = this->get_homogen_table_id();
-    this->general_checks(input, input_data_table_id);
-    this->general_checks_assume_centered(input, input_data_table_id);
-}
-
-TEMPLATE_LIST_TEST_M(covariance_batch_test,
-                     "covariance fill_uniform nightly common flow",
-                     "[covariance][integration][batch][nightly]",
-                     covariance_types) {
-    SKIP_IF(this->not_float64_friendly());
-
-    const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 5000, 20 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 1000000, 20 }.fill_uniform(-0.5, 0.5, 7777));
-
-    // Homogen floating point type is the same as algorithm's floating point type
-    const auto input_data_table_id = this->get_homogen_table_id();
-    this->general_checks(input, input_data_table_id);
-    this->general_checks_assume_centered(input, input_data_table_id);
+    this->general_checks(input, input_data_table_id, cov_desc);
 }
 
 } // namespace oneapi::dal::covariance::test
