@@ -491,13 +491,12 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
                                      { node_count * ctx.selected_ftr_count_ },
                                      alloc::device);
 
-    auto selected_features_host_ptr = selected_features_host.get_mutable_data();
-
     auto node_vs_tree_map_list_host = node_vs_tree_map_list.to_host(queue_);
 
-    pr::rng<Index> rn_gen;
-    auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
     if (ctx.selected_ftr_count_ != ctx.column_count_) {
+        auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
+        pr::rng<Index> rn_gen;
+        auto selected_features_host_ptr = selected_features_host.get_mutable_data();
         for (Index node = 0; node < node_count; ++node) {
             rn_gen.uniform_without_replacement(
                 ctx.selected_ftr_count_,
@@ -507,20 +506,28 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
                 0,
                 ctx.column_count_);
         }
+        auto event = selected_features_com.assign_from_host(queue_,
+                                                            selected_features_host_ptr,
+                                                            selected_features_com.get_count());
+
+        return std::tuple{ selected_features_com, event };
     }
     else {
+        sycl::event fill_event;
         for (Index node = 0; node < node_count; ++node) {
-            for (Index i = 0; i < ctx.selected_ftr_count_; ++i) {
-                selected_features_host_ptr[node * ctx.selected_ftr_count_ + i] = i;
-            }
+            auto selected_features_host_ptr = selected_features_com.get_mutable_data();
+
+            fill_event = queue_.submit([&](sycl::handler& cgh) {
+                cgh.parallel_for(
+                    sycl::range<1>{ std::size_t(ctx.selected_ftr_count_) },
+                    [=](sycl::id<1> idx) {
+                        selected_features_host_ptr[node * ctx.selected_ftr_count_ + idx] = idx;
+                    });
+            });
         }
+
+        return std::tuple{ selected_features_com, fill_event };
     }
-
-    auto event = selected_features_com.assign_from_host(queue_,
-                                                        selected_features_host_ptr,
-                                                        selected_features_com.get_count());
-
-    return std::tuple{ selected_features_com, event };
 }
 
 template <typename Float, typename Bin, typename Index, typename Task>
