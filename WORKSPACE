@@ -115,8 +115,8 @@ http_archive(
 
 http_archive(
     name = "fmt",
-    url = "https://github.com/fmtlib/fmt/archive/11.0.1.tar.gz",
-    sha256 = "7d009f7f89ac84c0a83f79ed602463d092fbf66763766a907c97fd02b100f5e9",
-    strip_prefix = "fmt-11.0.1",
+    url = "https://github.com/fmtlib/fmt/archive/11.0.2.tar.gz",
+    sha256 = "6cb1e6d37bdcb756dbbe59be438790db409cdb4868c66e888d5df9f13f7c027f",
+    strip_prefix = "fmt-11.0.2",
     build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
 )
