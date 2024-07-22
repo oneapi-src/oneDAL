@@ -20,8 +20,14 @@
 
   void sum(const size_t n, const float* a, const float* b, float* c) {
     constexpr size_t nThreads = 32;
-    daal::threader_for(n, nThreads, [&](size_t i) {
-      c[i] = a[i] + b[i];
+    constexpr size_t blockSize = 256;
+    const size_t nBlocks = (n + blockSize - 1) / blockSize;
+
+    daal::threader_for(nBlocks, nThreads, [&](size_t iBlock) {
+      const size_t iStart = iBlock * blockSize;
+      const size_t iEnd = (iBlock < (nBlocks - 1)) ? iStart + blockSize : n;
+      for (size_t i = iStart; i < iEnd; ++i) {
+        c[i] = a[i] + b[i];
+      }
     });
   }
-

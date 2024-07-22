@@ -16,12 +16,16 @@
 
 ::
 
-  #include "src/threading/threading.h"
+   #include "src/algorithms/service_error_handling.h"
+   #include "src/threading/threading.h"
 
-  void sum(const size_t n, const float* a, const float* b, float* c) {
-    constexpr size_t nThreads = 32;
-    daal::threader_for(n, nThreads, [&](size_t i) {
-      c[i] = a[i] + b[i];
-    });
-  }
-
+   SafeStatus safeStat;
+   daal::tls<float *> dotProductTLS([=, &safeStat]() {
+      float * dotProductPtr = new (std::nothrow) float;
+      if (!dotProductPtr)
+      {
+         safeStat.add(services::ErrorMemoryAllocationFailed);
+      }
+      dotProductPtr[0] = 0.0f;
+      return dotProductPtr;
+   });

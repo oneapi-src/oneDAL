@@ -16,12 +16,26 @@
 
 ::
 
-  #include "src/threading/threading.h"
+  constexpr size_t nThreads = 64;
+  constexpr size_t blockSize = 1024;
+  const size_t nBlocks = (n + blockSize - 1) / blockSize;
 
-  void sum(const size_t n, const float* a, const float* b, float* c) {
-    constexpr size_t nThreads = 32;
-    daal::threader_for(n, nThreads, [&](size_t i) {
-      c[i] = a[i] + b[i];
-    });
-  }
+  daal::threader_for(nBlocks, nThreads, [&](size_t iBlock) {
+    const size_t iStart = iBlock * blockSize;
+    const size_t iEnd = (iBlock < (nBlocks - 1)) ? iStart + blockSize : n;
 
+    // Compute partial result for this block
+    float partialDotProduct = 0.0f;
+    for (size_t i = iStart; i < iEnd; ++i) {
+      partialDotProduct += a[i] * b[i];
+    }
+
+    // Update thread-local result
+    float * localDotProduct = dotProductTLS.local();
+    if (!localDotProduct) {
+      // Allocation error happened earlier
+      return;
+    }
+    localDotProduct[0] += partialDotProduct;
+  });
+  DAAL_CHECK_SAFE_STATUS();  // if (!safeStat) return safeStat.detach();
