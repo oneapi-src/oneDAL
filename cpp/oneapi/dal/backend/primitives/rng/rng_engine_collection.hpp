@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng.hpp"
 
 #include <vector>
 

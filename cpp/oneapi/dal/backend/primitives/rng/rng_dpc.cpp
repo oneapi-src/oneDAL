@@ -19,16 +19,21 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 namespace oneapi::dal::backend::primitives {
 
-void uniform_gen_gpu(sycl::queue& queue,
-                     std::int64_t count,
-                     int* dst,
-                     std::uint8_t* state,
-                     int a,
-                     int b,
-                     const event_vector& deps) {
+template <typename Type, typename Size>
+void rng<Type, Size>::uniform(sycl::queue& queue,
+                              Size count,
+                              Type* dst,
+                              std::uint8_t* state,
+                              Type a,
+                              Type b,
+                              const event_vector& deps) {
+    // Implementation of uniform
+
+    // auto d = sycl::device(sycl::cpu_selector_v);
+    // sycl::queue cpu_queue(d);
     auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mrg32k3a>(queue, state);
 
-    oneapi::mkl::rng::uniform<int> distr(a, b);
+    oneapi::mkl::rng::uniform<Type> distr(a, b);
 
     auto event = oneapi::mkl::rng::generate(distr, engine, count, dst, { deps });
     event.wait_and_throw();
@@ -36,22 +41,43 @@ void uniform_gen_gpu(sycl::queue& queue,
     mkl::rng::save_state(engine, state);
 }
 
-void uniform_without_replacement_gen_gpu(sycl::queue& queue,
-                                         std::int64_t count,
-                                         int* dst,
-                                         std::uint8_t* state,
-                                         int a,
-                                         int b) {
+template <typename Type, typename Size>
+void rng<Type, Size>::uniform_mt2203(sycl::queue& queue,
+                                     Size count,
+                                     Type* dst,
+                                     std::int64_t seed,
+                                     Type a,
+                                     Type b,
+                                     const event_vector& deps) {
+    // Implementation of uniform
+    oneapi::mkl::rng::mt2203 engine(queue, seed);
+
+    oneapi::mkl::rng::uniform<Type> distr(a, b);
+
+    auto event = oneapi::mkl::rng::generate(distr, engine, count, dst, { deps });
+    event.wait_and_throw();
+}
+
+template <typename Type, typename Size>
+void rng<Type, Size>::uniform_without_replacement(sycl::queue& queue,
+                                                  Size count,
+                                                  Type* dst,
+                                                  std::uint8_t* state,
+                                                  Type a,
+                                                  Type b,
+                                                  const event_vector& deps) {
     auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mrg32k3a>(queue, state);
 
     oneapi::mkl::rng::uniform<float> distr;
-    auto local_buf = ndarray<std::int32_t, 1>::empty(queue, { b }, sycl::usm::alloc::device);
+    auto local_buf =
+        ndarray<std::int32_t, 1>::empty(queue, { std::int64_t(b) }, sycl::usm::alloc::device);
     auto local_buf_ptr = local_buf.get_mutable_data();
 
     auto random_buf = ndarray<float, 1>::empty(queue, { count }, sycl::usm::alloc::device);
     auto random_buf_ptr = random_buf.get_mutable_data();
 
     auto fill_event = queue.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
         cgh.parallel_for(sycl::range<1>{ std::size_t(b) }, [=](sycl::id<1> idx) {
             local_buf_ptr[idx] = idx;
         });
@@ -79,34 +105,56 @@ void uniform_without_replacement_gen_gpu(sycl::queue& queue,
     mkl::rng::save_state(engine, state);
 }
 
-template <typename Float>
-void uniform_gen_gpu_float(sycl::queue& queue,
-                           std::int64_t count_,
-                           Float* dst,
-                           std::uint8_t* state,
-                           Float a,
-                           Float b) {
-    std::int64_t count = static_cast<std::int64_t>(count_);
+#define INSTANTIATE(F, Size)                                               \
+    template ONEDAL_EXPORT void rng<F, Size>::uniform(sycl::queue& queue,  \
+                                                      Size count_,         \
+                                                      F* dst,              \
+                                                      std::uint8_t* state, \
+                                                      F a,                 \
+                                                      F b,                 \
+                                                      const event_vector& deps);
 
-    auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mrg32k3a>(queue, state);
+#define INSTANTIATE_FLOAT(Size) \
+    INSTANTIATE(float, Size)    \
+    INSTANTIATE(double, Size)   \
+    INSTANTIATE(int, Size)
 
-    oneapi::mkl::rng::uniform<Float> distr(a, b);
+INSTANTIATE_FLOAT(std::int64_t);
+INSTANTIATE_FLOAT(std::int32_t);
 
-    auto event = oneapi::mkl::rng::generate(distr, engine, count, dst, {});
-    event.wait_and_throw();
+#define INSTANTIATE_WO_REPLACEMENT(F, Size)                                \
+    template ONEDAL_EXPORT void rng<F, Size>::uniform_without_replacement( \
+        sycl::queue& queue,                                                \
+        Size count_,                                                       \
+        F* dst,                                                            \
+        std::uint8_t* state,                                               \
+        F a,                                                               \
+        F b,                                                               \
+        const event_vector& deps);
 
-    mkl::rng::save_state(engine, state);
-}
+#define INSTANTIATE_WO_REPLACEMENT_FLOAT(Size) \
+    INSTANTIATE_WO_REPLACEMENT(float, Size)    \
+    INSTANTIATE_WO_REPLACEMENT(double, Size)   \
+    INSTANTIATE_WO_REPLACEMENT(int, Size)
 
-#define INSTANTIATE(F)                                                         \
-    template ONEDAL_EXPORT void uniform_gen_gpu_float<F>(sycl::queue & queue,  \
-                                                         std::int64_t count_,  \
-                                                         F * dst,              \
-                                                         std::uint8_t * state, \
-                                                         F a,                  \
-                                                         F b);
+INSTANTIATE_WO_REPLACEMENT_FLOAT(std::int64_t);
+INSTANTIATE_WO_REPLACEMENT_FLOAT(std::int32_t);
 
-INSTANTIATE(float)
-INSTANTIATE(double)
+#define INSTANTIATE_WO_REPLACEMENT_MT2203(F, Size)                               \
+    template ONEDAL_EXPORT void rng<F, Size>::uniform_mt2203(sycl::queue& queue, \
+                                                             Size count_,        \
+                                                             F* dst,             \
+                                                             std::int64_t state, \
+                                                             F a,                \
+                                                             F b,                \
+                                                             const event_vector& deps);
+
+#define INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(Size) \
+    INSTANTIATE_WO_REPLACEMENT_MT2203(float, Size)    \
+    INSTANTIATE_WO_REPLACEMENT_MT2203(double, Size)   \
+    INSTANTIATE_WO_REPLACEMENT_MT2203(int, Size)
+
+INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(std::int64_t);
+INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(std::int32_t);
 
 } // namespace oneapi::dal::backend::primitives

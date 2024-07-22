@@ -56,16 +56,12 @@ public:
 
         Float* ind_ptr = val.get_mutable_data();
         auto& q = this->get_queue();
-        q.submit([&](sycl::handler& cgh) {
-             cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
-                 Index ind = item.get_id()[0];
-                 oneapi::mkl::rng::device::mcg59 engine(seed);
-                 oneapi::mkl::rng::device::uniform<Float> distr(a, b);
+        auto engine = oneapi::mkl::rng<oneapi::mkl::rng::mrg32k3a>(queue, seed);
 
-                 auto res = oneapi::mkl::rng::device::generate(distr, engine);
-                 ind_ptr[ind] = res;
-             });
-         }).wait_and_throw();
+        oneapi::mkl::rng::uniform<Type> distr(a, b);
+
+        auto event = oneapi::mkl::rng::generate(distr, engine, elem_count, ind_ptr, { deps });
+        event.wait_and_throw();
 
         val.assign(q, val).wait_and_throw();
     }

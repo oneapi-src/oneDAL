@@ -384,17 +384,17 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         Index* const selected_row_global_ptr = selected_row_global.get_mutable_data();
         Index* const selected_row_ptr = ctx.distr_mode_ ? selected_row.get_mutable_data() : nullptr;
         Index* const node_list_ptr = node_list_host.get_mutable_data();
-
+        pr::rng<Index> rn_gen;
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             Index* gen_row_idx_global_ptr =
                 selected_row_global_ptr + ctx.selected_row_total_count_ * node_idx;
-            pr::uniform_gen_gpu(queue_,
-                                ctx.selected_row_total_count_,
-                                gen_row_idx_global_ptr,
-                                rng_engine_list[engine_offset + node_idx],
-                                0,
-                                ctx.row_total_count_,
-                                { deps });
+            rn_gen.uniform(queue_,
+                           ctx.selected_row_total_count_,
+                           gen_row_idx_global_ptr,
+                           rng_engine_list[engine_offset + node_idx],
+                           0,
+                           ctx.row_total_count_,
+                           { deps });
 
             if (ctx.distr_mode_) {
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
