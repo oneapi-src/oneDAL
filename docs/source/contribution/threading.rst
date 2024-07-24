@@ -19,7 +19,7 @@
 Threading Layer
 ^^^^^^^^^^^^^^^
 
-oneDAL uses Intel\ |reg|\ oneAPI Threading Building Blocks (Intel\ |reg|\ oneTBB) to do parallel
+oneDAL uses Intel\ |reg|\  oneAPI Threading Building Blocks (Intel\ |reg|\  oneTBB) to do parallel
 computations on CPU.
 
 But oneTBB is not used in the code of oneDAL algorithms directly. The algorithms rather
@@ -31,6 +31,8 @@ on the particular threading technology.
 
 The API of the layer is defined in
 `threading.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/threading/threading.h>`_.
+Please be aware that those APIs are not publicly defined. So they can be changed at any time
+without any notification.
 
 This chapter describes common parallel patterns and primitives of the threading layer.
 
@@ -50,8 +52,7 @@ One of the options is to use ``daal::threader_for`` as shown here:
 .. include:: ../includes/threading/sum-parallel.rst
 
 The iteration space here goes from ``0`` to ``n-1``.
-``nThreads`` is the number of threads that execute the loop's body.
-And the last argument is the lambda function that defines a function object that proceeds ``i``-th
+The last argument is the lambda function that defines a function object that proceeds ``i``-th
 iteration of the loop.
 
 Blocking
@@ -108,3 +109,12 @@ Local memory of the threads should also be released when it is no longer needed.
 The complete parallel verision of dot product computations would look like:
 
 .. include:: ../includes/threading/dot-parallel.rst
+
+Static work scheduling
+**********************
+
+By default oneTBB uses dynamic work scheaduling and work stealing.
+It means that
+
+Nested parallelism
+******************
