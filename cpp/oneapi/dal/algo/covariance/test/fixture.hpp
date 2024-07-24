@@ -111,9 +111,7 @@ public:
         }
     }
 
-    void check_means_values(const descriptor_t& desc,
-                            const table& data,
-                            const table& means) {
+    void check_means_values(const descriptor_t& desc, const table& data, const table& means) {
         const auto reference_means = compute_reference_means(data, desc.get_assume_centered());
         const double tol = te::get_tolerance<Float>(1e-4, 1e-9);
         const double diff = te::abs_error(reference_means, means);
@@ -148,8 +146,7 @@ public:
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cov(const descriptor_t& desc,
-                                             const table& data) {
+    la::matrix<double> compute_reference_cov(const descriptor_t& desc, const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count_data = data_matrix.get_row_count();
         const auto column_count_data = data_matrix.get_column_count();
@@ -181,8 +178,7 @@ public:
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cor(const descriptor_t& desc,
-                                             const table& data) {
+    la::matrix<double> compute_reference_cor(const descriptor_t& desc, const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto column_count_data = data_matrix.get_column_count();
         auto reference_means = compute_reference_means(data, desc.get_assume_centered());

@@ -64,16 +64,15 @@ public:
     }
 
     void online_spmd_general_checks(const te::dataframe& input,
-                                const te::table_id& input_table_id,
-                                descriptor_t cov_desc) {
+                                    const te::table_id& input_table_id,
+                                    descriptor_t cov_desc) {
         const table data = input.get_table(this->get_policy(), input_table_id);
 
         std::vector<partial_result_t> partial_results;
         auto input_table = this->split_table_by_rows<double>(data, rank_count_);
         for (int64_t i = 0; i < rank_count_; i++) {
             dal::covariance::partial_compute_result<> partial_result;
-            auto input_table_blocks =
-                split_table_by_rows<double>(input_table[i], blocks_count_);
+            auto input_table_blocks = split_table_by_rows<double>(input_table[i], blocks_count_);
             for (int64_t j = 0; j < blocks_count_; j++) {
                 partial_result =
                     this->partial_compute(cov_desc, partial_result, input_table_blocks[j]);
@@ -88,7 +87,6 @@ public:
 private:
     std::int64_t rank_count_;
     std::int64_t blocks_count_;
-
 
     template <typename Float>
     std::vector<dal::table> split_table_by_rows(const dal::table& t, std::int64_t split_count) {
@@ -137,7 +135,6 @@ TEMPLATE_LIST_TEST_M(covariance_online_spmd_test,
     INFO("rank_count=" << rank_count);
     this->set_rank_count(rank_count);
 
-
     const bool assume_centered = GENERATE(true, false);
     INFO("assume_centered=" << assume_centered);
     const bool bias = GENERATE(true, false);
@@ -158,8 +155,8 @@ TEMPLATE_LIST_TEST_M(covariance_online_spmd_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                       te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
-                       te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
+                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
 
     INFO("num_rows=" << input.get_row_count());
     INFO("num_columns=" << input.get_column_count());

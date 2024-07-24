@@ -92,7 +92,7 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
 
     const int rank_count = GENERATE(2, 4);
     INFO("rank_count=" << rank_count);
-    this-> set_rank_count(rank_count);
+    this->set_rank_count(rank_count);
 
     const bool assume_centered = GENERATE(true, false);
     INFO("assume_centered=" << assume_centered);
@@ -114,8 +114,8 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                       te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
-                       te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
+                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
 
     INFO("num_rows=" << input.get_row_count());
     INFO("num_columns=" << input.get_column_count());
