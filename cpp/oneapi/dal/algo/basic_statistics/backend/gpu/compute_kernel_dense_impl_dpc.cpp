@@ -696,7 +696,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 
         if constexpr (!DefferedFin) {
             Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
-            Float mrgstdev = (Float)sqrt(mrgvariance);
+            Float mrgstdev = (Float)sycl::sqrt(mrgvariance);
 
             if constexpr (check_mask_flag(bs_list::sorm, List)) {
                 rsorm_ptr[group_id] = mrgsum2 / mrgvectors;
