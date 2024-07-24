@@ -22,7 +22,7 @@ deploy/        @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser
 dev/           @Alexsandruss @napetrov @homksei @ahuber21 @ethanglaser 
 
 # C++ code
-cpp/           @Alexsandruss @samir-nasibli @KulikovNikita @Alexandr-Solovev
+cpp/           @Alexsandruss @samir-nasibli @Alexandr-Solovev
 
 # Tree based methods
 dtrees         @razdoburdin @ahuber21 @avolkov-intel @icfaust
