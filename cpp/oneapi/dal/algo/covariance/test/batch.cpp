@@ -24,18 +24,18 @@ namespace cov = oneapi::dal::covariance;
 
 template <typename TestType>
 class covariance_batch_test : public covariance_test<TestType, covariance_batch_test<TestType>> {
-    public:
-        using base_t = covariance_test<TestType, covariance_batch_test<TestType>>;
-        using descriptor_t = typename base_t::descriptor_t;
+public:
+    using base_t = covariance_test<TestType, covariance_batch_test<TestType>>;
+    using descriptor_t = typename base_t::descriptor_t;
 
-        void general_checks(const te::dataframe& input,
-                            const te::table_id& input_table_id,
-                            descriptor_t cov_desc) {
-            const table data = input.get_table(this->get_policy(), input_table_id);
+    void general_checks(const te::dataframe& input,
+                        const te::table_id& input_table_id,
+                        descriptor_t cov_desc) {
+        const table data = input.get_table(this->get_policy(), input_table_id);
 
-            auto compute_result = this->compute(cov_desc, data);
-            this->check_compute_result(cov_desc, data, compute_result);
-        }
+        auto compute_result = this->compute(cov_desc, data);
+        this->check_compute_result(cov_desc, data, compute_result);
+    }
 };
 
 TEMPLATE_LIST_TEST_M(covariance_batch_test,
@@ -67,8 +67,8 @@ TEMPLATE_LIST_TEST_M(covariance_batch_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                       te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
-                       te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
+                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
 
     INFO("num_rows=" << input.get_row_count());
     INFO("num_columns=" << input.get_column_count());
