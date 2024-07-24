@@ -64,6 +64,15 @@ public:
         }
     }
 
+    void general_checks(const te::dataframe& input,
+                        const te::table_id& input_table_id,
+                        descriptor_t cov_desc) {
+        const table data = input.get_table(this->get_policy(), input_table_id);
+
+        auto compute_result = this->compute(cov_desc, data);
+        this->check_compute_result(cov_desc, data, compute_result);
+    }
+
 private:
     std::int64_t block_;
     bool pack_as_struct_;
@@ -74,18 +83,41 @@ TEMPLATE_LIST_TEST_M(covariance_params_test,
                      "[covariance][params]",
                      covariance_types) {
     SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+    const bool assume_centered = GENERATE(true, false);
+    INFO("assume_centered=" << assume_centered);
+    const bool bias = GENERATE(true, false);
+    INFO("bias=" << bias);
+    const cov::result_option_id result_option =
+        GENERATE(covariance::result_options::means,
+                 covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix |
+                     covariance::result_options::means);
+    INFO("result_option=" << result_option);
+
+    auto cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                        .set_result_options(result_option)
+                        .set_assume_centered(assume_centered)
+                        .set_bias(bias);
 
     const te::dataframe input =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
-                           te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 10000, 100 }.fill_uniform(-30, 30, 7777),
-                           te::dataframe_builder{ 100000, 20 }.fill_uniform(1, 10, 7777));
-    // Homogen floating point type is the same as algorithm's floating point type
+    GENERATE_DATAFRAME(te::dataframe_builder{ 500, 40 }.fill_uniform(-100, 100, 7777),
+                        te::dataframe_builder{ 1000, 20 }.fill_uniform(-30, 30, 7777),
+                        te::dataframe_builder{ 10000, 100 }.fill_uniform(-30, 30, 7777),
+                        te::dataframe_builder{ 100000, 20 }.fill_uniform(1, 10, 7777));
+
+    INFO("num_rows=" << input.get_row_count());
+    INFO("num_columns=" << input.get_column_count());
+
+// Homogen floating point type is the same as algorithm's floating point type
     const auto input_data_table_id = this->get_homogen_table_id();
 
     this->generate_parameters();
 
-    this->general_checks(input, input_data_table_id);
+    this->general_checks(input, input_data_table_id, cov_desc);
 }
 
 TEST("can dump system-related parameters") {
