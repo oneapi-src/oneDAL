@@ -670,7 +670,7 @@ public:
     BaseBatchParameter();
 
     DAAL_UINT64 resultsToCompute; /*!< 64 bit integer flag that indicates the results to compute */
-    size_t nComponents;           /*!< number of components for reduced implementation */
+    size_t nComponents;           /*!< number of components for reduced implementation (applicable for batch mode only) */
     bool isDeterministic;         /*!< sign flip if required */
     bool doScale;                 /*!< scaling if required */
     bool isCorrelation;           /*!< correlation is provided */
