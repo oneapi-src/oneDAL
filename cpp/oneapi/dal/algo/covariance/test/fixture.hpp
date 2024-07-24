@@ -76,30 +76,7 @@ public:
         return result;
     }
 
-    void general_checks(const te::dataframe& input,
-                        const te::table_id& input_table_id,
-                        descriptor_t cov_desc) {
-        const table data = input.get_table(this->get_policy(), input_table_id);
-
-        auto compute_result = this->compute(cov_desc, data);
-        check_compute_result(cov_desc, data, compute_result);
-    }
-
-    void online_general_checks(const te::dataframe& input,
-                               const te::table_id& input_table_id,
-                               const std::int64_t nBlocks,
-                               descriptor_t cov_desc) {
-        const table data = input.get_table(this->get_policy(), input_table_id);
-        dal::covariance::partial_compute_result<> partial_result;
-        auto input_table = split_table_by_rows<double>(data, nBlocks);
-        for (std::int64_t i = 0; i < nBlocks; ++i) {
-            partial_result = this->partial_compute(cov_desc, partial_result, input_table[i]);
-        }
-        auto compute_result = this->finalize_compute(cov_desc, partial_result);
-        check_compute_result(cov_desc, data, compute_result);
-    }
-
-    void check_compute_result(const covariance::descriptor<Float, Method>& desc,
+    void check_compute_result(const descriptor_t& desc,
                               const table& data,
                               const covariance::compute_result<>& result) {
         if (result.get_result_options().test(result_options::cov_matrix)) {
@@ -134,7 +111,7 @@ public:
         }
     }
 
-    void check_means_values(const covariance::descriptor<Float, Method>& desc,
+    void check_means_values(const descriptor_t& desc,
                             const table& data,
                             const table& means) {
         const auto reference_means = compute_reference_means(data, desc.get_assume_centered());
@@ -161,7 +138,7 @@ public:
         return reference_means;
     }
 
-    void check_cov_matrix_values(const covariance::descriptor<Float, Method>& desc,
+    void check_cov_matrix_values(const descriptor_t& desc,
                                  const table& data,
                                  const table& cov_matrix) {
         const auto reference_cov = compute_reference_cov(desc, data);
@@ -171,7 +148,7 @@ public:
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cov(const covariance::descriptor<Float, Method>& desc,
+    la::matrix<double> compute_reference_cov(const descriptor_t& desc,
                                              const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto row_count_data = data_matrix.get_row_count();
@@ -195,7 +172,7 @@ public:
         }
         return reference_cov;
     }
-    void check_cor_matrix_values(const covariance::descriptor<Float, Method>& desc,
+    void check_cor_matrix_values(const descriptor_t& desc,
                                  const table& data,
                                  const table& cor_matrix) {
         const auto reference_cor = compute_reference_cor(desc, data);
@@ -204,7 +181,7 @@ public:
         CHECK(diff < tol);
     }
 
-    la::matrix<double> compute_reference_cor(const covariance::descriptor<Float, Method>& desc,
+    la::matrix<double> compute_reference_cor(const descriptor_t& desc,
                                              const table& data) {
         const auto data_matrix = la::matrix<double>::wrap(data);
         const auto column_count_data = data_matrix.get_column_count();

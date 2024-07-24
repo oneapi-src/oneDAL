@@ -23,7 +23,20 @@ namespace la = te::linalg;
 namespace cov = oneapi::dal::covariance;
 
 template <typename TestType>
-class covariance_batch_test : public covariance_test<TestType, covariance_batch_test<TestType>> {};
+class covariance_batch_test : public covariance_test<TestType, covariance_batch_test<TestType>> {
+    public:
+        using base_t = covariance_test<TestType, covariance_batch_test<TestType>>;
+        using descriptor_t = typename base_t::descriptor_t;
+
+        void general_checks(const te::dataframe& input,
+                            const te::table_id& input_table_id,
+                            descriptor_t cov_desc) {
+            const table data = input.get_table(this->get_policy(), input_table_id);
+
+            auto compute_result = this->compute(cov_desc, data);
+            this->check_compute_result(cov_desc, data, compute_result);
+        }
+};
 
 TEMPLATE_LIST_TEST_M(covariance_batch_test,
                      "covariance common flow",

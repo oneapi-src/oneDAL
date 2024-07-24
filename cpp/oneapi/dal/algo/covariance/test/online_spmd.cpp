@@ -34,6 +34,7 @@ public:
     using partial_input_t = typename base_t::partial_input_t;
     using partial_result_t = typename base_t::partial_result_t;
     using result_t = typename base_t::result_t;
+    using descriptor_t = typename base_t::descriptor_t;
 
     void set_rank_count(std::int64_t rank_count) {
         rank_count_ = rank_count;
@@ -62,19 +63,17 @@ public:
         return input;
     }
 
-    void online_spmd_general_checks(const te::dataframe& data_fr,
-                                    cov::result_option_id compute_mode,
-                                    const te::table_id& data_table_id) {
-        CAPTURE(static_cast<std::uint64_t>(compute_mode));
-        const table data = data_fr.get_table(this->get_policy(), data_table_id);
+    void online_spmd_general_checks(const te::dataframe& input,
+                                const te::table_id& input_table_id,
+                                descriptor_t cov_desc) {
+        const table data = input.get_table(this->get_policy(), input_table_id);
 
-        const auto cov_desc = base_t::get_descriptor(compute_mode);
         std::vector<partial_result_t> partial_results;
-        auto input_table = base_t::template split_table_by_rows<double>(data, rank_count_);
+        auto input_table = this->split_table_by_rows<double>(data, rank_count_);
         for (int64_t i = 0; i < rank_count_; i++) {
             dal::covariance::partial_compute_result<> partial_result;
             auto input_table_blocks =
-                base_t::template split_table_by_rows<double>(input_table[i], blocks_count_);
+                split_table_by_rows<double>(input_table[i], blocks_count_);
             for (int64_t j = 0; j < blocks_count_; j++) {
                 partial_result =
                     this->partial_compute(cov_desc, partial_result, input_table_blocks[j]);
@@ -89,6 +88,33 @@ public:
 private:
     std::int64_t rank_count_;
     std::int64_t blocks_count_;
+
+
+    template <typename Float>
+    std::vector<dal::table> split_table_by_rows(const dal::table& t, std::int64_t split_count) {
+        ONEDAL_ASSERT(0l < split_count);
+        ONEDAL_ASSERT(split_count <= t.get_row_count());
+
+        const std::int64_t row_count = t.get_row_count();
+        const std::int64_t column_count = t.get_column_count();
+        const std::int64_t block_size_regular = row_count / split_count;
+        const std::int64_t block_size_tail = row_count % split_count;
+
+        std::vector<dal::table> result(split_count);
+
+        std::int64_t row_offset = 0;
+        for (std::int64_t i = 0; i < split_count; i++) {
+            const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+            const std::int64_t block_size = block_size_regular + tail;
+
+            const auto row_range = dal::range{ row_offset, row_offset + block_size };
+            const auto block = dal::row_accessor<const Float>{ t }.pull(row_range);
+            result[i] = dal::homogen_table::wrap(block, block_size, column_count);
+            row_offset += block_size;
+        }
+
+        return result;
+    }
 };
 
 using covariance_types = COMBINE_TYPES((float, double), (covariance::method::dense));
@@ -100,32 +126,47 @@ TEMPLATE_LIST_TEST_M(covariance_online_spmd_test,
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 1000, 100 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 2000, 20 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 2500, 20 }.fill_normal(-30, 30, 7777));
-    this->set_rank_count(GENERATE(1, 2, 4));
-    this->set_blocks_count(GENERATE(1, 3, 10));
-    cov::result_option_id mode_mean = result_options::means;
-    cov::result_option_id mode_cov = result_options::cov_matrix;
-    cov::result_option_id mode_cor = result_options::cor_matrix;
-    cov::result_option_id mode_cov_mean = result_options::cov_matrix | result_options::means;
-    cov::result_option_id mode_cov_cor = result_options::cov_matrix | result_options::cor_matrix;
-    cov::result_option_id mode_cor_mean = result_options::cor_matrix | result_options::means;
-    cov::result_option_id res_all =
-        result_options::cov_matrix | result_options::cor_matrix | result_options::means;
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
 
-    const cov::result_option_id compute_mode = GENERATE_COPY(mode_mean,
-                                                             mode_cor,
-                                                             mode_cov,
-                                                             mode_cor_mean,
-                                                             mode_cov_mean,
-                                                             mode_cov_cor,
-                                                             res_all);
+    const int64_t nBlocks = GENERATE(1, 3, 10);
+    INFO("nBlocks=" << nBlocks);
+    this->set_blocks_count(nBlocks);
 
-    const auto data_table_id = this->get_homogen_table_id();
+    const int64_t rank_count = GENERATE(2, 4);
+    INFO("rank_count=" << rank_count);
+    this->set_rank_count(rank_count);
 
-    this->online_spmd_general_checks(data, compute_mode, data_table_id);
+
+    const bool assume_centered = GENERATE(true, false);
+    INFO("assume_centered=" << assume_centered);
+    const bool bias = GENERATE(true, false);
+    INFO("bias=" << bias);
+    const cov::result_option_id result_option =
+        GENERATE(covariance::result_options::means,
+                 covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix |
+                     covariance::result_options::means);
+    INFO("result_option=" << result_option);
+
+    auto cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                        .set_result_options(result_option)
+                        .set_assume_centered(assume_centered)
+                        .set_bias(bias);
+
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
+                       te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
+                       te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
+
+    INFO("num_rows=" << input.get_row_count());
+    INFO("num_columns=" << input.get_column_count());
+
+    const auto input_data_table_id = this->get_homogen_table_id();
+
+    this->online_spmd_general_checks(input, input_data_table_id, cov_desc);
 }
 
 } // namespace oneapi::dal::covariance::test
