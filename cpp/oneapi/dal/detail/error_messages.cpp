@@ -116,6 +116,7 @@ MSG(object_does_not_provide_read_access_to_csr,
     "Given object does not provide read access to the block of CSR format")
 MSG(pull_column_interface_is_not_implemented,
     "Pull column interface is planned but not implemented yet")
+MSG(unsupported_table_conversion, "Unsupported table conversion")
 
 /* Ranges */
 MSG(invalid_range_of_rows, "Invalid range of rows")
