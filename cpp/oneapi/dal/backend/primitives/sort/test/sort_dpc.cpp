@@ -20,7 +20,7 @@
 #include "oneapi/dal/test/engine/io.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
-
+#include <oneapi/mkl.hpp>
 #include "oneapi/mkl/rng/device.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
@@ -56,11 +56,11 @@ public:
 
         Float* ind_ptr = val.get_mutable_data();
         auto& q = this->get_queue();
-        auto engine = oneapi::mkl::rng<oneapi::mkl::rng::mrg32k3a>(queue, seed);
+        oneapi::mkl::rng::mrg32k3a engine(q, seed);
 
-        oneapi::mkl::rng::uniform<Type> distr(a, b);
+        oneapi::mkl::rng::uniform<Float> distr(a, b);
 
-        auto event = oneapi::mkl::rng::generate(distr, engine, elem_count, ind_ptr, { deps });
+        auto event = oneapi::mkl::rng::generate(distr, engine, elem_count, ind_ptr, {});
         event.wait_and_throw();
 
         val.assign(q, val).wait_and_throw();

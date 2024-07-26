@@ -18,7 +18,7 @@
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-#include <daal/include/algorithms/engines/mcg59/mcg59.h>
+#include <daal/include/algorithms/engines/mt2203/mt2203.h>
 
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
@@ -82,7 +82,7 @@ public:
 class engine {
 public:
     explicit engine(std::int64_t seed = 777)
-            : engine_(daal::algorithms::engines::mcg59::Batch<>::create(seed)) {
+            : engine_(daal::algorithms::engines::mt2203::Batch<>::create(seed)) {
         impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
         if (!impl_) {
             throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
