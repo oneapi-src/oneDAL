@@ -27,7 +27,7 @@ class engine_collection {
 public:
     explicit engine_collection(Size count, std::int64_t seed = 777)
             : count_(count),
-              engine_(daal::algorithms::engines::mt2203::Batch<>::create(seed)),
+              engine_(daal::algorithms::engines::mcg59::Batch<>::create(seed)),
               params_(count),
               technique_(daal::algorithms::engines::internal::family),
               daal_engine_list_(count) {}

@@ -44,8 +44,9 @@ class BatchBaseImpl
 public:
     BatchBaseImpl(size_t seed) : _seed(seed) {}
     size_t getSeed() const { return _seed; }
-    virtual void * getState()        = 0;
-    virtual int getStateSize() const = 0;
+    virtual void * getState()                = 0;
+    virtual int skipAheadoneDAL(size_t skip) = 0;
+    virtual int getStateSize() const         = 0;
     virtual ~BatchBaseImpl() {}
     virtual bool hasSupport(ParallelizationTechnique technique) const = 0;
 

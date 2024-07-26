@@ -31,7 +31,7 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
 
     // auto d = sycl::device(sycl::cpu_selector_v);
     // sycl::queue cpu_queue(d);
-    auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mrg32k3a>(queue, state);
+    auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mcg59>(queue, state);
 
     oneapi::mkl::rng::uniform<Type> distr(a, b);
 

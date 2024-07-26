@@ -156,7 +156,11 @@ public:
     size_t getNumberOfStreamsImpl() const DAAL_C11_OVERRIDE { return _streams.size(); }
 
     size_t getMaxNumberOfStreamsImpl() const DAAL_C11_OVERRIDE { return 6024; }
-
+    int skipAheadoneDAL(size_t skip) DAAL_C11_OVERRIDE
+    {
+        skipAheadImpl(skip);
+        return 0;
+    }
     bool hasSupport(engines::internal::ParallelizationTechnique technique) const DAAL_C11_OVERRIDE
     {
         switch (technique)

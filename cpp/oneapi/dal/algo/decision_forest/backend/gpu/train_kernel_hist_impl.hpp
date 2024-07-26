@@ -147,6 +147,24 @@ private:
                                                   Index node_count,
                                                   const bk::event_vector& deps = {});
 
+    sycl::event compute_initial_imp_for_node_list_regression(
+        const train_context_t& ctx,
+        const pr::ndarray<Index, 1>& node_list,
+        const pr::ndarray<Float, 1>& local_sum_hist,
+        const pr::ndarray<Float, 1>& local_sum2cent_hist,
+        imp_data_t& imp_data_list,
+        Index node_count,
+        const bk::event_vector& deps = {});
+
+    sycl::event compute_local_sum_histogram(const train_context_t& ctx,
+                                            const pr::ndarray<Float, 1>& response,
+                                            const pr::ndarray<Index, 1>& tree_order,
+                                            const pr::ndarray<Index, 1>& node_list,
+                                            pr::ndarray<Float, 1>& local_sum_hist,
+                                            pr::ndarray<Float, 1>& local_sum2cent_hist,
+                                            Index node_count,
+                                            const bk::event_vector& deps = {});
+
     /// Computes initial histograms for each node to compute impurity.
     ///
     /// @param[in] ctx              a training context structure for a GPU backend
