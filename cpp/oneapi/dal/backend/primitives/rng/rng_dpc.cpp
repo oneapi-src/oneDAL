@@ -42,23 +42,6 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
 }
 
 template <typename Type, typename Size>
-void rng<Type, Size>::uniform_mt2203(sycl::queue& queue,
-                                     Size count,
-                                     Type* dst,
-                                     std::int64_t seed,
-                                     Type a,
-                                     Type b,
-                                     const event_vector& deps) {
-    // Implementation of uniform
-    oneapi::mkl::rng::mt2203 engine(queue, seed);
-
-    oneapi::mkl::rng::uniform<Type> distr(a, b);
-
-    auto event = oneapi::mkl::rng::generate(distr, engine, count, dst, { deps });
-    event.wait_and_throw();
-}
-
-template <typename Type, typename Size>
 void rng<Type, Size>::uniform_without_replacement(sycl::queue& queue,
                                                   Size count,
                                                   Type* dst,
@@ -140,21 +123,21 @@ INSTANTIATE_FLOAT(std::int32_t);
 INSTANTIATE_WO_REPLACEMENT_FLOAT(std::int64_t);
 INSTANTIATE_WO_REPLACEMENT_FLOAT(std::int32_t);
 
-#define INSTANTIATE_WO_REPLACEMENT_MT2203(F, Size)                               \
-    template ONEDAL_EXPORT void rng<F, Size>::uniform_mt2203(sycl::queue& queue, \
-                                                             Size count_,        \
-                                                             F* dst,             \
-                                                             std::int64_t state, \
-                                                             F a,                \
-                                                             F b,                \
-                                                             const event_vector& deps);
+// #define INSTANTIATE_WO_REPLACEMENT_MT2203(F, Size)                               \
+//     template ONEDAL_EXPORT void rng<F, Size>::uniform_mt2203(sycl::queue& queue, \
+//                                                              Size count_,        \
+//                                                              F* dst,             \
+//                                                              std::int64_t state, \
+//                                                              F a,                \
+//                                                              F b,                \
+//                                                              const event_vector& deps);
 
-#define INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(Size) \
-    INSTANTIATE_WO_REPLACEMENT_MT2203(float, Size)    \
-    INSTANTIATE_WO_REPLACEMENT_MT2203(double, Size)   \
-    INSTANTIATE_WO_REPLACEMENT_MT2203(int, Size)
+// #define INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(Size) \
+//     INSTANTIATE_WO_REPLACEMENT_MT2203(float, Size)    \
+//     INSTANTIATE_WO_REPLACEMENT_MT2203(double, Size)   \
+//     INSTANTIATE_WO_REPLACEMENT_MT2203(int, Size)
 
-INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(std::int64_t);
-INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(std::int32_t);
+// INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(std::int64_t);
+// INSTANTIATE_WO_REPLACEMENT_MT2203_FLOAT(std::int32_t);
 
 } // namespace oneapi::dal::backend::primitives

@@ -22,6 +22,9 @@
 
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
+#include "oneapi/dal/table/common.hpp"
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 template <typename Type, typename Size = std::int64_t>
@@ -30,6 +33,7 @@ public:
     rng() = default;
     ~rng() = default;
 
+#ifdef ONEDAL_DATA_PARALLEL
     void uniform(sycl::queue& queue,
                  Size count_,
                  Type* dst,
@@ -38,18 +42,6 @@ public:
                  Type b,
                  const event_vector& deps = {});
 
-    void uniform_mt2203(sycl::queue& queue,
-                        Size count_,
-                        Type* dst,
-                        std::int64_t state,
-                        Type a,
-                        Type b,
-                        const event_vector& deps = {});
-
-    void uniform(Size count, Type* dst, void* state, Type a, Type b) {
-        uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
-    }
-
     void uniform_without_replacement(sycl::queue& queue,
                                      Size count,
                                      Type* dst,
@@ -57,6 +49,11 @@ public:
                                      Type a,
                                      Type b,
                                      const event_vector& deps = {});
+#endif
+    void uniform(Size count, Type* dst, void* state, Type a, Type b) {
+        uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
+    }
+
     void uniform_without_replacement(Size count,
                                      Type* dst,
                                      Type* buffer,
@@ -80,9 +77,6 @@ public:
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
     }
-
-private:
-    daal::internal::RNGsInst<Type, DAAL_BASE_CPU> daal_rng_;
 };
 
 class engine {
