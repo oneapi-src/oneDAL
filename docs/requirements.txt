@@ -30,7 +30,7 @@ sphinx-prompt==1.6.0
 Sphinx-Substitution-Extensions==2022.2.16
 sphinx-tabs==3.4.4
 sphinxcontrib-applehelp==1.0.7
-sphinxcontrib-devhelp==1.0.5
+sphinxcontrib-devhelp==2.0.0
 sphinxcontrib-htmlhelp==2.0.4
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.6
