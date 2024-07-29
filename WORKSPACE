@@ -33,8 +33,8 @@ micromkl_repo(
 micromkl_dpc_repo(
     name = "micromkl_dpc",
     root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_2024-02-20.tgz",
-    sha256 = "1c60914461aafa5e5512181c7d5c1fdbdeff83746dbd980fe97074a3b65fc1ed",
+    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20240605.tgz",
+    sha256 = "0787a92e9580ed6b9fb97d054a0ed77994dbc18b4b3fb099451cb1e6ebdf4f16",
 )
 
 load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
@@ -115,8 +115,8 @@ http_archive(
 
 http_archive(
     name = "fmt",
-    url = "https://github.com/fmtlib/fmt/archive/11.0.1.tar.gz",
-    sha256 = "7d009f7f89ac84c0a83f79ed602463d092fbf66763766a907c97fd02b100f5e9",
-    strip_prefix = "fmt-11.0.1",
+    url = "https://github.com/fmtlib/fmt/archive/11.0.2.tar.gz",
+    sha256 = "6cb1e6d37bdcb756dbbe59be438790db409cdb4868c66e888d5df9f13f7c027f",
+    strip_prefix = "fmt-11.0.2",
     build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
 )

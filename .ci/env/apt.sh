@@ -32,7 +32,7 @@ function add_repo {
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.1
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.2
     sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
 }
 
@@ -63,7 +63,7 @@ function install_qemu_emulation_apt {
 }
 
 function install_qemu_emulation_deb {
-    qemu_deb=qemu-user-static_8.2.1+ds-1~bpo12+1_amd64.deb
+    qemu_deb=qemu-user-static_9.0.1+ds-1~bpo12+1_amd64.deb
     set -eo pipefail
     wget http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}
     sudo dpkg -i ${qemu_deb}
