@@ -113,8 +113,54 @@ The complete parallel verision of dot product computations would look like:
 Static work scheduling
 **********************
 
-By default oneTBB uses dynamic work scheaduling and work stealing.
-It means that
+By default oneTBB uses
+`dynamic work scheduling <https://oneapi-src.github.io/oneTBB/main/tbb_userguide/How_Task_Scheduler_Works.html>`_
+and work stealing.
+It means that two different runs of the same parallel loop can produce different
+mappings of the loop's iteration space to the available threads.
+This strategy is benefitial when it is hard to estimate the amount of work performed
+by each iteration.
+
+In the cases when it is known that the iterations perform equal amount of work it
+might be benefitial to use pre-defined mapping of the loop's iterations to threads.
+This is what static work scheduling does.
+
+``daal::static_threader_for`` and ``daal::static_tls`` allow to implement static
+work scheduling within oneDAL.
+
+Here is a variant of parallel dot product computation with static scheduling:
+
+.. include:: ../includes/threading/dot-static-parallel.rst
 
 Nested parallelism
 ******************
+
+It is allowed to have nested parallel loops within oneDAL.
+What is important to know is that
+
+    "when a parallel construct calls another parallel construct, a thread can obtain a task
+     from the outer-level construct while waiting for completion of the inner-level one."
+
+    -- `oneTBB documentation <https://www.intel.com/content/www/us/en/docs/onetbb/developer-guide-api-reference/2021-13/work-isolation.html>`_
+
+In practice this means that, for example, a thread-local variable might unexpectedly
+change its value after a nested parallel construct:
+
+.. include:: ../includes/threading/nested-parallel.rst
+
+In some scenarios this can lead to deadlocks, segmentation faults and other issues.
+
+oneTBB provides ways to isolate execution of a parallel construct, for its tasks
+to not interfere with other simultaneously running tasks.
+
+Those options are preferred when the parallel loops are initially written as nested.
+But in oneDAL there are cases when one parallel algorithm, the outer one,
+calls another parallel algorithm, the inner one, within a parallel region.
+
+The inner algorithm in this case can also be called solely, without additional nesting.
+And we do not want to always make it isolated.
+
+For the cases like that oneDAL provides ``daal::ls``. Its ``local()`` method always
+returns the same value for the same thread, regardless of the nested execution:
+
+.. include:: ../includes/threading/nested-parallel-ls.rst

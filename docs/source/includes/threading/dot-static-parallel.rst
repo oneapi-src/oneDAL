@@ -21,7 +21,7 @@
 
    services::Status dot(const size_t n, const float* a, const float* b, float &dotProduct) {
       SafeStatus safeStat;
-      daal::tls<float *> dotProductTLS([=, &safeStat]() {
+      daal::static_tls<float *> dotProductTLS([=, &safeStat]() {
          float * dotProductPtr = new (std::nothrow) float;
          if (!dotProductPtr) {
             safeStat.add(services::ErrorMemoryAllocationFailed);
@@ -33,7 +33,7 @@
       constexpr size_t blockSize = 1024;
       const size_t nBlocks = (n + blockSize - 1) / blockSize;
 
-      daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+      daal::static_threader_for(nBlocks, [&](size_t iBlock, size_t threadId) {
          const size_t iStart = iBlock * blockSize;
          const size_t iEnd = (iBlock < (nBlocks - 1)) ? iStart + blockSize : n;
 
@@ -44,7 +44,8 @@
          }
 
          // Update thread-local result
-         float * localDotProduct = dotProductTLS.local();
+         // Note that exact thread index is used to get access to the thread's data
+         float * localDotProduct = dotProductTLS.local(threadId);
          if (!localDotProduct) {
             // Allocation error happened earlier
             return;

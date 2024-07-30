@@ -20,11 +20,35 @@
    #include "src/threading/threading.h"
 
    SafeStatus safeStat;
-   daal::tls<float *> dotProductTLS([=, &safeStat]() {
-      float * dotProductPtr = new (std::nothrow) float;
-      if (!dotProductPtr) {
+   daal::tls<float *> tls([=, &safeStat]() {
+      float * localBuffer = new (std::nothrow) float[localSize];
+      if (!localBuffer) {
          safeStat.add(services::ErrorMemoryAllocationFailed);
       }
-      dotProductPtr[0] = 0.0f;
-      return dotProductPtr;
+      return localBuffer;
+   })
+   daal::threader_for(n, n, [&](size_t i) {
+      float * localBuffer = tls.local();
+      if (!localBuffer) {
+         // Allocation error happened earlier
+         return;
+      }
+
+      // Initialize localBuffer with some data here
+
+      daal::threader_for(m, m, [&](size_t j) {
+         /* Some work */
+      });
+
+      // While executing the above parallel_for, the thread might have run iterations
+      // of the outer parallel_for, and so might have changed the thread specific value.
+      assert(localBuffer == tls.local()); // The assertion may fail!
+   });
+   DAAL_CHECK_SAFE_STATUS()
+
+   tls.reduce([&](float * localBuffer) {
+      if (localBuffer) {
+         /* Do reduction */
+         delete localBuffer;
+      }
    });

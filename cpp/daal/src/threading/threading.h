@@ -397,10 +397,18 @@ public:
     virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
 };
 
+/// Thread-local storage (TLS)
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class tls : public tlsBase
 {
 public:
+    /// Initialize thread-local storage
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */]() -> F
+    ///
+    /// @param lambda       Lambda function that initializes a thread-local storage
     template <typename lambdaType>
     explicit tls(const lambdaType & lambda)
     {
@@ -415,6 +423,11 @@ public:
         tlsPtr = _daal_get_tls_ptr(a, tls_func<lambdaType>);
     }
 
+    /// Destroys the memory associated with a thread-local storage
+    ///
+    /// @note TLS does not release the memory allocated by a lambda-function
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~tls()
     {
         d->del(voidLambda);
@@ -422,12 +435,23 @@ public:
         _daal_del_tls_ptr(tlsPtr);
     }
 
+    /// Access a local data of a thread by value
+    ///
+    /// @return When first ionvoced by a thread, a lambda provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local()
     {
         void * pf = _daal_get_tls_local(tlsPtr);
         return (static_cast<F>(pf));
     }
 
+    /// Sequential reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage sequentially.
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
@@ -436,6 +460,12 @@ public:
         _daal_reduce_tls(tlsPtr, a, tls_reduce_func<F, lambdaType>);
     }
 
+    /// Parallel reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage in parallel.
     template <typename lambdaType>
     void parallel_reduce(const lambdaType & lambda)
     {
