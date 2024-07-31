@@ -23,7 +23,7 @@ oneDAL uses Intel\ |reg|\  oneAPI Threading Building Blocks (Intel\ |reg|\  oneT
 computations on CPU.
 
 But oneTBB is not used in the code of oneDAL algorithms directly. The algorithms rather
-use custom primitives that either wrap oneTBB functionality or are inhome developed.
+use custom primitives that either wrap oneTBB functionality or are in-house developed.
 Those primitives form oneDAL's threading layer.
 
 This is done in order not to be dependent on possible oneTBB API changes and even
@@ -31,7 +31,7 @@ on the particular threading technology.
 
 The API of the layer is defined in
 `threading.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/threading/threading.h>`_.
-Please be aware that those APIs are not publicly defined. So they can be changed at any time
+Please be aware that those APIs are not publicly defined, so they can be changed at any time
 without any notification.
 
 This chapter describes common parallel patterns and primitives of the threading layer.
@@ -39,13 +39,13 @@ This chapter describes common parallel patterns and primitives of the threading 
 threader_for
 ************
 
-Lets consider you need to compute an elementwise sum of two arrays and store the results
+Consider a case where you need to compute an elementwise sum of two arrays and store the results
 into another array.
 Here is a variant of sequential implementation:
 
 .. include:: ../includes/threading/sum-sequential.rst
 
-There are several options available in oneDAL's threading layer to let the iterations of this code
+There are several options available in the threading layer of oneDAL to let the iterations of this code
 run in parallel.
 One of the options is to use ``daal::threader_for`` as shown here:
 
@@ -84,23 +84,23 @@ Following code allocates memory that would store partial dot products for each t
 
 .. include:: ../includes/threading/dot-parallel-init-tls.rst
 
-``SafeStatus`` in this code denotes a thread-safe counterpart of oneDAL's ``Status`` class.
+``SafeStatus`` in this code denotes a thread-safe counterpart of the ``Status`` class.
 ``SafeStatus`` allows to collect errors from all threads and report them to user using
 ``detach()`` method as it will be shown later in the code.
 
-Checking the status right after the initialization code won't show the allocation errors though.
-Because oneTBB uses lazy evaluation and the lambda function passed to the constructor of the TLS
+Checking the status right after the initialization code won't show the allocation errors,
+because oneTBB uses lazy evaluation and the lambda function passed to the constructor of the TLS
 is evaluated in the moment of the TLS's first use.
 
-Again, there are several options available in oneDAL's threading layer to compute the partial
+Again, there are several options available in the threading layer of oneDAL to compute the partial
 dot product results at each thread.
-One of the options is to use already mentioned ``daal::threader_for`` and blocking approach
+One of the options is to use the already mentioned ``daal::threader_for`` and blocking approach
 as shown here:
 
 .. include:: ../includes/threading/dot-parallel-partial-compute.rst
 
 To compute the final result it is requred to reduce TLS's partial results over all threads
-as it is shown here:
+as shown here:
 
 .. include:: ../includes/threading/dot-parallel-reduction.rst
 
@@ -110,40 +110,40 @@ The complete parallel verision of dot product computations would look like:
 
 .. include:: ../includes/threading/dot-parallel.rst
 
-Static work scheduling
+Static Work Scheduling
 **********************
 
-By default oneTBB uses
+By default, oneTBB uses
 `dynamic work scheduling <https://oneapi-src.github.io/oneTBB/main/tbb_userguide/How_Task_Scheduler_Works.html>`_
 and work stealing.
 It means that two different runs of the same parallel loop can produce different
 mappings of the loop's iteration space to the available threads.
-This strategy is benefitial when it is hard to estimate the amount of work performed
+This strategy is benefitial when it is difficult to estimate the amount of work performed
 by each iteration.
 
-In the cases when it is known that the iterations perform equal amount of work it
-might be benefitial to use pre-defined mapping of the loop's iterations to threads.
+In the cases when it is known that the iterations perform an equal amount of work, it
+might be benefitial to use predefined mapping of the loop's iterations to threads.
 This is what static work scheduling does.
 
-``daal::static_threader_for`` and ``daal::static_tls`` allow to implement static
+``daal::static_threader_for`` and ``daal::static_tls`` allow implementation of static
 work scheduling within oneDAL.
 
 Here is a variant of parallel dot product computation with static scheduling:
 
 .. include:: ../includes/threading/dot-static-parallel.rst
 
-Nested parallelism
+Nested Parallelism
 ******************
 
-It is allowed to have nested parallel loops within oneDAL.
-What is important to know is that
+oneDAL supports nested parallel loops.
+It is important to know that:
 
     "when a parallel construct calls another parallel construct, a thread can obtain a task
      from the outer-level construct while waiting for completion of the inner-level one."
 
     -- `oneTBB documentation <https://www.intel.com/content/www/us/en/docs/onetbb/developer-guide-api-reference/2021-13/work-isolation.html>`_
 
-In practice this means that, for example, a thread-local variable might unexpectedly
+In practice, this means that a thread-local variable might unexpectedly
 change its value after a nested parallel construct:
 
 .. include:: ../includes/threading/nested-parallel.rst
@@ -158,9 +158,9 @@ But in oneDAL there are cases when one parallel algorithm, the outer one,
 calls another parallel algorithm, the inner one, within a parallel region.
 
 The inner algorithm in this case can also be called solely, without additional nesting.
-And we do not want to always make it isolated.
+And we do not always want to make it isolated.
 
-For the cases like that oneDAL provides ``daal::ls``. Its ``local()`` method always
+For the cases like that, oneDAL provides ``daal::ls``. Its ``local()`` method always
 returns the same value for the same thread, regardless of the nested execution:
 
 .. include:: ../includes/threading/nested-parallel-ls.rst

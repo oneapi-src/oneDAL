@@ -73,7 +73,7 @@ For your convenience we also added [coding guidelines](http://oneapi-src.github.
 
 ### Threading Layer
 
-In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form so called [threading layer](http://oneapi-src.github.io/oneDAL/contribution/threading.html). Contributors should leverage the primitives from the layer to implement parallel algorithms.
+In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form are called the [threading layer](http://oneapi-src.github.io/oneDAL/contribution/threading.html). Contributors should leverage the primitives from the layer to implement parallel algorithms.
 
 ## Documentation Guidelines
 

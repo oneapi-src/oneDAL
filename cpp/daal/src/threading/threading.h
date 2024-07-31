@@ -300,10 +300,10 @@ inline void threader_for_int32ptr(const int * begin, const int * end, const F & 
 /// Let ``t`` be the number of threads available to oneDAL.
 ///
 /// Then the number of iterations processed by each threads (except maybe the last one)
-/// is copmputed as:
+/// is computed as:
 /// ``nI = (n + t - 1) / t``
 ///
-/// Here is how the work in split across the threads:
+/// Here is how the work is split across the threads:
 /// The 1st thread executes iterations ``0``, ..., ``nI - 1``;
 /// the 2nd thread executes iterations ``nI``, ..., ``2 * nI - 1``;
 /// ...
@@ -439,7 +439,7 @@ public:
 
     /// Access a local data of a thread by value
     ///
-    /// @return When first invoced by a thread, a lambda provided to the constructor is
+    /// @return When first invoked by a thread, a lambda provided to the constructor is
     ///         called to initialize the local data of the thread and return it.
     ///         All the following invocations just return the same thread-local data.
     F local()
@@ -566,7 +566,7 @@ public:
     ///
     /// @param tid  Index of the thread.
     ///
-    /// @return When first invoced by a thread, a lambda provided to the constructor is
+    /// @return When first invoked by a thread, a lambda provided to the constructor is
     ///         called to initialize the local data of the thread and return it.
     ///         All the following invocations just return the same thread-local data.
     F local(size_t tid)
@@ -663,7 +663,7 @@ public:
 
     /// Access a local data of a thread by value.
     ///
-    /// @return When first invoced by a thread, a lambda provided to the constructor is
+    /// @return When first invoked by a thread, a lambda provided to the constructor is
     ///         called to initialize the local data of the thread and return it.
     ///         All the following invocations just return the same thread-local data.
     F local()
