@@ -397,7 +397,9 @@ public:
     virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
 };
 
-/// Thread-local storage (TLS)
+/// Thread-local storage (TLS).
+/// Can change its local variable after a nested parallel constructs.
+/// @note Use carefully in case of nested parallel regions.
 ///
 /// @tparam F  Type of the data located in the storage
 template <typename F>
@@ -437,7 +439,7 @@ public:
 
     /// Access a local data of a thread by value
     ///
-    /// @return When first ionvoced by a thread, a lambda provided to the constructor is
+    /// @return When first invoced by a thread, a lambda provided to the constructor is
     ///         called to initialize the local data of the thread and return it.
     ///         All the following invocations just return the same thread-local data.
     F local()
@@ -502,10 +504,18 @@ public:
     virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
 };
 
+/// Thread-local storage (TLS) for the case of static parallel work scheduling.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class static_tls
 {
 public:
+    /// Initialize thread-local storage.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */]() -> F
+    ///
+    /// @param lambda       Lambda function that initializes a thread-local storage
     template <typename lambdaType>
     explicit static_tls(const lambdaType & lambda)
     {
@@ -537,6 +547,11 @@ public:
         _creater_func = creater_func<F, lambdaType>;
     }
 
+    /// Destroys the memory associated with a thread-local storage.
+    ///
+    /// @note Static TLS does not release the memory allocated by a lambda-function
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~static_tls()
     {
         if (_deleter)
@@ -547,9 +562,16 @@ public:
         delete[] _storage;
     }
 
+    /// Access a local data of a specified thread by value.
+    ///
+    /// @param tid  Index of the thread.
+    ///
+    /// @return When first invoced by a thread, a lambda provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local(size_t tid)
     {
-        if (_storage)
+        if (_storage && tid < _nThreads)
         {
             if (!_storage[tid])
             {
@@ -564,6 +586,12 @@ public:
         }
     }
 
+    /// Sequential reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage sequentially.
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
@@ -576,6 +604,9 @@ public:
         }
     }
 
+    /// Full number of threads.
+    ///
+    /// @return Number of threads available.
     size_t nthreads() const { return _nThreads; }
 
 private:
@@ -586,10 +617,23 @@ private:
     static_tls_deleter * _deleter    = nullptr;
 };
 
+/// Local storage (LS) for a data of a thread.
+/// Does not change its local variable after nested parallel constructs,
+/// but can have performance penalties comparing to daal::tls.
+/// Can be safely used in case of nested parallel regions.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class ls : public tlsBase
 {
 public:
+    /// Initialize a local storage.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */]() -> F
+    ///
+    /// @param lambda   Lambda function that initializes a local storage
+    /// @param isTls    if true, then local storage is a thread-local storage (daal::tls)
+    ///                 and might have problems in case of nested parallel regions.
     template <typename lambdaType>
     explicit ls(const lambdaType & lambda, const bool isTls = false)
     {
@@ -605,6 +649,11 @@ public:
         lsPtr = _isTls ? _daal_get_tls_ptr(a, tls_func<lambdaType>) : _daal_get_ls_ptr(a, tls_func<lambdaType>);
     }
 
+    /// Destroys the memory associated with a local storage.
+    ///
+    /// @note LS does not release the memory allocated by a lambda-function
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~ls()
     {
         d->del(voidLambda);
@@ -612,6 +661,11 @@ public:
         _isTls ? _daal_del_tls_ptr(lsPtr) : _daal_del_ls_ptr(lsPtr);
     }
 
+    /// Access a local data of a thread by value.
+    ///
+    /// @return When first invoced by a thread, a lambda provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local()
     {
         void * pf = _isTls ? _daal_get_tls_local(lsPtr) : _daal_get_ls_local(lsPtr);
@@ -623,6 +677,12 @@ public:
         if (!_isTls) _daal_release_ls_local(lsPtr, p);
     }
 
+    /// Sequential reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage sequentially.
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
