@@ -77,7 +77,7 @@ Here is a variant of sequential implementation:
 Parallel computations can be performed in two steps:
 
     1. Compute partial dot product at each threaded.
-    2. Perform a reduction: Sum the partial results from all threads to compute the final dot product.
+    2. Perform a reduction: Add the partial results from all threads to compute the final dot product.
 
 ``daal::tls`` provides a local storage where each thread can accumulate its local results.
 Following code allocates memory that would store partial dot products for each thread:
