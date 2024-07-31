@@ -27,11 +27,7 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
                               Type a,
                               Type b,
                               const event_vector& deps) {
-    // Implementation of uniform
-
-    // auto d = sycl::device(sycl::cpu_selector_v);
-    // sycl::queue cpu_queue(d);
-    auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mcg59>(queue, state);
+    auto engine = oneapi::mkl::rng::load_state<oneapi::mkl::rng::mrg32k3a>(queue, state);
 
     oneapi::mkl::rng::uniform<Type> distr(a, b);
 
