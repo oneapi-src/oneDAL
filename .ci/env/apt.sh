@@ -87,6 +87,9 @@ function install_qemu_emulation_deb {
 
     wget http://ftp.debian.org/debian/pool/main/q/qemu/${found_version}
     sudo dpkg -i ${found_version}
+
+    sudo systemctl restart systemd-binfmt.service
+    set +eo pipefail
 }
 
 function install_llvm_version {
