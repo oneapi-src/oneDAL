@@ -81,7 +81,7 @@ function install_qemu_emulation_deb {
     set -eo pipefail
     if [[ -z "${found_version}" ]] ; then
         # If nothing is found, error out and fail
-        echo "None of requested qemu versions ${versions[*]} are available."
+        echo "None of the requested qemu versions ${versions[*]} are available."
         false
     fi
 
