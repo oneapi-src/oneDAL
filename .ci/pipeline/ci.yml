@@ -719,7 +719,7 @@ jobs:
       .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
   - script: |
-      .\dpcpp\compiler\latest\env\vars.bat
+      call .\dpcpp\compiler\latest\env\vars.bat
       .\.ci\scripts\build.bat onedal_dpc vc avx2
     displayName: 'make onedal_dpc'
   - task: PublishPipelineArtifact@1
