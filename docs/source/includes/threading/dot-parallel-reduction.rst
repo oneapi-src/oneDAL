@@ -14,6 +14,8 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+::
+
   float dotProduct = 0.0f;
   tls.reduce([&](float * localDotProduct) {
     if (localDotProduct) {
