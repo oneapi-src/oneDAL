@@ -77,23 +77,26 @@ jobs:
           # Store the unpacked runtime to centralize and reduce external downloads
           & .ci/scripts/collect_opencl_rt.ps1
       - name: System Info
+        shell: cmd
         run: |
-          $env:PATH="C:\msys64\usr\bin;$env:PATH"
+          set PATH=C:\msys64\usr\bin;%PATH%
           pip install cpufeature
-          cmd.exe "/K" '".\dpcpp\compiler\latest\env\vars.bat" && powershell'
-          Get-Variable -Scope script
+          call .\dpcpp\compiler\latest\env\vars.bat
           bash .ci/scripts/describe_system.sh
       - name: Make daal
+        shell: cmd
         run: |
-          & .\.ci\scripts\build.bat daal vc avx2
+          call .\.ci\scripts\build.bat daal vc avx2
       - name: Make onedal
+        shell: cmd
         run: |
-          & .\.ci\scripts\build.bat onedal_c vc avx2
+          call .\.ci\scripts\build.bat onedal_c vc avx2
       - name: Make oneapi_dpc
+        shell: cmd
         run: |
-          cmd.exe "/K" '".\dpcpp\compiler\latest\env\vars.bat" && powershell'
-          Start-Process ".\dpcpp\compiler\latest\bin\sycl-ls.exe" -Wait
-          & .\.ci\scripts\build.bat onedal_dpc vc avx2
+          call .\dpcpp\compiler\latest\env\vars.bat
+          call .\dpcpp\compiler\latest\bin\sycl-ls.exe
+          call .\.ci\scripts\build.bat onedal_dpc vc avx2
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
