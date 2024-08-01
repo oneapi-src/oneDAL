@@ -118,11 +118,11 @@ By default, oneTBB uses
 and work stealing.
 It means that two different runs of the same parallel loop can produce different
 mappings of the loop's iteration space to the available threads.
-This strategy is benefitial when it is difficult to estimate the amount of work performed
+This strategy is beneficial when it is difficult to estimate the amount of work performed
 by each iteration.
 
 In the cases when it is known that the iterations perform an equal amount of work, it
-might be benefitial to use predefined mapping of the loop's iterations to threads.
+might be beneficial to use predefined mapping of the loop's iterations to threads.
 This is what static work scheduling does.
 
 ``daal::static_threader_for`` and ``daal::static_tls`` allow implementation of static
