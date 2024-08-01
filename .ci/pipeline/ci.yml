@@ -706,6 +706,9 @@ jobs:
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
   - script: |
+      powershell.exe -noexit .ci/scripts/install_dpc.ps1
+    displayName: 'install dpcpp'
+  - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       bash .ci/scripts/describe_system.sh
     displayName: 'System info'
@@ -715,6 +718,10 @@ jobs:
   - script: |
       .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
+  - script: |
+      .\dpcpp\compiler\latest\env\vars.bat
+      .\.ci\scripts\build.bat onedal_dpc vc avx2
+    displayName: 'make onedal_dpc'
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) build'
