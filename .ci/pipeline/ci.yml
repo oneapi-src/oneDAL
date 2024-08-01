@@ -30,7 +30,7 @@ variables:
   SYSROOT_OS: 'jammy'
 
 jobs:
-- job: 'FormattersChecks'
+- job: 'FormatterChecks'
   pool:
     vmImage: '$(VM_IMAGE)'
   steps:
