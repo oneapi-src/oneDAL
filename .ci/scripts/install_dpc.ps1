@@ -21,4 +21,7 @@ Start-Process ".\dpcpp_installer.exe" -ArgumentList "--s --x --f oneAPI" -Wait
 echo "Installing DPC++ compiler"
 Start-Process ".\oneAPI\bootstrapper.exe" -ArgumentList "-s --eula=accept --install-dir=dpcpp" -Wait
 # This can take 20 minutes...
+echo "remove installer files"
+Remove-Item -LiteralPath .\oneAPI -Force -Recurse -ErrorAction Ignore
+Remove-Item .\dpcpp_installer.exe -Force
 echo "DPC++ install complete"
