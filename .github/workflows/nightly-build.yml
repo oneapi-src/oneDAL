@@ -91,7 +91,7 @@ jobs:
           & .\.ci\scripts\build.bat onedal_c vc avx2
       - name: Make oneapi_dpc
         run: |
-          & .\dpcpp\compiler\latest\env\vars.bat
+          cmd.exe "/K" '".\dpcpp\compiler\latest\env\vars.bat" && powershell'
           Start-Process ".\dpcpp\compiler\latest\bin\sycl-ls.exe" -Wait
           & .\.ci\scripts\build.bat onedal_dpc vc avx2
       - name: Archive build
