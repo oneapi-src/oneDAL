@@ -57,6 +57,112 @@ auto compute_sums(sycl::queue& queue,
     return std::make_tuple(sums, sums_event);
 }
 
+// ///  A wrapper that computes 1d array of eigenvalues and 2d array of eigenvectors from the covariance matrix
+// ///
+// /// @tparam Float Floating-point type used to perform computations
+// ///
+// /// @param[in]  queue The SYCL queue
+// /// @param[in]  corr  The input covariance/correlation matrix of size `column_count` x `column_count`
+// /// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+// ///
+// /// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
+// /// of size `component_count` x `column_count` and the second element is the resulting 1d array of eigenvalues
+template <typename Float>
+auto syevd_computation(sycl::queue& queue,
+                       pr::ndview<Float, 2>& corr,
+                       const bk::event_vector& deps = {}) {
+    const std::int64_t column_count = corr.get_dimension(1);
+
+    auto eigenvalues = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
+
+    std::int64_t lda = column_count;
+
+    sycl::event syevd_event;
+    {
+        syevd_event = pr::syevd<mkl::job::vec, mkl::uplo::upper>(queue,
+                                                                 column_count,
+                                                                 corr,
+                                                                 lda,
+                                                                 eigenvalues,
+                                                                 { deps });
+    }
+
+    return std::make_tuple(eigenvalues, syevd_event);
+}
+
+// ///  A wrapper that flips 2d array of eigenvectors from the syevd result in necessary order
+// ///
+// /// @tparam Float Floating-point type used to perform computations
+// ///
+// /// @param[in]  queue The SYCL queue
+// /// @param[in]  data  The input eigenvectors in ascending order of size `column_count` x `column_count`
+// /// @param[in]  component_count  The number of `component_count` of the descriptor
+// /// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+// ///
+// /// @return The resulting 2d array of eigenvectors
+template <typename Float>
+auto flip_eigenvectors(sycl::queue& queue,
+                       pr::ndview<Float, 2>& data,
+                       std::int64_t component_count,
+                       const bk::event_vector& deps = {}) {
+    const std::int64_t column_count = data.get_dimension(1);
+    const std::int64_t row_count = data.get_dimension(0);
+    auto data_ptr = data.get_data();
+    auto eigenvectors =
+        pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
+    auto eigenvectors_ptr = eigenvectors.get_mutable_data();
+    auto flip_event = queue.submit([&](sycl::handler& h) {
+        const auto range = bk::make_range_2d(component_count, column_count);
+        h.depends_on(deps);
+        h.parallel_for(range, [=](sycl::id<2> id) {
+            const std::int64_t row = id[0];
+            const std::int64_t column = id[1];
+            eigenvectors_ptr[row * column_count + column] =
+                data_ptr[(row_count - 1 - row) * column_count + column];
+        });
+    });
+
+    flip_event.wait_and_throw();
+    auto flipped_eigenvectors_host = eigenvectors.to_host(queue);
+
+    return flipped_eigenvectors_host;
+}
+
+// ///  A wrapper that flips 1d array of eigenvalues from syevd result in descending order
+// ///
+// /// @tparam Float Floating-point type used to perform computations
+// ///
+// /// @param[in]  queue The SYCL queue
+// /// @param[in]  eigenvalues  The input eigenvalues in ascending order of size `column_count`
+// /// @param[in]  component_count  The number of `component_count` of the descriptor
+// /// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+// ///
+// /// @return The resulting 1d array of eigenvalues
+template <typename Float>
+auto flip_eigenvalues(sycl::queue& queue,
+                      pr::ndview<Float, 1>& eigenvalues,
+                      std::int64_t component_count,
+                      const bk::event_vector& deps = {}) {
+    auto column_count = eigenvalues.get_dimension(0);
+    auto data_ptr = eigenvalues.get_data();
+    auto flipped_eigenvalues =
+        pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
+    auto flipped_eigenvalues_ptr = flipped_eigenvalues.get_mutable_data();
+    auto flip_event = queue.submit([&](sycl::handler& h) {
+        const auto range = bk::make_range_1d(component_count);
+        h.depends_on(deps);
+        h.parallel_for(range, [=](sycl::id<1> id) {
+            const std::int64_t col = id[0];
+            flipped_eigenvalues_ptr[col] = data_ptr[(column_count - 1) - col];
+        });
+    });
+
+    flip_event.wait_and_throw();
+    auto flipped_eigenvalues_host = flipped_eigenvalues.to_host(queue);
+
+    return flipped_eigenvalues_host;
+}
+
 ///  A wrapper that computes 1d array of means of the columns from precomputed sums
 ///
 /// @tparam Float Floating-point type used to perform computations
@@ -289,36 +395,6 @@ auto compute_correlation_from_covariance(sycl::queue& queue,
 }
 
 // SVD method
-
-///  A wrapper that computes 1d array of eigenvalues and 2d array of eigenvectors from the covariance matrix
-///
-/// @tparam Float Floating-point type used to perform computations
-///
-/// @param[in]  queue The SYCL queue
-/// @param[in]  corr  The input covariance/correlation matrix of size `column_count` x `column_count`
-/// @param[in]  component_count  The number of `component_count` of the descriptor
-/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
-///
-/// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
-/// of size `component_count` x `column_count` and the second element is the resulting 1d array of eigenvalues
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& queue,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-    auto host_corr = corr.to_host(queue, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
 
 ///  A wrapper that computes 1d array of eigenvalues from the 1d array of the singular values
 ///

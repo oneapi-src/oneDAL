@@ -25,7 +25,7 @@
 #define __SERVICE_SPBLAS_MKL_H__
 
 #include "services/daal_defines.h"
-#include "mkl_daal.h"
+#include <mkl.h>
 
 #if !defined(__DAAL_CONCAT4)
     #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)
@@ -45,7 +45,8 @@
     #define __DAAL_MKL_SSE42 sse42_
 #endif
 
-#define __DAAL_MKLFN(f_cpu, f_pref, f_name)              __DAAL_CONCAT4(fpk_, f_pref, f_cpu, f_name)
+// #define __DAAL_MKLFN(f_cpu, f_pref, f_name)              __DAAL_CONCAT4(fpk_, f_pref, f_cpu, f_name)
+#define __DAAL_MKLFN(f_cpu, f_pref, f_name)              f_name
 #define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
 #define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)
 
@@ -107,29 +108,96 @@ struct MklSpBlas<double, cpu>
     static void xcsrmultd(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, double * a, DAAL_INT * ja, DAAL_INT * ia,
                           double * b, DAAL_INT * jb, DAAL_INT * ib, double * c, DAAL_INT * ldc)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmultd, (transa, m, n, k, a, ja, ia, b, jb, ib, c, ldc));
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_d_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*n, (MKL_INT *)ia, (MKL_INT *)ia + 1, (MKL_INT *)ja,
+                                a);
+
+        sparse_matrix_t csrB = NULL;
+        struct matrix_descr descrB;
+        descrB.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_d_create_csr(&csrB, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)ib, (MKL_INT *)ib + 1, (MKL_INT *)jb,
+                                b);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_d_spmmd(SPARSE_OPERATION_NON_TRANSPOSE, csrA, csrB, SPARSE_LAYOUT_COLUMN_MAJOR, c, (const MKL_INT)*ldc);
+        }
+        else
+        {
+            mkl_sparse_d_spmmd(SPARSE_OPERATION_TRANSPOSE, csrA, csrB, SPARSE_LAYOUT_COLUMN_MAJOR, c, (const MKL_INT)*ldc);
+        }
+        mkl_sparse_destroy(csrA);
+        mkl_sparse_destroy(csrB);
     }
 
     static void xcsrmv(const char * transa, const DAAL_INT * m, const DAAL_INT * k, const double * alpha, const char * matdescra, const double * val,
                        const DAAL_INT * indx, const DAAL_INT * pntrb, const DAAL_INT * pntre, const double * x, const double * beta, double * y)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmv, (transa, m, k, alpha, matdescra, val, indx, pntrb, pntre, x, beta, y));
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_d_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)pntre, (MKL_INT *)pntrb,
+                                (MKL_INT *)indx, (double *)val);
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_d_mv(SPARSE_OPERATION_NON_TRANSPOSE, *alpha, csrA, descrA, x, *beta, y);
+        }
+        else
+        {
+            mkl_sparse_d_mv(SPARSE_OPERATION_TRANSPOSE, *alpha, csrA, descrA, x, *beta, y);
+        }
+        mkl_sparse_destroy(csrA);
     }
 
     static void xcsrmm(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, const double * alpha, const char * matdescra,
                        const double * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const double * b, const DAAL_INT * ldb, const double * beta,
                        double * c, const DAAL_INT * ldc)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmm, (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntrb + 1, b, ldb, beta, c, ldc));
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_d_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)pntrb, (MKL_INT *)(pntrb + 1),
+                                (MKL_INT *)indx, (double *)val);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_d_mm(SPARSE_OPERATION_NON_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n,
+                            (const MKL_INT)*ldb, *beta, c, (const MKL_INT)*ldc);
+        }
+        else
+        {
+            mkl_sparse_d_mm(SPARSE_OPERATION_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n, (const MKL_INT)*ldb,
+                            *beta, c, (const MKL_INT)*ldc);
+        }
+        mkl_sparse_destroy(csrA);
     }
 
     static void xxcsrmm(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, const double * alpha, const char * matdescra,
                         const double * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const double * b, const DAAL_INT * ldb,
                         const double * beta, double * c, const DAAL_INT * ldc)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(spblas_, mkl_dcsrmm, (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntrb + 1, b, ldb, beta, c, ldc));
-        fpk_serv_set_num_threads_local(old_threads);
+        int old_threads      = mkl_serv_set_num_threads_local(1);
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_d_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)pntrb, (MKL_INT *)(pntrb + 1),
+                                (MKL_INT *)indx, (double *)val);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_d_mm(SPARSE_OPERATION_NON_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n,
+                            (const MKL_INT)*ldb, *beta, c, (const MKL_INT)*ldc);
+        }
+        else
+        {
+            mkl_sparse_d_mm(SPARSE_OPERATION_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n, (const MKL_INT)*ldb,
+                            *beta, c, (const MKL_INT)*ldc);
+        }
+        mkl_sparse_destroy(csrA);
+
+        mkl_serv_set_num_threads_local(old_threads);
     }
 };
 
@@ -145,29 +213,97 @@ struct MklSpBlas<float, cpu>
     static void xcsrmultd(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, float * a, DAAL_INT * ja, DAAL_INT * ia,
                           float * b, DAAL_INT * jb, DAAL_INT * ib, float * c, DAAL_INT * ldc)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_scsrmultd, (transa, m, n, k, a, ja, ia, b, jb, ib, c, ldc));
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_s_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*n, (MKL_INT *)ia, (MKL_INT *)ia + 1, (MKL_INT *)ja,
+                                a);
+
+        sparse_matrix_t csrB = NULL;
+        struct matrix_descr descrB;
+        descrB.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_s_create_csr(&csrB, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)ib, (MKL_INT *)ib + 1, (MKL_INT *)jb,
+                                b);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_s_spmmd(SPARSE_OPERATION_NON_TRANSPOSE, csrA, csrB, SPARSE_LAYOUT_COLUMN_MAJOR, c, (const MKL_INT)*ldc);
+        }
+        else
+        {
+            mkl_sparse_s_spmmd(SPARSE_OPERATION_TRANSPOSE, csrA, csrB, SPARSE_LAYOUT_COLUMN_MAJOR, c, (const MKL_INT)*ldc);
+        }
+        mkl_sparse_destroy(csrA);
+        mkl_sparse_destroy(csrB);
     }
 
     static void xcsrmv(const char * transa, const DAAL_INT * m, const DAAL_INT * k, const float * alpha, const char * matdescra, const float * val,
                        const DAAL_INT * indx, const DAAL_INT * pntrb, const DAAL_INT * pntre, const float * x, const float * beta, float * y)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_scsrmv, (transa, m, k, alpha, matdescra, val, indx, pntrb, pntre, x, beta, y));
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_s_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)pntre, (MKL_INT *)pntrb,
+                                (MKL_INT *)indx, (float *)val);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_s_mv(SPARSE_OPERATION_NON_TRANSPOSE, *alpha, csrA, descrA, x, *beta, y);
+        }
+        else
+        {
+            mkl_sparse_s_mv(SPARSE_OPERATION_TRANSPOSE, *alpha, csrA, descrA, x, *beta, y);
+        }
+        mkl_sparse_destroy(csrA);
     }
 
     static void xcsrmm(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, const float * alpha, const char * matdescra,
                        const float * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const float * b, const DAAL_INT * ldb, const float * beta,
                        float * c, const DAAL_INT * ldc)
     {
-        __DAAL_MKLFN_CALL(spblas_, mkl_scsrmm, (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntrb + 1, b, ldb, beta, c, ldc));
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_s_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)pntrb, (MKL_INT *)(pntrb + 1),
+                                (MKL_INT *)indx, (float *)val);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_s_mm(SPARSE_OPERATION_NON_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n,
+                            (const MKL_INT)*ldb, *beta, c, (const MKL_INT)*ldc);
+        }
+        else
+        {
+            mkl_sparse_s_mm(SPARSE_OPERATION_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n, (const MKL_INT)*ldb,
+                            *beta, c, (const MKL_INT)*ldc);
+        }
+        mkl_sparse_destroy(csrA);
     }
 
     static void xxcsrmm(const char * transa, const DAAL_INT * m, const DAAL_INT * n, const DAAL_INT * k, const float * alpha, const char * matdescra,
                         const float * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const float * b, const DAAL_INT * ldb, const float * beta,
                         float * c, const DAAL_INT * ldc)
     {
-        int old_threads = fpk_serv_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL(spblas_, mkl_scsrmm, (transa, m, n, k, alpha, matdescra, val, indx, pntrb, pntrb + 1, b, ldb, beta, c, ldc));
-        fpk_serv_set_num_threads_local(old_threads);
+        int old_threads      = mkl_serv_set_num_threads_local(1);
+        sparse_matrix_t csrA = NULL;
+        struct matrix_descr descrA;
+        descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
+        mkl_sparse_s_create_csr(&csrA, SPARSE_INDEX_BASE_ONE, (const MKL_INT)*m, (const MKL_INT)*k, (MKL_INT *)pntrb, (MKL_INT *)(pntrb + 1),
+                                (MKL_INT *)indx, (float *)val);
+
+        if (*transa == 'n' || *transa == 'N')
+        {
+            mkl_sparse_s_mm(SPARSE_OPERATION_NON_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n,
+                            (const MKL_INT)*ldb, *beta, c, (const MKL_INT)*ldc);
+        }
+        else
+        {
+            mkl_sparse_s_mm(SPARSE_OPERATION_TRANSPOSE, *alpha, csrA, descrA, SPARSE_LAYOUT_COLUMN_MAJOR, b, (const MKL_INT)*n, (const MKL_INT)*ldb,
+                            *beta, c, (const MKL_INT)*ldc);
+        }
+        mkl_sparse_destroy(csrA);
+
+        mkl_serv_set_num_threads_local(old_threads);
     }
 };
 

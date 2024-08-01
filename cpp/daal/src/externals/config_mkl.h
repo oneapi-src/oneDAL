@@ -27,6 +27,7 @@
 #include "services/daal_defines.h"
 #include "services/env_detect.h"
 
+#include "src/externals/service_thread_declar_mkl.h"
 #include "src/externals/service_blas_mkl.h"
 #include "src/externals/service_lapack_mkl.h"
 #include "src/externals/service_math_mkl.h"

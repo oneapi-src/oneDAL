@@ -1,3 +1,4 @@
+/* file: service_thread_declar_mkl.cpp */
 /*******************************************************************************
 * Copyright contributors to the oneDAL project
 *
@@ -14,19 +15,16 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/table/common.hpp"
-
-#include <oneapi/mkl.hpp>
-
-namespace oneapi::dal::backend::primitives {
-
-namespace mkl = oneapi::mkl;
-
-/// Convert oneDAL `sparse_indexing` to oneMKL `index_base`
-inline constexpr mkl::index_base sparse_indexing_to_mkl(const sparse_indexing indexing) {
-    return (indexing == sparse_indexing::zero_based) ? mkl::index_base::zero : mkl::index_base::one;
+namespace daal
+{
+namespace internal
+{
+namespace mkl
+{
+int mkl_serv_set_num_threads_local(int nthreads)
+{
+    return nthreads;
 }
-
-} // namespace oneapi::dal::backend::primitives
+} // namespace mkl
+} // namespace internal
+} // namespace daal
