@@ -64,6 +64,7 @@ private:
 
 INSTANTIATE(float, method::dense_batch, task::classification)
 INSTANTIATE(double, method::dense_batch, task::classification)
+
 INSTANTIATE(float, method::sparse, task::classification)
 INSTANTIATE(double, method::sparse, task::classification)
 
