@@ -19,8 +19,6 @@ name: Nightly-build
 on:
   schedule:
     - cron: '0 21 * * *'
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
