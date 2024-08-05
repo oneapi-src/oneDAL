@@ -217,5 +217,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`decision_tree_classification_batch.py`
-    - :daal4py_example:`decision_tree_classification_traverse_batch.py`
+    - :daal4py_example:`decision_tree_classification.py`
+    - :daal4py_example:`decision_tree_classification_traverse.py`

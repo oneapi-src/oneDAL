@@ -89,7 +89,7 @@ TEMPLATE_LIST_TEST_M(lr_train_params_test, "LR train params", "[lr][train][param
     this->generate(999);
     this->generate_parameters();
 
-    this->run_and_check();
+    this->run_and_check_linear();
 }
 
 } // namespace oneapi::dal::linear_regression::test

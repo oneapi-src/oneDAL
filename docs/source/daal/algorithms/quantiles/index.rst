@@ -123,4 +123,4 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`quantiles_batch.py`
+    - :daal4py_example:`quantiles.py`

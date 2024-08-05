@@ -9,6 +9,7 @@ dal_module(
     auto = True,
     dal_deps = [
         "@onedal//cpp/oneapi/dal:core",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
 )
 
@@ -16,6 +17,7 @@ dal_module(
     name = "parameters",
     dal_deps = [
         "@onedal//cpp/oneapi/dal/algo/covariance/parameters",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
 )
 
