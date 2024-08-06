@@ -162,7 +162,7 @@ namespace interface2
  * \brief Provides methods to access final results obtained with the compute() method of the
  *        z-score normalization algorithm in the batch processing mode
  */
-class DAAL_EXPORT Result : public daal::algorithms::Result
+class Result : public daal::algorithms::Result
 {
 public:
     DECLARE_SERIALIZABLE_CAST(Result)
@@ -180,7 +180,7 @@ public:
      * \return Status of computations
      */
     template <typename algorithmFPType>
-    services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
+    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
     /**
     * Allocates memory to store final results of the z-score normalization algorithms
