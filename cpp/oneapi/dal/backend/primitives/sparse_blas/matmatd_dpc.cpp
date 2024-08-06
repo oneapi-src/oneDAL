@@ -30,12 +30,14 @@ sycl::event matmatd(sycl::queue &queue,
                     ndview<Float, 2, co>& c,
                     const std::vector<sycl::event> &dependencies) {
     ONEDAL_ASSERT(c.has_mutable_data());
+    mkl::transpose mkl_trans_a = transpose_to_mkl(transpose_a);
+    mkl::transpose mkl_trans_b = transpose_to_mkl(transpose_b);
 
     if (co == ndorder::c) {
         return mkl::sparse::matmatd(queue,
                                     order_as_layout(co),
-                                    transpose_to_mkl(transpose_a),
-                                    transpose_to_mkl(transpose_b),
+                                    mkl_trans_a,
+                                    mkl_trans_b,
                                     alpha,
                                     dal::detail::get_impl(a).get(),
                                     dal::detail::get_impl(b).get(),
@@ -49,5 +51,21 @@ sycl::event matmatd(sycl::queue &queue,
 
     return sycl::event();
 }
+
+#define INSTANTIATE(F, co)                                                        \
+    template ONEDAL_EXPORT sycl::event matmatd<F, co>(sycl::queue & queue,        \
+                                                      transpose transpose_a,      \
+                                                      transpose transpose_b,      \
+                                                      const F alpha,              \
+                                                      sparse_matrix_handle& a,    \
+                                                      sparse_matrix_handle& b,    \
+                                                      const F beta,               \
+                                                      ndview<F, 2, co>& c,        \
+                                                      const std::vector<sycl::event> &dependencies);
+
+INSTANTIATE(float, ndorder::c);
+INSTANTIATE(float, ndorder::f);
+INSTANTIATE(double, ndorder::c);
+INSTANTIATE(double, ndorder::f);
 
 } // namespace oneapi::dal::backend::primitives

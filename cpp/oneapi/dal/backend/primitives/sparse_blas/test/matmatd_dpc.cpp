@@ -23,10 +23,10 @@ namespace te = dal::test::engine;
 using matmatd_types = COMBINE_TYPES((float, double),
                                     (transpose_nontrans, transpose_trans),
                                     (c_order, f_order),
-                                    (c_order), /// not used in GEMV
+                                    (c_order), /// not used in matmatd
                                     (indexing_zero_based, indexing_one_based));
 
-TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR gemv", "[csr][gemv]", gemv_types) {
+TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR matmatd", "[csr][matmatd]", matmatd_types) {
     // DPC++ Sparse GEMV from micro MKL libs is not supported on CPU
     SKIP_IF(this->get_policy().is_cpu());
 
@@ -34,7 +34,7 @@ TEMPLATE_LIST_TEST_M(sparse_blas_test, "ones matrix sparse CSR gemv", "[csr][gem
     // Temporary workaround: skip tests on architectures that do not support native float64
     SKIP_IF(!this->get_policy().has_native_float64());
 
-    this->generate_dimensions_matmatd();
+    this->generate_dimensions();
     this->test_matmatd();
 }
 

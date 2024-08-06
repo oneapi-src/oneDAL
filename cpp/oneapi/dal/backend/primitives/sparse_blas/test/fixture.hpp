@@ -200,6 +200,19 @@ public:
         check_matmul(c);
     }
 
+    void test_matmatd() {
+        sparse_matrix_handle a(this->get_queue());
+        sparse_matrix_handle b(this->get_queue());
+        constexpr transpose trans_b  = (bo == ndorder::c ? transpose::nontrans : transpose::trans);
+        auto a_e = A(a, trans_a, m_, k_, a_data_ary_, a_column_indices_ary_, a_row_offsets_ary_);
+        auto b_e = A(b, trans_b, k_, p_, b_data_ary_, b_column_indices_ary_, b_row_offsets_ary_);
+        auto c = C();
+
+        matmatd(this->get_queue(), trans_a, trans_b, float_t(1.0), a, b, float_t(0.0), c, { a_e, b_e }).wait_and_throw();
+
+        check_matmul(c);
+    }
+
     void test_gemv() {
         sparse_matrix_handle a(this->get_queue());
         auto a_e = A(a, trans_a, m_, k_, a_data_ary_, a_column_indices_ary_, a_row_offsets_ary_);
