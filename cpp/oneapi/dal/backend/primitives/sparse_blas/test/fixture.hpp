@@ -85,13 +85,19 @@ public:
     /// | 1  0  1  0  ... |
     /// | 0  1  0  1  ... |
     /// | ............... |
-    auto A(sparse_matrix_handle& a) {
+    auto A(sparse_matrix_handle& h,
+           const transpose& trans,
+           std::int64_t m,
+           std::int64_t k,
+           dal::array<float_t>& data_ary_,
+           dal::array<std::int64_t>& column_indices_ary_,
+           dal::array<std::int64_t>& row_offsets_ary_) {
         check_if_initialized();
         auto& q = this->get_queue();
 
         /// Revert dimensions in the transposed case
-        const std::int64_t local_m = trans_a == transpose::nontrans ? m_ : k_;
-        const std::int64_t local_k = trans_a == transpose::nontrans ? k_ : m_;
+        const std::int64_t local_m = trans == transpose::nontrans ? m : k;
+        const std::int64_t local_k = trans == transpose::nontrans ? k : m;
 
         const std::int64_t value_count_in_odd_rows = (local_k + 1) / 2;
         const std::int64_t value_count_in_even_rows = local_k / 2;
@@ -157,7 +163,7 @@ public:
         });
 
         return set_csr_data(q,
-                            a,
+                            h,
                             local_m,
                             local_k,
                             indexing,
@@ -185,7 +191,7 @@ public:
 
     void test_gemm() {
         sparse_matrix_handle a(this->get_queue());
-        auto a_e = A(a);
+        auto a_e = A(a, trans_a, m_, k_, a_data_ary_, a_column_indices_ary_, a_row_offsets_ary_);
         auto [b, b_e] = B();
         auto c = C();
 
@@ -196,7 +202,7 @@ public:
 
     void test_gemv() {
         sparse_matrix_handle a(this->get_queue());
-        auto a_e = A(a);
+        auto a_e = A(a, trans_a, m_, k_, a_data_ary_, a_column_indices_ary_, a_row_offsets_ary_);
         auto [x, x_e] = ndarray<float_t, 1>::ones(this->get_queue(), k_);
         auto y = ndarray<float_t, 1>::empty(this->get_queue(), m_);
 
@@ -269,9 +275,14 @@ private:
     std::int64_t p_;
 
     /// Sparse matrix A
-    dal::array<float_t> data_ary_;
-    dal::array<std::int64_t> column_indices_ary_;
-    dal::array<std::int64_t> row_offsets_ary_;
+    dal::array<float_t> a_data_ary_;
+    dal::array<std::int64_t> a_column_indices_ary_;
+    dal::array<std::int64_t> a_row_offsets_ary_;
+
+    /// Sparse matrix B
+    dal::array<float_t> b_data_ary_;
+    dal::array<std::int64_t> b_column_indices_ary_;
+    dal::array<std::int64_t> b_row_offsets_ary_;
 
     sycl::usm::alloc alloc_;
 };
