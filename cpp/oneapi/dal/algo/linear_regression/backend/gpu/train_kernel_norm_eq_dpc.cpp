@@ -104,17 +104,9 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
         old_x_arr = std::move(x_arr), old_y_arr = std::move(y_arr);
     }
 
-    const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
-
-    double alpha = desc.get_alpha();
-    if (alpha != 0.0) {
-        last_xtx_event =
-            add_ridge_penalty<Float>(queue, xtx, compute_intercept, alpha, { last_xtx_event });
-    }
-
     auto& comm = ctx.get_communicator();
     if (comm.get_rank_count() > 1) {
-        sycl::event::wait_and_throw(solve_deps);
+        sycl::event::wait_and_throw({ last_xty_event, last_xtx_event });
         {
             ONEDAL_PROFILER_TASK(xtx_allreduce);
             auto xtx_arr = dal::array<Float>::wrap(queue, xtx.get_mutable_data(), xtx.get_count());
@@ -126,6 +118,13 @@ static train_result<Task> call_dal_kernel(const context_gpu& ctx,
             comm.allreduce(xty_arr).wait();
         }
     }
+
+    double alpha = desc.get_alpha();
+    if (alpha != 0.0) {
+        last_xtx_event =
+            add_ridge_penalty<Float>(queue, xtx, compute_intercept, alpha, { last_xtx_event });
+    }
+    const be::event_vector solve_deps{ last_xty_event, last_xtx_event };
 
     auto nxtx = pr::ndarray<Float, 2>::empty(queue, xtx_shape, alloc);
     auto nxty = pr::ndview<Float, 2>::wrap_mutable(betas_arr, betas_shape);

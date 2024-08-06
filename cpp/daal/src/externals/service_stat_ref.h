@@ -1,6 +1,7 @@
 /* file: service_stat_ref.h */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,8 +25,9 @@
 #ifndef __SERVICE_STAT_REF_H__
 #define __SERVICE_STAT_REF_H__
 
-typedef void (*func_type)(DAAL_INT, DAAL_INT, DAAL_INT, void *);
+#include "src/externals/service_memory.h"
 
+typedef void (*func_type)(DAAL_INT, DAAL_INT, DAAL_INT, void *);
 extern "C"
 {
 #define __DAAL_VSL_SS_MATRIX_STORAGE_COLS           0x00020000
@@ -194,8 +196,37 @@ struct RefStatistics<double, cpu>
 
     static int x2c_mom(const double * data, const __int64 nFeatures, const __int64 nVectors, double * variance, const __int64 method)
     {
-        int errcode = 0;
-
+        // E(x-\mu)^2 = E(x^2) - \mu^2
+        int errcode  = 0;
+        double * sum = (double *)daal::services::internal::service_calloc<double, cpu>(nFeatures, sizeof(double));
+        if (!sum) return -4;
+        daal::services::internal::service_memset<double, cpu>(variance, double(0), nFeatures);
+        DAAL_INT feature_ptr, vec_ptr;
+        double wtInv      = (double)1 / nVectors;
+        double wtInvMinus = (double)1 / (nVectors - 1);
+        double pt         = 0;
+        for (vec_ptr = 0; vec_ptr < nVectors; ++vec_ptr)
+        {
+#pragma omp simd
+            for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+            {
+                pt = data[vec_ptr * nFeatures + feature_ptr];
+                sum[feature_ptr] += pt;
+                variance[feature_ptr] += (pt * pt); // 2RSum
+            }
+        }
+        double sumSqDivN; // S^2/n = n*\mu^2
+#pragma omp simd
+        for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+        {
+            sumSqDivN = sum[feature_ptr];
+            sumSqDivN *= sumSqDivN;
+            sumSqDivN *= wtInv;
+            variance[feature_ptr] -= sumSqDivN; // (2RSum-S^2/n)
+            variance[feature_ptr] *= wtInvMinus;
+        }
+        daal::services::internal::service_free<double, cpu>(sum);
+        sum = NULL;
         return errcode;
     }
 
@@ -276,8 +307,37 @@ struct RefStatistics<float, cpu>
 
     static int x2c_mom(const float * data, const __int64 nFeatures, const __int64 nVectors, float * variance, const __int64 method)
     {
+        // E(x-\mu)^2 = E(x^2) - \mu^2
         int errcode = 0;
-
+        float * sum = (float *)daal::services::internal::service_calloc<float, cpu>(nFeatures, sizeof(float));
+        if (!sum) return -4;
+        daal::services::internal::service_memset<float, cpu>(variance, float(0), nFeatures);
+        DAAL_INT feature_ptr, vec_ptr;
+        float wtInv      = (float)1 / nVectors;
+        float wtInvMinus = (float)1 / (nVectors - 1);
+        float pt         = 0;
+        for (vec_ptr = 0; vec_ptr < nVectors; ++vec_ptr)
+        {
+#pragma omp simd
+            for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+            {
+                pt = data[vec_ptr * nFeatures + feature_ptr];
+                sum[feature_ptr] += pt;
+                variance[feature_ptr] += (pt * pt); // 2RSum
+            }
+        }
+        float sumSqDivN; // S^2/n = n*\mu^2
+#pragma omp simd
+        for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+        {
+            sumSqDivN = sum[feature_ptr];
+            sumSqDivN *= sumSqDivN;
+            sumSqDivN *= wtInv;
+            variance[feature_ptr] -= sumSqDivN; // (2RSum-S^2/n)
+            variance[feature_ptr] *= wtInvMinus;
+        }
+        daal::services::internal::service_free<float, cpu>(sum);
+        sum = NULL;
         return errcode;
     }
 
