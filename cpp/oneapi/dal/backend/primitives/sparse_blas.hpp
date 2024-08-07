@@ -19,3 +19,4 @@
 #include "oneapi/dal/backend/primitives/sparse_blas/set_csr_data.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/gemm.hpp"
 #include "oneapi/dal/backend/primitives/sparse_blas/gemv.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas/matmatd.hpp"
