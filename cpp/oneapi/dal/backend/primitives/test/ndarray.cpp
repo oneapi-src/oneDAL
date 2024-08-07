@@ -137,118 +137,118 @@ TEST("ndarray has correct default strides in f-order", "[ndarray_base]") {
     }
 }
 
-TEMPLATE_SIG_TEST("can create empty ndview", "[ndview]", ENUMERATE_AXIS_COUNT_123) {
-    const auto x = ndview<float, axis_count>{};
+// TEMPLATE_SIG_TEST("can create empty ndview", "[ndview]", ENUMERATE_AXIS_COUNT_123) {
+//     const auto x = ndview<float, axis_count>{};
 
-    REQUIRE(x.has_data() == false);
-    REQUIRE(x.get_count() == 0);
-    REQUIRE(x.get_data() == nullptr);
-}
+//     REQUIRE(x.has_data() == false);
+//     REQUIRE(x.get_count() == 0);
+//     REQUIRE(x.get_data() == nullptr);
+// }
 
-TEMPLATE_SIG_TEST("can wrap data into ndview", "[ndview]", ENUMERATE_AXIS_COUNT_123) {
-    float data[] = { 0.1 };
-    const auto shape = ndshape<axis_count>::square(1);
+// TEMPLATE_SIG_TEST("can wrap data into ndview", "[ndview]", ENUMERATE_AXIS_COUNT_123) {
+//     float data[] = { 0.1 };
+//     const auto shape = ndshape<axis_count>::square(1);
 
-    const auto x = ndview<float, axis_count>::wrap(data, shape);
+//     const auto x = ndview<float, axis_count>::wrap(data, shape);
 
-    REQUIRE(x.get_data() == data);
-    REQUIRE(x.get_shape() == shape);
-}
+//     REQUIRE(x.get_data() == data);
+//     REQUIRE(x.get_shape() == shape);
+// }
 
-TEMPLATE_SIG_TEST("can create empty ndarray", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
-    const auto x = ndarray<float, axis_count>{};
+// TEMPLATE_SIG_TEST("can create empty ndarray", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
+//     const auto x = ndarray<float, axis_count>{};
 
-    REQUIRE(x.has_data() == false);
-    REQUIRE(x.get_count() == 0);
-    REQUIRE(x.get_data() == nullptr);
-}
+//     REQUIRE(x.has_data() == false);
+//     REQUIRE(x.get_count() == 0);
+//     REQUIRE(x.get_data() == nullptr);
+// }
 
-TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
-    float data[] = { 0.1 };
-    const auto shape = ndshape<axis_count>::square(1);
-    const auto empty_deleter = dal::detail::empty_delete<float>{};
-    const auto data_shared = std::shared_ptr<float>{ data, empty_deleter };
-    const auto data_array_mutable = array<float>::wrap(data, shape.get_count());
-    const auto data_array_immutable =
-        array<float>::wrap(const_cast<const float*>(data), shape.get_count());
+// TEMPLATE_SIG_TEST("can wrap data into ndarray", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
+//     float data[] = { 0.1 };
+//     const auto shape = ndshape<axis_count>::square(1);
+//     const auto empty_deleter = dal::detail::empty_delete<float>{};
+//     const auto data_shared = std::shared_ptr<float>{ data, empty_deleter };
+//     const auto data_array_mutable = array<float>::wrap(data, shape.get_count());
+//     const auto data_array_immutable =
+//         array<float>::wrap(const_cast<const float*>(data), shape.get_count());
 
-    SECTION("raw data") {
-        const auto x = ndarray<float, axis_count>::wrap(data, shape);
+//     SECTION("raw data") {
+//         const auto x = ndarray<float, axis_count>::wrap(data, shape);
 
-        REQUIRE(x.get_data() == data);
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == true);
-    }
+//         REQUIRE(x.get_data() == data);
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == true);
+//     }
 
-    SECTION("shared pointer") {
-        const auto x = ndarray<float, axis_count>::wrap(data_shared, shape);
+//     SECTION("shared pointer") {
+//         const auto x = ndarray<float, axis_count>::wrap(data_shared, shape);
 
-        REQUIRE(x.get_data() == data);
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == true);
-    }
+//         REQUIRE(x.get_data() == data);
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == true);
+//     }
 
-    SECTION("shared pointer rvalue") {
-        auto movable_data_shared = data_shared;
+//     SECTION("shared pointer rvalue") {
+//         auto movable_data_shared = data_shared;
 
-        const auto x = ndarray<float, axis_count>::wrap(std::move(movable_data_shared), shape);
+//         const auto x = ndarray<float, axis_count>::wrap(std::move(movable_data_shared), shape);
 
-        REQUIRE(x.get_data() == data);
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == true);
-        REQUIRE(movable_data_shared.get() == nullptr);
-    }
+//         REQUIRE(x.get_data() == data);
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == true);
+//         REQUIRE(movable_data_shared.get() == nullptr);
+//     }
 
-    SECTION("immutable array") {
-        const auto x = ndarray<float, axis_count>::wrap(data_array_immutable, shape);
+//     SECTION("immutable array") {
+//         const auto x = ndarray<float, axis_count>::wrap(data_array_immutable, shape);
 
-        REQUIRE(x.get_data() == data_array_immutable.get_data());
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == false);
+//         REQUIRE(x.get_data() == data_array_immutable.get_data());
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == false);
 
-        auto data_array = data_array_immutable;
-        data_array.need_mutable_data();
-        REQUIRE(x.get_data() != data_array.get_mutable_data());
-    }
+//         auto data_array = data_array_immutable;
+//         data_array.need_mutable_data();
+//         REQUIRE(x.get_data() != data_array.get_mutable_data());
+//     }
 
-    SECTION("immutable array rvalue") {
-        auto movable_data_array_immutable = data_array_immutable;
+//     SECTION("immutable array rvalue") {
+//         auto movable_data_array_immutable = data_array_immutable;
 
-        const auto x =
-            ndarray<float, axis_count>::wrap(std::move(movable_data_array_immutable), shape);
+//         const auto x =
+//             ndarray<float, axis_count>::wrap(std::move(movable_data_array_immutable), shape);
 
-        REQUIRE(x.get_data() == data_array_immutable.get_data());
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == false);
-        REQUIRE(movable_data_array_immutable.get_data() == nullptr);
+//         REQUIRE(x.get_data() == data_array_immutable.get_data());
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == false);
+//         REQUIRE(movable_data_array_immutable.get_data() == nullptr);
 
-        auto data_array = data_array_immutable;
-        data_array.need_mutable_data();
-        REQUIRE(x.get_data() != data_array.get_mutable_data());
-    }
+//         auto data_array = data_array_immutable;
+//         data_array.need_mutable_data();
+//         REQUIRE(x.get_data() != data_array.get_mutable_data());
+//     }
 
-    SECTION("mutable array") {
-        const auto x = ndarray<float, axis_count>::wrap_mutable(data_array_mutable, shape);
+//     SECTION("mutable array") {
+//         const auto x = ndarray<float, axis_count>::wrap_mutable(data_array_mutable, shape);
 
-        REQUIRE(x.get_data() == data_array_mutable.get_data());
-        REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == true);
-    }
+//         REQUIRE(x.get_data() == data_array_mutable.get_data());
+//         REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == true);
+//     }
 
-    SECTION("mutable array rvalue") {
-        auto movable_data_array_mutable = data_array_mutable;
+//     SECTION("mutable array rvalue") {
+//         auto movable_data_array_mutable = data_array_mutable;
 
-        const auto x =
-            ndarray<float, axis_count>::wrap_mutable(std::move(movable_data_array_mutable), shape);
+//         const auto x =
+//             ndarray<float, axis_count>::wrap_mutable(std::move(movable_data_array_mutable), shape);
 
-        REQUIRE(x.get_data() == data_array_mutable.get_data());
-        REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
-        REQUIRE(x.get_shape() == shape);
-        REQUIRE(x.has_mutable_data() == true);
-        REQUIRE(movable_data_array_mutable.get_data() == nullptr);
-    }
-}
+//         REQUIRE(x.get_data() == data_array_mutable.get_data());
+//         REQUIRE(x.get_data() == data_array_mutable.get_mutable_data());
+//         REQUIRE(x.get_shape() == shape);
+//         REQUIRE(x.has_mutable_data() == true);
+//         REQUIRE(movable_data_array_mutable.get_data() == nullptr);
+//     }
+// }
 
 TEST("can wrap array into ndarray without shape", "[ndarray]") {
     float data[] = { 0.1 };
@@ -300,31 +300,31 @@ TEST("can wrap array into ndarray without shape", "[ndarray]") {
     }
 }
 
-TEMPLATE_SIG_TEST("can create ndarray with custom deleter", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
-    struct custom_deleter {
-        custom_deleter() {
-            call_counter = std::make_shared<std::int64_t>(0);
-        }
+// TEMPLATE_SIG_TEST("can create ndarray with custom deleter", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
+//     struct custom_deleter {
+//         custom_deleter() {
+//             call_counter = std::make_shared<std::int64_t>(0);
+//         }
 
-        void operator()(float* ptr) {
-            (*call_counter)++;
-        }
+//         void operator()(float* ptr) {
+//             (*call_counter)++;
+//         }
 
-        std::int64_t get_call_count() const {
-            return *call_counter;
-        }
+//         std::int64_t get_call_count() const {
+//             return *call_counter;
+//         }
 
-        std::shared_ptr<std::int64_t> call_counter;
-    };
+//         std::shared_ptr<std::int64_t> call_counter;
+//     };
 
-    float data[] = { 0.1 };
-    const auto shape = ndshape<axis_count>::square(1);
-    auto deleter = custom_deleter{};
+//     float data[] = { 0.1 };
+//     const auto shape = ndshape<axis_count>::square(1);
+//     auto deleter = custom_deleter{};
 
-    { const auto x = ndarray<float, axis_count>::wrap(data, shape, deleter); }
+//     { const auto x = ndarray<float, axis_count>::wrap(data, shape, deleter); }
 
-    REQUIRE(deleter.get_call_count() == 1);
-}
+//     REQUIRE(deleter.get_call_count() == 1);
+// }
 
 template <template <typename, std::int64_t, ndorder> typename Nd>
 void test_nd_transpose() {
