@@ -19,8 +19,9 @@ echo "Download intel DPC++ compiler"
 echo "Unpacking DPC++ installer"
 Start-Process ".\dpcpp_installer.exe" -ArgumentList "--s --x --f oneAPI" -Wait
 echo "Installing DPC++ compiler"
+# Installing the compiler can take upwards of 20 minutes
+# It does not print any messages during installation
 Start-Process ".\oneAPI\bootstrapper.exe" -ArgumentList "-s --eula=accept --install-dir=dpcpp" -Wait
-# This can take 20 minutes...
 echo "remove installer files"
 Remove-Item -LiteralPath .\oneAPI -Force -Recurse -ErrorAction Ignore
 Remove-Item .\dpcpp_installer.exe -Force
