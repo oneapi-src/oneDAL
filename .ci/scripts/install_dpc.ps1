@@ -15,7 +15,6 @@
 #===============================================================================
 echo "Download intel DPC++ compiler"
 (new-object System.Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/IRC_NAS/7991e201-ca0f-4689-bdb6-1ed73a8246fd/w_dpcpp-cpp-compiler_p_2024.2.0.491_offline.exe", "dpcpp_installer.exe")
-# wget -q -O dpcpp_installer.exe 
 echo "Unpacking DPC++ installer"
 Start-Process ".\dpcpp_installer.exe" -ArgumentList "--s --x --f oneAPI" -Wait
 echo "Installing DPC++ compiler"
