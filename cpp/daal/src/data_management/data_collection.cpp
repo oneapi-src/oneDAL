@@ -25,7 +25,7 @@ namespace data_management
 namespace interface1
 {
 template <typename T>
-DAAL_EXPORT services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k)
+services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k)
 {
     size_t i;
     for (i = 0; i < _keys.size(); i++)
@@ -40,7 +40,7 @@ DAAL_EXPORT services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k)
     return _values[i];
 }
 
-#define DAAL_INSTANTIATE_KEYVALUECOLLECTION(T) template DAAL_EXPORT services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k);
+#define DAAL_INSTANTIATE_KEYVALUECOLLECTION(T) template services::SharedPtr<T> & KeyValueCollection<T>::operator[](size_t k);
 
 DAAL_INSTANTIATE_KEYVALUECOLLECTION(SerializationIface)
 DAAL_INSTANTIATE_KEYVALUECOLLECTION(algorithms::Input)

@@ -40,7 +40,7 @@ using namespace daal::services;
  * \param[in] method Computation method for the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
     const Input * const in = static_cast<const Input *>(input);
 
@@ -57,8 +57,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
     return s;
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
-                                                                    const int method);
+template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, const int method);
 
 } // namespace training
 } // namespace lasso_regression

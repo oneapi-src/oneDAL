@@ -302,7 +302,7 @@ public:
  *      - Result class
  */
 template <ComputeStep step>
-class DAAL_EXPORT DistributedIface : public daal::algorithms::Analysis<distributed>
+class DistributedIface : public daal::algorithms::Analysis<distributed>
 {};
 
 /**
@@ -383,7 +383,7 @@ protected:
  *      - Result class
  */
 template <>
-class DAAL_EXPORT DistributedIface<step2Master> : public daal::algorithms::Analysis<distributed>
+class DistributedIface<step2Master> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::covariance::DistributedInput<step2Master> InputType;
@@ -529,7 +529,7 @@ protected:
  *      - Result class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Distributed : public DistributedIface<step>
+class Distributed : public DistributedIface<step>
 {};
 
 /**
@@ -554,7 +554,7 @@ class DAAL_EXPORT Distributed : public DistributedIface<step>
  *      - Result class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+class Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
@@ -615,7 +615,7 @@ protected:
  *      - Result class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public DistributedIface<step2Master>
+class Distributed<step2Master, algorithmFPType, method> : public DistributedIface<step2Master>
 {
 public:
     typedef DistributedIface<step2Master> super;

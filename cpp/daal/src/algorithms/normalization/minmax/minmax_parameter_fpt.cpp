@@ -40,19 +40,19 @@ typedef SharedPtr<low_order_moments::BatchImpl> LowOrderMomentsPtr;
 
 /** Constructs min-max normalization parameters with default low order algorithm */
 template <typename algorithmFPType>
-DAAL_EXPORT Parameter<algorithmFPType>::Parameter(double lowerBound, double upperBound)
+Parameter<algorithmFPType>::Parameter(double lowerBound, double upperBound)
     : ParameterBase(lowerBound, upperBound, LowOrderMomentsPtr(new low_order_moments::Batch<algorithmFPType>()))
 {}
 
 /** Constructs min-max normalization parameters */
 template <typename algorithmFPType>
-DAAL_EXPORT Parameter<algorithmFPType>::Parameter(double lowerBound, double upperBound, const LowOrderMomentsPtr & moments)
+Parameter<algorithmFPType>::Parameter(double lowerBound, double upperBound, const LowOrderMomentsPtr & moments)
     : ParameterBase(lowerBound, upperBound, moments)
 {}
 
-template DAAL_EXPORT Parameter<DAAL_FPTYPE>::Parameter(double lowerBound, double upperBound);
+template Parameter<DAAL_FPTYPE>::Parameter(double lowerBound, double upperBound);
 
-template DAAL_EXPORT Parameter<DAAL_FPTYPE>::Parameter(double lowerBound, double upperBound, const LowOrderMomentsPtr & moments);
+template Parameter<DAAL_FPTYPE>::Parameter(double lowerBound, double upperBound, const LowOrderMomentsPtr & moments);
 
 } // namespace interface1
 } // namespace minmax

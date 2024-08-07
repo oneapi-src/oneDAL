@@ -190,7 +190,7 @@ public:
     * \return Status of computations
     */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocate(const daal::algorithms::Input * input, const int method);
+    services::Status allocate(const daal::algorithms::Input * input, const int method);
 
     /**
      * Returns the final result of the z-score normalization algorithm
@@ -245,14 +245,14 @@ namespace interface3
 * \brief Class that specifies the parameters of the algorithm in the batch computing mode
 */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Parameter
+class Parameter
 {};
 
 /**
 * <a name="DAAL-CLASS-ALGORITHMS__NORMALIZATION__ZSCORE__BASEPARAMETER"></a>
 * \brief Class that specifies the base parameters of the algorithm in the batch computing mode
 */
-class DAAL_EXPORT BaseParameter : public daal::algorithms::Parameter
+class BaseParameter : public daal::algorithms::Parameter
 {
 public:
     BaseParameter(const bool doScale = true);
@@ -265,7 +265,7 @@ public:
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
 template <typename algorithmFPType>
-class DAAL_EXPORT Parameter<algorithmFPType, sumDense> : public BaseParameter
+class Parameter<algorithmFPType, sumDense> : public BaseParameter
 {
 public:
     Parameter(const bool doScale = true);
@@ -276,7 +276,7 @@ public:
 //  * \brief Class that specifies the parameters of the default algorithm in the batch computing mode
 //  */
 template <typename algorithmFPType>
-class DAAL_EXPORT Parameter<algorithmFPType, defaultDense> : public BaseParameter
+class Parameter<algorithmFPType, defaultDense> : public BaseParameter
 {
 public:
     /** Constructs z-score normalization parameters */

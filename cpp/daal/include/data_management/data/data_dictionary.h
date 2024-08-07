@@ -128,7 +128,7 @@ public:
         return services::Status();
     }
 
-    virtual int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_DATAFEATURE_NT_ID; }
+    DAAL_EXPORT virtual int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_DATAFEATURE_NT_ID; }
 
     features::IndexNumType getIndexType() const { return indexType; }
 };

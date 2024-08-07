@@ -73,7 +73,7 @@ DAAL_EXPORT bool daal_check_is_intel_cpu();
     #define PRAGMA_ICC_TO_STR(ARGS)
     #define PRAGMA_ICC_OMP(ARGS)
     #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME
+    #define DAAL_TYPENAME typename
 #else
     #define PRAGMA_IVDEP
     #define PRAGMA_NOVECTOR

@@ -33,8 +33,8 @@ namespace quality_metric
 {
 namespace explained_variance
 {
-template services::Status DAAL_EXPORT Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
-                                                                    const int method);
+template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
+                                                        const int method);
 
 } // namespace explained_variance
 } // namespace quality_metric
