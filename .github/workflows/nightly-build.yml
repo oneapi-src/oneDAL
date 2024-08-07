@@ -26,9 +26,9 @@ permissions:
 
 jobs:
   build_lnx:
-    name: build Linux
+    name: oneDAL Linux nightly build
     if: github.repository == 'oneapi-src/oneDAL'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 120
 
     steps:
@@ -57,7 +57,7 @@ jobs:
           path: ./__release_lnx_icx
 
   build_win:
-    name: build Windows
+    name: oneDAL Windows nightly build
     if: github.repository == 'oneapi-src/oneDAL'
     runs-on: windows-2022
     timeout-minutes: 120
