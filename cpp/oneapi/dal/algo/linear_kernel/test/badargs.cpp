@@ -26,9 +26,11 @@ namespace oneapi::dal::linear_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class linear_kernel_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count_x = 5;
     static constexpr std::int64_t row_count_y = 3;
     static constexpr std::int64_t column_count = 4;
@@ -36,7 +38,7 @@ public:
     static constexpr std::int64_t element_count_y = row_count_y * column_count;
 
     auto get_descriptor() const {
-        return linear_kernel::descriptor<float, Method, linear_kernel::task::compute>{};
+        return linear_kernel::descriptor<Float, Method, linear_kernel::task::compute>{};
     }
 
     table get_x_data(std::int64_t override_row_count = row_count_x,
@@ -62,11 +64,13 @@ private:
                                                                     -2.0, -1.0, -2.0, -2.0 };
 };
 
-#define LINEAR_KERNEL_BADARG_TEST(name)        \
-    TEMPLATE_TEST_M(linear_kernel_badarg_test, \
-                    name,                      \
-                    "[linear_kernel][badarg]", \
-                    linear_kernel::method::dense)
+using lr_kernel_types = COMBINE_TYPES((float, double), (linear_kernel::method::dense));
+
+#define LINEAR_KERNEL_BADARG_TEST(name)             \
+    TEMPLATE_LIST_TEST_M(linear_kernel_badarg_test, \
+                         name,                      \
+                         "[linear_kernel][badarg]", \
+                         lr_kernel_types)
 
 LINEAR_KERNEL_BADARG_TEST("throws if x data is empty") {
     const auto linear_kernel_desc = this->get_descriptor();

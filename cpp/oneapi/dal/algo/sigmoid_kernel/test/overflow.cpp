@@ -25,15 +25,17 @@ namespace oneapi::dal::sigmoid_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class sigmoid_kernel_overflow_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count_x = 0x7FFFFFFFF;
     static constexpr std::int64_t row_count_y = 0x7FFFFFFFF;
     static constexpr std::int64_t column_count = 2;
 
     auto get_descriptor() const {
-        return sigmoid_kernel::descriptor<float, Method, sigmoid_kernel::task::compute>{};
+        return sigmoid_kernel::descriptor<Float, Method, sigmoid_kernel::task::compute>{};
     }
 
     bool not_available_on_device() {
@@ -49,11 +51,13 @@ public:
     }
 };
 
-#define SIGMOID_KERNEL_OVERFLOW_TEST(name)        \
-    TEMPLATE_TEST_M(sigmoid_kernel_overflow_test, \
-                    name,                         \
-                    "[sigmoid_kernel][overflow]", \
-                    sigmoid_kernel::method::dense)
+using sigmoid_kernel_types = COMBINE_TYPES((float, double), (sigmoid_kernel::method::dense));
+
+#define SIGMOID_KERNEL_OVERFLOW_TEST(name)             \
+    TEMPLATE_LIST_TEST_M(sigmoid_kernel_overflow_test, \
+                         name,                         \
+                         "[sigmoid_kernel][overflow]", \
+                         sigmoid_kernel_types)
 
 SIGMOID_KERNEL_OVERFLOW_TEST("compute throws if result values table leads to overflow") {
     SKIP_IF(this->not_available_on_device());

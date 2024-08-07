@@ -27,15 +27,17 @@ namespace oneapi::dal::pca::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class pca_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count = 8;
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
 
     auto get_descriptor() const {
-        return pca::descriptor<float, Method, pca::task::dim_reduction>{};
+        return pca::descriptor<Float, Method, pca::task::dim_reduction>{};
     }
 
     table get_train_data(std::int64_t override_row_count = row_count,
@@ -51,17 +53,19 @@ public:
     }
 
 private:
-    static constexpr std::array<float, element_count> train_data_ = {
+    static constexpr std::array<Float, element_count> train_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<float, element_count> infer_data_ = {
+    static constexpr std::array<Float, element_count> infer_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 };
 
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
+
 #define PCA_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(pca_badarg_test, name, "[pca][badarg]", pca::method::cov, pca::method::svd)
+    TEMPLATE_LIST_TEST_M(pca_badarg_test, name, "[pca][badarg]", pca_types)
 
 PCA_BADARG_TEST("accepts non-negative component_count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_component_count(0));
