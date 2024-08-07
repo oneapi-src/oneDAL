@@ -1,6 +1,5 @@
-/* file: mkl_dal.h */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,22 +14,26 @@
 * limitations under the License.
 *******************************************************************************/
 
-#ifndef __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
-#define __DAAL_SERVICES_INTERNAL_SYCL_MATH_MKL_DAL_H__
+#pragma once
 
-#ifdef __clang__
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN() _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wreorder-ctor\"")
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()   _Pragma("clang diagnostic pop")
-#else
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
-    #define DISABLE_MKL_DAL_SYCL_WARNINGS_END()
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/backend/primitives/blas/misc.hpp"
+#include "oneapi/dal/backend/primitives/lapack/misc.hpp"
+
+namespace oneapi::dal::backend::primitives {
+
+#ifdef ONEDAL_DATA_PARALLEL
+
+namespace mkl = oneapi::mkl;
+
+template <mkl::job jobz, mkl::uplo uplo, typename Float>
+sycl::event syevd(sycl::queue& queue,
+                  std::int64_t column_count,
+                  ndview<Float, 2>& a,
+                  std::int64_t lda,
+                  ndview<Float, 1>& eigenvalues,
+                  const event_vector& deps = {});
+
 #endif
 
-DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN()
-#include <oneapi/mkl.hpp>
-DISABLE_MKL_DAL_SYCL_WARNINGS_END()
-
-#undef DISABLE_MKL_DAL_SYCL_WARNINGS_BEGIN
-#undef DISABLE_MKL_DAL_SYCL_WARNINGS_END
-
-#endif
+} // namespace oneapi::dal::backend::primitives

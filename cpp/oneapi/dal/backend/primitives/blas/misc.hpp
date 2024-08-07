@@ -18,12 +18,13 @@
 
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 
-#include <mkl_dal_sycl.hpp>
+#include <oneapi/mkl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
-namespace mkl = oneapi::fpk;
+namespace mkl = oneapi::mkl;
 
+#ifdef ONEDAL_DATA_PARALLEL
 /// Convert oneDAL `ndorder` to oneMKL `layout`
 inline constexpr mkl::layout order_as_layout(ndorder order) {
     return (order == ndorder::c) ? mkl::layout::R /* row-major */
@@ -55,5 +56,5 @@ inline constexpr mkl::uplo ident_uplo(mkl::uplo order) {
     constexpr auto lower = mkl::uplo::lower;
     return (order == upper) ? upper : lower;
 }
-
+#endif
 } // namespace oneapi::dal::backend::primitives

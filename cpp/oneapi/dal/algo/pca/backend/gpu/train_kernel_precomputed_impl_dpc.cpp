@@ -65,18 +65,25 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
     }
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [eigvecs, eigvals] =
-            compute_eigenvectors_on_host(q_, std::move(data_nd), component_count);
+        auto [eigvals, syevd_event] = syevd_computation(q_, data_nd, {});
+
+        auto flipped_eigvals_host = flip_eigenvalues(q_, eigvals, component_count, { syevd_event });
+
+        auto flipped_eigenvectors_host =
+            flip_eigenvectors(q_, data_nd, component_count, { syevd_event });
         if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+            result.set_eigenvalues(
+                homogen_table::wrap(flipped_eigvals_host.flatten(), 1, component_count));
         }
 
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            sign_flip(flipped_eigenvectors_host);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
             result.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+                homogen_table::wrap(flipped_eigenvectors_host.flatten(),
+                                    flipped_eigenvectors_host.get_dimension(0),
+                                    flipped_eigenvectors_host.get_dimension(1)));
         }
     }
 
