@@ -35,7 +35,7 @@ public:
     static constexpr std::int64_t bad_weight_element_count = 2;
 
     auto get_descriptor() const {
-        return dbscan::descriptor<Float, Method>(1.0, 2);
+        return dbscan::descriptor<float, Method>(1.0, 2);
     }
 
     table get_data() const {

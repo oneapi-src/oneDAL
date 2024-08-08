@@ -354,7 +354,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             if (row_count != cur_row_count) {
                 auto cur_min = result_data_ptr[stat::min * column_count + col_idx];
                 auto cur_max = result_data_ptr[stat::max * column_count + col_idx];
-#if __SYCL_COMPILER_VERSION >= 20240728
+#if __SYCL_COMPILER_VERSION >= 20240715
                 result_data_ptr[stat::min * column_count + col_idx] = Float(sycl::fmin(cur_min, 0));
                 result_data_ptr[stat::max * column_count + col_idx] = Float(sycl::fmax(cur_max, 0));
 #else

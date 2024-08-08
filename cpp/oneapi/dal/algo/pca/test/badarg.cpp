@@ -37,7 +37,7 @@ public:
     static constexpr std::int64_t element_count = row_count * column_count;
 
     auto get_descriptor() const {
-        return pca::descriptor<Float, Method, pca::task::dim_reduction>{};
+        return pca::descriptor<float, Method, pca::task::dim_reduction>{};
     }
 
     table get_train_data(std::int64_t override_row_count = row_count,
@@ -53,11 +53,11 @@ public:
     }
 
 private:
-    static constexpr std::array<Float, element_count> train_data_ = {
+    static constexpr std::array<float, element_count> train_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 
-    static constexpr std::array<Float, element_count> infer_data_ = {
+    static constexpr std::array<float, element_count> infer_data_ = {
         1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0, -1.0, -1.0, -1.0, -2.0, -2.0, -1.0, -2.0, -2.0
     };
 };

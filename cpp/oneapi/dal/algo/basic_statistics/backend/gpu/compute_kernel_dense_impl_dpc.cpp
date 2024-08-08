@@ -696,7 +696,7 @@ inline void merge_blocks_kernel(sycl::nd_item<1> item,
 
         if constexpr (!DefferedFin) {
             Float mrgvariance = mrgsum2cent / (mrgvectors - Float(1));
-#if __SYCL_COMPILER_VERSION >= 20240728
+#if __SYCL_COMPILER_VERSION >= 20240715
             Float mrgstdev = (Float)sycl::sqrt(mrgvariance);
 #else
             Float mrgstdev = (Float)sqrt(mrgvariance);

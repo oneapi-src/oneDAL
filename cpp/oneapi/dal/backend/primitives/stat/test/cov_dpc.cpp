@@ -211,7 +211,9 @@ public:
     }
 };
 
-TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double) {
+using cov_types = COMBINE_TYPES((float, double));
+
+TEMPLATE_LIST_TEST_M(cov_test, "correlation on diagonal data", "[cor]", cov_types) {
     using float_t = TestType;
     using dim2_t = std::tuple<std::int64_t, std::int64_t>;
 
@@ -285,7 +287,9 @@ TEMPLATE_TEST_M(cov_test, "correlation on diagonal data", "[cor]", float, double
     }
 }
 
-TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
+using cov_types_ = COMBINE_TYPES((float));
+
+TEMPLATE_LIST_TEST_M(cov_test, "correlation on one-row table", "[cor]", cov_types_) {
     using float_t = TestType;
     // DPC++ GEMM used underneath correlation is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());
@@ -327,7 +331,8 @@ TEMPLATE_TEST_M(cov_test, "correlation on one-row table", "[cor]", float) {
     var_event.wait_and_throw();
     this->check_constant_variance(vars, 1, 0.0);
 }
-TEMPLATE_TEST_M(cov_test, "correlation on gold data", "[cor]", float, double) {
+
+TEMPLATE_LIST_TEST_M(cov_test, "correlation on gold data", "[cor]", cov_types) {
     using float_t = TestType;
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
