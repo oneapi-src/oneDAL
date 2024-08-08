@@ -27,6 +27,12 @@
 
 namespace oneapi::dal::backend::primitives {
 
+enum class engine_list {
+    mt2203,
+    mcg59,
+    philox
+};
+
 template <typename Type, typename Size = std::int64_t>
 class rng {
 public:
