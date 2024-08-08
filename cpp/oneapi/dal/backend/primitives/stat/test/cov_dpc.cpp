@@ -287,9 +287,9 @@ TEMPLATE_LIST_TEST_M(cov_test, "correlation on diagonal data", "[cor]", cov_type
     }
 }
 
-using cov_types_ = COMBINE_TYPES((float));
+using cov_types_one_row = COMBINE_TYPES((float));
 
-TEMPLATE_LIST_TEST_M(cov_test, "correlation on one-row table", "[cor]", cov_types_) {
+TEMPLATE_LIST_TEST_M(cov_test, "correlation on one-row table", "[cor]", cov_types_one_row) {
     using float_t = TestType;
     // DPC++ GEMM used underneath correlation is not supported on GPU
     SKIP_IF(this->get_policy().is_cpu());

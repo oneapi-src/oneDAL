@@ -25,17 +25,9 @@ namespace oneapi::dal::test {
 
 namespace te = dal::test::engine;
 
-template <typename T>
-class archives_test : te::algo_fixture {
-public:
-};
-
 using archives_types = std::tuple<std::int32_t, float, double>;
 
-TEMPLATE_LIST_TEST_M(archives_test,
-                     "can write to binary_ouput_archive",
-                     "[binary_ouput_archive]",
-                     archives_types) {
+TEMPLATE_LIST_TEST("can write to binary_ouput_archive", "[binary_ouput_archive]", archives_types) {
     detail::binary_output_archive archive;
 
     SECTION("single value") {
@@ -64,10 +56,7 @@ TEMPLATE_LIST_TEST_M(archives_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(archives_test,
-                     "can read from binary_input_archive",
-                     "[binary_input_archive]",
-                     archives_types) {
+TEMPLATE_LIST_TEST("can read from binary_input_archive", "[binary_input_archive]", archives_types) {
     SECTION("singe value") {
         const TestType original = TestType(3.14);
 
@@ -101,10 +90,7 @@ TEMPLATE_LIST_TEST_M(archives_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(archives_test,
-                     "serialize/deserialize array to binary archive",
-                     "[array]",
-                     archives_types) {
+TEMPLATE_LIST_TEST("serialize/deserialize array to binary archive", "[array]", archives_types) {
     const std::int64_t count = 100;
     const auto original = array<TestType>::empty(count);
     for (std::int64_t i = 0; i < count; i++) {
@@ -128,10 +114,9 @@ TEMPLATE_LIST_TEST_M(archives_test,
     }
 }
 
-TEMPLATE_LIST_TEST_M(archives_test,
-                     "binary_input_archive throws if truncated data buffer is provided",
-                     "[binary_input_archive]",
-                     archives_types) {
+TEMPLATE_LIST_TEST("binary_input_archive throws if truncated data buffer is provided",
+                   "[binary_input_archive]",
+                   archives_types) {
     const std::int64_t count = 100;
     const auto original = array<float>::empty(count);
     for (std::int64_t i = 0; i < count; i++) {

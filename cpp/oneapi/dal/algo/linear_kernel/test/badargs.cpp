@@ -38,7 +38,7 @@ public:
     static constexpr std::int64_t element_count_y = row_count_y * column_count;
 
     auto get_descriptor() const {
-        return linear_kernel::descriptor<Float, Method, linear_kernel::task::compute>{};
+        return linear_kernel::descriptor<float, Method, linear_kernel::task::compute>{};
     }
 
     table get_x_data(std::int64_t override_row_count = row_count_x,

@@ -35,7 +35,7 @@ public:
     static constexpr std::int64_t column_count = 2;
 
     auto get_descriptor() const {
-        return sigmoid_kernel::descriptor<Float, Method, sigmoid_kernel::task::compute>{};
+        return sigmoid_kernel::descriptor<float, Method, sigmoid_kernel::task::compute>{};
     }
 
     bool not_available_on_device() {

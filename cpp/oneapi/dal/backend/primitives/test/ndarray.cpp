@@ -301,31 +301,31 @@ TEST("can wrap array into ndarray without shape", "[ndarray]") {
     }
 }
 
-// TEMPLATE_SIG_TEST("can create ndarray with custom deleter", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
-//     struct custom_deleter {
-//         custom_deleter() {
-//             call_counter = std::make_shared<std::int64_t>(0);
-//         }
+TEMPLATE_SIG_TEST("can create ndarray with custom deleter", "[ndarray]", ENUMERATE_AXIS_COUNT_123) {
+    struct custom_deleter {
+        custom_deleter() {
+            call_counter = std::make_shared<std::int64_t>(0);
+        }
 
-//         void operator()(float* ptr) {
-//             (*call_counter)++;
-//         }
+        void operator()(float* ptr) {
+            (*call_counter)++;
+        }
 
-//         std::int64_t get_call_count() const {
-//             return *call_counter;
-//         }
+        std::int64_t get_call_count() const {
+            return *call_counter;
+        }
 
-//         std::shared_ptr<std::int64_t> call_counter;
-//     };
+        std::shared_ptr<std::int64_t> call_counter;
+    };
 
-//     float data[] = { 0.1 };
-//     const auto shape = ndshape<axis_count>::square(1);
-//     auto deleter = custom_deleter{};
+    float data[] = { 0.1 };
+    const auto shape = ndshape<axis_count>::square(1);
+    auto deleter = custom_deleter{};
 
-//     { const auto x = ndarray<float, axis_count>::wrap(data, shape, deleter); }
+    { const auto x = ndarray<float, axis_count>::wrap(data, shape, deleter); }
 
-//     REQUIRE(deleter.get_call_count() == 1);
-// }
+    REQUIRE(deleter.get_call_count() == 1);
+}
 
 template <template <typename, std::int64_t, ndorder> typename Nd>
 void test_nd_transpose() {
