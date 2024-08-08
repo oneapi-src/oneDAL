@@ -94,8 +94,11 @@ public:
                            test_convergence);
 
         INFO("run inference");
-        const auto infer_result = this->infer(kmeans_desc, model, data);
-        check_infer_result(kmeans_desc, infer_result, ref_responses, ref_objective_function);
+        const auto kmeans_infer_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
+                .set_result_options(kmeans::result_options::compute_exact_objective_function);
+        const auto infer_result = this->infer(kmeans_infer_desc, model, data);
+        check_infer_result(kmeans_infer_desc, infer_result, ref_responses, ref_objective_function);
     }
 
     void exact_checks_with_reordering(const table& data,
@@ -416,8 +419,7 @@ public:
         REQUIRE(te::has_no_nans(model.get_centroids()));
 
         const auto kmeans_desc_infer_assignments =
-            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
-                .set_result_options(dal::kmeans::result_options::compute_assignments);
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         const auto kmeans_desc_infer_obj_func =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
@@ -501,7 +503,9 @@ public:
         CAPTURE(model.get_cluster_count());
 
         INFO("create descriptor");
-        const auto kmeans_desc = get_descriptor(model.get_cluster_count());
+        const auto kmeans_desc =
+            get_descriptor(model.get_cluster_count())
+                .set_result_options(kmeans::result_options::compute_exact_objective_function);
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
