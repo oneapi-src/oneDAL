@@ -26,9 +26,11 @@ namespace oneapi::dal::dbscan::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class dbscan_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count = 5;
     static constexpr std::int64_t bad_weight_element_count = 2;
 
@@ -64,8 +66,10 @@ private:
     static constexpr std::array<float, bad_weight_element_count> bad_weights_ = { 1.0, 1.0 };
 };
 
+using dbscan_types = COMBINE_TYPES((float, double), (dbscan::method::brute_force));
+
 #define DBSCAN_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(dbscan_badarg_test, name, "[dbscan][badarg]", method::brute_force)
+    TEMPLATE_LIST_TEST_M(dbscan_badarg_test, name, "[dbscan][badarg]", dbscan_types)
 
 DBSCAN_BADARG_TEST("accepts positive min observations") {
     REQUIRE_NOTHROW(this->get_descriptor().set_min_observations(1));

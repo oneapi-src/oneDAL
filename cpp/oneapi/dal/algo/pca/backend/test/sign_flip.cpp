@@ -56,7 +56,9 @@ public:
     }
 };
 
-TEMPLATE_TEST_M(sign_flip_test, "flips if all negative", "[negative]", float, double) {
+using data_types = std::tuple<float, double>;
+
+TEMPLATE_LIST_TEST_M(sign_flip_test, "flips if all negative", "[negative]", data_types) {
     auto data = this->get_negative_data();
 
     sign_flip(data);
@@ -64,7 +66,7 @@ TEMPLATE_TEST_M(sign_flip_test, "flips if all negative", "[negative]", float, do
     this->check_if_flipped_data_positive(this->get_negative_data(), data);
 }
 
-TEMPLATE_TEST_M(sign_flip_test, "does not flips if all positive", "[positive]", float, double) {
+TEMPLATE_LIST_TEST_M(sign_flip_test, "does not flips if all positive", "[positive]", data_types) {
     auto data = this->get_positive_data();
 
     sign_flip(data);

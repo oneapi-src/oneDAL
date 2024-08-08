@@ -130,12 +130,12 @@ TEST_M(empty_homogen_table_serialization_test, "serialize/deserialize empty homo
     check_table_serialization(empty_table);
 }
 
-TEMPLATE_TEST_M(homogen_table_serialization_test,
-                "serialize/deserialize host homogen table",
-                "[host]",
-                float,
-                double,
-                std::int32_t) {
+using homogen_table_types = COMBINE_TYPES((float, double, std::int32_t));
+
+TEMPLATE_LIST_TEST_M(homogen_table_serialization_test,
+                     "serialize/deserialize host homogen table",
+                     "[host]",
+                     homogen_table_types) {
     const std::int64_t row_count = GENERATE(1, 10, 1000);
     const std::int64_t column_count = GENERATE(1, 10, 100);
     const homogen_table original = this->get_host_backed_table(row_count, column_count);
@@ -144,12 +144,10 @@ TEMPLATE_TEST_M(homogen_table_serialization_test,
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-TEMPLATE_TEST_M(homogen_table_serialization_test,
-                "serialize/deserialize device homogen table",
-                "[host]",
-                float,
-                double,
-                std::int32_t) {
+TEMPLATE_LIST_TEST_M(homogen_table_serialization_test,
+                     "serialize/deserialize device homogen table",
+                     "[host]",
+                     homogen_table_types) {
     const std::int64_t row_count = GENERATE(1, 10, 1000);
     const std::int64_t column_count = GENERATE(1, 10, 100);
     const homogen_table original = this->get_device_backed_table(row_count, column_count);

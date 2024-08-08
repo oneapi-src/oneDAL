@@ -108,14 +108,13 @@ private:
     ndarray<float_t, 1> b_host_;
 };
 
-TEMPLATE_TEST_M(cg_solver_test, "test with stable matrix - double", "[cg-solver][gpu]", double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->gen_input();
-    this->test_cg_solver();
-}
+using cg_solver_types = COMBINE_TYPES((float, double));
 
-TEMPLATE_TEST_M(cg_solver_test, "test with stable matrix - float", "[cg-solver][gpu]", float) {
+TEMPLATE_LIST_TEST_M(cg_solver_test,
+                     "test with stable matrix",
+                     "[cg-solver][gpu]",
+                     cg_solver_types) {
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_input();
     this->test_cg_solver();

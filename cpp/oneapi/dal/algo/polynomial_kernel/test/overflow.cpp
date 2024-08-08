@@ -25,9 +25,11 @@ namespace oneapi::dal::polynomial_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class polynomial_kernel_overflow_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count_x = 0x7FFFFFFFF;
     static constexpr std::int64_t row_count_y = 0x7FFFFFFFF;
     static constexpr std::int64_t column_count = 2;
@@ -49,11 +51,13 @@ public:
     }
 };
 
-#define POLYNOMIAL_KERNEL_OVERFLOW_TEST(name)        \
-    TEMPLATE_TEST_M(polynomial_kernel_overflow_test, \
-                    name,                            \
-                    "[polynomial_kernel][overflow]", \
-                    polynomial_kernel::method::dense)
+using polynomial_kernel_types = COMBINE_TYPES((float, double), (polynomial_kernel::method::dense));
+
+#define POLYNOMIAL_KERNEL_OVERFLOW_TEST(name)             \
+    TEMPLATE_LIST_TEST_M(polynomial_kernel_overflow_test, \
+                         name,                            \
+                         "[polynomial_kernel][overflow]", \
+                         polynomial_kernel_types)
 
 POLYNOMIAL_KERNEL_OVERFLOW_TEST("compute throws if result values table leads to overflow") {
     SKIP_IF(this->not_available_on_device());

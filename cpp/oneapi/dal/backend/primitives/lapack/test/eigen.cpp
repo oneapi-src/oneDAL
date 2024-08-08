@@ -132,8 +132,10 @@ private:
     static constexpr int seed_ = 7777;
 };
 
+using eigen_types = COMBINE_TYPES((float, double));
+
 #define SYM_EIGVALS_TEST(name) \
-    TEMPLATE_TEST_M(sym_eigvals_test, name, "[sym_eigvals]", float, double)
+    TEMPLATE_LIST_TEST_M(sym_eigvals_test, name, "[sym_eigvals]", eigen_types)
 
 SYM_EIGVALS_TEST("check inplace sym_eigvals on symmetric positive-definite matrix") {
     const auto s = this->generate_symmetric_positive();

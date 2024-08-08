@@ -43,7 +43,7 @@ using cov_types = COMBINE_TYPES((float, double),
                                 (covariance::task::compute));
 
 #define COVARIANCE_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(covariance_badarg_test, name, "[covariance][badarg]", cov_types)
+    TEMPLATE_LIST_TEST_M(covariance_badarg_test, name, "[covariance][badarg]", cov_types)
 
 COVARIANCE_BADARG_TEST("throws if input data is empty") {
     const auto covariance_desc = this->get_descriptor();

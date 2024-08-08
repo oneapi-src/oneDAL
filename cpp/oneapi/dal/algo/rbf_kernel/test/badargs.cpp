@@ -26,9 +26,11 @@ namespace oneapi::dal::rbf_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class rbf_kernel_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count_x = 5;
     static constexpr std::int64_t row_count_y = 3;
     static constexpr std::int64_t column_count = 4;
@@ -62,8 +64,10 @@ private:
                                                                     -2.0, -1.0, -2.0, -2.0 };
 };
 
+using rbf_kernel_types = COMBINE_TYPES((float, double), (rbf_kernel::method::dense));
+
 #define RBF_KERNEL_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(rbf_kernel_badarg_test, name, "[rbf_kernel][badarg]", rbf_kernel::method::dense)
+    TEMPLATE_LIST_TEST_M(rbf_kernel_badarg_test, name, "[rbf_kernel][badarg]", rbf_kernel_types)
 
 RBF_KERNEL_BADARG_TEST("accepts positive sigma") {
     REQUIRE_NOTHROW(this->get_descriptor().set_sigma(3));

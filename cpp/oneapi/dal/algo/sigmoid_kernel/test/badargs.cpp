@@ -26,9 +26,11 @@ namespace oneapi::dal::sigmoid_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class sigmoid_kernel_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count_x = 5;
     static constexpr std::int64_t row_count_y = 3;
     static constexpr std::int64_t column_count = 4;
@@ -66,11 +68,13 @@ private:
                                                                     -2.0, -1.0, -2.0, -2.0 };
 };
 
-#define SIGMOID_KERNEL_BADARG_TEST(name)        \
-    TEMPLATE_TEST_M(sigmoid_kernel_badarg_test, \
-                    name,                       \
-                    "[sigmoid_kernel][badarg]", \
-                    sigmoid_kernel::method::dense)
+using sigmoid_kernel_types = COMBINE_TYPES((float, double), (sigmoid_kernel::method::dense));
+
+#define SIGMOID_KERNEL_BADARG_TEST(name)             \
+    TEMPLATE_LIST_TEST_M(sigmoid_kernel_badarg_test, \
+                         name,                       \
+                         "[sigmoid_kernel][badarg]", \
+                         sigmoid_kernel_types)
 
 SIGMOID_KERNEL_BADARG_TEST("throws if x data is empty") {
     SKIP_IF(this->not_available_on_device());

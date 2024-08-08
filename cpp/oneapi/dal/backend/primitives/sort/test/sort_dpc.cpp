@@ -209,7 +209,9 @@ TEMPLATE_LIST_TEST_M(sort_with_indices_test,
     this->check_sort(val, ind);
 }
 
-TEMPLATE_TEST_M(sort_test, "basic sort", "[sort]", std::int32_t, std::uint32_t) {
+using sort_indices_types_int = COMBINE_TYPES((std::int32_t, std::uint32_t));
+
+TEMPLATE_LIST_TEST_M(sort_test, "basic sort", "[sort]", sort_indices_types_int) {
     SKIP_IF(this->get_policy().is_cpu());
 
     std::int64_t vector_count = GENERATE_COPY(1, 128);
