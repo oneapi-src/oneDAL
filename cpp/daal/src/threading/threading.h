@@ -223,14 +223,33 @@ inline void threader_func_break(int i, bool & needBreak, const void * a)
     lambda(i, needBreak);
 }
 
+/// Execute the for loop defined by the input parameters in parallel.
+/// The maximal number of iterations in the loop is 2^31 - 1.
+/// The work is scheduled dynamically across threads.
+///
+/// @tparam F   Lambda function of type ``[/* captures */](int i) -> void``,
+///             where ``i`` is the loop's iteration index, ``0 <= i < n``.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] reserved Parameter reserved for the future. Currently unused.
+/// @param[in] lambda   Lambda function that defines iteration's body.
 template <typename F>
-inline void threader_for(int n, int threads_request, const F & lambda)
+inline void threader_for(int n, int reserved, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
 
-    _daal_threader_for(n, threads_request, a, threader_func<F>);
+    _daal_threader_for(n, reserved, a, threader_func<F>);
 }
 
+/// Execute the for loop defined by the input parameters in parallel.
+/// The maximal number of iterations in the loop is 2^63 - 1.
+/// The work is scheduled dynamically across threads.
+///
+/// @tparam F   Lambda function of type [/* captures */](int64_t i) -> void,
+///             where ``i`` is the loop's iteration index, ``0 <= i < n``.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] lambda   Lambda function that defines iteration's body.
 template <typename F>
 inline void threader_for_int64(int64_t n, const F & lambda)
 {
@@ -239,12 +258,25 @@ inline void threader_for_int64(int64_t n, const F & lambda)
     _daal_threader_for_int64(n, a, threader_func<F>);
 }
 
+/// Execute the for loop defined by the input parameters in parallel.
+/// The maximal number of iterations in the loop is 2^31 - 1.
+/// The work is scheduled dynamically across threads.
+/// The iteration space is chunked using oneTBB ``simple_partitioner``
+/// (https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Partitioner_Summary.html)
+/// with chunk size 1.
+///
+/// @tparam F   Lambda function of type [/* captures */](int i) -> void,
+///             where ``i`` is the loop's iteration index, ``0 <= i < n``.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] reserved Parameter reserved for the future. Currently unused.
+/// @param[in] lambda   Lambda function that defines iteration's body.
 template <typename F>
-inline void threader_for_simple(int n, int threads_request, const F & lambda)
+inline void threader_for_simple(int n, int reserved, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
 
-    _daal_threader_for_simple(n, threads_request, a, threader_func<F>);
+    _daal_threader_for_simple(n, reserved, a, threader_func<F>);
 }
 
 template <typename F>
@@ -255,6 +287,35 @@ inline void threader_for_int32ptr(const int * begin, const int * end, const F & 
     _daal_threader_for_int32ptr(begin, end, a, threader_func<F>);
 }
 
+/// Execute the for loop defined by the input parameters in parallel.
+/// The maximal number of iterations in the loop is ``SIZE_MAX`` in C99 standard.
+///
+/// The work is scheduled statically across threads.
+/// This means that the work is always scheduled in the same way across the threads:
+/// each thread processes the same set of iterations on each invocation of this loop.
+///
+/// It is recommended to use this parallel loop if each iteration of the loop
+/// performs equal amount of work.
+///
+/// Let ``t`` be the number of threads available to oneDAL.
+///
+/// Then the number of iterations processed by each threads (except maybe the last one)
+/// is computed as:
+/// ``nI = (n + t - 1) / t``
+///
+/// Here is how the work is split across the threads:
+/// The 1st thread executes iterations ``0``, ..., ``nI - 1``;
+/// the 2nd thread executes iterations ``nI``, ..., ``2 * nI - 1``;
+/// ...
+/// the t-th thread executes iterations ``(t - 1) * nI``, ..., ``n - 1``.
+///
+/// @tparam F   Lambda function of type [/* captures */](size_t i, size_t tid) -> void,
+///             where
+///                 ``i`` is the loop's iteration index, ``0 <= i < n``;
+///                 ``tid`` is the index of the thread, ``0 <= tid < t``.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] lambda   Lambda function that defines iteration's body.
 template <typename F>
 inline void static_threader_for(size_t n, const F & lambda)
 {
@@ -263,12 +324,27 @@ inline void static_threader_for(size_t n, const F & lambda)
     _daal_static_threader_for(n, a, static_threader_func<F>);
 }
 
+/// Execute the for loop defined by the input parameters in parallel.
+/// The maximal number of iterations in the loop is 2^31 - 1.
+/// The work is scheduled dynamically across threads.
+///
+/// @tparam F   Lambda function of type [/* captures */](int beginRange, int endRange) -> void
+///             where
+///                 ``beginRange`` is the starting index of the loop's iterations block to be
+///                                processed by a thread, ``0 <= beginRange < n``;
+///                 ``endRange``   is the index after the end of the loop's iterations block to be
+///                                processed by a thread, ``beginRange < endRange <= n``;
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] reserved Parameter reserved for the future. Currently unused.
+/// @param[in] lambda   Lambda function that processes the block of loop's iterations
+///                     ``[beginRange, endRange)``.
 template <typename F>
-inline void threader_for_blocked(int n, int threads_request, const F & lambda)
+inline void threader_for_blocked(int n, int reserved, const F & lambda)
 {
     const void * a = static_cast<const void *>(&lambda);
 
-    _daal_threader_for_blocked(n, threads_request, a, threader_func_b<F>);
+    _daal_threader_for_blocked(n, reserved, a, threader_func_b<F>);
 }
 
 template <typename F>
@@ -321,10 +397,20 @@ public:
     virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
 };
 
+/// Thread-local storage (TLS).
+/// Can change its local variable after a nested parallel constructs.
+/// @note Use carefully in case of nested parallel regions.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class tls : public tlsBase
 {
 public:
+    /// Initialize thread-local storage
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */]() -> F
+    ///
+    /// @param lambda       Lambda function that initializes a thread-local storage
     template <typename lambdaType>
     explicit tls(const lambdaType & lambda)
     {
@@ -339,6 +425,11 @@ public:
         tlsPtr = _daal_get_tls_ptr(a, tls_func<lambdaType>);
     }
 
+    /// Destroys the memory associated with a thread-local storage
+    ///
+    /// @note TLS does not release the memory allocated by a lambda-function
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~tls()
     {
         d->del(voidLambda);
@@ -346,12 +437,23 @@ public:
         _daal_del_tls_ptr(tlsPtr);
     }
 
+    /// Access a local data of a thread by value
+    ///
+    /// @return When first invoked by a thread, a lambda provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local()
     {
         void * pf = _daal_get_tls_local(tlsPtr);
         return (static_cast<F>(pf));
     }
 
+    /// Sequential reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage sequentially.
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
@@ -360,6 +462,12 @@ public:
         _daal_reduce_tls(tlsPtr, a, tls_reduce_func<F, lambdaType>);
     }
 
+    /// Parallel reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage in parallel.
     template <typename lambdaType>
     void parallel_reduce(const lambdaType & lambda)
     {
@@ -396,10 +504,18 @@ public:
     virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
 };
 
+/// Thread-local storage (TLS) for the case of static parallel work scheduling.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class static_tls
 {
 public:
+    /// Initialize thread-local storage.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */]() -> F
+    ///
+    /// @param lambda       Lambda function that initializes a thread-local storage
     template <typename lambdaType>
     explicit static_tls(const lambdaType & lambda)
     {
@@ -431,6 +547,11 @@ public:
         _creater_func = creater_func<F, lambdaType>;
     }
 
+    /// Destroys the memory associated with a thread-local storage.
+    ///
+    /// @note Static TLS does not release the memory allocated by a lambda-function
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~static_tls()
     {
         if (_deleter)
@@ -441,9 +562,16 @@ public:
         delete[] _storage;
     }
 
+    /// Access a local data of a specified thread by value.
+    ///
+    /// @param tid  Index of the thread.
+    ///
+    /// @return When first invoked by a thread, a lambda provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local(size_t tid)
     {
-        if (_storage)
+        if (_storage && tid < _nThreads)
         {
             if (!_storage[tid])
             {
@@ -458,6 +586,12 @@ public:
         }
     }
 
+    /// Sequential reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage sequentially.
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
@@ -470,6 +604,9 @@ public:
         }
     }
 
+    /// Full number of threads.
+    ///
+    /// @return Number of threads available.
     size_t nthreads() const { return _nThreads; }
 
 private:
@@ -480,10 +617,23 @@ private:
     static_tls_deleter * _deleter    = nullptr;
 };
 
+/// Local storage (LS) for a data of a thread.
+/// Does not change its local variable after nested parallel constructs,
+/// but can have performance penalties comparing to daal::tls.
+/// Can be safely used in case of nested parallel regions.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class ls : public tlsBase
 {
 public:
+    /// Initialize a local storage.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */]() -> F
+    ///
+    /// @param lambda   Lambda function that initializes a local storage
+    /// @param isTls    if true, then local storage is a thread-local storage (daal::tls)
+    ///                 and might have problems in case of nested parallel regions.
     template <typename lambdaType>
     explicit ls(const lambdaType & lambda, const bool isTls = false)
     {
@@ -499,6 +649,11 @@ public:
         lsPtr = _isTls ? _daal_get_tls_ptr(a, tls_func<lambdaType>) : _daal_get_ls_ptr(a, tls_func<lambdaType>);
     }
 
+    /// Destroys the memory associated with a local storage.
+    ///
+    /// @note LS does not release the memory allocated by a lambda-function
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~ls()
     {
         d->del(voidLambda);
@@ -506,6 +661,11 @@ public:
         _isTls ? _daal_del_tls_ptr(lsPtr) : _daal_del_ls_ptr(lsPtr);
     }
 
+    /// Access a local data of a thread by value.
+    ///
+    /// @return When first invoked by a thread, a lambda provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local()
     {
         void * pf = _isTls ? _daal_get_tls_local(lsPtr) : _daal_get_ls_local(lsPtr);
@@ -517,6 +677,12 @@ public:
         if (!_isTls) _daal_release_ls_local(lsPtr, p);
     }
 
+    /// Sequential reduction.
+    ///
+    /// @tparam lambdaType  Lambda function of type [/* captures */](F) -> void
+    ///
+    /// @param lambda       Lambda function that is applied to each element of thread-local
+    ///                     storage sequentially.
     template <typename lambdaType>
     void reduce(const lambdaType & lambda)
     {
