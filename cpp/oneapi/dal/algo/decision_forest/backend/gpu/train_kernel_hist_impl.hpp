@@ -20,7 +20,7 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
-
+#include "oneapi/dal/backend/primitives/rng/rng.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine_collection.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
@@ -62,7 +62,7 @@ public:
     train_kernel_hist_impl(const bk::context_gpu& ctx)
             : queue_(ctx.get_queue()),
               comm_(ctx.get_communicator()),
-              train_service_kernels_(queue_) {}
+              train_service_kernels_(ctx.get_queue()) {}
     ~train_kernel_hist_impl() = default;
 
     result_t operator()(const descriptor_t& desc,
@@ -79,16 +79,14 @@ private:
                                           Index class_count) const;
 
     sycl::event gen_initial_tree_order(train_context_t& ctx,
-                                       rng_engine_list_t& rng_engine_list,
+                                       std::vector<std::uint8_t*>& engine_arr,
                                        pr::ndarray<Index, 1>& node_list,
                                        pr::ndarray<Index, 1>& tree_order_level,
                                        Index engine_offset,
-                                       Index node_count);
+                                       Index node_count,
+                                       const bk::event_vector& deps = {});
 
     void validate_input(const descriptor_t& desc, const table& data, const table& labels) const;
-
-    Index get_row_total_count(bool distr_mode, Index row_count);
-    Index get_global_row_offset(bool distr_mode, Index row_count);
 
     /// Initializes `ctx` training context structure based on data and
     /// descriptor class. Filling and calculating all parameters in context,
@@ -148,6 +146,24 @@ private:
                                                   pr::ndarray<Index, 1>& node_list,
                                                   Index node_count,
                                                   const bk::event_vector& deps = {});
+
+    sycl::event compute_initial_imp_for_node_list_regression(
+        const train_context_t& ctx,
+        const pr::ndarray<Index, 1>& node_list,
+        const pr::ndarray<Float, 1>& local_sum_hist,
+        const pr::ndarray<Float, 1>& local_sum2cent_hist,
+        imp_data_t& imp_data_list,
+        Index node_count,
+        const bk::event_vector& deps = {});
+
+    sycl::event compute_local_sum_histogram(const train_context_t& ctx,
+                                            const pr::ndarray<Float, 1>& response,
+                                            const pr::ndarray<Index, 1>& tree_order,
+                                            const pr::ndarray<Index, 1>& node_list,
+                                            pr::ndarray<Float, 1>& local_sum_hist,
+                                            pr::ndarray<Float, 1>& local_sum2cent_hist,
+                                            Index node_count,
+                                            const bk::event_vector& deps = {});
 
     /// Computes initial histograms for each node to compute impurity.
     ///

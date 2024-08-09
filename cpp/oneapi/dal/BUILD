@@ -30,7 +30,7 @@ dal_module(
         "@onedal//cpp/daal:data_management",
     ],
     dpc_deps = [
-        "@micromkl_dpc//:mkl_dpc",
+        "@mkl//:mkl_dpc",
     ],
 )
 
@@ -53,7 +53,6 @@ dal_collect_modules(
     modules = [
         "algo",
         "io",
-        "backend/micromkl",
         "backend/primitives",
     ],
 )
@@ -175,7 +174,6 @@ dal_collect_test_suites(
         "io",
         "table",
         "util",
-        "backend/micromkl",
         "backend/primitives",
     ],
     tests = [

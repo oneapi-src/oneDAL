@@ -21,6 +21,8 @@
 #include "oneapi/dal/test/engine/math.hpp"
 #include "oneapi/dal/backend/primitives/selection/select_flagged.hpp"
 
+#include "oneapi/mkl/rng/device.hpp"
+
 namespace oneapi::dal::backend::primitives::test {
 
 namespace te = dal::test::engine;
@@ -52,21 +54,24 @@ public:
         std::uniform_real_distribution<Float> distr(a, b);
 
         Float pivot = distr(rng);
-        // move generation to device when rng is available there
-        auto val_host = ndarray<Float, 1>::empty({ elem_count });
-        auto mask_host = ndarray<Flag, 1>::empty({ elem_count });
-        Float* val_ptr = val_host.get_mutable_data();
-        Flag* mask_ptr = mask_host.get_mutable_data();
 
-        for (Integer el = 0; el < elem_count; el++) {
-            val_ptr[el] = distr(rng);
-            mask_ptr[el] = val_ptr[el] < pivot ? 1 : 0;
-        }
-
+        Float* val_ptr = val.get_mutable_data();
+        Flag* mask_ptr = mask.get_mutable_data();
         auto& q = this->get_queue();
+        q.submit([&](sycl::handler& cgh) {
+             cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
+                 size_t ind = item.get_id()[0];
+                 oneapi::mkl::rng::device::mcg59 engine(seed);
+                 oneapi::mkl::rng::device::uniform<Float> distr(a, b);
 
-        val.assign(q, val_host.to_device(q)).wait_and_throw();
-        mask.assign(q, mask_host.to_device(q)).wait_and_throw();
+                 auto res = oneapi::mkl::rng::device::generate(distr, engine);
+                 val_ptr[ind] = res;
+                 mask_ptr[ind] = val_ptr[ind] < pivot ? 1 : 0;
+             });
+         }).wait_and_throw();
+
+        val.assign(q, val).wait_and_throw();
+        mask.assign(q, mask).wait_and_throw();
     }
 
     auto create_reference_on_host(const ndarray<Float, 1>& in, const ndarray<Flag, 1>& mask) {
@@ -141,28 +146,32 @@ public:
         std::mt19937 rng(seed);
         std::uniform_int_distribution<Data> distr(0, val.get_count() - 1);
 
-        // move generation to device when rng is available there
-        auto val_host = ndarray<Data, 1>::empty({ elem_count });
-        auto mask_host = ndarray<Flag, 1>::empty({ elem_count });
-        Data* val_ptr = val_host.get_mutable_data();
-        Flag* mask_ptr = mask_host.get_mutable_data();
-
-        for (Integer el = 0; el < elem_count; el++) {
-            val_ptr[el] = el;
-            mask_ptr[el] = 0;
-        }
-
-        for (Integer el = 0; el < elem_count; el++) {
-            Integer ind = distr(rng);
-            mask_ptr[ind] = 1;
-            Integer swap_ind = distr(rng);
-            std::swap(val_ptr[el], val_ptr[swap_ind]);
-        }
-
+        Data* val_ptr = val.get_mutable_data();
+        Flag* mask_ptr = mask.get_mutable_data();
         auto& q = this->get_queue();
+        q.submit([&](sycl::handler& cgh) {
+             cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
+                 size_t ind = item.get_id()[0];
+                 val_ptr[ind] = ind;
+                 mask_ptr[ind] = 0;
+             });
+         }).wait_and_throw();
+        size_t range = val.get_count() - 1;
+        q.submit([&](sycl::handler& cgh) {
+             cgh.parallel_for(sycl::range<1>(elem_count), [=](sycl::item<1> item) {
+                 size_t ind = item.get_id()[0];
+                 oneapi::mkl::rng::device::mcg59 engine(seed);
+                 oneapi::mkl::rng::device::uniform<Data> distr(0, range);
 
-        val.assign(q, val_host.to_device(q)).wait_and_throw();
-        mask.assign(q, mask_host.to_device(q)).wait_and_throw();
+                 Integer res = oneapi::mkl::rng::device::generate(distr, engine);
+                 mask_ptr[res] = 1;
+                 Integer swap_ind = oneapi::mkl::rng::device::generate(distr, engine);
+                 std::swap(val_ptr[ind], val_ptr[swap_ind]);
+             });
+         }).wait_and_throw();
+
+        val.assign(q, val).wait_and_throw();
+        mask.assign(q, mask).wait_and_throw();
     }
 
     auto create_reference_on_host(const ndarray<Data, 1>& in, const ndarray<Flag, 1>& mask) {
