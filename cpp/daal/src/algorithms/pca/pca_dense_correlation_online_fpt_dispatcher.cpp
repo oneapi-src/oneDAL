@@ -29,6 +29,6 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(pca::OnlineContainer, online, DAAL_FPTYPE, pca::correlationDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::OnlineContainer, online, DAAL_FPTYPE, pca::correlationDense)
 }
 } // namespace daal

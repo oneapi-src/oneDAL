@@ -29,14 +29,12 @@
     #define DAAL_KERNEL_RV64_CONTAINER1(ContainerTemplate, ...) \
         extern template class DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, rv64, __VA_ARGS__);
     #define DAAL_KERNEL_RV64_CONTAINER_CASE(ContainerTemplate, ...) DAAL_KERNEL_CONTAINER_CASE(ContainerTemplate, rv64, __VA_ARGS__)
-    #define DAAL_KERNEL_RV64_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #else
     #define DAAL_KERNEL_RV64_ONLY(something)
     #define DAAL_KERNEL_RV64_ONLY_CODE(...)
     #define DAAL_KERNEL_RV64_CONTAINER(ContainerTemplate, ...)
     #define DAAL_KERNEL_RV64_CONTAINER1(ContainerTemplate, ...)
     #define DAAL_KERNEL_RV64_CONTAINER_CASE(ContainerTemplate, ...)
-    #define DAAL_KERNEL_RV64_CONTAINER_CASE_SYCL(ContainerTemplate, ...)
 #endif
 
 #endif

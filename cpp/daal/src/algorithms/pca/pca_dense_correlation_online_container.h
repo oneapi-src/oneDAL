@@ -27,7 +27,6 @@
 #include "src/algorithms/kernel.h"
 #include "algorithms/pca/pca_online.h"
 #include "src/algorithms/pca/pca_dense_correlation_online_kernel.h"
-#include "src/algorithms/pca/oneapi/pca_dense_correlation_online_kernel_ucapi.h"
 
 namespace daal
 {
@@ -38,18 +37,7 @@ namespace pca
 template <typename algorithmFPType, CpuType cpu>
 OnlineContainer<algorithmFPType, correlationDense, cpu>::OnlineContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, online, algorithmFPType);
-    }
-    else
-    {
-        services::SharedPtr<internal::PCACorrelationBaseIface<algorithmFPType> > hostImpl(new internal::PCACorrelationBase<algorithmFPType, cpu>());
-        _kernel = new internal::PCACorrelationKernelOnlineUCAPI<algorithmFPType>(hostImpl);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::PCACorrelationKernel, online, algorithmFPType);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -68,18 +56,8 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::comput
 
     data_management::NumericTablePtr data = input->get(pca::data);
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), compute, data, partialResult,
-                           parameter);
-    }
-    else
-    {
-        return ((internal::PCACorrelationKernelOnlineUCAPI<algorithmFPType> *)(_kernel))->compute(data, partialResult, parameter);
-    }
+    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), compute, data, partialResult,
+                       parameter);
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -93,19 +71,8 @@ services::Status OnlineContainer<algorithmFPType, correlationDense, cpu>::finali
     data_management::NumericTablePtr eigenvalues  = result->get(pca::eigenvalues);
     data_management::NumericTablePtr eigenvectors = result->get(pca::eigenvectors);
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), finalize, partialResult, parameter,
-                           *eigenvectors, *eigenvalues);
-    }
-    else
-    {
-        return ((internal::PCACorrelationKernelOnlineUCAPI<algorithmFPType> *)(_kernel))
-            ->finalize(partialResult, parameter, *eigenvectors, *eigenvalues);
-    }
+    __DAAL_CALL_KERNEL(env, internal::PCACorrelationKernel, __DAAL_KERNEL_ARGUMENTS(online, algorithmFPType), finalize, partialResult, parameter,
+                       *eigenvectors, *eigenvalues);
 }
 
 } // namespace pca

@@ -30,8 +30,6 @@
 #include "algorithms/kmeans/kmeans_init_distributed.h"
 #include "src/algorithms/kmeans/kmeans_init_kernel.h"
 #include "src/algorithms/kmeans/kmeans_init_impl.h"
-#include "src/algorithms/kmeans/oneapi/kmeans_init_dense_batch_kernel_ucapi.h"
-#include "services/internal/sycl/execution_context.h"
 
 namespace daal
 {
@@ -44,17 +42,7 @@ namespace init
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || (method != deterministicDense && method != randomDense))
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::KMeansInitKernel, method, algorithmFPType);
-    }
-    else
-    {
-        _kernel = new internal::KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType>();
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::KMeansInitKernel, method, algorithmFPType);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -66,9 +54,6 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
@@ -84,15 +69,7 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 
     daal::services::Environment::env & env = *_env;
 
-    if (deviceInfo.isCpu || (method != deterministicDense && method != randomDense))
-    {
-        __DAAL_CALL_KERNEL(env, internal::KMeansInitKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, par,
-                           *par->engine);
-    }
-    else
-    {
-        return ((internal::KMeansInitDenseBatchKernelUCAPI<method, algorithmFPType> *)(_kernel))->compute(na, a, nr, r, par, *par->engine);
-    }
+    __DAAL_CALL_KERNEL(env, internal::KMeansInitKernel, __DAAL_KERNEL_ARGUMENTS(method, algorithmFPType), compute, na, a, nr, r, par, *par->engine);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

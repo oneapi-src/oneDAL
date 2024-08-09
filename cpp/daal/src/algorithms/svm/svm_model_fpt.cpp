@@ -22,8 +22,8 @@
 */
 
 #include "algorithms/svm/svm_model.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
-#include "data_management/data/internal/numeric_table_sycl_csr.h"
+#include "data_management/data/homogen_numeric_table.h"
+#include "data_management/data/csr_numeric_table.h"
 
 namespace daal
 {
@@ -44,39 +44,17 @@ services::SharedPtr<Model> Model::create(size_t nColumns, data_management::Numer
 template <typename modelFPType>
 Model::Model(modelFPType dummy, size_t nColumns, data_management::NumericTableIface::StorageLayout layout, services::Status & st) : _bias(0.0)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (!deviceInfo.isCpu)
+    if (layout == dm::NumericTableIface::csrArray)
     {
-        if (layout == dm::NumericTableIface::csrArray)
-        {
-            _SV = dmi::SyclCSRNumericTable::create<modelFPType>(services::internal::Buffer<modelFPType>(), services::internal::Buffer<size_t>(),
-                                                                services::internal::Buffer<size_t>(), nColumns, size_t(0),
-                                                                dm::CSRNumericTable::oneBased, &st);
-        }
-        else
-        {
-            _SV = dmi::SyclHomogenNumericTable<modelFPType>::create(nColumns, 0, dm::NumericTable::doNotAllocate, &st);
-        }
-        _SVCoeff = dmi::SyclHomogenNumericTable<modelFPType>::create(1, 0, dm::NumericTable::doNotAllocate, &st);
-        if (!st) return;
-        _SVIndices = dmi::SyclHomogenNumericTable<int>::create(1, 0, dm::NumericTable::doNotAllocate, &st);
+        _SV = dm::CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, dm::CSRNumericTable::oneBased, &st);
     }
     else
     {
-        if (layout == dm::NumericTableIface::csrArray)
-        {
-            _SV = dm::CSRNumericTable::create<modelFPType>(NULL, NULL, NULL, nColumns, 0, dm::CSRNumericTable::oneBased, &st);
-        }
-        else
-        {
-            _SV = dm::HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
-        }
-        _SVCoeff = dm::HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
-        if (!st) return;
-        _SVIndices = dm::HomogenNumericTable<int>::create(NULL, 1, 0, &st);
+        _SV = dm::HomogenNumericTable<modelFPType>::create(NULL, nColumns, 0, &st);
     }
+    _SVCoeff = dm::HomogenNumericTable<modelFPType>::create(NULL, 1, 0, &st);
+    if (!st) return;
+    _SVIndices = dm::HomogenNumericTable<int>::create(NULL, 1, 0, &st);
 
     return;
 }

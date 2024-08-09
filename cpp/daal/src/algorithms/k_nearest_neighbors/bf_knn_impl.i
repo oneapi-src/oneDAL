@@ -24,7 +24,7 @@
 #include "algorithms/k_nearest_neighbors/bf_knn_classification_model.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_train_kernel.h"
 #include "src/algorithms/k_nearest_neighbors/bf_knn_classification_predict_kernel.h"
-#include "src/algorithms/k_nearest_neighbors/oneapi/bf_knn_classification_model_ucapi_impl.h"
+#include "src/algorithms/k_nearest_neighbors/bf_knn_classification_model_impl.h"
 #include "data_management/data/numeric_table.h"
 #include "services/env_detect.h"
 #include "src/services/service_data_utils.h"

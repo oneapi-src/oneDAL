@@ -28,7 +28,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(kmeans::interface2::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, kmeans::lloydDense);
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::interface2::DistributedContainer, distributed, step2Master, DAAL_FPTYPE, kmeans::lloydDense);
 
 namespace kmeans
 {

@@ -25,7 +25,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(optimization_solver::sgd::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::sgd::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::sgd::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::sgd::defaultDense)
 
 namespace optimization_solver
 {
