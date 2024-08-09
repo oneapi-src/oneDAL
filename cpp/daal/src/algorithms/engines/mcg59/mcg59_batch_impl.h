@@ -89,11 +89,7 @@ public:
     {
         return new BatchImpl<cpu, algorithmFPType, method>(*this);
     }
-    int skipAheadoneDAL(size_t skip) DAAL_C11_OVERRIDE
-    {
-        skipAheadImpl(skip);
-        return 0;
-    }
+
     bool hasSupport(engines::internal::ParallelizationTechnique technique) const DAAL_C11_OVERRIDE
     {
         switch (technique)

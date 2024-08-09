@@ -28,12 +28,14 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
                               Type a,
                               Type b,
                               const event_vector& deps) {
-    auto local_engine = engine_.get_oneapi_engine();
+    auto local_engine = engine_.get_oneapi_state();
 
     oneapi::mkl::rng::uniform<Type> distr(a, b);
 
     auto event = oneapi::mkl::rng::generate(distr, local_engine, count, dst, { deps });
     event.wait_and_throw();
+    engine_.skip_ahead_cpu(count);
+    engine_.skip_ahead_gpu(count);
 }
 
 // template <typename Type, typename Size>

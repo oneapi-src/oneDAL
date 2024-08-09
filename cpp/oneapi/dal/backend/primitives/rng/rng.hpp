@@ -27,6 +27,8 @@
 
 namespace oneapi::dal::backend::primitives {
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 enum class engine_list { mt2203, mcg59, mt19937 };
 
 template <engine_list EngineType>
@@ -86,12 +88,20 @@ public:
         return impl_->getState();
     }
 
-    int skip_ahead(size_t nSkip) {
-        return impl_->skipAheadoneDAL(nSkip);
+    auto& get_oneapi_state() {
+        return oneapi_engine_;
     }
 
-    auto& get_oneapi_engine() {
-        return oneapi_engine_;
+    void skip_ahead_cpu(size_t nSkip) {
+        daal_engine_->skipAhead(nSkip);
+    }
+
+    void skip_ahead_gpu(size_t nSkip) {
+        if constexpr (EngineType == engine_list::mt2203) {
+        }
+        else {
+            skip_ahead(oneapi_engine_, nSkip);
+        }
     }
 
 private:
@@ -128,7 +138,6 @@ public:
     rng() = default;
     ~rng() = default;
 
-#ifdef ONEDAL_DATA_PARALLEL
     template <engine_list EngineType>
     void uniform(sycl::queue& queue,
                  Size count_,
@@ -146,8 +155,11 @@ public:
     //                                  Type a,
     //                                  Type b,
     //                                  const event_vector& deps = {});
-#endif
-    void uniform(Size count, Type* dst, void* state, Type a, Type b) {
+
+    template <engine_list EngineType>
+    void uniform(Size count, Type* dst, engine<EngineType>& engine_, Type a, Type b) {
+        void* state = engine_.get_state();
+        engine_.skip_ahead_gpu(count);
         uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 
@@ -176,4 +188,5 @@ public:
     }
 };
 
+#endif
 } // namespace oneapi::dal::backend::primitives
