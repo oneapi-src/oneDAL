@@ -86,6 +86,14 @@ public:
         return rank_count;
     }
 
+    bool get_mpi_offload_support() override {
+        return false;
+    }
+
+    bool use_sendrecv_replace_alternative() override {
+        return false;
+    }
+
     void barrier() override {}
 
     request_t* bcast(byte_t* send_buf,
@@ -122,7 +130,8 @@ public:
                                 std::int64_t count,
                                 const data_type& dtype,
                                 std::int64_t destination_rank,
-                                std::int64_t source_rank) override {
+                                std::int64_t source_rank,
+                                byte_t* recv_buf = nullptr) override {
         return nullptr;
     }
 };
@@ -146,6 +155,14 @@ public:
 
     std::int64_t get_rank_count() override {
         return rank_count;
+    }
+
+    bool get_mpi_offload_support() override {
+        return false;
+    }
+
+    bool use_sendrecv_replace_alternative() override {
+        return false;
     }
 
     void barrier() override {}
@@ -225,7 +242,8 @@ public:
                                 std::int64_t count,
                                 const data_type& dtype,
                                 std::int64_t destination_rank,
-                                std::int64_t source_rank) override {
+                                std::int64_t source_rank,
+                                byte_t* recv_buf = nullptr) override {
         return nullptr;
     }
     request_t* sendrecv_replace(sycl::queue& q,

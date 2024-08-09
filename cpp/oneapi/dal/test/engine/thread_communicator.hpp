@@ -382,6 +382,14 @@ public:
         return ctx_.get_thread_count();
     }
 
+    bool get_mpi_offload_support() override {
+        return false;
+    }
+
+    bool use_sendrecv_replace_alternative() override {
+        return false;
+    }
+
     void barrier() override;
 
     request_t* bcast(byte_t* send_buf,
@@ -406,7 +414,8 @@ public:
                                 std::int64_t count,
                                 const data_type& dtype,
                                 std::int64_t destination_rank,
-                                std::int64_t source_rank) override;
+                                std::int64_t source_rank,
+                                byte_t* recv_buf = nullptr) override;
 
 private:
     thread_communicator_context ctx_;
