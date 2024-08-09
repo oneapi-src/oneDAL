@@ -17,7 +17,6 @@
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel.hpp"
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernel_distr.hpp"
 #include "oneapi/dal/algo/kmeans_init/backend/gpu/compute_kernels_impl.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
