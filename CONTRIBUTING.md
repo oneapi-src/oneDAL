@@ -25,7 +25,7 @@ Refer to our guidelines on [pull requests](#pull-requests) and [issues](#issues)
 
 ## Contacting maintainers
 You may reach out to Intel project maintainers privately at onedal.maintainers@intel.com.
-[Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts: 
+[Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts:
 
 For ARM specifics you may contact: [@rakshithgb-fujitsu](https://github.com/rakshithgb-fujitsu/)
 
@@ -64,6 +64,20 @@ clang-format style=file <your file>
 ```
 
 Refer to [ClangFormat documentation](https://clang.llvm.org/docs/ClangFormat.html) for more information.
+
+### editorconfig-checker
+
+We also recommend using [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) to ensure your code adheres to the project's coding style. EditorConfig-Checker is a command-line tool that checks your code against the rules defined in the [.editorconfig](https://github.com/oneapi-src/oneDAL/blob/main/.editorconfig) file.
+
+To use it, follow these steps:
+
+1. Install the tool by following the instructions in the [official documentation](https://github.com/editorconfig-checker/editorconfig-checker#installation).
+2. Navigate to the root directory of your project.
+3. Run the following command to check your code:
+
+```
+editorconfig-checker
+```
 
 ### Coding Guidelines
 

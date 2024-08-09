@@ -1,0 +1,7 @@
+root = true
+
+[*.{py,pl,pm,i,inc,c,cpp,h,hpp,s,f,f77,f90,fi,java}]
+indent_style = space
+trim_trailing_whitespace = true
+insert_final_newline = true
+# max_line_length = 150
