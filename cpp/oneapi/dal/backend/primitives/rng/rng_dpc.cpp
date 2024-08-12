@@ -17,7 +17,27 @@
 #include <oneapi/mkl.hpp>
 #include "oneapi/dal/backend/primitives/rng/rng.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
+
 namespace oneapi::dal::backend::primitives {
+
+namespace bk = oneapi::dal::backend;
+
+template <typename Type, typename Size>
+template <engine_list EngineType>
+void rng<Type, Size>::uniform_gpu_internal(sycl::queue& queue,
+                                           Size count,
+                                           Type* dst,
+                                           engine<EngineType>& engine_,
+                                           Type a,
+                                           Type b,
+                                           const event_vector& deps) {
+    auto local_engine = engine_.get_oneapi_state();
+    oneapi::mkl::rng::uniform<Type> distr(a, b);
+    auto event = oneapi::mkl::rng::generate(distr, local_engine, count, dst, { deps });
+    event.wait_and_throw();
+    engine_.skip_ahead_cpu(count);
+    engine_.skip_ahead_gpu(count);
+}
 
 template <typename Type, typename Size>
 template <engine_list EngineType>
@@ -27,15 +47,40 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
                               engine<EngineType>& engine_,
                               Type a,
                               Type b,
+                              bool distr_mode /* = false */,
                               const event_vector& deps) {
-    auto local_engine = engine_.get_oneapi_state();
+    constexpr Size GPU_THRESHOLD = 1000000; // GPU is preferable
+    constexpr Size HOST_THRESHOLD = 50000; // CPU is preferable
 
-    oneapi::mkl::rng::uniform<Type> distr(a, b);
+    bool use_gpu = (count > GPU_THRESHOLD) ||
+                   (count > HOST_THRESHOLD &&
+                    (distr_mode ||
+                     sycl::get_pointer_type(dst, queue.get_context()) == sycl::usm::alloc::device));
 
-    auto event = oneapi::mkl::rng::generate(distr, local_engine, count, dst, { deps });
-    event.wait_and_throw();
-    engine_.skip_ahead_cpu(count);
-    engine_.skip_ahead_gpu(count);
+    if (use_gpu) {
+        if (sycl::get_pointer_type(dst, queue.get_context()) == sycl::usm::alloc::device) {
+            uniform_gpu_internal(queue, count, dst, engine_, a, b);
+        }
+        else {
+            auto tmp = ndarray<Type, 1>::empty(queue, { count }, sycl::usm::alloc::device);
+            auto tmp_ptr = tmp.get_mutable_data();
+            uniform_gpu_internal(queue, count, tmp_ptr, engine_, a, b);
+            tmp.to_host(queue);
+            bk::copy(queue, dst, tmp.get_data(), count, {}).wait_and_throw();
+        }
+    }
+    else {
+        if (sycl::get_pointer_type(dst, queue.get_context()) != sycl::usm::alloc::device) {
+            uniform(count, dst, engine_, a, b);
+        }
+        else {
+            auto tmp = ndarray<Type, 1>::empty({ count });
+            auto tmp_ptr = tmp.get_mutable_data();
+            uniform(count, tmp_ptr, engine_, a, b);
+            tmp.to_device(queue);
+            bk::copy(queue, dst, tmp.get_data(), count, {}).wait_and_throw();
+        }
+    }
 }
 
 // template <typename Type, typename Size>
@@ -92,6 +137,7 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
                                                       engine<EngineType>& engine_, \
                                                       F a,                         \
                                                       F b,                         \
+                                                      bool dist,                   \
                                                       const event_vector& deps);
 
 #define INSTANTIATE_FLOAT(Size)                     \
@@ -107,6 +153,29 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
 
 INSTANTIATE_FLOAT(std::int64_t);
 INSTANTIATE_FLOAT(std::int32_t);
+
+#define INSTANTIATE_(F, Size, EngineType)                                                       \
+    template ONEDAL_EXPORT void rng<F, Size>::uniform_gpu_internal(sycl::queue& queue,          \
+                                                                   Size count_,                 \
+                                                                   F* dst,                      \
+                                                                   engine<EngineType>& engine_, \
+                                                                   F a,                         \
+                                                                   F b,                         \
+                                                                   const event_vector& deps);
+
+#define INSTANTIATE_FLOAT_(Size)                     \
+    INSTANTIATE_(float, Size, engine_list::mt2203)   \
+    INSTANTIATE_(float, Size, engine_list::mcg59)    \
+    INSTANTIATE_(float, Size, engine_list::mt19937)  \
+    INSTANTIATE_(double, Size, engine_list::mt2203)  \
+    INSTANTIATE_(double, Size, engine_list::mcg59)   \
+    INSTANTIATE_(double, Size, engine_list::mt19937) \
+    INSTANTIATE_(int, Size, engine_list::mt2203)     \
+    INSTANTIATE_(int, Size, engine_list::mcg59)      \
+    INSTANTIATE_(int, Size, engine_list::mt19937)
+
+INSTANTIATE_FLOAT_(std::int64_t);
+INSTANTIATE_FLOAT_(std::int32_t);
 
 // #define INSTANTIATE_WO_REPLACEMENT(F, Size)                                \
 //     template ONEDAL_EXPORT void rng<F, Size>::uniform_without_replacement( \

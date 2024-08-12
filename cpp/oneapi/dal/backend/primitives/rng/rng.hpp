@@ -64,25 +64,25 @@ public:
         }
     }
 
-    explicit engine(const daal::algorithms::engines::EnginePtr& eng) : daal_engine_(eng) {
-        impl_ =
-            dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(daal_engine_.get());
-        if (!impl_) {
-            throw std::domain_error("RNG engine is not supported");
-        }
-    }
+    // explicit engine(const daal::algorithms::engines::EnginePtr& eng) : daal_engine_(eng) {
+    //     impl_ =
+    //         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(daal_engine_.get());
+    //     if (!impl_) {
+    //         throw std::domain_error("RNG engine is not supported");
+    //     }
+    // }
 
     virtual ~engine() = default;
 
-    engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
-        daal_engine_ = eng;
-        impl_ =
-            dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(daal_engine_.get());
-        if (!impl_) {
-            throw std::domain_error("RNG engine is not supported");
-        }
-        return *this;
-    }
+    // engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
+    //     daal_engine_ = eng;
+    //     impl_ =
+    //         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(daal_engine_.get());
+    //     if (!impl_) {
+    //         throw std::domain_error("RNG engine is not supported");
+    //     }
+    //     return *this;
+    // }
 
     void* get_state() const {
         return impl_->getState();
@@ -140,13 +140,22 @@ public:
 
     template <engine_list EngineType>
     void uniform(sycl::queue& queue,
-                 Size count_,
+                 Size count,
                  Type* dst,
                  engine<EngineType>& engine_,
                  Type a,
                  Type b,
+                 bool distr_mode = false,
                  const event_vector& deps = {});
 
+    template <engine_list EngineType>
+    void uniform_gpu_internal(sycl::queue& queue,
+                              Size count,
+                              Type* dst,
+                              engine<EngineType>& engine_,
+                              Type a,
+                              Type b,
+                              const event_vector& deps = {});
     // template <engine_list EngineType>
     // void uniform_without_replacement(sycl::queue& queue,
     //                                  Size count,
