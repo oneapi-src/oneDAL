@@ -13,5 +13,6 @@ cc_library(
     ],
     deps = [
         ":headers",
+        "@opencl//:opencl_binary",
     ],
 )

@@ -11,7 +11,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
     ],
     extra_deps = [
-        "@onedal//cpp/daal:sycl",
+        "@onedal//cpp/daal:engines",
     ],
 )
 
