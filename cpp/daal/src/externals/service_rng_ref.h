@@ -1,6 +1,7 @@
 /* file: service_rng_ref.h */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,21 +25,27 @@
 #ifndef __SERVICE_RNG_REF_H__
 #define __SERVICE_RNG_REF_H__
 
-#include "src/externals/service_rng_common.h"
-#include "services/error_indexes.h"
-#include <random>
+#ifdef OPENRNG_BACKEND
 
-// RNGs
-#define __DAAL_BRNG_MT2203  (1 << 20) * 9 //VSL_BRNG_MT2203
-#define __DAAL_BRNG_MT19937 (1 << 20) * 8 //VSL_BRNG_MT19937
-#define __DAAL_BRNG_MCG59   (1 << 20) * 4 //VSL_BRNG_MCG59
+    #include "service_rng_openrng.h"
 
-#define __DAAL_RNG_METHOD_UNIFORM_STD         0 //VSL_RNG_METHOD_UNIFORM_STD
-#define __DAAL_RNG_METHOD_UNIFORMBITS32_STD   4
-#define __DAAL_RNG_METHOD_BERNOULLI_ICDF      0 //VSL_RNG_METHOD_BERNOULLI_ICDF
-#define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER  0 //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER
-#define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER2 1 //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER2
-#define __DAAL_RNG_METHOD_GAUSSIAN_ICDF       2 //VSL_RNG_METHOD_GAUSSIAN_ICDF
+#else
+
+    #include "src/externals/service_rng_common.h"
+    #include "services/error_indexes.h"
+    #include <random>
+
+    // RNGs
+    #define __DAAL_BRNG_MT2203  (1 << 20) * 9 //VSL_BRNG_MT2203
+    #define __DAAL_BRNG_MT19937 (1 << 20) * 8 //VSL_BRNG_MT19937
+    #define __DAAL_BRNG_MCG59   (1 << 20) * 4 //VSL_BRNG_MCG59
+
+    #define __DAAL_RNG_METHOD_UNIFORM_STD         0 //VSL_RNG_METHOD_UNIFORM_STD
+    #define __DAAL_RNG_METHOD_UNIFORMBITS32_STD   4
+    #define __DAAL_RNG_METHOD_BERNOULLI_ICDF      0 //VSL_RNG_METHOD_BERNOULLI_ICDF
+    #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER  0 //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER
+    #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER2 1 //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER2
+    #define __DAAL_RNG_METHOD_GAUSSIAN_ICDF       2 //VSL_RNG_METHOD_GAUSSIAN_ICDF
 
 namespace daal
 {
@@ -344,4 +351,5 @@ public:
 } // namespace internal
 } // namespace daal
 
+#endif // openrng
 #endif

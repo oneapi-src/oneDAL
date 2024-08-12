@@ -55,6 +55,10 @@ ARCH_is_$(ARCH)                    := yes
 DEFAULT_BUILD_PARAMETERS_LIB       := $(if $(OS_is_win),no,yes)
 BUILD_PARAMETERS_LIB               ?= $(DEFAULT_BUILD_PARAMETERS_LIB)
 
+ifeq ($(RNG_BACKEND), openrng)
+	RNG_OPENRNG := yes
+endif
+
 ifdef OS_is_win
 ifeq ($(BUILD_PARAMETERS_LIB),yes)
 $(error Building with the parameters library is not available on Windows OS)
