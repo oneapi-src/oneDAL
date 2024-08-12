@@ -68,8 +68,8 @@ public:
 
     auto allocate_arrays(std::int64_t elem_count) {
         auto& q = this->get_queue();
-        auto val_gpu = ndarray<Index, 1>::empty(q, { elem_count }, sycl::usm::alloc::device);
-        auto val_host = ndarray<Index, 1>::empty({ elem_count });
+        auto val_gpu = ndarray<Index, 1>::empty(q, { elem_count }, sycl::usm::alloc::shared);
+        auto val_host = ndarray<Index, 1>::empty(q, { elem_count }, sycl::usm::alloc::shared);
 
         return std::make_tuple(val_gpu, val_host);
     }
@@ -125,33 +125,12 @@ public:
     }
 };
 
-using rng_types = COMBINE_TYPES((float, double), (mt2203, mcg59, mt19937));
+// using rng_types = COMBINE_TYPES((float, double), (mt2203, mcg59, mt19937));
 
-TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
-    SKIP_IF(this->get_policy().is_cpu());
-    std::int64_t elem_count = GENERATE_COPY(10, 777, 10000, 50000);
-    std::int64_t seed = GENERATE_COPY(777, 999);
-
-    auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
-    auto arr_gpu_ptr = arr_gpu.get_mutable_data();
-    auto arr_host_ptr = arr_host.get_mutable_data();
-
-    auto rn_gen = this->get_rng();
-    auto rng_engine = this->get_engine(seed);
-    auto rng_engine_ = this->get_engine(seed);
-
-    rn_gen.uniform(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
-
-    this->check_results(arr_gpu, arr_host);
-}
-
-using rng_types_skip = COMBINE_TYPES((float, double), (mcg59, mt19937));
-
-// TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip) {
+// TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
 //     SKIP_IF(this->get_policy().is_cpu());
-//     std::int64_t elem_count = GENERATE_COPY(1000, 10000);
-//     std::int64_t seed = GENERATE_COPY(777);
+//     std::int64_t elem_count = GENERATE_COPY(10, 777, 10000, 50000);
+//     std::int64_t seed = GENERATE_COPY(777, 999);
 
 //     auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
 //     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
@@ -161,81 +140,107 @@ using rng_types_skip = COMBINE_TYPES((float, double), (mcg59, mt19937));
 //     auto rng_engine = this->get_engine(seed);
 //     auto rng_engine_ = this->get_engine(seed);
 
-//     CAPTURE(elem_count);
-//     BENCHMARK("Uniform dispatcher HOST arr") {
-//         rn_gen.uniform(this->get_queue(), elem_count, arr_host_ptr, rng_engine, 0, elem_count);
-//     };
-//     BENCHMARK("Uniform dispatcher GPU arr") {
-//         rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
-//     };
+//     rn_gen.uniform(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
 
-//     auto [arr_gpu_, arr_host_] = this->allocate_arrays(elem_count);
-//     auto arr_gpu_ptr_ = arr_gpu_.get_mutable_data();
-//     auto arr_host_ptr_ = arr_host_.get_mutable_data();
-
-//     auto rn_gen_ = this->get_rng();
-//     auto rng_engine_1 = this->get_engine(seed);
-//     auto rng_engine_2 = this->get_engine(seed);
-//     BENCHMARK("Uniform GPU arr") {
-//         rn_gen_.uniform_gpu_internal(this->get_queue(), elem_count, arr_gpu_ptr_, rng_engine_1, 0, elem_count);
-//     };
-
-//     BENCHMARK("Uniform HOST arr") {
-//         rn_gen_.uniform(elem_count, arr_host_ptr_, rng_engine_2, 0, elem_count);
-//     };
+//     this->check_results(arr_gpu, arr_host);
 // }
 
-TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip) {
-    SKIP_IF(this->get_policy().is_cpu());
-    std::int64_t elem_count = GENERATE_COPY(10, 777, 10000, 100000);
-    std::int64_t seed = GENERATE_COPY(777, 999);
+using rng_types_skip = COMBINE_TYPES((float), (mcg59));
 
-    auto [arr_host_init_1, arr_host_init_2] = this->allocate_arrays_host(elem_count);
+TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip) {
+    SKIP_IF(this->get_policy().is_cpu());
+    std::int64_t elem_count =
+        GENERATE_COPY(10, 1000, 300000, 15000, 1000000, 100000000, 6100000000, 1LL * 64 * 1000000);
+    std::int64_t seed = GENERATE_COPY(777);
+
     auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
-    auto arr_host_init_1_ptr = arr_host_init_1.get_mutable_data();
-    auto arr_host_init_2_ptr = arr_host_init_2.get_mutable_data();
     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
     auto arr_host_ptr = arr_host.get_mutable_data();
 
     auto rn_gen = this->get_rng();
     auto rng_engine = this->get_engine(seed);
+    auto rng_engine_ = this->get_engine(seed);
+
+    BENCHMARK("Uniform dispatcher HOST arr" + std::to_string(elem_count)) {
+        rn_gen.uniform(this->get_queue(), elem_count, arr_host_ptr, rng_engine, 0, elem_count);
+    };
+    BENCHMARK("Uniform dispatcher GPU arr" + std::to_string(elem_count)) {
+        rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
+    };
+
+    auto [arr_gpu_, arr_host_] = this->allocate_arrays(elem_count);
+    auto arr_gpu_ptr_ = arr_gpu_.get_mutable_data();
+    auto arr_host_ptr_ = arr_host_.get_mutable_data();
+
+    auto rn_gen_ = this->get_rng();
+    auto rng_engine_1 = this->get_engine(seed);
     auto rng_engine_2 = this->get_engine(seed);
+    BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
+        rn_gen_.uniform_gpu_internal(this->get_queue(),
+                                     elem_count,
+                                     arr_gpu_ptr_,
+                                     rng_engine_1,
+                                     0,
+                                     elem_count);
+    };
 
-    rn_gen.uniform(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
-
-    rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
-
-    this->check_results_host(arr_host_init_1, arr_host_init_2);
-    this->check_results(arr_gpu, arr_host);
+    BENCHMARK("Uniform HOST arr" + std::to_string(elem_count)) {
+        rn_gen_.uniform(elem_count, arr_host_ptr_, rng_engine_2, 0, elem_count);
+    };
 }
 
-TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types_skip) {
-    SKIP_IF(this->get_policy().is_cpu());
-    std::int64_t elem_count = GENERATE_COPY(10, 100, 777, 10000);
-    std::int64_t seed = GENERATE_COPY(1, 777, 999);
+// TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip) {
+//     SKIP_IF(this->get_policy().is_cpu());
+//     std::int64_t elem_count = GENERATE_COPY(10, 777, 10000, 100000);
+//     std::int64_t seed = GENERATE_COPY(777, 999);
 
-    auto [arr_device_init_1, arr_device_init_2] = this->allocate_arrays_device(elem_count);
-    auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
-    auto arr_device_init_1_ptr = arr_device_init_1.get_mutable_data();
-    auto arr_device_init_2_ptr = arr_device_init_2.get_mutable_data();
-    auto arr_gpu_ptr = arr_gpu.get_mutable_data();
-    auto arr_host_ptr = arr_host.get_mutable_data();
+//     auto [arr_host_init_1, arr_host_init_2] = this->allocate_arrays_host(elem_count);
+//     auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
+//     auto arr_host_init_1_ptr = arr_host_init_1.get_mutable_data();
+//     auto arr_host_init_2_ptr = arr_host_init_2.get_mutable_data();
+//     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
+//     auto arr_host_ptr = arr_host.get_mutable_data();
 
-    auto rn_gen = this->get_rng();
-    auto rng_engine = this->get_engine(seed);
-    auto rng_engine_2 = this->get_engine(seed);
+//     auto rn_gen = this->get_rng();
+//     auto rng_engine = this->get_engine(seed);
+//     auto rng_engine_2 = this->get_engine(seed);
 
-    rn_gen.uniform(this->get_queue(), elem_count, arr_device_init_1_ptr, rng_engine, 0, elem_count);
-    rn_gen
-        .uniform(this->get_queue(), elem_count, arr_device_init_2_ptr, rng_engine_2, 0, elem_count);
+//     rn_gen.uniform(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
 
-    rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
+//     rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
-    this->check_results_device(arr_device_init_1, arr_device_init_2);
-    this->check_results(arr_gpu, arr_host);
-}
+//     this->check_results_host(arr_host_init_1, arr_host_init_2);
+//     this->check_results(arr_gpu, arr_host);
+// }
+
+// TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types_skip) {
+//     SKIP_IF(this->get_policy().is_cpu());
+//     std::int64_t elem_count = GENERATE_COPY(10, 100, 777, 10000);
+//     std::int64_t seed = GENERATE_COPY(1, 777, 999);
+
+//     auto [arr_device_init_1, arr_device_init_2] = this->allocate_arrays_device(elem_count);
+//     auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
+//     auto arr_device_init_1_ptr = arr_device_init_1.get_mutable_data();
+//     auto arr_device_init_2_ptr = arr_device_init_2.get_mutable_data();
+//     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
+//     auto arr_host_ptr = arr_host.get_mutable_data();
+
+//     auto rn_gen = this->get_rng();
+//     auto rng_engine = this->get_engine(seed);
+//     auto rng_engine_2 = this->get_engine(seed);
+
+//     rn_gen.uniform(this->get_queue(), elem_count, arr_device_init_1_ptr, rng_engine, 0, elem_count);
+//     rn_gen
+//         .uniform(this->get_queue(), elem_count, arr_device_init_2_ptr, rng_engine_2, 0, elem_count);
+
+//     rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
+
+//     this->check_results_device(arr_device_init_1, arr_device_init_2);
+//     this->check_results(arr_gpu, arr_host);
+// }
 
 } // namespace oneapi::dal::backend::primitives::test

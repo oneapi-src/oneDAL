@@ -49,37 +49,11 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
                               Type b,
                               bool distr_mode /* = false */,
                               const event_vector& deps) {
-    constexpr Size GPU_THRESHOLD = 1000000; // GPU is preferable
-    constexpr Size HOST_THRESHOLD = 50000; // CPU is preferable
-
-    bool use_gpu = (count > GPU_THRESHOLD) ||
-                   (count > HOST_THRESHOLD &&
-                    (distr_mode ||
-                     sycl::get_pointer_type(dst, queue.get_context()) == sycl::usm::alloc::device));
-
-    if (use_gpu) {
-        if (sycl::get_pointer_type(dst, queue.get_context()) == sycl::usm::alloc::device) {
-            uniform_gpu_internal(queue, count, dst, engine_, a, b);
-        }
-        else {
-            auto tmp = ndarray<Type, 1>::empty(queue, { count }, sycl::usm::alloc::device);
-            auto tmp_ptr = tmp.get_mutable_data();
-            uniform_gpu_internal(queue, count, tmp_ptr, engine_, a, b);
-            tmp.to_host(queue);
-            bk::copy(queue, dst, tmp.get_data(), count, {}).wait_and_throw();
-        }
+    if (count > 5000) {
+        uniform_gpu_internal(queue, count, dst, engine_, a, b);
     }
     else {
-        if (sycl::get_pointer_type(dst, queue.get_context()) != sycl::usm::alloc::device) {
-            uniform(count, dst, engine_, a, b);
-        }
-        else {
-            auto tmp = ndarray<Type, 1>::empty({ count });
-            auto tmp_ptr = tmp.get_mutable_data();
-            uniform(count, tmp_ptr, engine_, a, b);
-            tmp.to_device(queue);
-            bk::copy(queue, dst, tmp.get_data(), count, {}).wait_and_throw();
-        }
+        uniform(count, dst, engine_, a, b);
     }
 }
 
