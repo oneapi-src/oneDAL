@@ -1,5 +1,5 @@
 #===============================================================================
-# Copyright 2022 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,33 +14,8 @@
 # limitations under the License.
 #===============================================================================
 
-#++
-#  Intel compiler definitions for makefile
-#--
-
-PLATs.icx = lnx32e mac32e
-
-CMPLRDIRSUFF.icx = _icx
-
-CORE.SERV.COMPILER.icx = generic
-
--Zl.icx = -no-intel-lib
--DEBC.icx = -g
-
-COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type
-
-
-link.dynamic.lnx.icx = icpx -m64 -no-intel-lib
-
-pedantic.opts.icx = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wno-unused-parameter
-
-pedantic.opts.lnx.icx = $(pedantic.opts.icx)
-
-p4_OPT.icx   = $(-Q)march=nocona
-mc3_OPT.icx  = $(-Q)march=nehalem
-avx2_OPT.icx = $(-Q)march=haswell
-skx_OPT.icx  = $(-Q)march=skx
+echo "Download intel opencl runtime"
+(new-object System.Net.WebClient).DownloadFile("https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d9883ab0-0e26-47fd-9612-950b95460d72/w_opencl_runtime_p_2024.2.0.980.exe", "opencl_installer.exe")
+echo "Unpacking opencl runtime installer"
+Start-Process ".\opencl_installer.exe" -ArgumentList "--s --x --f ocl" -Wait
+Move-Item -Path ".\ocl\w_opencl_runtime_p_2024.2.0.980.msi" -Destination ".\opencl_rt.msi"
