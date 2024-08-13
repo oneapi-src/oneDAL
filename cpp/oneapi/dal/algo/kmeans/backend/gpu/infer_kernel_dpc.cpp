@@ -96,12 +96,10 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             result.set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
         }
-        if (desc.get_result_options().test(result_options::compute_assignments)) {
-            result.set_responses(
-                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
-                                         row_count,
-                                         1));
-        }
+
+        // Responses are set by default
+        result.set_responses(
+            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
         return result;
     }
@@ -165,15 +163,19 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                             arr_responses,
                                             arr_closest_distances,
                                             { data_squares_event, centroid_squares_event });
-        auto objective_function =
-            calc_objective_function(queue, arr_closest_distances, { assign_event });
-        {
-            // Reduce objective function value over all ranks
-            comm.allreduce(objective_function).wait();
+        auto result =
+            infer_result<task::clustering>{}.set_result_options(desc.get_result_options());
+        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+            auto objective_function =
+                calc_objective_function(queue, arr_closest_distances, { assign_event });
+            {
+                // Reduce objective function value over all ranks
+                comm.allreduce(objective_function).wait();
+            }
+            result.set_objective_function_value(objective_function);
         }
-        auto result = infer_result<task::clustering>{};
-        result.set_objective_function_value(objective_function);
 
+        // Responses are set by default
         result.set_responses(
             dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
@@ -181,9 +183,9 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
     }
 };
 
-template struct infer_kernel_gpu<float, method::lloyd_csr, task::clustering>;
-template struct infer_kernel_gpu<double, method::lloyd_csr, task::clustering>;
 template struct infer_kernel_gpu<float, method::lloyd_dense, task::clustering>;
 template struct infer_kernel_gpu<double, method::lloyd_dense, task::clustering>;
+template struct infer_kernel_gpu<float, method::lloyd_csr, task::clustering>;
+template struct infer_kernel_gpu<double, method::lloyd_csr, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend

@@ -53,14 +53,6 @@
 case cpuType:                                                                                    \
     _cntr = (new DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__)(daalEnv)); \
     break;
-#define DAAL_KERNEL_CONTAINER_CASE_SYCL(ContainerTemplate, cpuType, ...)                        \
-case cpuType:                                                                                   \
-{                                                                                               \
-    using contTemplType = DAAL_KERNEL_CONTAINER_TEMPL(ContainerTemplate, cpuType, __VA_ARGS__); \
-    static volatile daal::services::internal::GpuSupportRegistrar<contTemplType> registrar;     \
-    _cntr = (new contTemplType(daalEnv));                                                       \
-    break;                                                                                      \
-}
 
 #define DAAL_EXPAND(...) __VA_ARGS__
 /** @} */

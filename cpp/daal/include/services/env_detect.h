@@ -27,7 +27,7 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
-#include "services/internal/execution_context.h"
+#include "services/error_handling.h"
 
 namespace daal
 {
@@ -172,22 +172,6 @@ public:
      */
     int setMemoryLimit(MemType type, size_t limit);
 
-    /**
-     *  Sets execution context globally for all algorithms.
-     *  After this method is called, all computations inside algorithms are performed
-     *  using device information from execution context.
-     *  \param[in] ctx Execution context with information on how to perform computations inside the library
-     */
-    void setDefaultExecutionContext(const internal::ExecutionContext & ctx)
-    {
-        _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
-    }
-
-    services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext()
-    {
-        return *_executionContext;
-    }
-
 private:
     Environment();
     Environment(const Environment & e);
@@ -203,7 +187,6 @@ private:
     // allow user to wait for completion of worker threads.
     void * _schedulerHandle;
     void * _globalControl;
-    SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
 

@@ -23,7 +23,7 @@
 
 #include "algorithms/logistic_regression/logistic_regression_training_types.h"
 #include "src/algorithms/logistic_regression/logistic_regression_model_impl.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -33,7 +33,6 @@ namespace logistic_regression
 {
 namespace internal
 {
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename modelFPType>
 ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, modelFPType dummy, services::Status * st)
@@ -42,17 +41,7 @@ ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, mode
     const size_t nRows = nClasses == 2 ? 1 : nClasses;
     const size_t nCols = nFeatures + 1;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        _beta = data_management::HomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
-    }
-    else
-    {
-        _beta = SyclHomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
-    }
+    _beta = data_management::HomogenNumericTable<modelFPType>::create(nCols, nRows, data_management::NumericTable::doAllocate, 0, st);
 }
 
 template ModelImpl::ModelImpl(size_t nFeatures, bool interceptFlag, size_t nClasses, DAAL_FPTYPE dummy, services::Status * st);

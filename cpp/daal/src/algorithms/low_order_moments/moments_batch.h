@@ -24,8 +24,7 @@
 #define __MOMENTS_BATCH__
 
 #include "algorithms/moments/low_order_moments_types.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
-#include "services/internal/execution_context.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 using namespace daal::data_management;
 
@@ -48,24 +47,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
     size_t nFeatures = 0;
     DAAL_CHECK_STATUS(s, static_cast<const InputIface *>(input)->getNumberOfColumns(nFeatures));
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (method != defaultDense || deviceInfo.isCpu)
+    for (size_t i = 0; i < lastResultId + 1; i++)
     {
-        for (size_t i = 0; i < lastResultId + 1; i++)
-        {
-            Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-            DAAL_CHECK_STATUS_VAR(s);
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < lastResultId + 1; i++)
-        {
-            Argument::set(i, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-            DAAL_CHECK_STATUS_VAR(s);
-        }
+        Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
+        DAAL_CHECK_STATUS_VAR(s);
     }
 
     return s;
@@ -85,24 +70,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     services::Status s;
     DAAL_CHECK_STATUS(s, static_cast<const PartialResult *>(partialResult)->getNumberOfColumns(nFeatures));
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (method != defaultDense || deviceInfo.isCpu)
+    for (size_t i = 0; i < lastResultId + 1; i++)
     {
-        for (size_t i = 0; i < lastResultId + 1; i++)
-        {
-            Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-            DAAL_CHECK_STATUS_VAR(s);
-        }
-    }
-    else
-    {
-        for (size_t i = 0; i < lastResultId + 1; i++)
-        {
-            Argument::set(i, data_management::internal::SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-            DAAL_CHECK_STATUS_VAR(s);
-        }
+        Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
+        DAAL_CHECK_STATUS_VAR(s);
     }
     return s;
 }

@@ -24,14 +24,14 @@ CMPLRDIRSUFF.icx = _icx
 
 CORE.SERV.COMPILER.icx = generic
 
--Zl.icx =  -no-intel-lib=libirc
+-Zl.icx = -no-intel-lib
 -DEBC.icx = -g
 
 COMPILER.lnx.icx = icpx -m64 \
                      -Werror -Wreturn-type
 
 
-link.dynamic.lnx.icx = icpx -m64
+link.dynamic.lnx.icx = icpx -m64 -no-intel-lib
 
 pedantic.opts.icx = -pedantic \
                       -Wall \

@@ -5,12 +5,11 @@ load("@onedal//dev/bazel:dal.bzl", "dal_test_suite")
 daal_module(
     name = "kernel",
     auto = False,
-    hdrs = glob(["**/*.h", "**/*.i", "**/*.cl"]),
+    hdrs = glob(["**/*.h", "**/*.i"]),
     srcs = glob(["*.cpp"]),
-    opencl = True,
     deps = [
         "@onedal//cpp/daal:core",
-        "@onedal//cpp/daal:sycl",
+        "@onedal//cpp/daal:engines",
         "@onedal//cpp/daal/src/algorithms/dtrees/gbt:kernel",
         "@onedal//cpp/daal/src/algorithms/regression:kernel",
         "@onedal//cpp/daal/src/algorithms/classifier:kernel",

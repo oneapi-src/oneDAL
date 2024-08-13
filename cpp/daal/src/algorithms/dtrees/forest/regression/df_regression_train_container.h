@@ -28,7 +28,6 @@
 #include "algorithms/decision_forest/decision_forest_regression_training_types.h"
 #include "algorithms/decision_forest/decision_forest_regression_training_batch.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h"
-#include "src/algorithms/dtrees/forest/regression/oneapi/df_regression_train_hist_kernel_oneapi.h"
 #include "src/algorithms/dtrees/forest/regression/df_regression_model_impl.h"
 #include "src/services/service_algo_utils.h"
 
@@ -47,17 +46,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (method == hist && !deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::RegressionTrainBatchKernelOneAPI, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::RegressionTrainBatchKernel, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::RegressionTrainBatchKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -69,9 +58,6 @@ BatchContainer<algorithmFPType, method, cpu>::~BatchContainer()
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     Input * input   = static_cast<Input *>(_in);
     Result * result = static_cast<Result *>(_res);
 
@@ -84,16 +70,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const decision_forest::regression::training::Parameter * par = static_cast<decision_forest::regression::training::Parameter *>(_par);
     daal::services::Environment::env & env                       = *_env;
 
-    if (method == hist && !deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::RegressionTrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::hostApp(*input), x, y, *m, *result, *par);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), x, y, w, *m, *result, *par);
-    }
+    __DAAL_CALL_KERNEL(env, internal::RegressionTrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                       daal::services::internal::hostApp(*input), x, y, w, *m, *result, *par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
