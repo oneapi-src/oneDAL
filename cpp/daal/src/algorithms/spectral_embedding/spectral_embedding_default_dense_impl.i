@@ -78,15 +78,21 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
 
 
     std::cout << "Params: " << par.num_emb << " " << par.p << std::endl;
-    int filt_num = par.p;
+    size_t filt_num = par.p;
+    size_t k = par.num_emb;
+    
+    size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
 
-    //size_t na = input->size();
-    //size_t nr = result->size();
+    SharedPtr<HomogenNumericTable<algorithmFPType> > tmpMatrixPtr = HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &safeStat);
+    if (!safeStat) {
+        return safeStat;
+    }
+    NumericTable* covOutput = tmpMatrixPtr.get();
 
     NumericTable * a0                      = const_cast<NumericTable *>(xTable);
     NumericTable ** a                      = &a0;
     // NumericTable * r0                      = static_cast<NumericTable *>(result->get(cosineDistance).get());
-    NumericTable ** r                      = &eTable;
+    NumericTable ** r                      = &covOutput;//&eTable;
     // _env = daal::services::
     // daal::services::Environment::env & env = *_env;
 
@@ -99,8 +105,6 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     services::Status cos_dist_status = cos_dist_kernel_ptr->compute(0, a, 0, r, nullptr);
 
     delete cos_dist_kernel_ptr;
-
-    size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
 
     for (int i = 0; i < n; ++i) {
         algorithmFPType L = 0;
@@ -172,6 +176,24 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     services::Status eigen_vectors_st = computeEigenvectorsInplace<algorithmFPType, cpu>(n, x, eigenvalues.get());
     if (!eigen_vectors_st) {
         return eigen_vectors_st;
+    }
+
+    std::cout << "Eigen vectors: " << std::endl;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            std::cout << x[i * n + j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    WriteOnlyRows<algorithmFPType, cpu> embedMatrix(eTable, 0, n);
+    DAAL_CHECK_BLOCK_STATUS(embedMatrix);
+    algorithmFPType * embed = embedMatrix.get();
+
+    for (int i = 0; i < k; ++i) {
+        for (int j = 0; j < n; ++j) {
+            embed[j * k + i] = x[i * n + j];
+        }
     }
 
     return services::Status{};

@@ -49,6 +49,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const std::int64_t p = data.get_column_count();
     const std::int64_t n = data.get_row_count();
+    std::int64_t k = desc.get_embedding_dim();
 
     std::cout << "inside oneDAL kernel: " << n << " " << p << std::endl; 
 
@@ -61,11 +62,11 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         
         daal::services::SharedPtr<NumericTable> daal_input, daal_output;
         array<Float> arr_output;
-        arr_output = array<Float>::empty(n * n);
-        daal_output = interop::convert_to_daal_homogen_table(arr_output, n, n);
+        arr_output = array<Float>::empty(n * k);
+        daal_output = interop::convert_to_daal_homogen_table(arr_output, n, k);
         parameter_t daal_param;
 
-        daal_param.num_emb = desc.get_embedding_dim();
+        daal_param.num_emb = k;
         daal_param.p = desc.get_num_neighbors();
         interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_sp_emb_kernel_t>(ctx,
@@ -73,7 +74,7 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                                                 daal_output.get(),
                                                                 daal_param));
         
-        result.set_embedding(homogen_table::wrap(arr_output, n, n));
+        result.set_embedding(homogen_table::wrap(arr_output, n, k));
     }
 
 
