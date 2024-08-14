@@ -91,6 +91,8 @@ protected:
                 data_management::BlockDescriptor<algorithmFPType> destBD, srcBD;
                 DAAL_CHECK_STATUS_VAR(dest->getBlockOfRows(0, dest->getNumberOfRows(), data_management::writeOnly, destBD));
                 DAAL_CHECK_STATUS_VAR(value->getBlockOfRows(0, value->getNumberOfRows(), data_management::readOnly, srcBD));
+                auto source      = srcBD.getBlockPtr();
+                auto destination = destBD.getBlockPtr();
                 services::internal::daal_memcpy_s(
                     destBD.getBlockPtr(), destBD.getNumberOfColumns() * destBD.getNumberOfRows() * sizeof(algorithmFPType), srcBD.getBlockPtr(),
                     srcBD.getNumberOfColumns() * srcBD.getNumberOfRows() * sizeof(algorithmFPType));

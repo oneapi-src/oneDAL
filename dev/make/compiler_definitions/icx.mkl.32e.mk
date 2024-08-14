@@ -24,7 +24,7 @@ CMPLRDIRSUFF.icx =
 
 CORE.SERV.COMPILER.icx = generic
 
--Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib=libirc
+-Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
 -DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g)
 
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
@@ -35,8 +35,8 @@ COMPILER.lnx.icx = icx -m64 \
 
 COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -WX -Qopenmp-simd -Wno-deprecated-declarations -Qdiag-disable:10441
 
-link.dynamic.lnx.icx = icx -m64
-link.dynamic.win.icx = icx -m64
+link.dynamic.lnx.icx = icx -m64 -no-intel-lib
+link.dynamic.win.icx = icx -m64 -no-intel-lib
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
