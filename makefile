@@ -290,10 +290,16 @@ ONEAPIDIR := $(call topf,$$ONEAPI_ROOT)
 ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler/latest,$(info ONEAPI_ROOT not defined))
 ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
 
-libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl*.lib)))
-libsycl.default := $(firstword $(libsycl)) # Select the first matched library, could be modified if specific criteria are needed
-endif
+# Find all libraries, including those matching the specific patterns
+libsycl := $(if $(OS_is_win),$(notdir $(wildcard \
+    $(ONEAPIDIR.libia.prefix)/sycl$d.lib \
+    $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib \
+    $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib \
+    $(ONEAPIDIR.libia.prefix)/sycl*.lib)))
 
+# Filter and sort the libraries for the default use
+libsycl.default := $(firstword $(sort $(filter sycl[0-9]*.lib, $(libsycl))))
+endif
 
 #===============================================================================
 # Release library names
