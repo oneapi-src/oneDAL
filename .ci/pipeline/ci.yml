@@ -30,16 +30,21 @@ variables:
   SYSROOT_OS: 'jammy'
 
 jobs:
-- job: 'ClangFormat'
+- job: 'FormatterChecks'
   pool:
     vmImage: '$(VM_IMAGE)'
   steps:
     - script: |
         .ci/env/apt.sh clang-format
-      displayName: 'apt-get'
+        .ci/env/editorconfig-checker.sh
+      displayName: 'Install Dependencies'
     - script: |
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
+      failOnStderr: true
+    - script: |
+        editorconfig-checker
+      displayName: 'editorconfig-checker'
       failOnStderr: true
 
 - job: 'LinuxMakeGNU_MKL'
@@ -622,8 +627,6 @@ jobs:
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ret_code=0
       python -m sklearnex sklearnex/tests/run_examples.py
-      ret_code=$(($ret_code + $?))
-      python -m sklearnex sklearnex/tests/daal4py/sycl/sklearn_sycl.py
       ret_code=$(($ret_code + $?))
       exit $ret_code
     displayName: sklearnex examples

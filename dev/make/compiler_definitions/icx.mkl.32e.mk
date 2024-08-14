@@ -24,6 +24,7 @@ CMPLRDIRSUFF.icx =
 
 CORE.SERV.COMPILER.icx = generic
 
+
 -Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
 -DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g)
 
@@ -31,7 +32,6 @@ CORE.SERV.COMPILER.icx = generic
 
 COMPILER.lnx.icx = icx -m64 \
                      -Werror -Wreturn-type -qopenmp-simd
-
 
 COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -WX -Qopenmp-simd -Wno-deprecated-declarations -Qdiag-disable:10441
 

@@ -21,7 +21,6 @@
 //--
 */
 
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
 #include "algorithms/linear_model/linear_model_predict_types.h"
 #include "data_management/data/homogen_numeric_table.h"
 
@@ -35,7 +34,6 @@ namespace prediction
 {
 using namespace daal::services;
 using namespace daal::data_management;
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 template <typename algorithmFPType>
 Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, const int method)
@@ -45,17 +43,8 @@ Status Result::allocate(const daal::algorithms::Input * input, const daal::algor
     size_t nDependentVariables = in->get(model)->getNumberOfResponses();
     Status st;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
+    set(prediction, HomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
 
-    if (deviceInfo.isCpu)
-    {
-        set(prediction, HomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
-    }
-    else
-    {
-        set(prediction, SyclHomogenNumericTable<algorithmFPType>::create(nDependentVariables, nVectors, NumericTable::doAllocate, &st));
-    }
     return st;
 }
 
