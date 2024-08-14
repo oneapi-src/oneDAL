@@ -157,13 +157,11 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                                          arr_centroid_squares,
                                                                          { data_squares_event });
 
-        auto trans_event = transpose(queue, arr_centroids, arr_centroids_trans);
-
         auto assign_event = assign_clusters(queue,
                                             row_count,
                                             data_handle,
                                             arr_data_squares,
-                                            arr_centroids_trans,
+                                            arr_centroids,
                                             arr_centroid_squares,
                                             distances,
                                             arr_responses,
@@ -174,10 +172,7 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
             auto objective_function =
                 calc_objective_function(queue, arr_closest_distances, { assign_event });
-            {
-                // Reduce objective function value over all ranks
-                comm.allreduce(objective_function).wait();
-            }
+
             result.set_objective_function_value(objective_function);
         }
 
