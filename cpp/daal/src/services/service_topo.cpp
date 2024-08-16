@@ -139,7 +139,7 @@ static int __internal_daal_bindContext(unsigned int cpu, void * prevAffinity)
         {
             _INTERNAL_DAAL_MEMSET(&grp_affinity, 0, sizeof(GROUP_AFFINITY));
             grp_affinity.Group = j;
-            grp_affinity.Mask = (KAFFINITY)((DWORD_PTR)(LNX_MY1CON << (cpu - cpu_beg)));
+            grp_affinity.Mask  = (KAFFINITY)((DWORD_PTR)(LNX_MY1CON << (cpu - cpu_beg)));
             if (!SetThreadGroupAffinity(GetCurrentThread(), &grp_affinity, (GROUP_AFFINITY *)prevAffinity))
             {
                 GetLastError();
@@ -203,7 +203,7 @@ unsigned int _internal_daal_GetMaxCPUSupportedByOS()
     // if Windows version support processor groups
     // tally actually populated logical processors in each group
     grpCnt = (WORD)GetActiveProcessorGroupCount();
-    cnt = BLOCKSIZE_4K;
+    cnt    = BLOCKSIZE_4K;
     _INTERNAL_DAAL_MEMSET(&scratch[0], 0, cnt);
     pSystem_rel_info = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *)&scratch[0];
 
@@ -505,7 +505,7 @@ static unsigned __internal_daal_createMask(unsigned numEntries, unsigned * maskW
     // NearestPo2(numEntries) is the nearest power of 2 integer that is not less than numEntries
     // The most significant bit of (numEntries * 2 -1) matches the above definition
 
-    k = (unsigned long)(numEntries)*2 - 1;
+    k = (unsigned long)(numEntries) * 2 - 1;
 
     if (__internal_daal_myBitScanReverse(&i, k) == 0)
     {
