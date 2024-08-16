@@ -43,8 +43,6 @@ namespace spectral_embedding
 namespace internal
 {
 
-
-
 template <typename algorithmFPType, CpuType cpu>
 services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * eigenvectors, algorithmFPType * eigenvalues)
 {
@@ -73,14 +71,11 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable* xTable, NumericTable* eTable, const KernelParameter & par)
 {
     
-    services::Status safeStat{};
+    services::Status safeStat;
     std::cout << "inside DAAL kernel" << std::endl;
-
-
-    std::cout << "Params: " << par.num_emb << " " << par.p << std::endl;
-    size_t filt_num = par.p;
-    size_t k = par.num_emb;
-    
+    std::cout << "Params: " << par.numEmb << " " << par.numNeighbors << std::endl;
+    size_t k = par.numEmb;
+    size_t filtNum = par.numNeighbors + 1;
     size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
 
     SharedPtr<HomogenNumericTable<algorithmFPType> > tmpMatrixPtr = HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &safeStat);
@@ -91,70 +86,70 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
 
     NumericTable * a0                      = const_cast<NumericTable *>(xTable);
     NumericTable ** a                      = &a0;
-    // NumericTable * r0                      = static_cast<NumericTable *>(result->get(cosineDistance).get());
-    NumericTable ** r                      = &covOutput;//&eTable;
-    // _env = daal::services::
-    // daal::services::Environment::env & env = *_env;
-
-    // services::Status cos_dist_status = cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>::compute(0, a, 0, r, nullptr);
-
-    //__DAAL_CALL_KERNEL(env, cosine_distance::internal::DistanceKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, cosine_distance::Method::defaultDense), compute, 0, a, 0, r, nullptr);
-
-    cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>* cos_dist_kernel_ptr = new cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>();
+    NumericTable ** r                      = &covOutput;
     
-    services::Status cos_dist_status = cos_dist_kernel_ptr->compute(0, a, 0, r, nullptr);
 
-    delete cos_dist_kernel_ptr;
+    // Compute cosine distances matrix
+    auto* cosDistKernelPtr = new cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>();
+    
+    services::Status cosDistStatus = cosDistKernelPtr->compute(0, a, 0, r, nullptr);
 
-    for (int i = 0; i < n; ++i) {
-        algorithmFPType L = 0;
-        int lcnt = 0;
-        algorithmFPType R = 2;
-        int rcnt = n;
-        int cnt;
-        std::cout << "Row " << i << std::endl;
-        WriteRows<algorithmFPType, cpu> xBlock(*r, i, 1);
-        DAAL_CHECK_BLOCK_STATUS(xBlock);
-        algorithmFPType * x = xBlock.get();
-        for (int j = 0; j < n; ++j) {
-            std::cout << x[j] << " ";
-        }
-        std::cout << std::endl;
-        for (int ij = 0; ij < 20; ++ij) {
-            algorithmFPType M = (L + R) / 2;
+    delete cosDistKernelPtr;
+
+    if (!cosDistStatus) {
+        return cosDistStatus;
+    }
+
+    WriteRows<algorithmFPType, cpu> xMatrix(*r, 0, n);
+    DAAL_CHECK_BLOCK_STATUS(xMatrix);
+    algorithmFPType * x = xMatrix.get();
+
+    size_t lcnt, rcnt, cnt;
+    algorithmFPType L, R, M;
+    // Use binary search to find such d that the number of verticies having distance <= d is filtNum
+    const size_t binarySearchIterNum = 20;
+    for (size_t i = 0; i < n; ++i) {
+        L = 0; // min possible cos distance
+        R = 2; // max possible cos distance
+        lcnt = 0; // numer of elements with cos distance <= L
+        rcnt = n; // number of elements with cos distance <= R
+        for (size_t ij = 0; ij < binarySearchIterNum; ++ij) {
+            M = (L + R) / 2;
             cnt = 0;
-            for (int j = 0; j < n; ++j) {
-                if (x[j] <= M) {
+            // Calculate the number of elements in the row with value <= M
+            for (size_t j = 0; j < n; ++j) {
+                if (x[i * n + j] <= M) {
                     cnt++;
                 }
             }
-            if (cnt < filt_num) {
+            if (cnt < filtNum) {
                 L = M;
                 lcnt = cnt;
             } else {
                 R = M;
                 rcnt = cnt;
             }
-            if (lcnt + 1 == rcnt) {
+            // distance threshold is found
+            if (rcnt == filtNum) {
                 break;
             }
         }
-        for (int j = 0; j < n; ++j) {
-            if (x[j] <= R) {
-                x[j] = 1.0;
+        // create edges for the closest neighbors
+        for (size_t j = 0; j < n; ++j) {
+            if (x[i * n + j] <= R) {
+                x[i * n + j] = 1.0;
             } else {
-                x[j] = 0.0;
+                x[i * n + j] = 0.0;
             }
         }
-        x[i] = 0;
+        // fill the diagonal of matrix with zeros
+        x[i * n + i] = 0;
     }
-    WriteRows<algorithmFPType, cpu> xMatrix(*r, 0, n);
-    DAAL_CHECK_BLOCK_STATUS(xMatrix);
-    algorithmFPType * x = xMatrix.get();
-
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < i; ++j) {
-            algorithmFPType val = (x[i * n +j] + x[j * n + i]) / 2;
+    
+    // Create Laplassian matrix
+    for (size_t i = 0; i < n; ++i) {
+        for (size_t j = 0; j < i; ++j) {
+            algorithmFPType val = (x[i * n + j] + x[j * n + i]) / 2;
             x[i * n + j] = -val;
             x[j * n + i] = -val; 
             x[i * n + i] += val;
@@ -162,14 +157,14 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
         }
     }
 
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            std::cout << x[i * n + j] << " ";
-        }
-        std::cout << std::endl;
-    }
+    // for (int i = 0; i < n; ++i) {
+    //     for (int j = 0; j < n; ++j) {
+    //         std::cout << x[i * n + j] << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
-
+    // Find the eigen vectors and eigne values of the matix
     TArray<algorithmFPType, cpu> eigenvalues(n);
     DAAL_CHECK_MALLOC(eigenvalues.get());
 
@@ -178,14 +173,15 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
         return eigen_vectors_st;
     }
 
-    std::cout << "Eigen vectors: " << std::endl;
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < n; ++j) {
-            std::cout << x[i * n + j] << " ";
-        }
-        std::cout << std::endl;
-    }
+    // std::cout << "Eigen vectors: " << std::endl;
+    // for (int i = 0; i < n; ++i) {
+    //     for (int j = 0; j < n; ++j) {
+    //         std::cout << x[i * n + j] << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
+    // Fill the output matrix with eigen vectors corresponding to the smallest eigen values
     WriteOnlyRows<algorithmFPType, cpu> embedMatrix(eTable, 0, n);
     DAAL_CHECK_BLOCK_STATUS(embedMatrix);
     algorithmFPType * embed = embedMatrix.get();
@@ -196,32 +192,7 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
         }
     }
 
-    return services::Status{};
-    
-    // NumericTable * xTable                          = const_cast<NumericTable *>(a[0]); /* Input data */
-    // NumericTable * rTable                          = const_cast<NumericTable *>(r[0]); /* Output data */
-    // const NumericTableIface::StorageLayout rLayout = r[0]->getDataLayout();
-
-    // if (isFull<algorithmFPType, cpu>(rLayout))
-    // {
-    //     return cosDistanceFull<algorithmFPType, cpu>(xTable, rTable);
-    // }
-    // else
-    // {
-    //     if (isLower<algorithmFPType, cpu>(rLayout))
-    //     {
-    //         return cosDistanceLowerPacked<algorithmFPType, cpu>(xTable, rTable);
-    //     }
-    //     else if (isUpper<algorithmFPType, cpu>(rLayout))
-    //     {
-    //         return cosDistanceUpperPacked<algorithmFPType, cpu>(xTable, rTable);
-    //     }
-    //     else
-    //     {
-    //         return services::Status(services::ErrorIncorrectTypeOfOutputNumericTable);
-    //     }
-    // }
-    
+    return safeStat;
 }
 
 } // namespace internal

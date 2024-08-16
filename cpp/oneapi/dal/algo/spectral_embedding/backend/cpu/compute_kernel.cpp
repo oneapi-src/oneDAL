@@ -66,8 +66,12 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_output = interop::convert_to_daal_homogen_table(arr_output, n, k);
         parameter_t daal_param;
 
-        daal_param.num_emb = k;
-        daal_param.p = desc.get_num_neighbors();
+        daal_param.numEmb = k;
+        if (desc.get_num_neighbors() < 0) {
+            daal_param.numNeighbors = n - 1;
+        } else {
+            daal_param.numNeighbors = desc.get_num_neighbors();
+        }
         interop::status_to_exception(
         interop::call_daal_kernel<Float, daal_sp_emb_kernel_t>(ctx,
                                                                 daal_data.get(),
@@ -77,68 +81,6 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         result.set_embedding(homogen_table::wrap(arr_output, n, k));
     }
 
-
-
-    /*
-    parameter_t daal_parameter(n, // number of terms
-                               daal::data_management::NumericTablePtr(),
-                               0);
-
-    const auto obj_impl = detail::get_objective_impl(desc);
-    daal_parameter.penaltyL1 = obj_impl->get_l1_regularization_coefficient();
-    daal_parameter.penaltyL2 = obj_impl->get_l2_regularization_coefficient();
-    daal_parameter.interceptFlag = obj_impl->get_intercept_flag();
-
-    array<Float> arr_val, arr_grad, arr_hess;
-
-    daal::services::SharedPtr<NumericTable> daal_val;
-    daal::services::SharedPtr<NumericTable> daal_gradient;
-    daal::services::SharedPtr<NumericTable> daal_hessian;
-
-    if (result.get_result_options().test(result_options::value)) {
-        arr_val = array<Float>::empty(1);
-        daal_val = interop::convert_to_daal_homogen_table(arr_val, 1, 1);
-        daal_parameter.resultsToCompute |= daal_obj_fun::value;
-    }
-
-    if (result.get_result_options().test(result_options::gradient)) {
-        arr_grad = array<Float>::empty(p + 1);
-        daal_gradient = interop::convert_to_daal_homogen_table(arr_grad, p + 1, 1);
-        daal_parameter.resultsToCompute |= daal_obj_fun::gradient;
-    }
-
-    if (result.get_result_options().test(result_options::hessian)) {
-        ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, p + 1, p + 1);
-        arr_hess = array<Float>::empty((p + 1) * (p + 1));
-        daal_hessian = interop::convert_to_daal_homogen_table(arr_hess, p + 1, p + 1);
-        daal_parameter.resultsToCompute |= daal_obj_fun::hessian;
-    }
-
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_logloss_kernel_t>(ctx,
-                                                                daal_data.get(),
-                                                                daal_resp.get(),
-                                                                daal_params.get(),
-                                                                daal_val.get(),
-                                                                daal_hessian.get(),
-                                                                daal_gradient.get(),
-                                                                nullptr,
-                                                                nullptr,
-                                                                nullptr,
-                                                                &daal_parameter));
-
-    if (result.get_result_options().test(result_options::value)) {
-        result.set_value(homogen_table::wrap(arr_val, 1, 1));
-    }
-
-    if (result.get_result_options().test(result_options::gradient)) {
-        result.set_gradient(homogen_table::wrap(arr_grad, p + 1, 1));
-    }
-
-    if (result.get_result_options().test(result_options::hessian)) {
-        result.set_hessian(homogen_table::wrap(arr_hess, p + 1, p + 1));
-    }
-    */
     return result;
 }
 

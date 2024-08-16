@@ -48,8 +48,8 @@ using namespace daal::services;
 
 struct KernelParameter : daal::algorithms::Parameter
 {
-    size_t num_emb = 0;
-    size_t p = -1;
+    size_t numEmb = 1;
+    size_t numNeighbors = 1;
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
