@@ -28,7 +28,8 @@
 #if defined(TARGET_X86_64)
     #include <immintrin.h>
 #elif defined(TARGET_ARM)
-    #include <arm_sve.h>
+    #include <sys/auxv.h>
+    #include <asm/hwcap.h>
 #elif defined(TARGET_RISCV64)
 // TODO: Include vector if and when we need to use some vector intrinsics in
 // here
@@ -218,6 +219,13 @@ DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
     return daal::sse2;
 }
 #elif defined(TARGET_ARM)
+static bool check_sve_features()
+{
+    unsigned long hwcap = getauxval(AT_HWCAP);
+
+    return (hwcap & HWCAP_SVE) != 0;
+}
+
 DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 {
     return 0;
@@ -225,7 +233,11 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-    return daal::sve;
+    if(check_sve_features())
+    {
+        return daal::sve;
+    }
+    return -1;
 }
 
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
