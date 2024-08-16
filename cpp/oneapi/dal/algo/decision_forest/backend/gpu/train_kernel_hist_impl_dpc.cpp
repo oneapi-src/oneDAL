@@ -354,7 +354,7 @@ void train_kernel_hist_impl<Float, Bin, Index, Task>::allocate_buffers(const tra
 template <typename Float, typename Bin, typename Index, typename Task>
 sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_order(
     train_context_t& ctx,
-    std::vector<std::uint8_t*>& rng_engine_list,
+    rng_engine_list_t& rng_engine_list,
     pr::ndarray<Index, 1>& node_list_host,
     pr::ndarray<Index, 1>& tree_order_level,
     Index engine_offset,
@@ -388,13 +388,13 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             Index* gen_row_idx_global_ptr =
                 selected_row_global_ptr + ctx.selected_row_total_count_ * node_idx;
-            rn_gen.uniform(queue_,
-                           ctx.selected_row_total_count_,
-                           gen_row_idx_global_ptr,
-                           rng_engine_list[engine_offset + node_idx],
-                           0,
-                           ctx.row_total_count_,
-                           { deps });
+            rn_gen.uniform_gpu_internal(queue_,
+                                        ctx.selected_row_total_count_,
+                                        gen_row_idx_global_ptr,
+                                        rng_engine_list[engine_offset + node_idx],
+                                        0,
+                                        ctx.row_total_count_,
+                                        { deps });
 
             if (ctx.distr_mode_) {
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
@@ -407,7 +407,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                 Index* row_idx_ptr = row_index.get_mutable_data();
                 const sycl::nd_range<1> nd_range =
                     bk::make_multiple_nd_range_1d(ctx.selected_row_total_count_, 1);
-                std::cout << "410th line parallel for" << std::endl;
                 auto event_ = queue_.submit([&](sycl::handler& cgh) {
                     cgh.depends_on({ last_event });
                     cgh.parallel_for(nd_range, [=](sycl::nd_item<1> id) {
@@ -429,7 +428,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                 });
                 auto set_event = queue_.submit([&](sycl::handler& cgh) {
                     cgh.depends_on(event_);
-                    std::cout << "432th line parallel for" << std::endl;
                     cgh.parallel_for(sycl::range<1>{ std::size_t(1) }, [=](sycl::id<1> idx) {
                         node_ptr[impl_const_t::ind_lrc] = row_idx_ptr[0];
                     });
@@ -455,7 +453,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
 
             Index* node_list_ptr = node_list_host.get_mutable_data();
             auto set_event = queue_.submit([&](sycl::handler& cgh) {
-                std::cout << "458th line parallel for" << std::endl;
                 cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) }, [=](sycl::id<1> idx) {
                     Index* node_ptr = node_list_ptr + idx * impl_const_t::node_prop_count_;
                     node_ptr[impl_const_t::ind_lrc] = row_count;
@@ -521,7 +518,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
             auto selected_features_host_ptr = selected_features_com.get_mutable_data();
 
             fill_event = queue_.submit([&](sycl::handler& cgh) {
-                std::cout << "524th line parallel for" << std::endl;
                 cgh.parallel_for(
                     sycl::range<1>{ std::size_t(ctx.selected_ftr_count_) },
                     [=](sycl::id<1> idx) {
@@ -560,11 +556,11 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_thresholds(
 
     // Generate random bins for selected features
     for (Index node = 0; node < node_count; ++node) {
-        rn_gen.uniform(ctx.selected_ftr_count_,
-                       random_bins_host_ptr + node * ctx.selected_ftr_count_,
-                       rng_engine_list[tree_map_ptr[node]].get_state(),
-                       0.0f,
-                       1.0f);
+        rn_gen.uniform_cpu(ctx.selected_ftr_count_,
+                           random_bins_host_ptr + node * ctx.selected_ftr_count_,
+                           rng_engine_list[tree_map_ptr[node]],
+                           0.0f,
+                           1.0f);
     }
     auto event_rnd_generate =
         random_bins_com.assign_from_host(queue_, random_bins_host_ptr, random_bins_com.get_count());
@@ -795,7 +791,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp
         // Launch kernel to compute impurity and winning class for each node
         auto event_ = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on(deps);
-            std::cout << "798th line parallel for" << std::endl;
             cgh.parallel_for(sycl::range<1>(node_count), [=](sycl::id<1> idx) {
                 Index node_idx = idx;
                 const Index* node_histogram_ptr = class_hist_list_ptr + node_idx * ctx.class_count_;
@@ -885,7 +880,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_his
         cgh.depends_on(fill_event);
         // local_buf is used for regression only, but need to be present for classification also
         local_accessor_rw_t<hist_type_t> local_buf(local_buf_size, cgh);
-        std::cout << "888th line parallel for" << std::endl;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_id = item.get_global_id()[1];
             const Index local_id = item.get_local_id()[0];
@@ -974,7 +968,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> local_buf(local_size, cgh);
-        std::cout << "977th line parallel for" << std::endl;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_id = item.get_global_id()[1];
             const Index local_id = item.get_local_id()[0];
@@ -1054,7 +1047,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_local_sum_h
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> local_sum_buf(local_size, cgh);
         local_accessor_rw_t<Float> local_sum2cent_buf(local_size, cgh);
-        std::cout << "1057th line parallel for" << std::endl;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_id = item.get_global_id()[1];
             const Index local_id = item.get_local_id()[0];
@@ -1130,7 +1122,6 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_imp_for_node_li
 
     auto last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        std::cout << "1134th line parallel for" << std::endl;
         cgh.parallel_for(range, [=](sycl::id<1> node_idx) {
             // set mean
             imp_list_ptr[node_idx * impl_const_t::node_imp_prop_count_ + 0] =
@@ -1183,7 +1174,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_initial_sum
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<Float> local_buf(local_size, cgh);
-        std::cout << "1186th line parallel for" << std::endl;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<2> item) {
             const Index node_id = item.get_global_id()[1];
             const Index local_id = item.get_local_id()[0];
@@ -1253,7 +1243,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::fin_initial_imp(
 
     auto last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        std::cout << "1256th line parallel for" << std::endl;
         cgh.parallel_for(range, [=](sycl::id<1> node_idx) {
             // set mean
             // node grc can't be 0 due to this is initial computation on whole ds block
@@ -1575,7 +1564,6 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::do_node_split(
 
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        std::cout << "1578th line parallel for" << std::endl;
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
             auto sbg = item.get_sub_group();
             if (sbg.get_group_id() > 0) {
@@ -2008,17 +1996,11 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     de::check_mul_overflow<std::size_t>((ctx.tree_count_ - 1), skip_num);
 
-    pr::engine_collection collection(ctx.tree_count_, desc.get_seed());
-    std::vector<std::uint8_t*> states(ctx.tree_count_);
+    pr::engine_collection<std::int64_t, pr::engine_list::mcg59> collection(queue_,
+                                                                           ctx.tree_count_,
+                                                                           desc.get_seed());
 
-    rng_engine_list_t engine_arr = collection([&](std::size_t i, std::size_t& skip) {
-        skip = i * skip_num;
-        oneapi::mkl::rng::mrg32k3a engine(queue_, skip);
-        auto mem_size = oneapi::mkl::rng::get_state_size(engine);
-        std::uint8_t* mem_buf = new std::uint8_t[mem_size];
-        oneapi::mkl::rng::save_state(engine, mem_buf);
-        states[i] = mem_buf;
-    });
+    rng_engine_list_t engine_arr = collection.get_engines();
 
     pr::ndarray<Float, 1> node_imp_decrease_list;
 
@@ -2054,7 +2036,6 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
         auto fill_event = queue_.submit([&](sycl::handler& cgh) {
             cgh.depends_on({ last_event });
-            std::cout << "2057th line parallel for" << std::endl;
             cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) }, [=](sycl::id<1> node) {
                 Index* node_ptr = node_list_ptr + node * impl_const_t::node_prop_count_;
                 tree_map[node] = iter + node;
@@ -2073,7 +2054,7 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
         });
 
         auto gen_initial_tree_order_event = gen_initial_tree_order(ctx,
-                                                                   states,
+                                                                   engine_arr,
                                                                    level_node_list_init,
                                                                    tree_order_lev_,
                                                                    iter,

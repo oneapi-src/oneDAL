@@ -50,7 +50,7 @@ class train_kernel_hist_impl {
     using model_manager_t = train_model_manager<Float, Index, Task>;
     using train_context_t = train_context<Float, Index, Task>;
     using imp_data_t = impurity_data<Float, Index, Task>;
-    using rng_engine_t = pr::engine;
+    using rng_engine_t = pr::engine<pr::engine_list::mcg59>;
     using rng_engine_list_t = std::vector<rng_engine_t>;
     using msg = dal::detail::error_messages;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;
@@ -79,7 +79,7 @@ private:
                                           Index class_count) const;
 
     sycl::event gen_initial_tree_order(train_context_t& ctx,
-                                       std::vector<std::uint8_t*>& engine_arr,
+                                       rng_engine_list_t& rng_engine_list,
                                        pr::ndarray<Index, 1>& node_list,
                                        pr::ndarray<Index, 1>& tree_order_level,
                                        Index engine_offset,

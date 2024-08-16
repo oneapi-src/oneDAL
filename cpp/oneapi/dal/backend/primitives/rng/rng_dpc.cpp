@@ -53,7 +53,7 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
         uniform_gpu_internal(queue, count, dst, engine_, a, b);
     }
     else {
-        uniform(count, dst, engine_, a, b);
+        uniform_cpu(count, dst, engine_, a, b);
     }
 }
 

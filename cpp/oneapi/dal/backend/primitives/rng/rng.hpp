@@ -55,7 +55,8 @@ public:
     using oneapi_engine_t = typename oneapi_engine_type<EngineType>::type;
 
     explicit engine(sycl::queue& queue, std::int64_t seed = 777)
-            : daal_engine_(initialize_daal_engine(seed)),
+            : q(queue),
+              daal_engine_(initialize_daal_engine(seed)),
               oneapi_engine_(initialize_oneapi_engine(queue, seed)),
               impl_(dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(
                   daal_engine_.get())) {
@@ -64,28 +65,14 @@ public:
         }
     }
 
-    // explicit engine(const daal::algorithms::engines::EnginePtr& eng) : daal_engine_(eng) {
-    //     impl_ =
-    //         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(daal_engine_.get());
-    //     if (!impl_) {
-    //         throw std::domain_error("RNG engine is not supported");
-    //     }
-    // }
-
     virtual ~engine() = default;
-
-    // engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
-    //     daal_engine_ = eng;
-    //     impl_ =
-    //         dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(daal_engine_.get());
-    //     if (!impl_) {
-    //         throw std::domain_error("RNG engine is not supported");
-    //     }
-    //     return *this;
-    // }
 
     void* get_state() const {
         return impl_->getState();
+    }
+
+    auto& get_daal_engine() {
+        return daal_engine_;
     }
 
     auto& get_oneapi_state() {
@@ -126,7 +113,7 @@ private:
             return oneapi_engine_t(queue, seed);
         }
     }
-
+    sycl::queue q;
     daal::algorithms::engines::EnginePtr daal_engine_;
     oneapi_engine_t oneapi_engine_;
     daal::algorithms::engines::internal::BatchBaseImpl* impl_;
@@ -166,7 +153,7 @@ public:
     //                                  const event_vector& deps = {});
 
     template <engine_list EngineType>
-    void uniform(Size count, Type* dst, engine<EngineType>& engine_, Type a, Type b) {
+    void uniform_cpu(Size count, Type* dst, engine<EngineType>& engine_, Type a, Type b) {
         void* state = engine_.get_state();
         engine_.skip_ahead_gpu(count);
         uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
