@@ -365,7 +365,7 @@ public:
                                       zero_tag,
                                       mpi_comm_,
                                       &status));
-        }
+        //}
         return nullptr;
     }
 
