@@ -662,7 +662,10 @@ public:
 #endif
 
 protected:
-    size_t nClasses() const { return this->_nClasses; }
+    size_t nClasses() const
+    {
+        return this->_nClasses;
+    }
 
     void computeRightHistogramm(const Histogramm & total, const Histogramm & left, Histogramm & right) const
     {

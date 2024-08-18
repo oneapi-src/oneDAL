@@ -233,7 +233,7 @@ DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-    if (check_sve_features())
+    if(check_sve_features())
     {
         return daal::sve;
     }
