@@ -26,7 +26,6 @@
 
 #include "algorithms/optimization_solver/objective_function/cross_entropy_loss_batch.h"
 #include "src/algorithms/objective_function/cross_entropy_loss/cross_entropy_loss_dense_default_batch_kernel.h"
-#include "src/algorithms/objective_function/cross_entropy_loss/oneapi/cross_entropy_loss_dense_default_kernel_oneapi.h"
 
 namespace daal
 {
@@ -41,17 +40,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::CrossEntropyLossKernel, algorithmFPType, method);
-    }
-    else
-    {
-        _kernel = new internal::CrossEntropyLossKernelOneAPI<algorithmFPType, method>();
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::CrossEntropyLossKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -104,22 +93,10 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
         lipschitzConstant = result->get(objective_function::lipschitzConstantIdx).get();
     }
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::CrossEntropyLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
-                           input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
-                           lipschitzConstant, parameter);
-    }
-    else
-    {
-        return ((internal::CrossEntropyLossKernelOneAPI<algorithmFPType, method> *)(_kernel))
-            ->compute(input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
-                      input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
-                      lipschitzConstant, parameter);
-    }
+    __DAAL_CALL_KERNEL(env, internal::CrossEntropyLossKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                       input->get(cross_entropy_loss::data).get(), input->get(cross_entropy_loss::dependentVariables).get(),
+                       input->get(cross_entropy_loss::argument).get(), value, hessian, gradient, nonSmoothTermValue, proximalProjection,
+                       lipschitzConstant, parameter);
 }
 
 } // namespace interface2
