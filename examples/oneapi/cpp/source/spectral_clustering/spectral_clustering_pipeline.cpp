@@ -33,8 +33,10 @@ int main(int argc, char const *argv[]) {
     std::int64_t n_init = 20; // number of K-means++ iterations
     double accuracy_threshold = 1e-4; // threshold for early stop in K-Means
 
-    const auto voice_data_file_name = get_data_path(
-        "/export/users/anatolyv/oneDAL/examples/daal/data/batch/distance.csv"); // Dataset with original features
+    const auto voice_data_file_name =
+        get_data_path("covcormoments_dense.csv"); // Dataset with original features
+
+    std::cout << voice_data_file_name << std::endl;
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ voice_data_file_name });
 
