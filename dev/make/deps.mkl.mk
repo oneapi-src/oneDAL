@@ -40,7 +40,7 @@ daaldep.lnx32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core.$a $(MKLROOT)/lib/$(pl
 
 daaldep.win32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
 daaldep.win32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential.$a
-daaldep.win32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64.$a
+daaldep.win32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core$d.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64$d.$a
 
 daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a

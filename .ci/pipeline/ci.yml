@@ -59,6 +59,9 @@ jobs:
       .ci/env/apt.sh dev-base
     displayName: 'apt-get and conda install'
   - script: |
+      .ci/env/apt.sh mkl
+    displayName: 'mkl installation'
+  - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
@@ -667,6 +670,9 @@ jobs:
       conda activate ci-env
       pip install -q cpufeature
     displayName: 'brew and conda install'
+  - script: |
+      .ci/env/apt.sh mkl
+    displayName: 'mkl installation'
   - script: |
       source /usr/local/miniconda/etc/profile.d/conda.sh
       conda activate ci-env
