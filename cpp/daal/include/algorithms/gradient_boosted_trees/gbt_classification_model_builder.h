@@ -112,7 +112,7 @@ public:
     *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response, double cover)
+    NodeId addLeafNode(TreeId treeId, NodeId parentId, size_t position, double response, double cover = 0.0)
     {
         NodeId resId;
         _status |= addLeafNodeInternal(treeId, parentId, position, response, cover, resId);
@@ -131,7 +131,7 @@ public:
     *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft, double cover)
+    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft = 0, double cover = 0.0)
     {
         NodeId resId;
         _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
