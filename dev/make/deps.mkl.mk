@@ -17,14 +17,13 @@
 #++
 #  Math backend (MKL) definitions for makefile
 #--
-MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklfpk/$(_OS)/*),$(DIR)/__deps/mklfpk,                        \
-            $(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)),                        \
-            $(error Can`t find MKLFPK libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLFPKROOT.)))
+MKLFPKDIR:= $(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)),                        \
+            $(error Can`t find MKLROOT libs in MKLROOT.))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLROOT)))
+MKLGPUFPKDIR:= $(MKLFPKDIR)
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
 MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
 
@@ -38,8 +37,8 @@ daaldep.lnx32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
 daaldep.lnx32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential.$a
 daaldep.lnx32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64.$a
 
-daaldep.win32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
-daaldep.win32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential.$a
+daaldep.win32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread$d.$a
+daaldep.win32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential$d.$a
 daaldep.win32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core$d.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64$d.$a
 
 daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a

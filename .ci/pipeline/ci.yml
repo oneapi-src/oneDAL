@@ -65,9 +65,11 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
+      source /opt/intel/oneapi/mkl/latest/env/vars.sh
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
+      source /opt/intel/oneapi/mkl/latest/env/vars.sh
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
