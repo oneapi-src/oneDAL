@@ -31,9 +31,6 @@ cc_library(
         ":headers",
         "@tbb//:tbb_binary",
         "@tbb//:tbbmalloc_binary",
-        "@mkl//:mkl_dpc",
-        "@mkl//:headers",
-        "@mkl//:mkl_seq",
     ],
 )
 
@@ -112,9 +109,6 @@ cc_library(
         ":headers",
         "@tbb//:tbb_binary",
         "@tbb//:tbbmalloc_binary",
-        "@mkl//:mkl_dpc",
-        "@mkl//:headers",
-        "@mkl//:mkl_seq",
     ],
 )
 
