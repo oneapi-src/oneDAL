@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
@@ -32,7 +31,8 @@ namespace de = dal::detail;
 namespace sp_emb = oneapi::dal::spectral_embedding;
 
 template <typename TestType>
-class spectral_embedding_batch_test : public spectral_embedding_test<TestType, spectral_embedding_batch_test<TestType>> {
+class spectral_embedding_batch_test
+        : public spectral_embedding_test<TestType, spectral_embedding_batch_test<TestType>> {
 public:
     using base_t = spectral_embedding_test<TestType, spectral_embedding_batch_test<TestType>>;
 
@@ -47,6 +47,7 @@ TEMPLATE_LIST_TEST_M(spectral_embedding_batch_test,
                      "[spectral embedding][integration][cpu]",
                      spectral_embedding_types) {
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->get_policy().is_gpu());
 
     this->gen_dimensions();
     this->gen_input();

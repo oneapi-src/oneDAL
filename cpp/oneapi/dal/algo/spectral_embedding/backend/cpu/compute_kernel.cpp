@@ -38,7 +38,6 @@ using daal_sp_emb_kernel_t =
 
 using parameter_t = sp_emb::internal::KernelParameter;
 
-
 namespace interop = oneapi::dal::backend::interop;
 
 template <typename Float, typename Task>
@@ -51,15 +50,11 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
     const std::int64_t n = data.get_row_count();
     std::int64_t k = desc.get_embedding_dim();
 
-    std::cout << "inside oneDAL kernel: " << n << " " << p << std::endl; 
+    std::cout << "inside oneDAL kernel: " << n << " " << p << std::endl;
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 
-
-
-
     if (result.get_result_options().test(result_options::embedding)) {
-        
         daal::services::SharedPtr<NumericTable> daal_input, daal_output;
         array<Float> arr_output;
         arr_output = array<Float>::empty(n * k);
@@ -69,15 +64,16 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_param.numEmb = k;
         if (desc.get_num_neighbors() < 0) {
             daal_param.numNeighbors = n - 1;
-        } else {
+        }
+        else {
             daal_param.numNeighbors = desc.get_num_neighbors();
         }
         interop::status_to_exception(
-        interop::call_daal_kernel<Float, daal_sp_emb_kernel_t>(ctx,
-                                                                daal_data.get(),
-                                                                daal_output.get(),
-                                                                daal_param));
-        
+            interop::call_daal_kernel<Float, daal_sp_emb_kernel_t>(ctx,
+                                                                   daal_data.get(),
+                                                                   daal_output.get(),
+                                                                   daal_param));
+
         result.set_embedding(homogen_table::wrap(arr_output, n, k));
     }
 
@@ -88,9 +84,7 @@ template <typename Float, typename Task>
 static compute_result<Task> compute(const context_cpu& ctx,
                                     const descriptor_t& desc,
                                     const compute_input<Task>& input) {
-    return call_daal_kernel<Float, Task>(ctx,
-                                         desc,
-                                         input.get_data());
+    return call_daal_kernel<Float, Task>(ctx, desc, input.get_data());
 }
 
 template <typename Float>

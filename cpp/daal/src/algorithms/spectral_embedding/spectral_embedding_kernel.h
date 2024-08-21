@@ -35,7 +35,8 @@ namespace algorithms
 namespace spectral_embedding
 {
 
-enum Method {
+enum Method
+{
     defaultDense = 0
 };
 
@@ -45,17 +46,16 @@ namespace internal
 using namespace daal::data_management;
 using namespace daal::services;
 
-
 struct KernelParameter : daal::algorithms::Parameter
 {
-    size_t numEmb = 1;
+    size_t numEmb       = 1;
     size_t numNeighbors = 1;
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 struct SpectralEmbeddingKernel : public Kernel
 {
-    services::Status compute(const NumericTable* xTable, NumericTable* eTable, const KernelParameter & par);
+    services::Status compute(const NumericTable * xTable, NumericTable * eTable, const KernelParameter & par);
 };
 
 } // namespace internal

@@ -31,7 +31,6 @@
 #include "src/externals/service_lapack.h"
 #include <iostream>
 
-
 using namespace daal::internal;
 
 namespace daal
@@ -63,40 +62,41 @@ services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * 
     return services::Status();
 }
 
-
 /**
  *  \brief Kernel for Spectral Embedding calculation
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable* xTable, NumericTable* eTable, const KernelParameter & par)
+services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * eTable,
+                                                                                const KernelParameter & par)
 {
-    
     services::Status safeStat;
     std::cout << "inside DAAL kernel" << std::endl;
     std::cout << "Params: " << par.numEmb << " " << par.numNeighbors << std::endl;
-    size_t k = par.numEmb;
+    size_t k       = par.numEmb;
     size_t filtNum = par.numNeighbors + 1;
-    size_t n = xTable->getNumberOfRows();    /* Number of input feature vectors   */
+    size_t n       = xTable->getNumberOfRows(); /* Number of input feature vectors   */
 
-    SharedPtr<HomogenNumericTable<algorithmFPType> > tmpMatrixPtr = HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &safeStat);
-    if (!safeStat) {
+    SharedPtr<HomogenNumericTable<algorithmFPType> > tmpMatrixPtr =
+        HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &safeStat);
+    if (!safeStat)
+    {
         return safeStat;
     }
-    NumericTable* covOutput = tmpMatrixPtr.get();
+    NumericTable * covOutput = tmpMatrixPtr.get();
 
-    NumericTable * a0                      = const_cast<NumericTable *>(xTable);
-    NumericTable ** a                      = &a0;
-    NumericTable ** r                      = &covOutput;
-    
+    NumericTable * a0 = const_cast<NumericTable *>(xTable);
+    NumericTable ** a = &a0;
+    NumericTable ** r = &covOutput;
 
     // Compute cosine distances matrix
-    auto* cosDistKernelPtr = new cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>();
-    
+    auto * cosDistKernelPtr = new cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>();
+
     services::Status cosDistStatus = cosDistKernelPtr->compute(0, a, 0, r, nullptr);
 
     delete cosDistKernelPtr;
 
-    if (!cosDistStatus) {
+    if (!cosDistStatus)
+    {
         return cosDistStatus;
     }
 
@@ -108,52 +108,66 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     algorithmFPType L, R, M;
     // Use binary search to find such d that the number of verticies having distance <= d is filtNum
     const size_t binarySearchIterNum = 20;
-    for (size_t i = 0; i < n; ++i) {
-        L = 0; // min possible cos distance
-        R = 2; // max possible cos distance
+    for (size_t i = 0; i < n; ++i)
+    {
+        L    = 0; // min possible cos distance
+        R    = 2; // max possible cos distance
         lcnt = 0; // numer of elements with cos distance <= L
         rcnt = n; // number of elements with cos distance <= R
-        for (size_t ij = 0; ij < binarySearchIterNum; ++ij) {
-            M = (L + R) / 2;
+        for (size_t ij = 0; ij < binarySearchIterNum; ++ij)
+        {
+            M   = (L + R) / 2;
             cnt = 0;
             // Calculate the number of elements in the row with value <= M
-            for (size_t j = 0; j < n; ++j) {
-                if (x[i * n + j] <= M) {
+            for (size_t j = 0; j < n; ++j)
+            {
+                if (x[i * n + j] <= M)
+                {
                     cnt++;
                 }
             }
-            if (cnt < filtNum) {
-                L = M;
+            if (cnt < filtNum)
+            {
+                L    = M;
                 lcnt = cnt;
-            } else {
-                R = M;
+            }
+            else
+            {
+                R    = M;
                 rcnt = cnt;
             }
             // distance threshold is found
-            if (rcnt == filtNum) {
+            if (rcnt == filtNum)
+            {
                 break;
             }
         }
         // create edges for the closest neighbors
-        for (size_t j = 0; j < n; ++j) {
-            if (x[i * n + j] <= R) {
+        for (size_t j = 0; j < n; ++j)
+        {
+            if (x[i * n + j] <= R)
+            {
                 x[i * n + j] = 1.0;
-            } else {
+            }
+            else
+            {
                 x[i * n + j] = 0.0;
             }
         }
         // fill the diagonal of matrix with zeros
         x[i * n + i] = 0;
     }
-    
+
     // Create Laplassian matrix
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < i; ++j) {
+    for (size_t i = 0; i < n; ++i)
+    {
+        for (size_t j = 0; j < i; ++j)
+        {
             algorithmFPType val = (x[i * n + j] + x[j * n + i]) / 2;
-            x[i * n + j] = -val;
-            x[j * n + i] = -val; 
+            x[i * n + j]        = -val;
+            x[j * n + i]        = -val;
             x[i * n + i] += val;
-            x[j * n + j] += val; 
+            x[j * n + j] += val;
         }
     }
 
@@ -169,7 +183,8 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     DAAL_CHECK_MALLOC(eigenvalues.get());
 
     services::Status eigen_vectors_st = computeEigenvectorsInplace<algorithmFPType, cpu>(n, x, eigenvalues.get());
-    if (!eigen_vectors_st) {
+    if (!eigen_vectors_st)
+    {
         return eigen_vectors_st;
     }
 
@@ -186,8 +201,10 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     DAAL_CHECK_BLOCK_STATUS(embedMatrix);
     algorithmFPType * embed = embedMatrix.get();
 
-    for (int i = 0; i < k; ++i) {
-        for (int j = 0; j < n; ++j) {
+    for (int i = 0; i < k; ++i)
+    {
+        for (int j = 0; j < n; ++j)
+        {
             embed[j * k + i] = x[i * n + j];
         }
     }
@@ -197,7 +214,7 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
 
 } // namespace internal
 
-} // namespace cosine_distance
+} // namespace spectral_embedding
 
 } // namespace algorithms
 

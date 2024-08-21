@@ -43,10 +43,8 @@ public:
     using descriptor_t = sp_emb::descriptor<Float, Method>;
 
     auto get_descriptor(sp_emb::result_option_id compute_mode) const {
-        return descriptor_t()
-            .set_embedding_dim(100)
-            .set_num_neighbors(1000)
-            .set_result_options(compute_mode);
+        return descriptor_t().set_embedding_dim(100).set_num_neighbors(1000).set_result_options(
+            compute_mode);
     }
 
     void gen_input() {
@@ -56,12 +54,10 @@ public:
         data_ = data_df.get_table(this->get_policy(), this->get_homogen_table_id());
     }
 
-
     void test_default() {
         std::cout << "Input" << std::endl;
         // std::cout << data_ << std::endl;
-        auto desc =
-            get_descriptor(sp_emb::result_options::embedding);
+        auto desc = get_descriptor(sp_emb::result_options::embedding);
         //desc.set_embedding_dim(5);
         //desc.set_num_neighbors(4);
         INFO("run compute");

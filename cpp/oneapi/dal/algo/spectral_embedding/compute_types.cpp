@@ -23,8 +23,7 @@ namespace oneapi::dal::spectral_embedding {
 template <typename Task>
 class detail::v1::compute_input_impl : public base {
 public:
-    compute_input_impl(const table& data)
-            : data(data) {}
+    compute_input_impl(const table& data) : data(data) {}
     table data;
 };
 
@@ -41,8 +40,7 @@ using detail::v1::compute_result_impl;
 namespace v1 {
 
 template <typename Task>
-compute_input<Task>::compute_input(const table& data)
-        : impl_(new compute_input_impl<Task>(data)) {}
+compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
 const table& compute_input<Task>::get_data() const {

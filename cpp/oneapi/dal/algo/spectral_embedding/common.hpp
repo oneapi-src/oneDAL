@@ -97,7 +97,6 @@ constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dens
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::compute>;
 
-
 template <typename Task = task::by_default>
 class descriptor_base : public base {
     static_assert(is_valid_task_v<Task>);
@@ -115,7 +114,6 @@ public:
     result_option_id get_result_options() const;
 
 protected:
-
     void set_embedding_dim_impl(std::int64_t embedding_dim);
     void set_num_neighbors_impl(std::int64_t num_neighbors);
     void set_result_options_impl(const result_option_id& value);
@@ -160,9 +158,8 @@ public:
     using method_t = Method;
     using task_t = Task;
 
-
     /// Creates a new instance of the class with the default property values.
-    explicit descriptor(): base_t() {}
+    explicit descriptor() : base_t() {}
 
     std::int64_t get_embedding_dim() const {
         return base_t::get_embedding_dim();

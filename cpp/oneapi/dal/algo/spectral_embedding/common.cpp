@@ -47,8 +47,7 @@ public:
 };
 
 template <typename Task>
-descriptor_base<Task>::descriptor_base()
-        : impl_(new descriptor_impl<Task>{}) {}
+descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <typename Task>
 std::int64_t descriptor_base<Task>::get_embedding_dim() const {
@@ -74,7 +73,6 @@ template <typename Task>
 result_option_id descriptor_base<Task>::get_result_options() const {
     return impl_->result_options;
 }
-
 
 template <typename Task>
 void descriptor_base<Task>::set_result_options_impl(const result_option_id& value) {

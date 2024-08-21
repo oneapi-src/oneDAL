@@ -1,4 +1,3 @@
-/* file: spectral_embedding_default_dense_fpt_cpu.cpp */
 /*******************************************************************************
 * Copyright 2024 Intel Corporation
 *
@@ -15,25 +14,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-/*
-//++
-//  Instantiation of CPU-specific spectral_embedding kernel implementations
-//--
-*/
+#pragma once
 
-#include "spectral_embedding_kernel.h"
-#include "spectral_embedding_default_dense_impl.i"
+#include "oneapi/dal/algo/spectral_embedding/compute_types.hpp"
+#include "oneapi/dal/backend/dispatcher.hpp"
 
-namespace daal
-{
-namespace algorithms
-{
-namespace spectral_embedding
-{
-namespace internal
-{
-template class SpectralEmbeddingKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
-} // namespace internal
-} // namespace spectral_embedding
-} // namespace algorithms
-} // namespace daal
+namespace oneapi::dal::spectral_embedding::backend {
+
+template <typename Float, typename Method, typename Task>
+struct compute_kernel_gpu {
+    compute_result<Task> operator()(const dal::backend::context_gpu& ctx,
+                                    const detail::descriptor_base<Task>& params,
+                                    const compute_input<Task>& input) const;
+};
+
+} // namespace oneapi::dal::spectral_embedding::backend
