@@ -253,7 +253,11 @@ bool buildTree(size_t treeId,
             isRoot = false;
         }
         else {
-            builder.addLeafNode(treeId, parentPlace.parentId, parentPlace.place, node->response, cover);
+            builder.addLeafNode(treeId,
+                                parentPlace.parentId,
+                                parentPlace.place,
+                                node->response,
+                                cover);
         }
     }
 

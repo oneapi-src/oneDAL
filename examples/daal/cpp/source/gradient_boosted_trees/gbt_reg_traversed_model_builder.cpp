@@ -216,7 +216,6 @@ bool buildTree(size_t treeId,
                bool &isRoot,
                ModelBuilder &builder,
                const ParentPlace &parentPlace) {
-
     const int defaultLeft = 0;
     const double cover = 0.0;
     if (node->left != NULL && node->right != NULL) {
@@ -252,7 +251,11 @@ bool buildTree(size_t treeId,
             isRoot = false;
         }
         else {
-            builder.addLeafNode(treeId, parentPlace.parentId, parentPlace.place, node->response, cover);
+            builder.addLeafNode(treeId,
+                                parentPlace.parentId,
+                                parentPlace.place,
+                                node->response,
+                                cover);
         }
     }
 

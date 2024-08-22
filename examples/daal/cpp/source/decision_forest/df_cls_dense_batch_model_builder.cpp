@@ -66,22 +66,33 @@ decision_forest::classification::ModelPtr buildModel() {
     ModelBuilder modelBuilder(nClasses, nTrees);
     ModelBuilder::TreeId tree1 = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root1 =
-        modelBuilder.addSplitNode(tree1, ModelBuilder::noParent, 0, 0, 0.174108, defaultLeft, cover);
+        modelBuilder
+            .addSplitNode(tree1, ModelBuilder::noParent, 0, 0, 0.174108, defaultLeft, cover);
     /* ModelBuilder::NodeId child12 = */ modelBuilder.addLeafNode(tree1, root1, 1, 4, cover);
     double proba11[] = { 0.8, 0.1, 0.0, 0.1, 0.0 };
-    /* ModelBuilder::NodeId child11 = */ modelBuilder.addLeafNodeByProba(tree1, root1, 0, proba11, cover);
+    /* ModelBuilder::NodeId child11 = */ modelBuilder.addLeafNodeByProba(tree1,
+                                                                         root1,
+                                                                         0,
+                                                                         proba11,
+                                                                         cover);
 
     ModelBuilder::TreeId tree2 = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root2 =
-        modelBuilder.addSplitNode(tree2, ModelBuilder::noParent, 0, 1, 0.571184, defaultLeft, cover);
+        modelBuilder
+            .addSplitNode(tree2, ModelBuilder::noParent, 0, 1, 0.571184, defaultLeft, cover);
     /* ModelBuilder::NodeId child22 = */ modelBuilder.addLeafNode(tree2, root2, 1, 4, cover);
     /* ModelBuilder::NodeId child21 = */ modelBuilder.addLeafNode(tree2, root2, 0, 2, cover);
 
     ModelBuilder::TreeId tree3 = modelBuilder.createTree(nNodes);
     ModelBuilder::NodeId root3 =
-        modelBuilder.addSplitNode(tree3, ModelBuilder::noParent, 0, 0, 0.303995, defaultLeft, cover);
+        modelBuilder
+            .addSplitNode(tree3, ModelBuilder::noParent, 0, 0, 0.303995, defaultLeft, cover);
     double proba32[] = { 0.05, 0.1, 0.0, 0.1, 0.75 };
-    /* ModelBuilder::NodeId child32 = */ modelBuilder.addLeafNodeByProba(tree3, root3, 1, proba32, cover);
+    /* ModelBuilder::NodeId child32 = */ modelBuilder.addLeafNodeByProba(tree3,
+                                                                         root3,
+                                                                         1,
+                                                                         proba32,
+                                                                         cover);
     /* ModelBuilder::NodeId child31 = */ modelBuilder.addLeafNode(tree3, root3, 0, 2, cover);
     modelBuilder.setNFeatures(nFeatures);
     return modelBuilder.getModel();

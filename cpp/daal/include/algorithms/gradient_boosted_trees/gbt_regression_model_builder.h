@@ -129,7 +129,8 @@ public:
     *  \param[in] cover           Cover of the node (sum_hess)
     *  \return Node identifier
     */
-    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft = 0, double cover = 0.0)
+    NodeId addSplitNode(TreeId treeId, NodeId parentId, size_t position, size_t featureIndex, double featureValue, int defaultLeft = 0,
+                        double cover = 0.0)
     {
         NodeId resId;
         _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
