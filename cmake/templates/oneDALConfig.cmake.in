@@ -116,15 +116,52 @@ elseif (@VERSIONS_SET@ STREQUAL "FALSE")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
 endif()
 
+function(find_mkl)
+    if(NOT MKLROOT)
+        message(STATUS "MKLROOT is not set, trying to find MKL using standard paths...")
+        find_path(MKLROOT
+            NAMES include/mkl.h
+            PATHS ENV MKLROOT "/opt/intel/mkl" "/usr/local/mkl"
+            DOC "Path to the MKL root directory"
+        )
+    endif()
+
+    if(NOT MKLROOT)
+        message(FATAL_ERROR "MKL root directory not found. Please set MKLROOT environment variable or specify the path to the MKL installation.")
+    else()
+        message(STATUS "Found MKL root directory: ${MKLROOT}")
+    endif()
+
+    find_library(MKL_SYCL_LIB
+        NAMES libmkl_sycl.a mkl_sycl
+        PATHS "${MKLROOT}/lib" "${MKLROOT}/lib/intel64"
+        DOC "Path to the MKL SYCL library"
+    )
+
+    if(NOT MKL_SYCL_LIB)
+        message(FATAL_ERROR "MKL SYCL library not found!")
+    else()
+        message(STATUS "Found MKL SYCL library: ${MKL_SYCL_LIB}")
+    endif()
+
+
+    add_library(oneDAL::mkl_sycl STATIC IMPORTED)
+    set_target_properties(oneDAL::mkl_sycl PROPERTIES
+                              IMPORTED_LOCATION "${MKL_SYCL_LIB}")
+    list(APPEND DAL_LIBS oneDAL::mkl_sycl)
+
+endfunction()
+
 if (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "no")
-    list(APPEND DAL_LIBS onedal_sycl${DAL_DEBUG_SUFFIX})
+    find_mkl()
 elseif (ONEDAL_USE_DPCPP STREQUAL "no" AND ONEDAL_INTERFACE STREQUAL "yes")
     list(APPEND DAL_LIBS onedal${DAL_DEBUG_SUFFIX})
     if(ONEDAL_USE_PARAMETERS_LIBRARY)
         list(APPEND DAL_LIBS onedal_parameters${DAL_DEBUG_SUFFIX})
     endif()
 elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX} onedal_sycl${DAL_DEBUG_SUFFIX})
+    find_mkl()
+    list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX})
     if(ONEDAL_USE_PARAMETERS_LIBRARY)
         list(APPEND DAL_LIBS onedal_parameters_dpc${DAL_DEBUG_SUFFIX})
     endif()
@@ -212,13 +249,14 @@ foreach (_dal_component ${DAL_LIBS})
 
     set(oneDAL_${_dal_component}_FOUND 0)
 
-    if (${ONEDAL_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
+    if (${ONEDAL_LINK} STREQUAL "static")
         add_library(oneDAL::${_dal_component} STATIC IMPORTED)
         find_library(
             _dal_lib
             NAMES "${LIB_PREFIX}${_dal_component}${LIB_EXT}"
             PATH_SUFFIXES "lib/@ARCH_DIR_ONEDAL@"
             PATHS "${_dal_root}")
+        find_mkl()
     elseif (${ONEDAL_LINK} STREQUAL "dynamic")
         add_library(oneDAL::${_dal_component} SHARED IMPORTED)
         find_library(
@@ -233,7 +271,7 @@ foreach (_dal_component ${DAL_LIBS})
                             INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
     unset(_dal_include_dir)
 
-    if (WIN32 AND ${ONEDAL_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
+    if (WIN32 AND ${ONEDAL_LINK} STREQUAL "dynamic")
         find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
         set_target_properties(oneDAL::${_dal_component} PROPERTIES
                               IMPORTED_LOCATION "${${_dal_component}_dll}"

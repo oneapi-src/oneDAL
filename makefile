@@ -471,7 +471,7 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) $(daaldep.math_backend.sycl) \
                                             $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
@@ -774,7 +774,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(REQDBG),-flink-huge-device-code,)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.math_backend.sycl)
 
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
@@ -964,20 +964,6 @@ $(foreach x,$(release.PARAMETERS.LIBS_Y),$(eval $(call .release.y_win,$x,$(RELEA
 $(foreach x,$(release.PARAMETERS.LIBS_A.dpc),$(eval $(call .release.a_win,$x,$(RELEASEDIR.libia),_release_parameters_dpc)))
 $(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(RELEASEDIR.soia),_release_parameters_dpc)))
 endif
-endif
-
-#TODO: looks like onedal_sycl is not necessary, have to remove it everywhere and doublecheck it
-ifneq ($(MKLGPUFPKDIR),)
-# Copies the file to the destination directory and renames daal -> onedal
-# $1: Path to the file to be copied
-# $2: Destination directory
-define .release.sycl.old
-_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
-$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
-endef
-
-$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
-$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
 endif
 
 _release_c: ./deploy/pkg-config/pkg-config.tpl
