@@ -1,6 +1,6 @@
 /* file: spectral_embedding_default_dense_impl.i */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -66,10 +66,10 @@ services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * 
  *  \brief Kernel for Spectral Embedding calculation
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * eTable,
-                                                                                const KernelParameter & par)
+DAAL_EXPORT services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * eTable,
+                                                                                            const KernelParameter & par)
 {
-    services::Status safeStat;
+    services::Status status;
     std::cout << "inside DAAL kernel" << std::endl;
     std::cout << "Params: " << par.numEmb << " " << par.numNeighbors << std::endl;
     size_t k       = par.numEmb;
@@ -77,30 +77,21 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     size_t n       = xTable->getNumberOfRows(); /* Number of input feature vectors   */
 
     SharedPtr<HomogenNumericTable<algorithmFPType> > tmpMatrixPtr =
-        HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &safeStat);
-    if (!safeStat)
+        HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &status);
+    if (!status)
     {
-        return safeStat;
+        return status;
     }
     NumericTable * covOutput = tmpMatrixPtr.get();
-
-    NumericTable * a0 = const_cast<NumericTable *>(xTable);
-    NumericTable ** a = &a0;
-    NumericTable ** r = &covOutput;
+    NumericTable * a0        = const_cast<NumericTable *>(xTable);
 
     // Compute cosine distances matrix
-    auto * cosDistKernelPtr = new cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>();
-
-    services::Status cosDistStatus = cosDistKernelPtr->compute(0, a, 0, r, nullptr);
-
-    delete cosDistKernelPtr;
-
-    if (!cosDistStatus)
     {
-        return cosDistStatus;
+        auto cosDistanceKernel = cosine_distance::internal::DistanceKernel<algorithmFPType, cosine_distance::Method::defaultDense, cpu>();
+        DAAL_CHECK_STATUS(status, cosDistanceKernel.compute(0, &a0, 0, &covOutput, nullptr));
     }
 
-    WriteRows<algorithmFPType, cpu> xMatrix(*r, 0, n);
+    WriteRows<algorithmFPType, cpu> xMatrix(covOutput, 0, n);
     DAAL_CHECK_BLOCK_STATUS(xMatrix);
     algorithmFPType * x = xMatrix.get();
 
@@ -112,7 +103,7 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     {
         L    = 0; // min possible cos distance
         R    = 2; // max possible cos distance
-        lcnt = 0; // numer of elements with cos distance <= L
+        lcnt = 0; // number of elements with cos distance <= L
         rcnt = n; // number of elements with cos distance <= R
         for (size_t ij = 0; ij < binarySearchIterNum; ++ij)
         {
@@ -182,11 +173,8 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     TArray<algorithmFPType, cpu> eigenvalues(n);
     DAAL_CHECK_MALLOC(eigenvalues.get());
 
-    services::Status eigen_vectors_st = computeEigenvectorsInplace<algorithmFPType, cpu>(n, x, eigenvalues.get());
-    if (!eigen_vectors_st)
-    {
-        return eigen_vectors_st;
-    }
+    status |= computeEigenvectorsInplace<algorithmFPType, cpu>(n, x, eigenvalues.get());
+    DAAL_CHECK_STATUS_VAR(status);
 
     // std::cout << "Eigen vectors: " << std::endl;
     // for (int i = 0; i < n; ++i) {
@@ -209,7 +197,7 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
         }
     }
 
-    return safeStat;
+    return status;
 }
 
 } // namespace internal
