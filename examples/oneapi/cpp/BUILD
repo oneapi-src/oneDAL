@@ -86,7 +86,9 @@ dal_example_suite(
         "@onedal//cpp/oneapi/dal/algo:spectral_embedding",
     ],
     data = _DATA_DEPS,
-    extra_deps = _TEST_DEPS,
+    extra_deps = _TEST_DEPS + [
+        "@onedal//cpp/daal/src/algorithms/spectral_embedding:kernel"
+    ],
 )
 
 dal_algo_example_suite(
