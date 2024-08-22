@@ -15,6 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <mkl.h>
+#include <mkl_service.h>
+
 namespace daal
 {
 namespace internal
@@ -23,7 +26,7 @@ namespace mkl
 {
 int mkl_serv_set_num_threads_local(int nthreads)
 {
-    return nthreads;
+    return mkl_set_num_threads_local(nthreads);
 }
 } // namespace mkl
 } // namespace internal

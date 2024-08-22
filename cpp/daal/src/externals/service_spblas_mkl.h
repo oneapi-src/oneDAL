@@ -178,7 +178,7 @@ struct MklSpBlas<double, cpu>
                         const double * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const double * b, const DAAL_INT * ldb,
                         const double * beta, double * c, const DAAL_INT * ldc)
     {
-        int old_threads      = mkl_serv_set_num_threads_local(1);
+        mkl_serv_set_num_threads_local(1);
         sparse_matrix_t csrA = NULL;
         struct matrix_descr descrA;
         descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
@@ -197,7 +197,7 @@ struct MklSpBlas<double, cpu>
         }
         mkl_sparse_destroy(csrA);
 
-        mkl_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(0);
     }
 };
 
@@ -284,7 +284,7 @@ struct MklSpBlas<float, cpu>
                         const float * val, const DAAL_INT * indx, const DAAL_INT * pntrb, const float * b, const DAAL_INT * ldb, const float * beta,
                         float * c, const DAAL_INT * ldc)
     {
-        int old_threads      = mkl_serv_set_num_threads_local(1);
+        mkl_serv_set_num_threads_local(1);
         sparse_matrix_t csrA = NULL;
         struct matrix_descr descrA;
         descrA.type = SPARSE_MATRIX_TYPE_GENERAL;
@@ -303,7 +303,7 @@ struct MklSpBlas<float, cpu>
         }
         mkl_sparse_destroy(csrA);
 
-        mkl_serv_set_num_threads_local(old_threads);
+        mkl_serv_set_num_threads_local(0);
     }
 };
 
