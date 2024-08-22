@@ -604,6 +604,7 @@ jobs:
       conda activate CB
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
+      export PREFIX=${CONDA_PREFIX}
       cd sklearnex
       export PYTHON=python
       ./conda-recipe/build.sh
