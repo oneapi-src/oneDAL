@@ -20,9 +20,11 @@ echo "Starting format check..."
 
 RETURN_CODE=0
 
+CLANG_FORMAT_EXE=${CLANG_FORMAT_EXE:-clang-format-14}
+
 for sources_path in cpp/daal cpp/oneapi examples/oneapi examples/daal samples/oneapi samples/daal; do
     pushd ${sources_path} || exit 1
-    for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do clang-format-14 -style=file -i "${filename}"; done
+    for filename in $(find . -type f | grep -P ".*\.(c|cpp|h|hpp|cl|i)$"); do ${CLANG_FORMAT_EXE} -style=file -i "${filename}"; done
 
     git status | grep "nothing to commit" > /dev/null
 
