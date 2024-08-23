@@ -18,60 +18,49 @@ rem ============================================================================
 rem req: PowerShell 3.0+
 powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} else {Write-Host \"The script requires PowerShell 3.0 or above (current version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor))\"}" && goto Error_load
 
-set MKLURLROOT=https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/
-set MKLVERSION=20230413
-set MKLGPUVERSION=20240605
+set MKLURLROOT=https://registrationcenter-download.intel.com/akdlm/irc_nas/
+set MKLVERSION=2024.2.0
 
-set MKLPACKAGE=mklfpk_win_%MKLVERSION%
-set MKLGPUPACKAGE=mklgpufpk_win_%MKLGPUVERSION%
+set MKLPACKAGE=l_oneapi_mkl_p_%MKLVERSION%_offline
 
 set MKLURL=%MKLURLROOT%%MKLPACKAGE%.zip
-set MKLGPUURL=%MKLURLROOT%%MKLGPUPACKAGE%.zip
+
 if /i "%1"=="" (
-    set CPUCOND=%~dp0..\__deps\mklfpk
-    set GPUCOND=%~dp0..\__deps\mklgpufpk
+    set DST=%~dp0..\__deps\oneMKL
 ) else (
-    set CPUCOND=%1\..\__deps\mklfpk
-    set GPUCOND=%1\..\__deps\mklgpufpk
+    set DST=%1\..\__deps\oneMKL
 )
 
-set CPUDST=%CPUCOND%
-set GPUDST="%GPUCOND%\win"
-
-CALL :Download_FPK %CPUDST% , %CPUCOND% , %MKLURL% , %MKLPACKAGE%
-CALL :Download_FPK %GPUDST% , %GPUCOND% , %MKLGPUURL% , %MKLGPUPACKAGE%
+CALL :Download_MKL %DST% , %MKLURL% , %MKLPACKAGE%
 
 exit /B 0
 
-:Download_FPK
+:Download_MKL
 
 set DST=%~1
-set CONDITION=%~2
-set SRC=%~3
-set FILENAME=%~4
+set SRC=%~2
+set FILENAME=%~3
 
 if not exist %DST% mkdir %DST%
 
-
-if not exist "%CONDITION%\win\lib" (
-
+if not exist "%DST%\lib" (
     powershell.exe -command "(New-Object System.Net.WebClient).DownloadFile('%SRC%', '%DST%\%FILENAME%.zip')" && goto Unpack || goto Error_load
 
 :Unpack
     powershell.exe -command "if (Get-Command Add-Type -errorAction SilentlyContinue) {Add-Type -Assembly \"System.IO.Compression.FileSystem\"; try { [IO.Compression.zipfile]::ExtractToDirectory(\"%DST%\%FILENAME%.zip\", \"%DST%\")}catch{$_.exception ; exit 1}} else {exit 1}" && goto Exit || goto Error_unpack
 
 :Error_load
-    echo download_mklfpk.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
+    echo download_onemkl.bat : Error: Failed to load %SRC% to %DST%, try to load it manually
     exit /B 1
 
 :Error_unpack
-    echo download_mklfpk.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
+    echo download_onemkl.bat : Error: Failed to unpack %DST%\%FILENAME%.zip to %DST%, try unpack the archive manually
     exit /B 1
 
 :Exit
-    echo Downloaded and unpacked Intel^(R^) MKL small libraries to %DST%
+    echo Downloaded and unpacked Intel^(R^) oneMKL libraries to %DST%
     exit /B 0
 ) else (
-    echo Intel^(R^) MKL small libraries are already installed in %DST%
+    echo Intel^(R^) oneMKL libraries are already installed in %DST%
     exit /B 0
 )
