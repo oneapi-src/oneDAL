@@ -66,8 +66,8 @@ services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * 
  *  \brief Kernel for Spectral Embedding calculation
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-DAAL_EXPORT services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * eTable,
-                                                                                            const KernelParameter & par)
+services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * eTable,
+                                                                                const KernelParameter & par)
 {
     services::Status status;
     std::cout << "inside DAAL kernel" << std::endl;

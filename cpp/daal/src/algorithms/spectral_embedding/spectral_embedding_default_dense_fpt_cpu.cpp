@@ -32,7 +32,7 @@ namespace spectral_embedding
 {
 namespace internal
 {
-template class SpectralEmbeddingKernel<DAAL_FPTYPE, defaultDense, DAAL_CPU>;
+template class DAAL_EXPORT SpectralEmbeddingKernel<DAAL_FPTYPE, Method::defaultDense, DAAL_CPU>;
 } // namespace internal
 } // namespace spectral_embedding
 } // namespace algorithms
