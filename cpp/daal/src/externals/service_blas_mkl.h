@@ -144,9 +144,11 @@ struct MklBlas<double, cpu>
                        const double * a, const DAAL_INT * lda, const double * y, const DAAL_INT * ldy, const double * beta, double * aty,
                        const DAAL_INT * ldaty)
     {
+        int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(
             blas_, dgemm,
             (transa, transb, (MKL_INT *)p, (MKL_INT *)ny, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, y, (MKL_INT *)ldy, beta, aty, (MKL_INT *)ldaty));
+        mkl_set_num_threads_local(old_nthr);
     }
 
     static void xsymm(const char * side, const char * uplo, const DAAL_INT * m, const DAAL_INT * n, const double * alpha, const double * a,

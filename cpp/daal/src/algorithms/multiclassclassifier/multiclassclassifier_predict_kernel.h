@@ -22,8 +22,8 @@
 //--
 */
 
-#ifndef __MULTICLASSCLASSIFIER_PREDICT_FPK_H__
-#define __MULTICLASSCLASSIFIER_PREDICT_FPK_H__
+#ifndef __MULTICLASSCLASSIFIER_PREDICT_KERNEL_H__
+#define __MULTICLASSCLASSIFIER_PREDICT_KERNEL_H__
 
 #include "data_management/data/numeric_table.h"
 #include "algorithms/model.h"

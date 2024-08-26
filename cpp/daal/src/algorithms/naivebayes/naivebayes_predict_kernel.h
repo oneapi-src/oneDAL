@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef _NAIVEBAYES_ASSIGN_FPK_H
-#define _NAIVEBAYES_ASSIGN_FPK_H
+#ifndef _NAIVEBAYES_ASSIGN_KERNEL_H
+#define _NAIVEBAYES_ASSIGN_KERNEL_H
 
 #include "algorithms/naive_bayes/multinomial_naive_bayes_model.h"
 #include "algorithms/naive_bayes/multinomial_naive_bayes_predict_types.h"
