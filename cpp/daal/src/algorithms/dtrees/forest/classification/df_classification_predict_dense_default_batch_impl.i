@@ -1045,7 +1045,9 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
     ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(_data), 0, nRowsOfRes);
     DAAL_CHECK_BLOCK_STATUS(xBD);
     const algorithmFPType * const aX = xBD.get();
-    if (numberOfTrees > _minTreesForThreading)
+    // TODO: investigate why higher level parallelism for trees causes performance degradation
+    // (excessive memory and CPU resources usage), especially on systems with high number of cores
+    if (false)
     {
         daal::static_tls<algorithmFPType *> tlsData([=]() { return service_scalable_calloc<algorithmFPType, cpu>(_nClasses * nRowsOfRes); });
 
