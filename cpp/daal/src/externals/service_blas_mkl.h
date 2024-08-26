@@ -114,7 +114,9 @@ struct MklBlas<double, cpu>
     static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, double * alpha, double * a, DAAL_INT * lda, double * beta, double * ata,
                        DAAL_INT * ldata)
     {
+        int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, dsyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
+        mkl_set_num_threads_local(old_nthr);
     }
 
     static void xsyr(const char * uplo, const DAAL_INT * n, const double * alpha, const double * x, const DAAL_INT * incx, double * a,
@@ -218,7 +220,9 @@ struct MklBlas<float, cpu>
     static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * beta, float * ata,
                        DAAL_INT * ldata)
     {
+        int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(blas_, ssyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
+        mkl_set_num_threads_local(old_nthr);
     }
 
     static void xsyr(const char * uplo, const DAAL_INT * n, const float * alpha, const float * x, const DAAL_INT * incx, float * a,
@@ -248,9 +252,11 @@ struct MklBlas<float, cpu>
                        const float * a, const DAAL_INT * lda, const float * y, const DAAL_INT * ldy, const float * beta, float * aty,
                        const DAAL_INT * ldaty)
     {
+        int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL(
             blas_, sgemm,
             (transa, transb, (MKL_INT *)p, (MKL_INT *)ny, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, y, (MKL_INT *)ldy, beta, aty, (MKL_INT *)ldaty));
+        mkl_set_num_threads_local(old_nthr);
     }
 
     static void xsymm(const char * side, const char * uplo, const DAAL_INT * m, const DAAL_INT * n, const float * alpha, const float * a,
