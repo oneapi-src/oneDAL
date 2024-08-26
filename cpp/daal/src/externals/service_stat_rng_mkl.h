@@ -95,8 +95,14 @@
         retcode = __DAAL_VSLFN(__DAAL_MKLVSL_SSE2, f_pref, f_name) f_args;  \
     }
 
-#define __DAAL_VSLFN_CALL_V(f_pref, f_name, f_args, retcode) v##f_name f_args;
+#define __DAAL_VSLFN_CALL_V(f_pref, f_name, f_args, retcode) \
+    {                                                        \
+        retcode = v##f_name f_args;                          \
+    }
 
-#define __DAAL_VSLFN_CALL_NO_V(f_pref, f_name, f_args, retcode) f_name f_args;
+#define __DAAL_VSLFN_CALL_NO_V(f_pref, f_name, f_args, retcode) \
+    {                                                           \
+        retcode = f_name f_args;                                \
+    }
 
 #endif

@@ -27,7 +27,6 @@
 #include <mkl.h>
 #include "src/externals/service_stat_rng_mkl.h"
 #include "src/externals/service_rng_common.h"
-#include <iostream>
 
 // RNGs
 #define __DAAL_BRNG_MT2203                    VSL_BRNG_MT2203
@@ -53,7 +52,6 @@ int uniformRNG(const size_t n, T * r, void * stream, const T a, const T b, const
 template <CpuType cpu>
 int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const size_t b, const int method)
 {
-    std::cout << "uniform 1" << std::endl;
     size_t n    = cn;
     int errcode = 0;
 
@@ -170,7 +168,6 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
 template <CpuType cpu>
 int uniformRNG(const size_t n, int * r, void * stream, const int a, const int b, const int method)
 {
-    std::cout << "uniform 2" << std::endl;
     int errcode = 0;
     int nn      = (int)n;
     int * rr    = r;
@@ -181,7 +178,6 @@ int uniformRNG(const size_t n, int * r, void * stream, const int a, const int b,
 template <CpuType cpu>
 int uniformRNG(const size_t n, float * r, void * stream, const float a, const float b, const int method)
 {
-    std::cout << "uniform 3" << std::endl;
     int errcode = 0;
     int nn      = (int)n;
     float * rr  = r;
@@ -192,7 +188,6 @@ int uniformRNG(const size_t n, float * r, void * stream, const float a, const fl
 template <CpuType cpu>
 int uniformRNG(const size_t n, double * r, void * stream, const double a, const double b, const int method)
 {
-    std::cout << "uniform 4" << std::endl;
     int errcode = 0;
     int nn      = (int)n;
     double * rr = r;
@@ -203,7 +198,6 @@ int uniformRNG(const size_t n, double * r, void * stream, const double a, const 
 template <CpuType cpu>
 int uniformBits32RNG(const size_t n, unsigned int * r, void * stream, const int method)
 {
-    std::cout << "uniform 5" << std::endl;
     int errcode       = 0;
     int nn            = (int)n;
     unsigned int * rr = r;
@@ -306,19 +300,15 @@ public:
 
     int getStateSize() const
     {
-        std::cout << "here get state size" << std::endl;
         int res = 0;
         __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslGetStreamSize, (_stream), res);
-        std::cout << "here end get state size" << std::endl;
         return res;
     }
 
     int saveState(void * dest) const
     {
-        std::cout << "here save state" << std::endl;
         int errcode = 0;
         __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslSaveStreamM, (_stream, (char *)dest), errcode);
-        std::cout << "here end save state" << std::endl;
         return errcode;
     }
 

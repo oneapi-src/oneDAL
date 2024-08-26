@@ -258,7 +258,6 @@ Status KMeansInitStep3MasterKernel<method, algorithmFPType, cpu>::init(const Par
             auto engineImpl = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl *>(&engine);
             Status s;
             DAAL_CHECK(engineImpl, ErrorIncorrectEngineParameter);
-
             DAAL_CHECK_STATUS(
                 s, (UniformKernelDefault<algorithmFPType, cpu>::compute(algorithmFPType(0.), algorithmFPType(1.), *engineImpl, 1, &dummy)));
             _rngState->reserve(engineImpl->getStateSize());
