@@ -17,8 +17,11 @@
 #++
 #  Math backend (MKL) definitions for makefile
 #--
-MKLFPKDIR:= $(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)),                        \
-            $(error Can`t find MKLROOT libs in MKLROOT.))
+
+mkltopf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
+
+MKLFPKDIR := $(call mkltopf,$(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)), \
+            $(error Can`t find MKLROOT libs in MKLROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
