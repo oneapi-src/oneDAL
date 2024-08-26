@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Initialize FileDataSource to retrieve the input data from a .csv file */
-    FileDataSource<CSVFeatureManager> dataSource(get_data_path(datasetFileName),
+    FileDataSource<CSVFeatureManager> dataSource(datasetFileName,
                                                  DataSource::doAllocateNumericTable,
                                                  DataSource::doDictionaryFromContext);
 

@@ -658,41 +658,18 @@ void printNumericTables(daal::data_management::NumericTablePtr dataTable1,
                                      interval);
 }
 
-inline bool check_file(const std::string &name) {
-    return std::ifstream{ name }.good();
-}
-
-inline std::string get_data_path(const std::string &name) {
-    const std::vector<std::string> paths = { "../data/batch",
-                                             "examples/daal/data/batch",
-                                             "examples/daal/data/online",
-                                             "examples/daal/data/distributed",
-                                             "examples/daal/cpp" };
-
-    for (const auto &path : paths) {
-        const std::string try_path = path + "/" + name;
-        if (check_file(try_path)) {
-            return try_path;
-        }
+bool checkFileIsAvailable(std::string filename, bool needExit = false) {
+    std::ifstream file(filename.c_str());
+    if (file.good()) {
+        return true;
     }
-    return name;
-}
-
-bool checkFileIsAvailable(std::string name, bool needExit = false) {
-    const std::vector<std::string> paths = { "../data/batch",
-                                             "examples/daal/data/batch",
-                                             "examples/daal/data/online",
-                                             "examples/daal/data/distributed",
-                                             "examples/daal/cpp" };
-    for (const auto &path : paths) {
-        const std::string try_path = path + "/" + name;
-        if (check_file(try_path)) {
-            return check_file(try_path);
+    else {
+        std::cout << "Can't open file " << filename << std::endl;
+        if (needExit) {
+            exit(fileError);
         }
+        return false;
     }
-    throw std::runtime_error(std::string("Failed: ") + name);
-
-    return false;
 }
 
 void checkArguments(int argc, char *argv[], int count, ...) {

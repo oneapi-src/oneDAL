@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     checkArguments(argc, argv, 1, &datasetFileName);
 
     /* Retrieve the data from the input file */
-    CSRNumericTablePtr dataTable(createSparseTable<float>(get_data_path(datasetFileName)));
+    CSRNumericTablePtr dataTable(createSparseTable<float>(datasetFileName));
 
     /* Get initial clusters for the K-Means algorithm */
     kmeans::init::Batch<algorithmFPType, kmeans::init::randomCSR> init(nClusters);

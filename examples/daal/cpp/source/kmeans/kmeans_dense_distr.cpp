@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
         nClusters);
     for (size_t i = 0; i < nBlocks; i++) {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(get_data_path(dataFileNames[i]),
+        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i],
                                                      DataSource::doAllocateNumericTable,
                                                      DataSource::doDictionaryFromContext);
 

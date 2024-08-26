@@ -47,7 +47,7 @@ const std::string dataFileNames[] = { "../data/distributed/kmeans_csr_1.csv",
 
 void loadData(NumericTablePtr data[nBlocks]) {
     for (size_t i = 0; i < nBlocks; i++)
-        data[i] = CSRNumericTablePtr(createSparseTable<float>(get_data_path(dataFileNames[i])));
+        data[i] = CSRNumericTablePtr(createSparseTable<float>(dataFileNames[i]));
 }
 
 template <kmeans::init::Method method>

@@ -30,7 +30,6 @@
 #include "src/algorithms/distributions/uniform/uniform_kernel.h"
 #include "src/algorithms/distributions/uniform/uniform_impl.i"
 #include "src/services/service_data_utils.h"
-#include <iostream>
 
 namespace daal
 {
@@ -51,7 +50,6 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmFPType * clusters, NumericTable * ntData, unsigned int seed,
             engines::BatchBase & engine, size_t & clustersFound)
 {
-    std::cout << "init begin" << std::endl;
     if (method == deterministicDense || method == deterministicCSR)
     {
         ReadRows<algorithmFPType, cpu> mtData(ntData, 0, nClusters);
@@ -106,7 +104,6 @@ Status init(size_t p, size_t n, size_t nRowsTotal, size_t nClusters, algorithmFP
         return s;
     }
     DAAL_ASSERT(false && "should never happen");
-    std::cout << "init end" << std::endl;
     return Status();
 }
 
@@ -115,7 +112,6 @@ services::Status KMeansInitKernel<method, algorithmFPType, cpu>::compute(size_t 
                                                                          const NumericTable * const * r, const Parameter * par,
                                                                          engines::BatchBase & engine)
 {
-    std::cout << "compute begin" << std::endl;
     NumericTable * ntData     = const_cast<NumericTable *>(a[0]);
     NumericTable * ntClusters = const_cast<NumericTable *>(r[0]);
 
@@ -127,14 +123,12 @@ services::Status KMeansInitKernel<method, algorithmFPType, cpu>::compute(size_t 
     algorithmFPType * clusters = clustersBD.get();
 
     size_t clustersFound = 0;
-    std::cout << "compute end" << std::endl;
     return init<method, algorithmFPType, cpu>(p, n, n, nClusters, clusters, ntData, par->seed, engine, clustersFound);
 }
 
 template <typename algorithmFPType, CpuType cpu>
 Status initDistrDeterministic(const NumericTable * pData, const Parameter * par, size_t & nClustersFound, NumericTablePtr & pRes)
 {
-    std::cout << "init distr begin" << std::endl;
     nClustersFound = 0;
     if (par->nClusters <= par->offset) return Status(); //ok
 
@@ -154,14 +148,12 @@ Status initDistrDeterministic(const NumericTable * pData, const Parameter * par,
     DAAL_CHECK_BLOCK_STATUS(dataBD);
     const size_t sz = pData->getNumberOfColumns() * nClustersFound * sizeof(algorithmFPType);
     int result      = daal::services::internal::daal_memcpy_s(resBD.get(), sz, dataBD.get(), sz);
-    std::cout << "init distr end" << std::endl;
     return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
 template <typename algorithmFPType, CpuType cpu>
 Status generateRandomIndices(const Parameter * par, size_t nRows, size_t & nClustersFound, int * clusters, engines::BatchBase & engine)
 {
-    std::cout << "gen random indicies begin" << std::endl;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par->nClusters, sizeof(int));
 
     TArray<int, cpu> aIndices(par->nClusters);
@@ -189,7 +181,6 @@ Status generateRandomIndices(const Parameter * par, size_t nRows, size_t & nClus
         clusters[nClustersFound] = c - par->offset;
         nClustersFound++;
     }
-    std::cout << "gen random indicies end" << std::endl;
     return s;
 }
 
@@ -197,7 +188,6 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrRandom(const NumericTable * pData, const Parameter * par, size_t & nClustersFound, NumericTablePtr & pRes,
                        engines::BatchBase & engine)
 {
-    std::cout << "initDistrRandom begin" << std::endl;
     DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par->nClusters, sizeof(int));
 
     TArray<int, cpu> clusters(par->nClusters);
@@ -225,7 +215,6 @@ Status initDistrRandom(const NumericTable * pData, const Parameter * par, size_t
         DAAL_CHECK_BLOCK_STATUS(dataBD);
         for (size_t j = 0; j < p; j++) aClusters[i * p + j] = pRow[j];
     }
-    std::cout << "initDistrRandom end" << std::endl;
     return s;
 }
 
@@ -233,7 +222,6 @@ template <typename algorithmFPType, CpuType cpu>
 Status initDistrPlusPlus(const NumericTable * pData, const Parameter * par, size_t & nClustersFound, NumericTablePtr & pRes,
                          engines::BatchBase & engine)
 {
-    std::cout << "initDistrPlusPlus begin" << std::endl;
     nClustersFound = 0;
     int index      = 0;
 
@@ -260,7 +248,6 @@ Status initDistrPlusPlus(const NumericTable * pData, const Parameter * par, size
     WriteOnlyRows<algorithmFPType, cpu> resBD(*pRes, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(resBD);
     int result = daal::services::internal::daal_memcpy_s(resBD.get(), sizeof(algorithmFPType) * p, dataBD.get(), sizeof(algorithmFPType) * p);
-    std::cout << "initDistrPlusPlus end" << std::endl;
     return (!result) ? s : services::Status(services::ErrorMemoryCopyFailedInternal);
 }
 
@@ -269,7 +256,6 @@ services::Status KMeansInitStep1LocalKernel<method, algorithmFPType, cpu>::compu
                                                                                    NumericTable * pNumPartialClusters,
                                                                                    NumericTablePtr & pPartialClusters, engines::BatchBase & engine)
 {
-    std::cout << "compute 2 begin" << std::endl;
     size_t nClustersFound = 0;
     services::Status s;
     if ((method == deterministicDense) || (method == deterministicCSR))
@@ -285,7 +271,6 @@ services::Status KMeansInitStep1LocalKernel<method, algorithmFPType, cpu>::compu
     DAAL_CHECK_BLOCK_STATUS(npcBD);
     DAAL_CHECK(nClustersFound <= services::internal::MaxVal<int>::get(), ErrorIncorrectNumberOfPartialClusters)
     *npcBD.get() = (int)nClustersFound;
-    std::cout << "compute 2 end" << std::endl;
     return s;
 }
 
@@ -293,7 +278,6 @@ template <Method method, typename algorithmFPType, CpuType cpu>
 services::Status KMeansInitStep2MasterKernel<method, algorithmFPType, cpu>::finalizeCompute(size_t na, const NumericTable * const * a,
                                                                                             NumericTable * ntClusters, const Parameter * par)
 {
-    std::cout << "finalizeCompute begin" << std::endl;
     const size_t nBlocks   = na / 2;
     const size_t p         = ntClusters->getNumberOfColumns();
     const size_t nClusters = par->nClusters;
@@ -323,7 +307,6 @@ services::Status KMeansInitStep2MasterKernel<method, algorithmFPType, cpu>::fina
             k++;
         }
     }
-    std::cout << "finalizeCompute begin" << std::endl;
     return Status();
 }
 
