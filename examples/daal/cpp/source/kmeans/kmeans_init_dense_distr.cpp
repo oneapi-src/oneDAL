@@ -48,7 +48,7 @@ const std::string dataFileNames[] = { "../data/distributed/kmeans_dense_1.csv",
 void loadData(NumericTablePtr data[nBlocks]) {
     for (size_t i = 0; i < nBlocks; i++) {
         /* Initialize FileDataSource<CSVFeatureManager> to retrieve the input data from a .csv file */
-        FileDataSource<CSVFeatureManager> dataSource(dataFileNames[i],
+        FileDataSource<CSVFeatureManager> dataSource(get_data_path(dataFileNames[i]),
                                                      DataSource::doAllocateNumericTable,
                                                      DataSource::doDictionaryFromContext);
 

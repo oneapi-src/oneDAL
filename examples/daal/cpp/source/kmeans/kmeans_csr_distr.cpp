@@ -66,7 +66,8 @@ int main(int argc, char* argv[]) {
         nClusters);
     for (size_t i = 0; i < nBlocks; i++) {
         /* Read dataFileNames and create a numeric table to store the input data */
-        dataTable[i] = CSRNumericTablePtr(createSparseTable<float>(dataFileNames[i]));
+        dataTable[i] =
+            CSRNumericTablePtr(createSparseTable<float>(get_data_path(dataFileNames[i])));
 
         /* Create an algorithm object for the K-Means algorithm */
         kmeans::init::Distributed<step1Local, algorithmFPType, kmeans::init::randomCSR> localInit(
