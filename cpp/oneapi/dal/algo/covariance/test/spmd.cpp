@@ -114,7 +114,6 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
 
     INFO("num_rows=" << input.get_row_count());

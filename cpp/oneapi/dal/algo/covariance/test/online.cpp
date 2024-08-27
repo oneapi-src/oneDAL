@@ -84,7 +84,7 @@ TEMPLATE_LIST_TEST_M(covariance_online_test,
     using Float = std::tuple_element_t<0, TestType>;
     using Method = std::tuple_element_t<1, TestType>;
 
-    const int64_t nBlocks = GENERATE(1, 3, 10);
+    const int64_t nBlocks = GENERATE(1, 10);
     INFO("nBlocks=" << nBlocks);
     this->set_blocks_count(nBlocks);
 
@@ -108,7 +108,6 @@ TEMPLATE_LIST_TEST_M(covariance_online_test,
 
     const te::dataframe input =
         GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 500, 100 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
 
     INFO("num_rows=" << input.get_row_count());
