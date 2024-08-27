@@ -120,9 +120,12 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         eigenvectors = corr;
     }
 
+    cov_event.wait_and_throw();
+    corr_event.wait_and_throw();
+    vars_event.wait_and_throw();
     auto [eigvals, syevd_event] =
         syevd_computation(q_, eigenvectors, { cov_event, corr_event, vars_event });
-
+    syevd_event.wait_and_throw();
     auto flipped_eigvals_host = flip_eigenvalues(q_, eigvals, component_count, { syevd_event });
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {

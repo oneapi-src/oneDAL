@@ -98,10 +98,12 @@ result_t finalize_train_kernel_cov_impl<Float>::operator()(const descriptor_t& d
             pr::correlation_from_covariance(q, rows_count_global, cov, corr, bias, { cov_event });
         data_to_compute = corr;
     }
-
+    cov_event.wait_and_throw();
+    vars_event.wait_and_throw();
+    corr_event.wait_and_throw();
     auto [eigvals, syevd_event] =
         syevd_computation(q, data_to_compute, { cov_event, corr_event, vars_event });
-
+    syevd_event.wait_and_throw();
     auto flipped_eigvals_host = flip_eigenvalues(q, eigvals, component_count, { syevd_event });
 
     auto flipped_eigenvectors_host =

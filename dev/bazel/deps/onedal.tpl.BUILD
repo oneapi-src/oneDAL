@@ -35,6 +35,16 @@ cc_library(
 )
 
 cc_library(
+    name = "onedal_sycl",
+    srcs = [
+        "lib/intel64/libonedal_sycl.a",
+    ],
+    deps = [
+        ":headers",
+    ],
+)
+
+cc_library(
     name = "parameters_static",
     srcs = [
         "lib/intel64/libonedal_parameters.a",
@@ -72,7 +82,7 @@ cc_library(
     ],
     deps = [
         ":headers",
-        "@mkl//:mkl_dpc",
+        ":onedal_sycl",
         ":parameters_static_dpc",
     ],
 )
@@ -140,7 +150,7 @@ cc_library(
     ],
     deps = [
         ":headers",
-        "@mkl//:mkl_dpc",
+        ":onedal_sycl",
         ":parameters_dynamic_dpc",
     ],
 )

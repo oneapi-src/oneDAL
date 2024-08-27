@@ -33,41 +33,9 @@
     #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
 #endif
 
-#define VMLFN(f_cpu, f_name, f_suff) __DAAL_CONCAT5(fpk_vml_, f_name, _, f_cpu, f_suff)
-// #define VMLFN_CALL(f_name, f_suff, f_args) VMLFN_CALL1(f_name, f_suff, f_args)
 #define VMLFN_CALL(f_name, f_suff, f_args) \
     v##f_name f_args;                      \
     return;
-
-#if defined(__APPLE__)
-    #define __DAAL_MKLVML_SSE2  E9
-    #define __DAAL_MKLVML_SSE42 E9
-#else
-    #define __DAAL_MKLVML_SSE2  EX
-    #define __DAAL_MKLVML_SSE42 H8
-#endif
-
-#define VMLFN_CALL1(f_name, f_suff, f_args)                \
-    if (avx512 == cpu)                                     \
-    {                                                      \
-        VMLFN(Z0, f_name, f_suff) f_args;                  \
-        return;                                            \
-    }                                                      \
-    if (avx2 == cpu)                                       \
-    {                                                      \
-        VMLFN(L9, f_name, f_suff) f_args;                  \
-        return;                                            \
-    }                                                      \
-    if (sse42 == cpu)                                      \
-    {                                                      \
-        VMLFN(__DAAL_MKLVML_SSE42, f_name, f_suff) f_args; \
-        return;                                            \
-    }                                                      \
-    if (sse2 == cpu)                                       \
-    {                                                      \
-        VMLFN(__DAAL_MKLVML_SSE2, f_name, f_suff) f_args;  \
-        return;                                            \
-    }
 
 namespace daal
 {

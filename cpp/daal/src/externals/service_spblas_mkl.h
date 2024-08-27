@@ -45,7 +45,6 @@
     #define __DAAL_MKL_SSE42 sse42_
 #endif
 
-// #define __DAAL_MKLFN(f_cpu, f_pref, f_name)              __DAAL_CONCAT4(fpk_, f_pref, f_cpu, f_name)
 #define __DAAL_MKLFN(f_cpu, f_pref, f_name)              f_name
 #define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
 #define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)

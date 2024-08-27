@@ -18,10 +18,9 @@
 #  Math backend (MKL) definitions for makefile
 #--
 
-mkltopf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
-
-MKLFPKDIR := $(call mkltopf,$(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)), \
-            $(error Can`t find MKLROOT libs in MKLROOT.)))
+MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/oneMKL/$(_OS)/*),$(DIR)/__deps/oneMKL,                        \
+            $(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)),                        \
+            $(error Can`t find MKLROOT libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLROOT.)))
 MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib
 RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
@@ -31,19 +30,19 @@ MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
 MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
 
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl.hpp
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$a
+mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a)
 
 daaldep.math_backend.incdir := $(MKLFPKDIR.include)
 daaldep.math_backend_oneapi.incdir := $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include)
 
-daaldep.lnx32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread.$a
-daaldep.lnx32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential.$a
-daaldep.lnx32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64.$a
+daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread.$a
+daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)mkl_sequential.$a
+daaldep.lnx32e.mkl.core := $(MKLFPKDIR.libia)/$(plib)mkl_core.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64.$a
 daaldep.lnx32e.mkl.sycl := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl.$a
 
-daaldep.win32e.mkl.thr := $(MKLROOT)/lib/$(plib)mkl_tbb_thread$d.$a
-daaldep.win32e.mkl.seq := $(MKLROOT)/lib/$(plib)mkl_sequential$d.$a
-daaldep.win32e.mkl.core := $(MKLROOT)/lib/$(plib)mkl_core$d.$a $(MKLROOT)/lib/$(plib)mkl_intel_ilp64$d.$a
+daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread$d.$a
+daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)mkl_sequential$d.$a
+daaldep.win32e.mkl.core := $(MKLFPKDIR.libia)/$(plib)mkl_core$d.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64$d.$a
 
 daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
