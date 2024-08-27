@@ -337,7 +337,6 @@ public:
         MPI_Status status;
         constexpr int zero_tag = 0;
 
-        /*
         if (recv_buf) {
             // MPICH-specific workaround for GPU performance
             mpi_call(MPI_Sendrecv(buf,
@@ -354,18 +353,17 @@ public:
                                   &status));
         }
         else {
-        */
-        // Standard call to sendrecv_replace of designated mpi backend
-        mpi_call(MPI_Sendrecv_replace(buf,
-                                      integral_cast<int>(count),
-                                      make_mpi_data_type(dtype),
-                                      integral_cast<int>(destination_rank),
-                                      zero_tag,
-                                      integral_cast<int>(source_rank),
-                                      zero_tag,
-                                      mpi_comm_,
-                                      &status));
-        //}
+            // Standard call to sendrecv_replace of designated mpi backend
+            mpi_call(MPI_Sendrecv_replace(buf,
+                                          integral_cast<int>(count),
+                                          make_mpi_data_type(dtype),
+                                          integral_cast<int>(destination_rank),
+                                          zero_tag,
+                                          integral_cast<int>(source_rank),
+                                          zero_tag,
+                                          mpi_comm_,
+                                          &status));
+        }
         return nullptr;
     }
 
