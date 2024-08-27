@@ -54,6 +54,9 @@ public:
     using test_input_t = infer_input<task_t>;
     using test_result_t = infer_result<task_t>;
 
+    using partial_input_t = partial_train_input<>;
+    using partial_result_t = partial_train_result<>;
+
     te::table_id get_homogen_table_id() const {
         return te::table_id::homogen<float_t>();
     }

@@ -44,7 +44,6 @@ if(REF_BACKEND)
     set(EXCLUDE_LIST
         ${EXCLUDE_LIST}
         "source/boosting/brownboost_dense_batch.cpp"
-        "source/em/em_gmm_dense_batch.cpp"
     )
 endif()
 

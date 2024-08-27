@@ -32,8 +32,6 @@
 #include "algorithms/optimization_solver/sgd/sgd_batch.h"
 #include "src/services/service_algo_utils.h"
 
-#include "src/algorithms/logistic_regression/oneapi/logistic_regression_train_kernel_oneapi.h"
-
 namespace daal
 {
 namespace algorithms
@@ -47,17 +45,7 @@ namespace interface3
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::TrainBatchKernelOneAPI, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::TrainBatchKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -77,19 +65,8 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     const logistic_regression::training::Parameter * par = static_cast<logistic_regression::training::Parameter *>(_par);
     daal::services::Environment::env & env               = *_env;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::TrainBatchKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
-    }
+    __DAAL_CALL_KERNEL(env, internal::TrainBatchKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
+                       daal::services::internal::getHostApp(*input), x, y, *m, *result, *par);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>

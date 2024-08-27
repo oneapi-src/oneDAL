@@ -125,11 +125,10 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
     initNumberOfThreads();
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
-    this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
@@ -137,7 +136,14 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-
+        // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
+        // destruction of the calling thread.
+        // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
+        // instance, it blocks the calling thread until the completion of all worker
+        // threads that were implicitly created by the library.
+#if defined(TARGET_X86_64)
+    daal::setSchedulerHandle(&_schedulerHandle);
+#endif
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -156,7 +162,6 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    _daal_tbb_task_scheduler_free(_globalControl);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -171,6 +176,9 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
+#if defined(TARGET_X86_64)
+    daal::setSchedulerHandle(&_schedulerHandle);
+#endif
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 
