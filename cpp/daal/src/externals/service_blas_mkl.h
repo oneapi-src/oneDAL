@@ -188,7 +188,9 @@ struct MklBlas<double, cpu>
 
     static double xxdot(const DAAL_INT * n, const double * x, const DAAL_INT * incx, const double * y, const DAAL_INT * incy)
     {
+        int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL_RETURN(blas_, ddot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy));
+        mkl_set_num_threads_local(old_nthr);
         return 0;
     }
 };
@@ -294,7 +296,9 @@ struct MklBlas<float, cpu>
 
     static float xxdot(const DAAL_INT * n, const float * x, const DAAL_INT * incx, const float * y, const DAAL_INT * incy)
     {
+        int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL_RETURN(blas_, sdot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy));
+        mkl_set_num_threads_local(old_nthr);
         return 0;
     }
 };
