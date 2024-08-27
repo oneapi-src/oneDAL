@@ -37,9 +37,9 @@
     #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
 #endif
 
-#define __DAAL_MKLFN(f_cpu, f_pref, f_name)              f_name
-#define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
-#define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)
+#define __DAAL_MKLFN(f_cpu, f_pref, f_name)                        f_name
+#define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)                  __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
+#define __DAAL_MKLFN_CALL_RETURN_BLAS(f_pref, f_name, f_args, res) __DAAL_MKLFN_CALL2_BLAS(f_pref, f_name, f_args, res)
 
 #define __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)             \
     if (avx512 == cpu)                                         \
@@ -59,22 +59,22 @@
         __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
     }
 
-#define __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)                    \
-    if (avx512 == cpu)                                                \
-    {                                                                 \
-        return __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
-    }                                                                 \
-    if (avx2 == cpu)                                                  \
-    {                                                                 \
-        return __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
-    }                                                                 \
-    if (sse42 == cpu)                                                 \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
-    }                                                                 \
-    if (sse2 == cpu)                                                  \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
+#define __DAAL_MKLFN_CALL2_BLAS(f_pref, f_name, f_args, res)         \
+    if (avx512 == cpu)                                               \
+    {                                                                \
+        res = __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
+    }                                                                \
+    if (avx2 == cpu)                                                 \
+    {                                                                \
+        res = __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
+    }                                                                \
+    if (sse42 == cpu)                                                \
+    {                                                                \
+        res = __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
+    }                                                                \
+    if (sse2 == cpu)                                                 \
+    {                                                                \
+        res = __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
     }
 
 namespace daal
@@ -189,9 +189,10 @@ struct MklBlas<double, cpu>
     static double xxdot(const DAAL_INT * n, const double * x, const DAAL_INT * incx, const double * y, const DAAL_INT * incy)
     {
         int old_nthr = mkl_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL_RETURN(blas_, ddot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy));
+        double res;
+        __DAAL_MKLFN_CALL_RETURN_BLAS(blas_, ddot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy), res);
         mkl_set_num_threads_local(old_nthr);
-        return 0;
+        return res;
     }
 };
 
@@ -297,9 +298,10 @@ struct MklBlas<float, cpu>
     static float xxdot(const DAAL_INT * n, const float * x, const DAAL_INT * incx, const float * y, const DAAL_INT * incy)
     {
         int old_nthr = mkl_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL_RETURN(blas_, sdot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy));
+        float res;
+        __DAAL_MKLFN_CALL_RETURN_BLAS(blas_, sdot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy), res);
         mkl_set_num_threads_local(old_nthr);
-        return 0;
+        return res;
     }
 };
 
