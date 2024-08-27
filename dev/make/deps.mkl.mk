@@ -18,48 +18,46 @@
 #  Math backend (MKL) definitions for makefile
 #--
 
-MKLFPKDIR:= $(if $(wildcard $(DIR)/__deps/oneMKL/$(_OS)/*),$(DIR)/__deps/oneMKL,                        \
-            $(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)),                        \
-            $(error Can`t find MKLROOT libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLROOT.)))
-MKLFPKDIR.include := $(MKLFPKDIR)/include $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/include
-MKLFPKDIR.libia   := $(MKLFPKDIR)/$(if $(OS_is_fbsd),lnx,$(_OS))/lib
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
+MKLFPKDIR:= $(if $(wildcard $(MKLROOT)/include/*),$(subst \,/,$(MKLROOT)),                        \
+            $(error Can`t find MKLROOT libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLROOT.))
+MKLFPKDIR.include := $(subst \,/,$(MKLFPKDIR)/include)
+MKLFPKDIR.libia   := $(subst \,/,$(MKLFPKDIR)/lib)
+RELEASEDIR.include.mklgpufpk := $(subst \,/,$(RELEASEDIR.include)/services/internal/sycl/math)
 
-MKLGPUFPKDIR:= $(MKLFPKDIR)
-MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
-MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
+MKLGPUFPKDIR:= $(subst \,/,$(MKLFPKDIR))
+MKLGPUFPKDIR.include := $(subst \,/,$(MKLGPUFPKDIR)/include/oneapi)
+MKLGPUFPKDIR.lib   := $(subst \,/,$(MKLGPUFPKDIR)/lib)
 
-mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl.hpp
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a)
+mklgpufpk.HEADERS := $(subst \,/,$(MKLGPUFPKDIR.include)/mkl.hpp)
+mklgpufpk.LIBS_A := $(subst \,/,$(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$(a))
 
-daaldep.math_backend.incdir := $(MKLFPKDIR.include)
-daaldep.math_backend_oneapi.incdir := $(MKLFPKDIR.include) $(MKLGPUFPKDIR.include)
+daaldep.math_backend.incdir := $(subst \,/,$(MKLFPKDIR.include))
+daaldep.math_backend_oneapi.incdir := $(subst \,/,$(MKLFPKDIR.include) $(MKLGPUFPKDIR.include))
 
-daaldep.lnx32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread.$a
-daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)mkl_sequential.$a
-daaldep.lnx32e.mkl.core := $(MKLFPKDIR.libia)/$(plib)mkl_core.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64.$a
-daaldep.lnx32e.mkl.sycl := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl.$a
+daaldep.lnx32e.mkl.thr := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread.$a)
+daaldep.lnx32e.mkl.seq := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)mkl_sequential.$a)
+daaldep.lnx32e.mkl.core := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)mkl_core.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64.$a)
+daaldep.lnx32e.mkl.sycl := $(subst \,/,$(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl.$a)
 
-daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread$d.$a
-daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)mkl_sequential$d.$a
-daaldep.win32e.mkl.core := $(MKLFPKDIR.libia)/$(plib)mkl_core$d.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64$d.$a
+daaldep.win32e.mkl.thr := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread$d.$a)
+daaldep.win32e.mkl.seq := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)mkl_sequential$d.$a)
+daaldep.win32e.mkl.core := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)mkl_core$d.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64$d.$a)
 
-daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
-daaldep.mac32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.mac32e.mkl.thr := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a)
+daaldep.mac32e.mkl.seq := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a)
+daaldep.mac32e.mkl := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a)
 
-daaldep.fbsd32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
-daaldep.fbsd32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
-daaldep.fbsd32e.mkl := $(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a
+daaldep.fbsd32e.mkl.thr := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a)
+daaldep.fbsd32e.mkl.seq := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a)
+daaldep.fbsd32e.mkl := $(subst \,/,$(MKLFPKDIR.libia)/$(plib)daal_vmlipp_core.$a)
 
-
-daaldep.mkl     := $(daaldep.$(PLAT).mkl.core)
-daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr)
-daaldep.math_backend.seq := $(daaldep.$(PLAT).mkl.seq)
-daaldep.math_backend.sycl := $(daaldep.$(PLAT).mkl.sycl)
+daaldep.mkl     := $(subst \,/,$(daaldep.$(PLAT).mkl.core))
+daaldep.math_backend.thr := $(subst \,/,$(daaldep.$(PLAT).mkl.thr))
+daaldep.math_backend.seq := $(subst \,/,$(daaldep.$(PLAT).mkl.seq))
+daaldep.math_backend.sycl := $(subst \,/,$(daaldep.$(PLAT).mkl.sycl))
 
 daaldep.lnx32e.vml :=
-daaldep.lnx32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.lnx32e.ipp := $(subst \,/,$(if $(COV.libia),$(COV.libia)/libcov.a))
 
 daaldep.win32e.vml :=
 daaldep.win32e.ipp :=
@@ -68,11 +66,11 @@ daaldep.mac32e.vml :=
 daaldep.mac32e.ipp :=
 
 daaldep.fbsd32e.vml :=
-daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.fbsd32e.ipp := $(subst \,/,$(if $(COV.libia),$(COV.libia)/libcov.a))
 
-daaldep.vml     := $(daaldep.$(PLAT).vml)
-daaldep.ipp     := $(daaldep.$(PLAT).ipp)
+daaldep.vml     := $(subst \,/,$(daaldep.$(PLAT).vml))
+daaldep.ipp     := $(subst \,/,$(daaldep.$(PLAT).ipp))
 
-daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(daaldep.math_backend.thr)
-daaldep.math_backend.sycl := $(daaldep.math_backend.sycl)
-daaldep.math_backend.oneapi := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl)
+daaldep.math_backend.ext := $(subst \,/,$(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) $(daaldep.math_backend.thr))
+daaldep.math_backend.sycl := $(subst \,/,$(daaldep.math_backend.sycl))
+daaldep.math_backend.oneapi := $(subst \,/,$(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl))
