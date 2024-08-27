@@ -272,7 +272,7 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
 
-#============================= MKL folders =====================================
+#============================= Math backend folders =====================================
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 

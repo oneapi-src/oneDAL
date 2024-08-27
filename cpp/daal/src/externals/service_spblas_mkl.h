@@ -37,54 +37,6 @@
     #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
 #endif
 
-#if defined(__APPLE__)
-    #define __DAAL_MKL_SSE2  avx_
-    #define __DAAL_MKL_SSE42 avx_
-#else
-    #define __DAAL_MKL_SSE2  sse2_
-    #define __DAAL_MKL_SSE42 sse42_
-#endif
-
-#define __DAAL_MKLFN(f_cpu, f_pref, f_name)              f_name
-#define __DAAL_MKLFN_CALL(f_pref, f_name, f_args)        __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)
-#define __DAAL_MKLFN_CALL_RETURN(f_pref, f_name, f_args) __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)
-
-#define __DAAL_MKLFN_CALL1(f_pref, f_name, f_args)             \
-    if (avx512 == cpu)                                         \
-    {                                                          \
-        __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
-    }                                                          \
-    if (avx2 == cpu)                                           \
-    {                                                          \
-        __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
-    }                                                          \
-    if (sse42 == cpu)                                          \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
-    }                                                          \
-    if (sse2 == cpu)                                           \
-    {                                                          \
-        __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
-    }
-
-#define __DAAL_MKLFN_CALL2(f_pref, f_name, f_args)                    \
-    if (avx512 == cpu)                                                \
-    {                                                                 \
-        return __DAAL_MKLFN(avx512_, f_pref, f_name) f_args;          \
-    }                                                                 \
-    if (avx2 == cpu)                                                  \
-    {                                                                 \
-        return __DAAL_MKLFN(avx2_, f_pref, f_name) f_args;            \
-    }                                                                 \
-    if (sse42 == cpu)                                                 \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSE42, f_pref, f_name) f_args; \
-    }                                                                 \
-    if (sse2 == cpu)                                                  \
-    {                                                                 \
-        return __DAAL_MKLFN(__DAAL_MKL_SSE2, f_pref, f_name) f_args;  \
-    }
-
 namespace daal
 {
 namespace internal
