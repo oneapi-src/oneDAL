@@ -18,8 +18,7 @@
 #  Math backend (MKL) definitions for makefile
 #--
 
-MKLFPKDIR:= $(if $(wildcard $(MKLROOT)),$(subst \,/,$(MKLROOT)),                        \
-            $(error Can`t find MKLROOT libs nether in $(DIR)/__deps/mklfpk/$(_OS) not in MKLROOT.))
+MKLFPKDIR:= $(subst \,/,$(MKLROOT))
 MKLFPKDIR.include := $(subst \,/,$(MKLFPKDIR)/include)
 MKLFPKDIR.libia   := $(subst \,/,$(MKLFPKDIR)/lib)
 RELEASEDIR.include.mklgpufpk := $(subst \,/,$(RELEASEDIR.include)/services/internal/sycl/math)
