@@ -48,33 +48,41 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const std::int64_t p = data.get_column_count();
     const std::int64_t n = data.get_row_count();
-    std::int64_t k = desc.get_embedding_dim();
+    std::int64_t k = desc.get_component_count();
 
     std::cout << "inside oneDAL kernel: " << n << " " << p << std::endl;
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 
-    if (result.get_result_options().test(result_options::embedding)) {
-        daal::services::SharedPtr<NumericTable> daal_input, daal_output;
-        array<Float> arr_output;
+    if (result.get_result_options().test(result_options::embedding) ||
+        result.get_result_options().test(result_options::eigen_values)) {
+        daal::services::SharedPtr<NumericTable> daal_input, daal_output, daal_eigen_vals;
+        array<Float> arr_output, arr_eigen_vals;
         arr_output = array<Float>::empty(n * k);
+        arr_eigen_vals = array<Float>::empty(n);
         daal_output = interop::convert_to_daal_homogen_table(arr_output, n, k);
+        daal_eigen_vals = interop::convert_to_daal_homogen_table(arr_eigen_vals, n, 1);
         parameter_t daal_param;
 
-        daal_param.numEmb = k;
-        if (desc.get_num_neighbors() < 0) {
-            daal_param.numNeighbors = n - 1;
+        daal_param.numberOfEmbeddings = k;
+        if (desc.get_neighbor_count() < 0) {
+            daal_param.numberOfNeighbors = n - 1;
         }
         else {
-            daal_param.numNeighbors = desc.get_num_neighbors();
+            daal_param.numberOfNeighbors = desc.get_neighbor_count();
         }
         interop::status_to_exception(
             interop::call_daal_kernel<Float, daal_sp_emb_kernel_t>(ctx,
                                                                    daal_data.get(),
                                                                    daal_output.get(),
+                                                                   daal_eigen_vals.get(),
                                                                    daal_param));
-
-        result.set_embedding(homogen_table::wrap(arr_output, n, k));
+        if (result.get_result_options().test(result_options::embedding)) {
+            result.set_embedding(homogen_table::wrap(arr_output, n, k));
+        }
+        if (result.get_result_options().test(result_options::eigen_values)) {
+            result.set_eigen_values(homogen_table::wrap(arr_eigen_vals, n, 1));
+        }
     }
 
     return result;

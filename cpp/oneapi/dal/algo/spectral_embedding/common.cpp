@@ -23,6 +23,10 @@ result_option_id get_embedding_id() {
     return result_option_id{ result_option_id::make_by_index(0) };
 }
 
+result_option_id get_eigen_values_id() {
+    return result_option_id{ result_option_id::make_by_index(1) };
+}
+
 template <typename Task>
 result_option_id get_default_result_options() {
     return result_option_id{};
@@ -40,8 +44,8 @@ class descriptor_impl : public base {
 public:
     explicit descriptor_impl() {}
 
-    std::int64_t embedding_dim = 0;
-    std::int64_t num_neighbors = -1;
+    std::int64_t component_count = 0;
+    std::int64_t neighbor_count = -1;
 
     result_option_id result_options = get_default_result_options<Task>();
 };
@@ -50,23 +54,23 @@ template <typename Task>
 descriptor_base<Task>::descriptor_base() : impl_(new descriptor_impl<Task>{}) {}
 
 template <typename Task>
-std::int64_t descriptor_base<Task>::get_embedding_dim() const {
-    return impl_->embedding_dim;
+std::int64_t descriptor_base<Task>::get_component_count() const {
+    return impl_->component_count;
 }
 
 template <typename Task>
-std::int64_t descriptor_base<Task>::get_num_neighbors() const {
-    return impl_->num_neighbors;
+std::int64_t descriptor_base<Task>::get_neighbor_count() const {
+    return impl_->neighbor_count;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_embedding_dim_impl(std::int64_t embedding_dim) {
-    impl_->embedding_dim = embedding_dim;
+void descriptor_base<Task>::set_component_count_impl(std::int64_t component_count) {
+    impl_->component_count = component_count;
 }
 
 template <typename Task>
-void descriptor_base<Task>::set_num_neighbors_impl(std::int64_t num_neighbors) {
-    impl_->num_neighbors = num_neighbors;
+void descriptor_base<Task>::set_neighbor_count_impl(std::int64_t neighbor_count) {
+    impl_->neighbor_count = neighbor_count;
 }
 
 template <typename Task>

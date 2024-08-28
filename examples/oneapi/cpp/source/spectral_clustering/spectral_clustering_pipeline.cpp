@@ -52,8 +52,8 @@ int main(int argc, char const *argv[]) {
 
     const auto spectral_embedding_desc =
         dal::spectral_embedding::descriptor<>()
-            .set_num_neighbors(n_neighbors)
-            .set_embedding_dim(num_spks)
+            .set_neighbor_count(n_neighbors)
+            .set_component_count(num_spks)
             .set_result_options(dal::spectral_embedding::result_options::embedding);
 
     const auto spectral_embedding_result = dal::compute(spectral_embedding_desc, x_train);

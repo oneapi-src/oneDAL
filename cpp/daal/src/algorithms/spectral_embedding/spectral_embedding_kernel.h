@@ -48,14 +48,14 @@ using namespace daal::services;
 
 struct KernelParameter : daal::algorithms::Parameter
 {
-    size_t numEmb       = 1;
-    size_t numNeighbors = 1;
+    size_t numberOfEmbeddings = 1;
+    size_t numberOfNeighbors  = 1;
 };
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 struct SpectralEmbeddingKernel : public Kernel
 {
-    services::Status compute(const NumericTable * xTable, NumericTable * eTable, const KernelParameter & par);
+    services::Status compute(const NumericTable * xTable, NumericTable * embeddingTable, NumericTable * eigenTable, const KernelParameter & par);
 };
 
 } // namespace internal

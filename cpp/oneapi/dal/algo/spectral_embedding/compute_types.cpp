@@ -31,6 +31,7 @@ template <typename Task>
 class detail::v1::compute_result_impl : public base {
 public:
     table embedding;
+    table eigen_values;
     result_option_id options;
 };
 
@@ -71,6 +72,24 @@ void compute_result<Task>::set_embedding_impl(const table& value) {
         throw domain_error(msg::this_result_is_not_enabled_via_result_options());
     }
     impl_->embedding = value;
+}
+
+template <typename Task>
+const table& compute_result<Task>::get_eigen_values() const {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::eigen_values)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    return impl_->eigen_values;
+}
+
+template <typename Task>
+void compute_result<Task>::set_eigen_values_impl(const table& value) {
+    using msg = dal::detail::error_messages;
+    if (!get_result_options().test(result_options::eigen_values)) {
+        throw domain_error(msg::this_result_is_not_enabled_via_result_options());
+    }
+    impl_->eigen_values = value;
 }
 
 template <typename Task>

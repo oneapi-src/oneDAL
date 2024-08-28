@@ -37,8 +37,8 @@ public:
     using base_t = spectral_embedding_test<TestType, spectral_embedding_batch_test<TestType>>;
 
     void gen_dimensions() {
-        this->n_ = GENERATE(30);
-        this->p_ = GENERATE(8);
+        this->n_ = GENERATE(8);
+        this->p_ = GENERATE(3);
     }
 };
 

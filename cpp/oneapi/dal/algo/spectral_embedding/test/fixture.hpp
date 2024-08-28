@@ -43,7 +43,7 @@ public:
     using descriptor_t = sp_emb::descriptor<Float, Method>;
 
     auto get_descriptor(sp_emb::result_option_id compute_mode) const {
-        return descriptor_t().set_embedding_dim(100).set_num_neighbors(1000).set_result_options(
+        return descriptor_t().set_component_count(4).set_neighbor_count(2).set_result_options(
             compute_mode);
     }
 
@@ -57,14 +57,17 @@ public:
     void test_default() {
         std::cout << "Input" << std::endl;
         // std::cout << data_ << std::endl;
-        auto desc = get_descriptor(sp_emb::result_options::embedding);
-        //desc.set_embedding_dim(5);
-        //desc.set_num_neighbors(4);
+        auto desc = get_descriptor(sp_emb::result_options::embedding |
+                                   sp_emb::result_options::eigen_values);
+        //desc.set_component_count(5);
+        //desc.set_neighbor_count(4);
         INFO("run compute");
         auto compute_result = this->compute(desc, data_);
         check_compute_result(compute_result);
         std::cout << "Output" << std::endl;
-        // std::cout << compute_result.get_embedding() << std::endl;
+        std::cout << compute_result.get_embedding() << std::endl;
+        std::cout << "Eigen values:" << std::endl;
+        std::cout << compute_result.get_eigen_values() << std::endl;
     }
 
     void check_compute_result(const spectral_embedding::compute_result<>& result) {

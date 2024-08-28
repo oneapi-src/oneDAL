@@ -67,6 +67,7 @@ public:
 namespace detail {
 
 ONEDAL_EXPORT result_option_id get_embedding_id();
+ONEDAL_EXPORT result_option_id get_eigen_values_id();
 
 } // namespace detail
 
@@ -76,6 +77,9 @@ namespace result_options {
 
 /// Return spectral embedding
 const inline auto embedding = detail::get_embedding_id();
+
+/// Return eigen values of Laplassian matrix
+const inline auto eigen_values = detail::get_eigen_values_id();
 
 } // namespace result_options
 
@@ -109,13 +113,13 @@ public:
 
     descriptor_base();
 
-    std::int64_t get_embedding_dim() const;
-    std::int64_t get_num_neighbors() const;
+    std::int64_t get_component_count() const;
+    std::int64_t get_neighbor_count() const;
     result_option_id get_result_options() const;
 
 protected:
-    void set_embedding_dim_impl(std::int64_t embedding_dim);
-    void set_num_neighbors_impl(std::int64_t num_neighbors);
+    void set_component_count_impl(std::int64_t component_count);
+    void set_neighbor_count_impl(std::int64_t neighbor_count);
     void set_result_options_impl(const result_option_id& value);
 
 private:
@@ -161,21 +165,21 @@ public:
     /// Creates a new instance of the class with the default property values.
     explicit descriptor() : base_t() {}
 
-    std::int64_t get_embedding_dim() const {
-        return base_t::get_embedding_dim();
+    std::int64_t get_component_count() const {
+        return base_t::get_component_count();
     }
 
-    std::int64_t get_num_neighbors() const {
-        return base_t::get_num_neighbors();
+    std::int64_t get_neighbor_count() const {
+        return base_t::get_neighbor_count();
     }
 
-    auto& set_embedding_dim(std::int64_t embedding_dim) {
-        base_t::set_embedding_dim_impl(embedding_dim);
+    auto& set_component_count(std::int64_t component_count) {
+        base_t::set_component_count_impl(component_count);
         return *this;
     }
 
-    auto& set_num_neighbors(std::int64_t num_neighbors) {
-        base_t::set_num_neighbors_impl(num_neighbors);
+    auto& set_neighbor_count(std::int64_t neighbor_count) {
+        base_t::set_neighbor_count_impl(neighbor_count);
         return *this;
     }
 

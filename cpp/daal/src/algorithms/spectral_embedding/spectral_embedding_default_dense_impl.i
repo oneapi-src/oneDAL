@@ -66,24 +66,23 @@ services::Status computeEigenvectorsInplace(size_t nFeatures, algorithmFPType * 
  *  \brief Kernel for Spectral Embedding calculation
  */
 template <typename algorithmFPType, Method method, CpuType cpu>
-services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * eTable,
-                                                                                const KernelParameter & par)
+services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(const NumericTable * xTable, NumericTable * embeddingTable,
+                                                                                NumericTable * eigenTable, const KernelParameter & par)
 {
     services::Status status;
     std::cout << "inside DAAL kernel" << std::endl;
-    std::cout << "Params: " << par.numEmb << " " << par.numNeighbors << std::endl;
-    size_t k       = par.numEmb;
-    size_t filtNum = par.numNeighbors + 1;
+    std::cout << "Params: " << par.numberOfEmbeddings << " " << par.numberOfNeighbors << std::endl;
+    size_t k       = par.numberOfEmbeddings;
+    size_t filtNum = par.numberOfNeighbors + 1;
     size_t n       = xTable->getNumberOfRows(); /* Number of input feature vectors   */
 
     SharedPtr<HomogenNumericTable<algorithmFPType> > tmpMatrixPtr =
         HomogenNumericTable<algorithmFPType>::create(n, n, NumericTable::doAllocate, &status);
-    if (!status)
-    {
-        return status;
-    }
-    NumericTable * covOutput = tmpMatrixPtr.get();
-    NumericTable * a0        = const_cast<NumericTable *>(xTable);
+
+    DAAL_CHECK_STATUS_VAR(status);
+    NumericTable * covOutput   = tmpMatrixPtr.get();
+    NumericTable * a0          = const_cast<NumericTable *>(xTable);
+    NumericTable * eigenvalues = const_cast<NumericTable *>(eigenTable);
 
     // Compute cosine distances matrix
     {
@@ -99,6 +98,7 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     algorithmFPType L, R, M;
     // Use binary search to find such d that the number of verticies having distance <= d is filtNum
     const size_t binarySearchIterNum = 20;
+    // TODO: add parallel_for
     for (size_t i = 0; i < n; ++i)
     {
         L    = 0; // min possible cos distance
@@ -170,10 +170,13 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     // }
 
     // Find the eigen vectors and eigne values of the matix
-    TArray<algorithmFPType, cpu> eigenvalues(n);
-    DAAL_CHECK_MALLOC(eigenvalues.get());
+    //TArray<algorithmFPType, cpu> eigenvalues(n);
+    //DAAL_CHECK_MALLOC(eigenvalues.get());
+    WriteRows<algorithmFPType, cpu> eigenValuesBlock(eigenvalues, 0, n);
+    DAAL_CHECK_BLOCK_STATUS(eigenValuesBlock);
+    algorithmFPType * eigenValuesPtr = eigenValuesBlock.get();
 
-    status |= computeEigenvectorsInplace<algorithmFPType, cpu>(n, x, eigenvalues.get());
+    status |= computeEigenvectorsInplace<algorithmFPType, cpu>(n, x, eigenValuesPtr);
     DAAL_CHECK_STATUS_VAR(status);
 
     // std::cout << "Eigen vectors: " << std::endl;
@@ -185,7 +188,7 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
     // }
 
     // Fill the output matrix with eigen vectors corresponding to the smallest eigen values
-    WriteOnlyRows<algorithmFPType, cpu> embedMatrix(eTable, 0, n);
+    WriteOnlyRows<algorithmFPType, cpu> embedMatrix(embeddingTable, 0, n);
     DAAL_CHECK_BLOCK_STATUS(embedMatrix);
     algorithmFPType * embed = embedMatrix.get();
 

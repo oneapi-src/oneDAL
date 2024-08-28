@@ -88,6 +88,16 @@ public:
         return *this;
     }
 
+    /// The matrix of size $n \\times 1$ with
+    /// eigen values of Laplassian matrix.
+    /// @remark default = table{}
+    const table& get_eigen_values() const;
+
+    auto& set_eigen_values(const table& value) {
+        set_eigen_values_impl(value);
+        return *this;
+    }
+
     /// Result options that indicates availability of the properties
     /// @remark default = default_result_options<Task>
     const result_option_id& get_result_options() const;
@@ -99,6 +109,7 @@ public:
 
 protected:
     void set_embedding_impl(const table&);
+    void set_eigen_values_impl(const table&);
     void set_result_options_impl(const result_option_id&);
 
 private:
