@@ -26,6 +26,8 @@
 
 #include "oneapi/dal/algo/basic_statistics/backend/basic_statistics_interop.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace oneapi::dal::basic_statistics::backend {
 
 namespace bk = dal::backend;
@@ -174,23 +176,44 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
     }
 
     if (res_op_partial.test(result_options::sum)) {
-        const auto sums_nd =
+        auto sums_nd =
             pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
+        if (comm_.get_rank_count() > 1) {
+            auto sums_nd_copy =
+                pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+            auto copy_event = copy(q, sums_nd_copy, sums_nd, {});
+            copy_event.wait_and_throw();
+            sums_nd = sums_nd_copy;
+        }
+
         {
             ONEDAL_PROFILER_TASK(allreduce_sums, q);
             comm_.allreduce(sums_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
         }
-        const auto sums2_nd = pr::table2ndarray_1d<Float>(q,
-                                                          input.get_partial_sum_squares(),
-                                                          sycl::usm::alloc::device);
+        auto sums2_nd = pr::table2ndarray_1d<Float>(q,
+                                                    input.get_partial_sum_squares(),
+                                                    sycl::usm::alloc::device);
+        if (comm_.get_rank_count() > 1) {
+            auto sums2_nd_copy =
+                pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+            auto copy_event = copy(q, sums2_nd_copy, sums2_nd, {});
+            copy_event.wait_and_throw();
+            sums2_nd = sums2_nd_copy;
+        }
         {
             ONEDAL_PROFILER_TASK(allreduce_sums, q);
             comm_.allreduce(sums2_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
         }
-        const auto sums2cent_nd =
-            pr::table2ndarray_1d<Float>(q,
-                                        input.get_partial_sum_squares_centered(),
-                                        sycl::usm::alloc::device);
+        auto sums2cent_nd = pr::table2ndarray_1d<Float>(q,
+                                                        input.get_partial_sum_squares_centered(),
+                                                        sycl::usm::alloc::device);
+        if (comm_.get_rank_count() > 1) {
+            auto sums2cent_nd_copy =
+                pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+            auto copy_event = copy(q, sums2cent_nd_copy, sums2cent_nd, {});
+            copy_event.wait_and_throw();
+            sums2cent_nd = sums2cent_nd_copy;
+        }
         {
             ONEDAL_PROFILER_TASK(allreduce_sums, q);
             comm_.allreduce(sums2cent_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
@@ -210,18 +233,20 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
 
         if (res_op.test(result_options::sum)) {
             ONEDAL_ASSERT(input.get_partial_sum().get_column_count() == column_count);
-            res.set_sum(input.get_partial_sum());
+            res.set_sum(homogen_table::wrap(sums_nd.flatten(q, { update_event }), 1, column_count));
         }
 
         if (res_op.test(result_options::sum_squares)) {
             ONEDAL_ASSERT(input.get_partial_sum_squares().get_column_count() == column_count);
-            res.set_sum_squares(input.get_partial_sum_squares());
+            res.set_sum_squares(
+                homogen_table::wrap(sums2_nd.flatten(q, { update_event }), 1, column_count));
         }
 
         if (res_op.test(result_options::sum_squares_centered)) {
             ONEDAL_ASSERT(input.get_partial_sum_squares_centered().get_column_count() ==
                           column_count);
-            res.set_sum_squares_centered(input.get_partial_sum_squares_centered());
+            res.set_sum_squares_centered(
+                homogen_table::wrap(sums2cent_nd.flatten(q, { update_event }), 1, column_count));
         }
 
         if (res_op.test(result_options::mean)) {
@@ -264,3 +289,5 @@ template class finalize_compute_kernel_dense_impl<float>;
 template class finalize_compute_kernel_dense_impl<double>;
 
 } // namespace oneapi::dal::basic_statistics::backend
+
+#endif // ONEDAL_DATA_PARALLEL

@@ -20,6 +20,8 @@
 
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 
+#ifdef ONEDAL_DATA_PARALLEL
+
 namespace oneapi::dal::linear_regression::backend {
 
 namespace be = dal::backend;
@@ -47,14 +49,25 @@ train_result<Task> finalize_train_kernel_norm_eq_impl<Float, Task>::operator()(
     const auto feature_count = ext_feature_count - compute_intercept;
 
     const pr::ndshape<2> xtx_shape{ ext_feature_count, ext_feature_count };
-
-    const auto xtx_nd =
-        pr::table2ndarray<Float>(q, input.get_partial_xtx(), sycl::usm::alloc::device);
-    const auto xty_nd = pr::table2ndarray<Float, pr::ndorder::f>(q,
-                                                                 input.get_partial_xty(),
-                                                                 sycl::usm::alloc::device);
-
     const pr::ndshape<2> betas_shape{ response_count, feature_count + 1 };
+
+    auto xtx_nd = pr::table2ndarray<Float>(q, input.get_partial_xtx(), sycl::usm::alloc::device);
+    if (comm_.get_rank_count() > 1) {
+        auto xtx_nd_copy = pr::ndarray<Float, 2>::empty(q, xtx_shape, sycl::usm::alloc::device);
+        auto copy_event = copy(q, xtx_nd_copy, xtx_nd, {});
+        copy_event.wait_and_throw();
+        xtx_nd = xtx_nd_copy;
+    }
+    auto xty_nd = pr::table2ndarray<Float, pr::ndorder::f>(q,
+                                                           input.get_partial_xty(),
+                                                           sycl::usm::alloc::device);
+    if (comm_.get_rank_count() > 1) {
+        auto xty_nd_copy =
+            pr::ndarray<Float, 2, pr::ndorder::f>::empty(q, betas_shape, sycl::usm::alloc::device);
+        auto copy_event = copy(q, xty_nd_copy, xty_nd, {});
+        copy_event.wait_and_throw();
+        xty_nd = xty_nd_copy;
+    }
 
     const auto betas_size = check_mul_overflow(response_count, feature_count + 1);
     auto betas_arr = array<Float>::zeros(q, betas_size, alloc);
@@ -125,3 +138,5 @@ template class finalize_train_kernel_norm_eq_impl<float, task::regression>;
 template class finalize_train_kernel_norm_eq_impl<double, task::regression>;
 
 } // namespace oneapi::dal::linear_regression::backend
+
+#endif // ONEDAL_DATA_PARALLEL

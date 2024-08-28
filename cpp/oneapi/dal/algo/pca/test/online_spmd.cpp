@@ -79,8 +79,10 @@ public:
             }
             partial_results.push_back(partial_result);
         }
-        const auto train_result = this->finalize_train_override(pca_desc, partial_results);
+        auto train_result = this->finalize_train_override(pca_desc, partial_results);
+        base_t::check_train_result(pca_desc, data_fr, train_result);
 
+        train_result = this->finalize_train_override(pca_desc, partial_results);
         base_t::check_train_result(pca_desc, data_fr, train_result);
     }
 
