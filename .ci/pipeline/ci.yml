@@ -53,35 +53,8 @@ jobs:
   pool:
     vmImage: 'windows-latest'
   steps:
-  - task: Cache@2 # multiple paths per cache not supported yet. See https://github.com/microsoft/azure-pipelines-agent/pull/2834
-    inputs:
-      path: vcvarsall
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall" | .ci/scripts/cache_exclude_windows.sh'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\compiler
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler" | .ci/scripts/cache_exclude_windows.sh'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\tbb
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb" | .ci/scripts/cache_exclude_windows.sh'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
-    inputs:
-      path: opencl # caching of individual files is not supported, caching OpenCL.dll in a folder as a workaround.
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "opencl_folder" | .ci/scripts/cache_exclude_windows.sh'
-      cacheHitVar: CACHE_RESTORED
   - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: install
-    condition: ne(variables.CACHE_RESTORED, 'true')
-  - script: .ci/scripts/restore_registry.bat $(COMPILER_VERSION) $(TBB_VERSION)
-    displayName: restory registry on cache hit
-    condition: eq(variables.CACHE_RESTORED, 'true')
   - bash: cp vcvarsall/setvars-vcvarsall.bat "C:/Program Files (x86)/Intel/oneAPI/"
     displayName: restore setvars-vcvarsall.bat from cache
     condition: eq(variables.CACHE_RESTORED, 'true')
@@ -128,32 +101,8 @@ jobs:
   pool:
     vmImage: 'windows-2022'
   steps:
-  - task: Cache@2 # multiple paths per cache not supported yet. See https://github.com/microsoft/azure-pipelines-agent/pull/2834
-    inputs:
-      path: vcvarsall
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall"'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'false')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\compiler
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler"'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'false')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\tbb
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb"'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'false')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\mkl
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "mkl"'
-      cacheHitVar: CACHE_RESTORED
-  - script: .\.ci\scripts\install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
-    displayName: install toolkit
-    condition: ne(variables.CACHE_RESTORED, 'false')
+  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: install
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature
