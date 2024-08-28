@@ -63,26 +63,26 @@ jobs:
       key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall"'
       cacheHitVar: CACHE_RESTORED
   - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
+    condition: eq(variables.CACHE_RESTORED, 'false')
     inputs:
       path: C:\Program Files (x86)\Intel\oneAPI\compiler
       key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler"'
       cacheHitVar: CACHE_RESTORED
   - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
+    condition: eq(variables.CACHE_RESTORED, 'false')
     inputs:
       path: C:\Program Files (x86)\Intel\oneAPI\tbb
       key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb"'
       cacheHitVar: CACHE_RESTORED
   - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
+    condition: eq(variables.CACHE_RESTORED, 'false')
     inputs:
       path: C:\Program Files (x86)\Intel\oneAPI\mkl
       key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "mkl"'
       cacheHitVar: CACHE_RESTORED
-  - script: scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+  - script: .\.ci\scripts\install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: install toolkit
-    condition: ne(variables.CACHE_RESTORED, 'true')
+    condition: ne(variables.CACHE_RESTORED, 'false')
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature
