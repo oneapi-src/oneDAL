@@ -28,6 +28,8 @@ variables:
   TBB_VERSION : 'v2021.10.0'
   VM_IMAGE : 'ubuntu-22.04'
   SYSROOT_OS: 'jammy'
+  WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe'
+  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common'
 
 jobs:
 - job: 'FormatterChecks'
@@ -667,6 +669,32 @@ jobs:
   pool:
     vmImage: 'windows-2022'
   steps:
+  - task: Cache@2 # multiple paths per cache not supported yet. See https://github.com/microsoft/azure-pipelines-agent/pull/2834
+    inputs:
+      path: vcvarsall
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall"'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\compiler
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler"'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\tbb
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb"'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\mkl
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "mkl"'
+      cacheHitVar: CACHE_RESTORED
+  - script: scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: install toolkit
+    condition: ne(variables.CACHE_RESTORED, 'true')
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature
