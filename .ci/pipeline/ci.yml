@@ -32,22 +32,99 @@ variables:
   WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common'
 
 jobs:
-# - job: 'FormatterChecks'
-#   pool:
-#     vmImage: '$(VM_IMAGE)'
-#   steps:
-#     - script: |
-#         .ci/env/apt.sh clang-format
-#         .ci/env/editorconfig-checker.sh
-#       displayName: 'Install Dependencies'
-#     - script: |
-#         .ci/scripts/clang-format.sh
-#       displayName: 'clang-format check'
-#       failOnStderr: true
-#     - script: |
-#         editorconfig-checker
-#       displayName: 'editorconfig-checker'
-#       failOnStderr: true
+- job: 'FormatterChecks'
+  pool:
+    vmImage: '$(VM_IMAGE)'
+  steps:
+    - script: |
+        .ci/env/apt.sh clang-format
+        .ci/env/editorconfig-checker.sh
+      displayName: 'Install Dependencies'
+    - script: |
+        .ci/scripts/clang-format.sh
+      displayName: 'clang-format check'
+      failOnStderr: true
+    - script: |
+        editorconfig-checker
+      displayName: 'editorconfig-checker'
+      failOnStderr: true
+
+- job: 'WindowsMakeVC'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win_vc'
+    platform.type : 'win32e'
+  pool:
+    vmImage: 'windows-2022'
+  steps:
+  - task: Cache@2 # multiple paths per cache not supported yet. See https://github.com/microsoft/azure-pipelines-agent/pull/2834
+    inputs:
+      path: vcvarsall
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall"'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\compiler
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler"'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\tbb
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb"'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\mkl
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "mkl"'
+      cacheHitVar: CACHE_RESTORED
+  - script: scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: install toolkit
+    condition: ne(variables.CACHE_RESTORED, 'true')
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pip install cpufeature
+      pacman -S -y --noconfirm zip dos2unix tree
+    displayName: 'pacman'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      .\.ci\scripts\build.bat daal vc avx2
+    displayName: 'make daal'
+  - script: |
+      .\.ci\scripts\build.bat onedal_c vc avx2
+    displayName: 'make onedal_c'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      .\.ci\scripts\test.bat daal\cpp lib msvs cmake
+      .\.ci\scripts\test.bat daal\cpp dll msvs cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
+      .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) fail'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Uploading on fail'
+    condition: failed()
+    continueOnError: true
 
 # - job: 'LinuxMakeGNU_MKL'
 #   timeoutInMinutes: 0
@@ -660,80 +737,3 @@ jobs:
 #       targetPath: '$(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/'
 #     displayName: 'Upload conformance tests artifacts'
 #     continueOnError: true
-
-- job: 'WindowsMakeVC'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_win_vc'
-    platform.type : 'win32e'
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-  - task: Cache@2 # multiple paths per cache not supported yet. See https://github.com/microsoft/azure-pipelines-agent/pull/2834
-    inputs:
-      path: vcvarsall
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall"'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\compiler
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler"'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\tbb
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb"'
-      cacheHitVar: CACHE_RESTORED
-  - task: Cache@2
-    condition: eq(variables.CACHE_RESTORED, 'true')
-    inputs:
-      path: C:\Program Files (x86)\Intel\oneAPI\mkl
-      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "mkl"'
-      cacheHitVar: CACHE_RESTORED
-  - script: scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
-    displayName: install toolkit
-    condition: ne(variables.CACHE_RESTORED, 'true')
-  - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
-      pip install cpufeature
-      pacman -S -y --noconfirm zip dos2unix tree
-    displayName: 'pacman'
-  - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
-      bash .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      .\.ci\scripts\build.bat daal vc avx2
-    displayName: 'make daal'
-  - script: |
-      .\.ci\scripts\build.bat onedal_c vc avx2
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      .\.ci\scripts\test.bat daal\cpp lib msvs cmake
-      .\.ci\scripts\test.bat daal\cpp dll msvs cmake
-    displayName: 'daal/cpp examples'
-  - script: |
-      .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
-      .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
-      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
-      tree -h -I include __nuget/inteldal*/
-      ls -lh __nuget/inteldal*.nupkg
-    displayName: 'nuget pkg'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
