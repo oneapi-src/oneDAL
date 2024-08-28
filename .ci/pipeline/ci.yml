@@ -76,6 +76,14 @@ jobs:
     displayName: 'System info'
   - script: |
       call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      echo MKLROOT=%MKLROOT%
+    displayName: 'Display MKLROOT value'
+  - script: |
+      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      set
+    displayName: 'Print all environment variables'
+  - script: |
+      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
