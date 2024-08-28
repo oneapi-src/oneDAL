@@ -153,16 +153,21 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
     const auto nobs_nd = pr::table2ndarray_1d<Float>(q, input.get_partial_n_rows());
 
     auto rows_count_global = nobs_nd.get_data()[0];
+    auto is_distributed = (comm_.get_rank_count() > 1);
     {
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
-        comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+        if (is_distributed) {
+            comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+        }
     }
     if (res_op.test(result_options::min)) {
         ONEDAL_ASSERT(input.get_partial_min().get_column_count() == column_count);
         const auto min =
             pr::table2ndarray_1d<Float>(q, input.get_partial_min(), sycl::usm::alloc::device);
 
-        { comm_.allreduce(min.flatten(q, {}), spmd::reduce_op::min).wait(); }
+        if (is_distributed) {
+            comm_.allreduce(min.flatten(q, {}), spmd::reduce_op::min).wait();
+        }
         res.set_min(homogen_table::wrap(min.flatten(q, {}), 1, column_count));
     }
 
@@ -178,46 +183,46 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
     if (res_op_partial.test(result_options::sum)) {
         auto sums_nd =
             pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
-        if (comm_.get_rank_count() > 1) {
+        auto sums2_nd = pr::table2ndarray_1d<Float>(q,
+                                                    input.get_partial_sum_squares(),
+                                                    sycl::usm::alloc::device);
+
+        auto sums2cent_nd = pr::table2ndarray_1d<Float>(q,
+                                                        input.get_partial_sum_squares_centered(),
+                                                        sycl::usm::alloc::device);
+        if (is_distributed) {
             auto sums_nd_copy =
                 pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
             auto copy_event = copy(q, sums_nd_copy, sums_nd, {});
             copy_event.wait_and_throw();
             sums_nd = sums_nd_copy;
-        }
 
-        {
-            ONEDAL_PROFILER_TASK(allreduce_sums, q);
-            comm_.allreduce(sums_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
-        }
-        auto sums2_nd = pr::table2ndarray_1d<Float>(q,
-                                                    input.get_partial_sum_squares(),
-                                                    sycl::usm::alloc::device);
-        if (comm_.get_rank_count() > 1) {
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sums, q);
+                comm_.allreduce(sums_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
+            }
+
             auto sums2_nd_copy =
                 pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-            auto copy_event = copy(q, sums2_nd_copy, sums2_nd, {});
+            copy_event = copy(q, sums2_nd_copy, sums2_nd, {});
             copy_event.wait_and_throw();
             sums2_nd = sums2_nd_copy;
-        }
-        {
-            ONEDAL_PROFILER_TASK(allreduce_sums, q);
-            comm_.allreduce(sums2_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
-        }
-        auto sums2cent_nd = pr::table2ndarray_1d<Float>(q,
-                                                        input.get_partial_sum_squares_centered(),
-                                                        sycl::usm::alloc::device);
-        if (comm_.get_rank_count() > 1) {
+
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sums, q);
+                comm_.allreduce(sums2_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
+            }
             auto sums2cent_nd_copy =
                 pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
-            auto copy_event = copy(q, sums2cent_nd_copy, sums2cent_nd, {});
+            copy_event = copy(q, sums2cent_nd_copy, sums2cent_nd, {});
             copy_event.wait_and_throw();
             sums2cent_nd = sums2cent_nd_copy;
+            {
+                ONEDAL_PROFILER_TASK(allreduce_sums, q);
+                comm_.allreduce(sums2cent_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
+            }
         }
-        {
-            ONEDAL_PROFILER_TASK(allreduce_sums, q);
-            comm_.allreduce(sums2cent_nd.flatten(q, {}), spmd::reduce_op::sum).wait();
-        }
+
         auto [result_means,
               result_variance,
               result_raw_moment,
