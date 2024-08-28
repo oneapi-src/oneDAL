@@ -30,6 +30,7 @@ variables:
   SYSROOT_OS: 'jammy'
   WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe'
   WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common'
+  WINDOWS_CPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common'
 
 jobs:
 - job: 'FormatterChecks'
@@ -53,11 +54,14 @@ jobs:
   pool:
     vmImage: 'windows-latest'
   steps:
-  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_CPP_COMPONENTS)
     displayName: install
   - bash: cp vcvarsall/setvars-vcvarsall.bat "C:/Program Files (x86)/Intel/oneAPI/"
     displayName: restore setvars-vcvarsall.bat from cache
     condition: eq(variables.CACHE_RESTORED, 'true')
+  - script: |
+      dir "C:\Program Files (x86)\Intel\oneAPI"
+    displayName: 'List contents of Intel oneAPI directory'
   - bash: cp opencl/OpenCL.dll C:/Windows/System32/
     displayName: restore OpenCL.dll from cache
     condition: eq(variables.CACHE_RESTORED, 'true')
@@ -103,6 +107,9 @@ jobs:
   steps:
   - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: install
+  - script: |
+      dir "C:\Program Files (x86)\Intel\oneAPI"
+    displayName: 'List contents of Intel oneAPI directory'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature
