@@ -49,6 +49,77 @@ jobs:
       displayName: 'editorconfig-checker'
       failOnStderr: true
 
+- job: build_windows_dpcpp
+  pool:
+    vmImage: 'windows-latest'
+  steps:
+  - task: Cache@2 # multiple paths per cache not supported yet. See https://github.com/microsoft/azure-pipelines-agent/pull/2834
+    inputs:
+      path: vcvarsall
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "vcvarsall" | .ci/scripts/cache_exclude_windows.sh'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\compiler
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "compiler" | .ci/scripts/cache_exclude_windows.sh'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: C:\Program Files (x86)\Intel\oneAPI\tbb
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "tbb" | .ci/scripts/cache_exclude_windows.sh'
+      cacheHitVar: CACHE_RESTORED
+  - task: Cache@2
+    condition: eq(variables.CACHE_RESTORED, 'true')
+    inputs:
+      path: opencl # caching of individual files is not supported, caching OpenCL.dll in a folder as a workaround.
+      key: '"install" | "$(WINDOWS_BASEKIT_URL)" | "$(WINDOWS_DPCPP_COMPONENTS)" | "opencl_folder" | .ci/scripts/cache_exclude_windows.sh'
+      cacheHitVar: CACHE_RESTORED
+  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: install
+    condition: ne(variables.CACHE_RESTORED, 'true')
+  - script: .ci/scripts/restore_registry.bat $(COMPILER_VERSION) $(TBB_VERSION)
+    displayName: restory registry on cache hit
+    condition: eq(variables.CACHE_RESTORED, 'true')
+  - bash: cp vcvarsall/setvars-vcvarsall.bat "C:/Program Files (x86)/Intel/oneAPI/"
+    displayName: restore setvars-vcvarsall.bat from cache
+    condition: eq(variables.CACHE_RESTORED, 'true')
+  - bash: cp opencl/OpenCL.dll C:/Windows/System32/
+    displayName: restore OpenCL.dll from cache
+    condition: eq(variables.CACHE_RESTORED, 'true')
+  - script: .ci/scripts/build_windows.bat dpc++ $(VS_VER) $(SAMPLES_TAG)
+    displayName: build
+  - bash: .ci/scripts/cache_exclude_windows.sh
+    displayName: exclude unused files from cache
+    condition: ne(variables.CACHE_RESTORED, 'true')
+  - bash: |
+      mkdir -p vcvarsall
+      cp "C:/Program Files (x86)/Intel/oneAPI/setvars-vcvarsall.bat" vcvarsall/
+    displayName: copy setvars-vcvarsall.bat to a folder for caching
+    condition: ne(variables.CACHE_RESTORED, 'true')
+  - bash: |
+      mkdir -p opencl
+      cp C:/Windows/System32/OpenCL.dll opencl/
+    displayName: copy OpenCL.dll to a folder for caching
+    condition: ne(variables.CACHE_RESTORED, 'true')
+
+  # Delete the following if you don't want to save install logs
+  - task: CopyFiles@2
+    condition: ne(variables.CACHE_RESTORED, 'true')
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      contents: |
+        extract.log
+        bootstrapper*
+        installer*
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+  - task: PublishBuildArtifacts@1
+    condition: ne(variables.CACHE_RESTORED, 'true')
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: InstallLogs_$(Agent.JobName)
+
 - job: 'WindowsMakeVC'
   timeoutInMinutes: 0
   variables:
