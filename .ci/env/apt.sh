@@ -37,7 +37,7 @@ function install_dpcpp {
 }
 
 function install_mkl {
-    sudo apt-get install intel-oneapi-mkl-devel
+    sudo apt-get install -y intel-oneapi-mkl-devel
 }
 
 function install_clang-format {
