@@ -57,12 +57,14 @@ static partial_compute_result<Task> partial_compute(const context_gpu& ctx,
     const std::int64_t column_count = data.get_column_count();
     ONEDAL_ASSERT(column_count > 0);
 
+    auto assume_centered = desc.get_assume_centered();
+
     dal::detail::check_mul_overflow(row_count, column_count);
     dal::detail::check_mul_overflow(column_count, column_count);
 
     const auto data_nd = pr::table2ndarray<Float>(q, data, sycl::usm::alloc::device);
 
-    auto [sums, sums_event] = compute_sums(q, data_nd);
+    auto [sums, sums_event] = compute_sums(q, data_nd, assume_centered, {});
 
     auto [crossproduct, crossproduct_event] = compute_crossproduct(q, data_nd, { sums_event });
 

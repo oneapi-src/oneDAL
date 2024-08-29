@@ -42,8 +42,6 @@ function install_mkl {
 
 function install_clang-format {
     sudo apt-get install -y clang-format-14
-    sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
-    sudo update-alternatives --set clang-format /usr/bin/clang-format-14
 }
 
 function install_dev-base {
