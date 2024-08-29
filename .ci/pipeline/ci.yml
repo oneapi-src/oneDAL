@@ -60,35 +60,35 @@ jobs:
   - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: install
   - script: |
-      dir "C:\Program Files (x86)\Intel\oneAPI"
+      dir "C:\temp\oneapi"
     displayName: 'List contents of Intel oneAPI directory'
   - script: |
-      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      call "C:\temp\oneapi\setvars.bat"
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
   - script: |
-      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      call "C:\temp\oneapi\setvars.bat"
       set PATH=C:\msys64\usr\bin;%PATH%
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
       bash .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      call "C:\temp\oneapi\setvars.bat"
       echo MKLROOT=%MKLROOT%
     displayName: 'Display MKLROOT value'
   - script: |
-      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      call "C:\temp\oneapi\setvars.bat"
       set
     displayName: 'Print all environment variables'
   - script: |
-      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      call "C:\temp\oneapi\setvars.bat"
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |
-      call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+      call "C:\temp\oneapi\setvars.bat"
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
       .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
