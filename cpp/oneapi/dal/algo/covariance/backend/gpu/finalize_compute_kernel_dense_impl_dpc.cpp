@@ -66,28 +66,38 @@ result_t finalize_compute_kernel_dense_impl<Float>::operator()(const descriptor_
 
     const auto nobs_host = pr::table2ndarray<Float>(q, input.get_partial_n_rows());
     auto rows_count_global = nobs_host.get_data()[0];
-    {
-        ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
-        comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+    auto sums = pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
+    auto xtx =
+        pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
+
+    if (comm_.get_rank_count() > 1) {
+        {
+            ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
+            comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
+        }
+        auto sums_copy =
+            pr::ndarray<Float, 1>::empty(q, { column_count }, sycl::usm::alloc::device);
+        auto copy_event = copy(q, sums_copy, sums, {});
+        copy_event.wait_and_throw();
+        sums = sums_copy;
+        {
+            ONEDAL_PROFILER_TASK(allreduce_sums, q);
+            comm_.allreduce(sums.flatten(q, {}), spmd::reduce_op::sum).wait();
+        }
+
+        auto xtx_copy = pr::ndarray<Float, 2>::empty(q,
+                                                     { column_count, column_count },
+                                                     sycl::usm::alloc::device);
+        copy_event = copy(q, xtx_copy, xtx, {});
+        copy_event.wait_and_throw();
+        xtx = xtx_copy;
+        {
+            ONEDAL_PROFILER_TASK(allreduce_xtx, q);
+            comm_.allreduce(xtx.flatten(q, {}), spmd::reduce_op::sum).wait();
+        }
     }
 
     ONEDAL_ASSERT(rows_count_global > 0);
-
-    const auto sums =
-        pr::table2ndarray_1d<Float>(q, input.get_partial_sum(), sycl::usm::alloc::device);
-
-    {
-        ONEDAL_PROFILER_TASK(allreduce_sums, q);
-        comm_.allreduce(sums.flatten(q, {}), spmd::reduce_op::sum).wait();
-    }
-
-    const auto xtx =
-        pr::table2ndarray<Float>(q, input.get_partial_crossproduct(), sycl::usm::alloc::device);
-
-    {
-        ONEDAL_PROFILER_TASK(allreduce_xtx, q);
-        comm_.allreduce(xtx.flatten(q, {}), spmd::reduce_op::sum).wait();
-    }
 
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, cov_event] =

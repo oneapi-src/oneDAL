@@ -79,8 +79,9 @@ public:
             }
             partial_results.push_back(partial_result);
         }
-        const auto compute_result = this->finalize_compute_override(cov_desc, partial_results);
-
+        auto compute_result = this->finalize_compute_override(cov_desc, partial_results);
+        base_t::check_compute_result(cov_desc, data, compute_result);
+        compute_result = this->finalize_compute_override(cov_desc, partial_results);
         base_t::check_compute_result(cov_desc, data, compute_result);
     }
 
