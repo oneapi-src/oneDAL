@@ -202,8 +202,7 @@ COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
 topf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
 frompf = $(shell echo $1 | sed 's/111/ /g' | sed 's/222/(/g' | sed 's/333/)/g')
-frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
-
+frompf1 = $(shell echo "$1" | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
 
 #============================= TBB folders =====================================
 TBBDIR := $(if $(wildcard $(DIR)/__deps/tbb/$(_OS)/*),$(DIR)/__deps/tbb/$(_OS)$(if $(OS_is_win),/tbb))
