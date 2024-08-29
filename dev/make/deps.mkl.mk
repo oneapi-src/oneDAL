@@ -38,12 +38,12 @@ daaldep.lnx32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)mkl_sequential.$a
 daaldep.lnx32e.mkl.core := $(MKLFPKDIR.libia)/$(plib)mkl_core.$a $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64.$a
 daaldep.lnx32e.mkl.sycl := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl.$a
 
-daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)mkl_tbb_thread$d.$a
-daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)mkl_sequential.$a
-mkl_core_lib := $(MKLFPKDIR.libia)/$(plib)mkl_core$d.$a
-mkl_intel_ilp64_lib := $(MKLFPKDIR.libia)/$(plib)mkl_intel_ilp64$d.$a
+daaldep.win32e.mkl.thr := $(MKLFPKDIR.libia)/mkl_tbb_thread$d.$a
+daaldep.win32e.mkl.seq := $(MKLFPKDIR.libia)/mkl_sequential.$a
+mkl_core_lib := $(MKLFPKDIR.libia)/mkl_core$d.$a
+mkl_intel_ilp64_lib := $(MKLFPKDIR.libia)/mkl_intel_ilp64$d.$a
 daaldep.win32e.mkl.core := $(mkl_core_lib) $(mkl_intel_ilp64_lib)
-daaldep.win32e.mkl.sycl := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl.$d$a
+daaldep.win32e.mkl.sycl := $(MKLGPUFPKDIR.lib)/mkl_sycl.$d$a
 
 daaldep.mac32e.mkl.thr := $(MKLFPKDIR.libia)/$(plib)daal_mkl_thread.$a
 daaldep.mac32e.mkl.seq := $(MKLFPKDIR.libia)/$(plib)daal_mkl_sequential.$a
