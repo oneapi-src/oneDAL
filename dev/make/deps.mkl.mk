@@ -25,7 +25,7 @@ RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/mat
 
 MKLGPUFPKDIR:= $(MKLFPKDIR)
 MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include/oneapi
-MKLGPUFPKDIR.lib   := ,$(MKLGPUFPKDIR)/lib
+MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
 
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl.hpp
 mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)mkl_sycl$d.$a

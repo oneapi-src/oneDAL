@@ -33,8 +33,8 @@
     #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
 #endif
 
-#define VMLFN_CALL(f_name, f_suff, f_args) \
-    v##f_name f_args;                      \
+#define VMLFN_CALL(f_name, f_args) \
+    v##f_name f_args;              \
     return;
 
 namespace daal
@@ -106,27 +106,27 @@ struct MklMath<double, cpu>
         return r;
     }
 
-    static void vPowx(SizeType n, const double * in, double in1, double * out) { VMLFN_CALL(dPowx, HAynn, ((int)n, in, in1, out)); }
+    static void vPowx(SizeType n, const double * in, double in1, double * out) { VMLFN_CALL(dPowx, ((int)n, in, in1, out)); }
 
-    static void vCeil(SizeType n, const double * in, double * out) { VMLFN_CALL(dCeil, HAynn, ((int)n, in, out)); }
+    static void vCeil(SizeType n, const double * in, double * out) { VMLFN_CALL(dCeil, ((int)n, in, out)); }
 
-    static void vErfInv(SizeType n, const double * in, double * out) { VMLFN_CALL(dErfInv, HAynn, ((int)n, in, out)); }
+    static void vErfInv(SizeType n, const double * in, double * out) { VMLFN_CALL(dErfInv, ((int)n, in, out)); }
 
-    static void vErf(SizeType n, const double * in, double * out) { VMLFN_CALL(dErf, HAynn, ((int)n, in, out)); }
+    static void vErf(SizeType n, const double * in, double * out) { VMLFN_CALL(dErf, ((int)n, in, out)); }
 
-    static void vExp(SizeType n, const double * in, double * out) { VMLFN_CALL(dExp, HAynn, ((int)n, in, out)); }
+    static void vExp(SizeType n, const double * in, double * out) { VMLFN_CALL(dExp, ((int)n, in, out)); }
 
     static double vExpThreshold() { return -650.0; }
 
-    static void vTanh(SizeType n, const double * in, double * out) { VMLFN_CALL(dTanh, HAynn, ((int)n, in, out)); }
+    static void vTanh(SizeType n, const double * in, double * out) { VMLFN_CALL(dTanh, ((int)n, in, out)); }
 
-    static void vSqrt(SizeType n, const double * in, double * out) { VMLFN_CALL(dSqrt, HAynn, ((int)n, in, out)); }
+    static void vSqrt(SizeType n, const double * in, double * out) { VMLFN_CALL(dSqrt, ((int)n, in, out)); }
 
-    static void vLog(SizeType n, const double * in, double * out) { VMLFN_CALL(dLn, HAynn, ((int)n, in, out)); }
+    static void vLog(SizeType n, const double * in, double * out) { VMLFN_CALL(dLn, ((int)n, in, out)); }
 
-    static void vLog1p(SizeType n, const double * in, double * out) { VMLFN_CALL(dLog1p, HAynn, ((int)n, in, out)); }
+    static void vLog1p(SizeType n, const double * in, double * out) { VMLFN_CALL(dLog1p, ((int)n, in, out)); }
 
-    static void vCdfNormInv(SizeType n, const double * in, double * out) { VMLFN_CALL(dCdfNormInv, HAynn, ((int)n, in, out)); }
+    static void vCdfNormInv(SizeType n, const double * in, double * out) { VMLFN_CALL(dCdfNormInv, ((int)n, in, out)); }
 };
 
 /*
@@ -188,27 +188,27 @@ struct MklMath<float, cpu>
         return r;
     }
 
-    static void vPowx(SizeType n, const float * in, float in1, float * out) { VMLFN_CALL(sPowx, HAynn, ((int)n, in, in1, out)); }
+    static void vPowx(SizeType n, const float * in, float in1, float * out) { VMLFN_CALL(sPowx, ((int)n, in, in1, out)); }
 
-    static void vCeil(SizeType n, const float * in, float * out) { VMLFN_CALL(sCeil, HAynn, ((int)n, in, out)); }
+    static void vCeil(SizeType n, const float * in, float * out) { VMLFN_CALL(sCeil, ((int)n, in, out)); }
 
-    static void vErfInv(SizeType n, const float * in, float * out) { VMLFN_CALL(sErfInv, HAynn, ((int)n, in, out)); }
+    static void vErfInv(SizeType n, const float * in, float * out) { VMLFN_CALL(sErfInv, ((int)n, in, out)); }
 
-    static void vErf(SizeType n, const float * in, float * out) { VMLFN_CALL(sErf, HAynn, ((int)n, in, out)); }
+    static void vErf(SizeType n, const float * in, float * out) { VMLFN_CALL(sErf, ((int)n, in, out)); }
 
-    static void vExp(SizeType n, const float * in, float * out) { VMLFN_CALL(sExp, HAynn, ((int)n, in, out)); }
+    static void vExp(SizeType n, const float * in, float * out) { VMLFN_CALL(sExp, ((int)n, in, out)); }
 
     static float vExpThreshold() { return -75.0f; }
 
-    static void vTanh(SizeType n, const float * in, float * out) { VMLFN_CALL(sTanh, HAynn, ((int)n, in, out)); }
+    static void vTanh(SizeType n, const float * in, float * out) { VMLFN_CALL(sTanh, ((int)n, in, out)); }
 
-    static void vSqrt(SizeType n, const float * in, float * out) { VMLFN_CALL(sSqrt, HAynn, ((int)n, in, out)); }
+    static void vSqrt(SizeType n, const float * in, float * out) { VMLFN_CALL(sSqrt, ((int)n, in, out)); }
 
-    static void vLog(SizeType n, const float * in, float * out) { VMLFN_CALL(sLn, HAynn, ((int)n, in, out)); }
+    static void vLog(SizeType n, const float * in, float * out) { VMLFN_CALL(sLn, ((int)n, in, out)); }
 
-    static void vLog1p(SizeType n, const float * in, float * out) { VMLFN_CALL(sLog1p, HAynn, ((int)n, in, out)); }
+    static void vLog1p(SizeType n, const float * in, float * out) { VMLFN_CALL(sLog1p, ((int)n, in, out)); }
 
-    static void vCdfNormInv(SizeType n, const float * in, float * out) { VMLFN_CALL(sCdfNormInv, HAynn, ((int)n, in, out)); }
+    static void vCdfNormInv(SizeType n, const float * in, float * out) { VMLFN_CALL(sCdfNormInv, ((int)n, in, out)); }
 };
 
 } // namespace mkl
