@@ -36,7 +36,6 @@ COMPILER.lnx.icx = icx -m64 \
 COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -WX -Qopenmp-simd -Wno-deprecated-declarations
 
 link.dynamic.lnx.icx = icx -m64 -no-intel-lib
-link.dynamic.win.icx = icx -m64 -no-intel-lib
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
