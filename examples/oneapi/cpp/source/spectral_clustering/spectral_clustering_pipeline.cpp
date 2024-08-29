@@ -54,7 +54,8 @@ int main(int argc, char const *argv[]) {
         dal::spectral_embedding::descriptor<>()
             .set_neighbor_count(n_neighbors)
             .set_component_count(num_spks)
-            .set_result_options(dal::spectral_embedding::result_options::embedding);
+            .set_result_options(dal::spectral_embedding::result_options::embedding |
+                                dal::spectral_embedding::result_options::eigen_values);
 
     const auto spectral_embedding_result = dal::compute(spectral_embedding_desc, x_train);
 
@@ -62,6 +63,8 @@ int main(int argc, char const *argv[]) {
         spectral_embedding_result.get_embedding(); // Matrix with spectral embeddings m * num_spks
 
     std::cout << "Spectral embeddings:\n" << spectral_embeddings << std::endl;
+
+    std::cout << "Eigen values:\n" << spectral_embedding_result.get_eigen_values() << std::endl;
 
     const auto kmeans_init_desc =
         dal::kmeans_init::descriptor<float, dal::kmeans_init::method::plus_plus_dense>()

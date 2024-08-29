@@ -42,9 +42,13 @@ public:
     using result_t = sp_emb::compute_result<>;
     using descriptor_t = sp_emb::descriptor<Float, Method>;
 
-    auto get_descriptor(sp_emb::result_option_id compute_mode) const {
-        return descriptor_t().set_component_count(4).set_neighbor_count(2).set_result_options(
-            compute_mode);
+    auto get_descriptor(std::int64_t component_count,
+                        std::int64_t neighbor_count,
+                        sp_emb::result_option_id compute_mode) const {
+        return descriptor_t()
+            .set_component_count(component_count)
+            .set_neighbor_count(neighbor_count)
+            .set_result_options(compute_mode);
     }
 
     void gen_input() {
@@ -54,24 +58,66 @@ public:
         data_ = data_df.get_table(this->get_policy(), this->get_homogen_table_id());
     }
 
-    void test_default() {
-        std::cout << "Input" << std::endl;
-        // std::cout << data_ << std::endl;
-        auto desc = get_descriptor(sp_emb::result_options::embedding |
-                                   sp_emb::result_options::eigen_values);
-        //desc.set_component_count(5);
-        //desc.set_neighbor_count(4);
+    void test_gold_input(Float tol = 1e-5) {
+        constexpr std::int64_t n = 8;
+        constexpr std::int64_t p = 4;
+        constexpr std::int64_t neighbor_count = 5;
+        constexpr std::int64_t component_count = 4;
+
+        constexpr Float data[n * p] = { 0.49671415,  -0.1382643,  0.64768854,  1.52302986,
+                                        -0.23415337, -0.23413696, 1.57921282,  0.76743473,
+                                        -0.46947439, 0.54256004,  -0.46341769, -0.46572975,
+                                        0.24196227,  -1.91328024, -1.72491783, -0.56228753,
+                                        -1.01283112, 0.31424733,  -0.90802408, -1.4123037,
+                                        1.46564877,  -0.2257763,  0.0675282,   -1.42474819,
+                                        -0.54438272, 0.11092259,  -1.15099358, 0.37569802,
+                                        -0.60063869, -0.29169375, -0.60170661, 1.85227818 };
+
+        constexpr Float gth_embedding[n * component_count] = {
+            -0.353553391, 0.442842965,     0.190005876,  0.705830111,   -0.353553391, 0.604392576,
+            -0.247517958, -0.595235173,    -0.353553391, -0.391745507,  0.0443633719, -0.150208165,
+            -0.353553391, -0.142548722,    0.0125222995, -0.0318482841, -0.353553391, -0.499390711,
+            -0.20194266,  -0.000639679859, -0.353553391, 0.00809834849, -0.683462258, 0.273398265,
+            -0.353553391, -0.0977843445,   0.449358299,  0.0195905172,  -0.353553391, 0.0761353959,
+            0.436673029,  -0.220887591
+        };
+
+        constexpr Float gth_eigen_vals[n] = { 0,          3.32674524, 4.70361338, 5.26372220,
+                                              5.69343808, 6.63074948, 6.80173994, 7.57999167 };
+
+        auto desc = get_descriptor(
+            component_count,
+            neighbor_count,
+            sp_emb::result_options::embedding | sp_emb::result_options::eigen_values);
+
+        table data_ = homogen_table::wrap(data, n, p);
+
         INFO("run compute");
         auto compute_result = this->compute(desc, data_);
-        check_compute_result(compute_result);
-        std::cout << "Output" << std::endl;
-        std::cout << compute_result.get_embedding() << std::endl;
-        std::cout << "Eigen values:" << std::endl;
-        std::cout << compute_result.get_eigen_values() << std::endl;
-    }
+        auto embedding = compute_result.get_embedding();
+        // std::cout << "Output" << std::endl;
+        // std::cout << embedding << std::endl;
 
-    void check_compute_result(const spectral_embedding::compute_result<>& result) {
-        array<Float> data_arr = row_accessor<const Float>(data_).pull({ 0, -1 });
+        array<Float> emb_arr = row_accessor<const Float>(embedding).pull({ 0, -1 });
+        for (int j = 0; j < component_count; ++j) {
+            Float diff = 0, diff_rev = 0;
+            for (int i = 0; i < n; ++i) {
+                Float val = emb_arr[i * component_count + j];
+                Float gth_val = gth_embedding[i * component_count + j];
+                diff = std::max(diff, std::abs(val - gth_val));
+                diff_rev = std::max(diff_rev, std::abs(val + gth_val));
+            }
+            REQUIRE((diff < tol || diff_rev < tol));
+        }
+
+        auto eigen_values = compute_result.get_eigen_values();
+        // std::cout << "Eigen values:" << std::endl;
+        // std::cout << eigen_values << std::endl;
+
+        array<Float> eig_val_arr = row_accessor<const Float>(eigen_values).pull({ 0, -1 });
+        for (int i = 0; i < n; ++i) {
+            REQUIRE(std::abs(eig_val_arr[i] - gth_eigen_vals[i]) < tol);
+        }
     }
 
 protected:

@@ -43,15 +43,13 @@ public:
 };
 
 TEMPLATE_LIST_TEST_M(spectral_embedding_batch_test,
-                     "spectral_embedding tests",
+                     "spectral_embedding gold test",
                      "[spectral embedding][integration][cpu]",
                      spectral_embedding_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_gpu());
 
-    this->gen_dimensions();
-    this->gen_input();
-    this->test_default();
+    this->test_gold_input();
 }
 
 } // namespace oneapi::dal::spectral_embedding::test

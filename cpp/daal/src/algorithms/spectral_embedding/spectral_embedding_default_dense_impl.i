@@ -70,8 +70,8 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
                                                                                 NumericTable * eigenTable, const KernelParameter & par)
 {
     services::Status status;
-    std::cout << "inside DAAL kernel" << std::endl;
-    std::cout << "Params: " << par.numberOfEmbeddings << " " << par.numberOfNeighbors << std::endl;
+    // std::cout << "inside DAAL kernel" << std::endl;
+    // std::cout << "Params: " << par.numberOfEmbeddings << " " << par.numberOfNeighbors << std::endl;
     size_t k       = par.numberOfEmbeddings;
     size_t filtNum = par.numberOfNeighbors + 1;
     size_t n       = xTable->getNumberOfRows(); /* Number of input feature vectors   */
@@ -162,12 +162,14 @@ services::Status SpectralEmbeddingKernel<algorithmFPType, method, cpu>::compute(
         }
     }
 
+    // std::cout << "Laplacian matrix" << std::endl;
     // for (int i = 0; i < n; ++i) {
     //     for (int j = 0; j < n; ++j) {
     //         std::cout << x[i * n + j] << " ";
     //     }
     //     std::cout << std::endl;
     // }
+    // std::cout << "------" << std::endl;
 
     // Find the eigen vectors and eigne values of the matix
     //TArray<algorithmFPType, cpu> eigenvalues(n);

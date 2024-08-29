@@ -46,11 +46,11 @@ static compute_result<Task> call_daal_kernel(const context_cpu& ctx,
                                              const table& data) {
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
 
-    const std::int64_t p = data.get_column_count();
+    // const std::int64_t p = data.get_column_count();
     const std::int64_t n = data.get_row_count();
     std::int64_t k = desc.get_component_count();
 
-    std::cout << "inside oneDAL kernel: " << n << " " << p << std::endl;
+    // std::cout << "inside oneDAL kernel: " << n << " " << p << std::endl;
 
     auto result = compute_result<Task>{}.set_result_options(desc.get_result_options());
 
