@@ -202,7 +202,7 @@ COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 
 topf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
 frompf = $(shell echo $1 | sed 's/111/ /g' | sed 's/222/(/g' | sed 's/333/)/g')
-frompf1 = $(shell echo "$1" | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
+frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
 
 #============================= TBB folders =====================================
 TBBDIR := $(if $(wildcard $(DIR)/__deps/tbb/$(_OS)/*),$(DIR)/__deps/tbb/$(_OS)$(if $(OS_is_win),/tbb))
@@ -808,18 +808,18 @@ $(ONEAPI.tmpdir_y.dpc)/dll.res: $(CPPDIR.onedal)/onedal_dll.rc | $(ONEAPI.tmpdir
 # Threading parts
 #===============================================================================
 THR.srcs     := threading.cpp service_thread_pinner.cpp
-THR.tmpdir_a := $(WORKDIR)/threading_static
-THR.tmpdir_y := $(WORKDIR)/threading_dynamic
-THR_TBB.objs_a := $(addprefix $(THR.tmpdir_a)/,$(THR.srcs:%.cpp=%_tbb.$o))
-THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
+THR.tmpdir_a := $(subst \,/,$(WORKDIR)/threading_static)
+THR.tmpdir_y := $(subst \,/,$$(WORKDIR)/threading_dynamic)
+THR_TBB.objs_a := $(addprefix $(subst \,/,$(THR.tmpdir_a))/,$(subst \,/,$(THR.srcs:%.cpp=%_tbb.$o)))
+THR_TBB.objs_y := $(addprefix $(subst \,/,$(THR.tmpdir_y))/,$(subst \,/,$(THR.srcs:%.cpp=%_tbb.$o)))
 
 -include $(THR.tmpdir_a)/*.d
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
-$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.math_backend.thr); $(LINK.STATIC)
+$(WORKDIR.lib)/$(thr_tbb_a): $(subst \,/,$(THR_TBB.objs_a)) $(subst \,/,$(daaldep.math_backend.thr)); $(LINK.STATIC)
 
-$(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr) $(-sGRP) $(daaldep.math_backend.thr) $(-eGRP)
+$(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(subst \,/,$(daaldep.rt.thr)) $(-sGRP) $(subst \,/,$(daaldep.math_backend.thr)) $(-eGRP)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
 $(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 THR.objs_a := $(THR_TBB.objs_a)
@@ -970,8 +970,8 @@ ifneq ($(MKLGPUFPKDIR),)
 # $1: Path to the file to be copied
 # $2: Destination directory
 define .release.sycl.old
-_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
-$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1)))
+$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1))): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
 $(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
