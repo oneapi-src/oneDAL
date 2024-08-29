@@ -24,6 +24,10 @@ on:
 permissions:
   contents: read
 
+variables:
+  WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe'
+  WINDOWS_ALL_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel'
+
 jobs:
   build_lnx:
     name: oneDAL Linux nightly build
@@ -38,10 +42,11 @@ jobs:
           repository: oneapi-src/oneDAL
       - name: Install DPC++
         run: .ci/env/apt.sh dpcpp
-      - name: Install DPC++
+      - name: Install MKL
         run: .ci/env/apt.sh mkl
       - name: System Info
         run: |
+          source /opt/intel/oneapi/mkl/latest/env/vars.sh
           source /opt/intel/oneapi/compiler/latest/env/vars.sh
           .ci/scripts/describe_system.sh
       - name: Make daal
@@ -73,17 +78,13 @@ jobs:
           repository: oneapi-src/oneDAL
       - name: Install DPC++
         run: |
-          & .ci/scripts/install_dpc.ps1
-      - name: Prepare Intel OpenCL CPU runtime
-        run: |
-          # Store the unpacked runtime to centralize and reduce external downloads
-          & .ci/scripts/collect_opencl_rt.ps1
+          & .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_ALL_COMPONENTS)
       - name: System Info
         shell: cmd
         run: |
           set PATH=C:\msys64\usr\bin;%PATH%
           pip install cpufeature
-          call .\dpcpp\compiler\latest\env\vars.bat
+          call "C:\temp\oneapi\setvars.bat"
           bash .ci/scripts/describe_system.sh
       - name: Make daal
         shell: cmd

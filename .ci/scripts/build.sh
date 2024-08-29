@@ -159,9 +159,7 @@ fi
 
 #main actions
 echo "Call env scripts"
-if [ "${backend_config}" == "mkl" ]; then
-    echo "Sourcing fake MKL env"
-elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
+if [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
     export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then
     echo "Sourcing ref(openblas) env"

@@ -54,9 +54,6 @@ RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazeli
 # Installing openBLAS dependency
 RUN .ci/env/openblas.sh
 
-# Installing MKL dependency
-RUN ./dev/download_micromkl.sh
-
 # Installing oneTBB dependency
 RUN ./dev/download_tbb.sh
 

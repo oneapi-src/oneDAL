@@ -753,7 +753,8 @@ $(WORKDIR.lib)/$(parameters_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 ifdef OS_is_win
-$(WORKDIR.lib)/$(parameters_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(parameters_y)endif
+$(WORKDIR.lib)/$(parameters_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(parameters_y)
+endif
 endif
 
 ONEAPI.objs_y.dpc.lib := $(ONEAPI.objs_y.dpc.filtered)

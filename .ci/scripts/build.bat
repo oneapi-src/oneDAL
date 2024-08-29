@@ -28,12 +28,6 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
-@REM echo call .ci\env\tbb.bat
-@REM if "%TBBROOT%"=="" if not exist .\__deps\tbb\win\tbb call .ci\env\tbb.bat || set errorcode=1
-
-@REM echo call .\dev\download_micromkl.bat
-@REM if "%MKLROOT%"=="" if not exist .\__deps\oneMKL\win call .\dev\download_micromkl.bat || set errorcode=1
-
 echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
 if "%VISUALSTUDIOVERSION%"=="" call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
 
