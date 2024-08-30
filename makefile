@@ -284,16 +284,6 @@ mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.inc
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
-#============================= oneAPI folders =====================================
-ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)
-ONEAPIDIR := $(call topf,$$ONEAPI_ROOT)
-ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler/latest,$(info ONEAPI_ROOT not defined))
-ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
-
-libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib)))
-libsycl.default = sycl7$d.lib
-endif
-
 #===============================================================================
 # Release library names
 #===============================================================================
@@ -781,7 +771,7 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(REQDBG),-flink-huge-device-code,)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
