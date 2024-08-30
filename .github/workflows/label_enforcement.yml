@@ -1,0 +1,19 @@
+name: Enforce Labels
+on:
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+
+jobs:
+  label_checker:
+    strategy:
+      fail-fast: false
+    name: Please include labels on your pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: test
+        run: echo "${{ env.LABELS }}"
