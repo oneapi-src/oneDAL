@@ -94,7 +94,7 @@ public:
             partial_results.push_back(partial_result);
         }
 
-        const auto train_result = this->finalize_train_override(desc, partial_results);
+        auto train_result = this->finalize_train_override(desc, partial_results);
 
         SECTION("Checking intercept values") {
             if (desc.get_result_options().test(result_options::intercept))
@@ -102,6 +102,18 @@ public:
         }
 
         SECTION("Checking coefficient values") {
+            if (desc.get_result_options().test(result_options::coefficients))
+                base_t::check_if_close(train_result.get_coefficients(), base_t::beta_, tol);
+        }
+
+        train_result = this->finalize_train_override(desc, partial_results);
+
+        SECTION("Checking intercept values after double finalize") {
+            if (desc.get_result_options().test(result_options::intercept))
+                base_t::check_if_close(train_result.get_intercept(), base_t::bias_, tol);
+        }
+
+        SECTION("Checking coefficient values after double finalize") {
             if (desc.get_result_options().test(result_options::coefficients))
                 base_t::check_if_close(train_result.get_coefficients(), base_t::beta_, tol);
         }
