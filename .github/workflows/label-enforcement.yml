@@ -14,4 +14,8 @@ jobs:
 
     steps:
       - name: test
-        run: if [[ "${{ env.LABELS }}" == "[]" ]]; then exit 1; fi
+        run: |
+          if [[ "${{ env.LABELS }}" == "[]" ]]; then
+            echo "::error::No label set on the pull request"
+            exit 1
+          fi
