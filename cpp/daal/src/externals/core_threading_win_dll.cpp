@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /*
-//++c
+//++
 //  Implementation of "stubs" for threading layer functions for win dll case.
 //--
 */
