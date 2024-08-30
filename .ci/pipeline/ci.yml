@@ -29,7 +29,7 @@ variables:
   VM_IMAGE : 'ubuntu-22.04'
   SYSROOT_OS: 'jammy'
   WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe'
-  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.mkl.devel'
+  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
 
 jobs:
 - job: 'FormatterChecks'

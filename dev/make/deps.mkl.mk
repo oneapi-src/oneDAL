@@ -68,7 +68,7 @@ daaldep.mac32e.vml :=
 daaldep.mac32e.ipp :=
 
 daaldep.fbsd32e.vml :=
-daaldep.fbsd32e.ipp := (if $(COV.libia),$(COV.libia)/libcov.a)
+daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 
 daaldep.vml     := $(daaldep.$(PLAT).vml)
 daaldep.ipp     := $(daaldep.$(PLAT).ipp)
