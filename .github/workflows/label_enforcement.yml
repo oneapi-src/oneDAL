@@ -8,12 +8,10 @@ env:
 
 jobs:
   label_checker:
-    strategy:
-      fail-fast: false
     name: Please include labels on your pull request
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 5
 
     steps:
       - name: test
-        run: echo "${{ env.LABELS }}"
+        run: if [[ "${{ env.LABELS }}" == "[]" ]]; then exit 1; fi
