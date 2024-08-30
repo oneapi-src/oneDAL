@@ -88,8 +88,9 @@ public:
                 }
                 partial_results.push_back(partial_result);
             }
-            const auto compute_result = this->finalize_compute_override(bs_desc, partial_results);
-
+            auto compute_result = this->finalize_compute_override(bs_desc, partial_results);
+            base_t::check_compute_result(compute_mode, data, weights, compute_result);
+            compute_result = this->finalize_compute_override(bs_desc, partial_results);
             base_t::check_compute_result(compute_mode, data, weights, compute_result);
         }
         else {
@@ -103,8 +104,9 @@ public:
                 }
                 partial_results.push_back(partial_result);
             }
-            const auto compute_result = this->finalize_compute_override(bs_desc, partial_results);
-
+            auto compute_result = this->finalize_compute_override(bs_desc, partial_results);
+            base_t::check_compute_result(compute_mode, data, table{}, compute_result);
+            compute_result = this->finalize_compute_override(bs_desc, partial_results);
             base_t::check_compute_result(compute_mode, data, table{}, compute_result);
         }
     }
