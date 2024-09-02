@@ -181,7 +181,7 @@ public:
  *      - \ref Method     %Training methods of the implicit ALS algorithm in the first step of the distributed processing mode
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = fastCSR>
-class DAAL_EXPORT Distributed : public Training<distributed>
+class Distributed : public Training<distributed>
 {};
 
 /**
@@ -200,7 +200,7 @@ class DAAL_EXPORT Distributed : public Training<distributed>
  *      - \ref DistributedInput<step1Local> class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Training<distributed>
+class Distributed<step1Local, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::implicit_als::training::DistributedInput<step1Local> InputType;
@@ -307,7 +307,7 @@ private:
  *      - \ref DistributedInput<step2Master> class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
+class Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::implicit_als::training::DistributedInput<step2Master> InputType;
@@ -414,7 +414,7 @@ private:
  *      - \ref DistributedInput<step3Local> class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step3Local, algorithmFPType, method> : public Training<distributed>
+class Distributed<step3Local, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::implicit_als::training::DistributedInput<step3Local> InputType;
@@ -521,7 +521,7 @@ private:
  *      - \ref DistributedInput<step4Local> class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step4Local, algorithmFPType, method> : public Training<distributed>
+class Distributed<step4Local, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::implicit_als::training::DistributedInput<step4Local> InputType;

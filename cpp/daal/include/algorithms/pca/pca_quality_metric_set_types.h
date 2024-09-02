@@ -64,9 +64,9 @@ namespace interface1
 * \snippet pca/pca_quality_metric_set_types.h Parameter source code
 */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
-    Parameter(size_t nComponents = 0, size_t nFeatures = 0);
+    DAAL_EXPORT Parameter(size_t nComponents = 0, size_t nFeatures = 0);
 
     virtual ~Parameter() {}
 
@@ -78,7 +78,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     *
      * \return Status of computations
      */
-    virtual services::Status check() const;
+    DAAL_EXPORT virtual services::Status check() const;
 };
 /* [Parameter source code] */
 
@@ -87,7 +87,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
  * \brief Class that implements functionality of the collection of result objects of the quality metrics algorithm
  *        specialized for using with the pca algorithm
  */
-class DAAL_EXPORT ResultCollection : public algorithms::quality_metric_set::ResultCollection
+class ResultCollection : public algorithms::quality_metric_set::ResultCollection
 {
 public:
     ResultCollection() {}
@@ -98,7 +98,7 @@ public:
      * \param[in] id   Identifier of the result
      * \return         Result that corresponds to the given identifier
      */
-    algorithms::ResultPtr getResult(QualityMetricId id) const;
+    DAAL_EXPORT algorithms::ResultPtr getResult(QualityMetricId id) const;
 };
 typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
 
@@ -107,7 +107,7 @@ typedef services::SharedPtr<ResultCollection> ResultCollectionPtr;
  * \brief Class that implements functionality of the collection of input objects of the quality metrics algorithm
  *        specialized for using with the pca algorithm
  */
-class DAAL_EXPORT InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
+class InputDataCollection : public algorithms::quality_metric_set::InputDataCollection
 {
 public:
     InputDataCollection() {}
@@ -118,7 +118,7 @@ public:
      * \param[in] id    Identifier of the input object
      * \return          %Input object that corresponds to the given identifier
      */
-    algorithms::InputPtr getInput(QualityMetricId id) const;
+    DAAL_EXPORT algorithms::InputPtr getInput(QualityMetricId id) const;
 };
 typedef services::SharedPtr<InputDataCollection> InputDataCollectionPtr;
 

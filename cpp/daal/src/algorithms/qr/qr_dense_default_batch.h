@@ -42,7 +42,7 @@ namespace interface1
  * \param[in] method    Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     const Input * in = static_cast<const Input *>(input);
     return allocateImpl<algorithmFPType>(in->get(data)->getNumberOfColumns(), in->get(data)->getNumberOfRows());
@@ -55,7 +55,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
  * \param[in] method         Algorithm method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const int method)
 {
     const OnlinePartialResult * in = static_cast<const OnlinePartialResult *>(partialResult);
     return allocateImpl<algorithmFPType>(in->getNumberOfColumns(), in->getNumberOfRows());
@@ -68,7 +68,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * part
  * \param[in]  n  Number of rows in the input data set
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocateImpl(size_t m, size_t n)
+Status Result::allocateImpl(size_t m, size_t n)
 {
     Status s;
     if (n == 0)
