@@ -73,6 +73,12 @@ secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack
 secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT
+ifeq ($(COMPILER),vc)
+    secure.opts.link.win := /DYNAMICBASE /NXCOMPAT
+else ifeq ($(COMPILER),msvc)
+    secure.opts.link.win := /DYNAMICBASE /NXCOMPAT
+endif
+
 secure.opts.link.lnx = -z relro -z now -z noexecstack
 secure.opts.link.mac =
 
