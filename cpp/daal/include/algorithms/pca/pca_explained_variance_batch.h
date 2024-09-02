@@ -84,7 +84,7 @@ public:
  *      - \ref ResultId       %Result identifiers for the metric algorithm
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Batch : public daal::algorithms::quality_metric::Batch
+class Batch : public daal::algorithms::quality_metric::Batch
 {
 public:
     typedef algorithms::pca::quality_metric::explained_variance::Input InputType;

@@ -100,7 +100,7 @@ public:
  *
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Distributed
+class Distributed
 {};
 
 /**
@@ -117,7 +117,7 @@ class DAAL_EXPORT Distributed
  *
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+class Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
@@ -175,7 +175,7 @@ private:
  *
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
+class Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::multinomial_naive_bayes::training::DistributedInput InputType;

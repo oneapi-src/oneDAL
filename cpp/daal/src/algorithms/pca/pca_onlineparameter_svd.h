@@ -34,10 +34,10 @@ namespace pca
 {
 /** Constructs PCA parameters */
 template <typename algorithmFPType>
-DAAL_EXPORT OnlineParameter<algorithmFPType, svdDense>::OnlineParameter() {};
+OnlineParameter<algorithmFPType, svdDense>::OnlineParameter() {};
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status OnlineParameter<algorithmFPType, svdDense>::check() const
+services::Status OnlineParameter<algorithmFPType, svdDense>::check() const
 {
     return services::Status();
 }

@@ -72,6 +72,7 @@ extern "C"
 
 #define __DAAL_VSL_SS_ERROR_BAD_QUANT_ORDER       -4022
 #define __DAAL_VSL_SS_ERROR_INDICES_NOT_SUPPORTED -4085
+
 }
 
 namespace daal

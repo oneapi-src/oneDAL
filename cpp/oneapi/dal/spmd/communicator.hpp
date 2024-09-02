@@ -66,6 +66,8 @@ public:
     virtual std::int64_t get_rank() = 0;
     virtual std::int64_t get_rank_count() = 0;
     virtual std::int64_t get_default_root_rank() = 0;
+    virtual bool get_mpi_offload_support() = 0;
+    virtual bool use_sendrecv_replace_alternative() = 0;
 
     virtual void barrier() = 0;
 
@@ -88,7 +90,8 @@ public:
                                             std::int64_t count,
                                             const data_type& dtype,
                                             std::int64_t destination_rank,
-                                            std::int64_t source_rank) = 0;
+                                            std::int64_t source_rank,
+                                            byte_t* recv_buf = nullptr) = 0;
 };
 
 template <typename MemoryAccessKind>

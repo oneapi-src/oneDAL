@@ -38,7 +38,7 @@ namespace interface3
  * \param[in] method Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method)
+services::Status Result::allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method)
 {
     size_t nComponents           = 0;
     DAAL_UINT64 resultsToCompute = eigenvalue;
@@ -63,8 +63,7 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * in
  * \param[in] method        Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter,
-                                              const Method method)
+services::Status Result::allocate(const daal::algorithms::PartialResult * partialResult, daal::algorithms::Parameter * parameter, const Method method)
 {
     size_t nComponents           = 0;
     DAAL_UINT64 resultsToCompute = eigenvalue;
@@ -75,10 +74,10 @@ DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::PartialRes
     return impl->allocate<algorithmFPType>(partialResult, nComponents, resultsToCompute);
 }
 
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter,
-                                                                    const Method method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
-                                                                    daal::algorithms::Parameter * parameter, const Method method);
+template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter,
+                                                        const Method method);
+template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
+                                                        daal::algorithms::Parameter * parameter, const Method method);
 
 } // namespace interface3
 } // namespace pca

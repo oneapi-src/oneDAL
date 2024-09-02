@@ -111,7 +111,7 @@ public:
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
-class DAAL_EXPORT Distributed : public Training<distributed>
+class Distributed : public Training<distributed>
 {};
 
 /**
@@ -134,7 +134,7 @@ class DAAL_EXPORT Distributed : public Training<distributed>
  *      - \ref prediction::interface1::Batch class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+class Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
@@ -194,7 +194,7 @@ private:
  *      - \ref prediction::interface1::Batch class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
+class Distributed<step2Master, algorithmFPType, method> : public Training<distributed>
 {
 public:
     typedef algorithms::linear_regression::training::DistributedInput<step2Master> InputType;

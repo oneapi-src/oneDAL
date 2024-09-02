@@ -109,7 +109,7 @@ public:
  *      - Result class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class DAAL_EXPORT Distributed
+class Distributed
 {};
 
 /**
@@ -128,7 +128,7 @@ class DAAL_EXPORT Distributed
  *      - \ref ResultId         Identifiers of the results of the low order moments algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+class Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
@@ -185,7 +185,7 @@ private:
  *      - \ref ResultId         Identifiers of the results of the low order moments algorithm
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::low_order_moments::DistributedInput<step2Master> InputType;
