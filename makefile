@@ -124,7 +124,6 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
--DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
 -isystem := $(if $(OS_is_win),-I,-isystem)
 -sGRP  = $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
