@@ -93,7 +93,7 @@ struct RefService
     {
         return 0;
         // Old one - just to see what the method is for
-        // return fpk_serv_set_memory_limit(type, limit);
+        // return mkl_serv_set_memory_limit(type, limit);
     }
 
     static size_t serv_strnlen_s(const char * src, size_t slen)

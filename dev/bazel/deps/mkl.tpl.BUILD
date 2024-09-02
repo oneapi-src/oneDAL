@@ -3,34 +3,12 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "headers",
     hdrs = glob([
-        "include/*.h",
-        "include/oneapi/*.hpp",
-        "include/oneapi/mkl/*.hpp",
-        "include/oneapi/mkl/blas/*.hpp",
-        "include/oneapi/mkl/spblas/*.hpp",
-        "include/oneapi/mkl/lapack/*.hpp",
-        "include/oneapi/mkl/vm/*.hpp",
-        "include/oneapi/mkl/vm/device/*.hpp",
-        "include/oneapi/mkl/vm/device/detail/*.hpp",
-        "include/oneapi/mkl/rng/*.hpp",
-        "include/oneapi/mkl/rng/detail/*.hpp",
-        "include/oneapi/mkl/rng/device/*.hpp",
-        "include/oneapi/mkl/rng/device/detail/*.hpp"
+        "include/**/*.h",
+        "include/**/*.hpp",
     ]),
     includes = [
         "include",
-        "include/oneapi",
-        "include/oneapi/mkl",
-        "include/oneapi/mkl/blas",
-        "include/oneapi/mkl/spblas",
-        "include/oneapi/mkl/lapack",
-        "include/oneapi/mkl/vm",
-        "include/oneapi/mkl/vm/device",
-        "include/oneapi/mkl/vm/device/detail",
-        "include/oneapi/mkl/rng",
-        "include/oneapi/mkl/rng/device",
-        "include/oneapi/mkl/rng/device/detail",
-        "include/oneapi/mkl/rng/detail" ],
+    ],
     defines = [
         "MKL_ILP64"
     ],
@@ -84,17 +62,11 @@ cc_library(
 )
 
 cc_library(
-    name = "headers_dpc",
-    hdrs = glob(["include/*.h", "include/*.hpp"]),
-    includes = [ "include" ],
-)
-
-cc_library(
     name = "mkl_dpc",
     srcs = [
         "lib/libmkl_sycl.a",
     ],
     deps = [
-        ":headers_dpc",
+        ":headers",
     ],
 )
