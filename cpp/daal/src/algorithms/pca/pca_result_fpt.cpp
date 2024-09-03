@@ -38,7 +38,7 @@ namespace interface3
  * \param[in] method Computation method
  */
 template <typename algorithmFPType>
-services::Status Result::allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter, const Method method)
 {
     size_t nComponents           = 0;
     DAAL_UINT64 resultsToCompute = eigenvalue;
@@ -74,8 +74,8 @@ services::Status Result::allocate(const daal::algorithms::PartialResult * partia
     return impl->allocate<algorithmFPType>(partialResult, nComponents, resultsToCompute);
 }
 
-template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter,
-                                                        const Method method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, daal::algorithms::Parameter * parameter,
+                                                                    const Method method);
 template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
                                                         daal::algorithms::Parameter * parameter, const Method method);
 
