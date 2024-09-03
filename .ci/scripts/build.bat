@@ -28,9 +28,6 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
-echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-if "%VISUALSTUDIOVERSION%"=="" call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
-
 echo make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3
 make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
 
