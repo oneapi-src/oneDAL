@@ -72,65 +72,7 @@ secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack
 
 secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 
-ifeq ($(COMPILER),vc)
-    LD := $(if $(REQDBG),$(if $(OS_is_win),/LD,))
-else ifeq ($(COMPILER),msvc)
-    LD := $(if $(REQDBG),$(if $(OS_is_win),/LD,))
-else
-    LD := $(if $(REQDBG),$(if $(OS_is_win),-LD,))
-endif
-
-ifeq ($(COMPILER),vc)
-    DEBL := $(if $(REQDBG),$(if $(OS_is_win),/debug,))
-else ifeq ($(COMPILER),msvc)
-    DEBL := $(if $(REQDBG),$(if $(OS_is_win),/debug,))
-else
-    DEBL := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
-endif
-
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT
-ifeq ($(COMPILER),vc)
-    secure.opts.link.win := /DYNAMICBASE /NXCOMPAT
-else ifeq ($(COMPILER),msvc)
-    secure.opts.link.win := /DYNAMICBASE /NXCOMPAT
-endif
-
-link.dynamic.flags = -WX -nologo -map
-
-ifeq ($(COMPILER),vc)
-    link.dynamic.flags := /WX /nologo /map
-else ifeq ($(COMPILER),msvc)
-    link.dynamic.flags := /WX /nologo /map
-endif
-
-link.dynamic.flags_dpc = -WX -nologo -map -dll
-
-ifeq ($(COMPILER),vc)
-    link.dynamic.flags_dpc := /WX /nologo /map /dll
-else ifeq ($(COMPILER),msvc)
-    link.dynamic.flags_dpc := /WX /nologo /map /dll
-endif
-
-LINKER_FLAGS_TRANSFORM = $(patsubst %.def,-DEF:%.def,$1) 
-
-ifeq ($(COMPILER),vc)
-    LINKER_FLAGS_TRANSFORM = $(patsubst %.def,/DEF:%.def,$1)
-else ifeq ($(COMPILER),msvc)
-    LINKER_FLAGS_TRANSFORM = $(patsubst %.def,/DEF:%.def,$1)
-else
-    LINKER_FLAGS_TRANSFORM = $(patsubst %.def,-DEF:%.def,$1) 
-endif
-
-LINKER_FLAGS_TRANSFORM_DPC = $(patsubst %.def,-DEF:%.def,$(filter %.def,$1))
-
-ifeq ($(COMPILER),vc)
-    LINKER_FLAGS_TRANSFORM_DPC = $(patsubst %.def,/DEF:%.def,$(filter %.def,$1))
-else ifeq ($(COMPILER),msvc)
-    LINKER_FLAGS_TRANSFORM_DPC = $(patsubst %.def,/DEF:%.def,$(filter %.def,$1))
-else
-    LINKER_FLAGS_TRANSFORM_DPC = $(patsubst %.def,-DEF:%.def,$(filter %.def,$1))
-endif
-
 secure.opts.link.lnx = -z relro -z now -z noexecstack
 secure.opts.link.mac =
 
@@ -175,8 +117,8 @@ LINK.DYNAMIC = $(mkdir)$(call rm,$@)$(link.dynamic.cmd)
 link.dynamic.cmd = $(call link.dynamic.$(_OS),$(secure.opts.link.$(_OS)) $(or $1,$(^.no-mkdeps)) $(LOPT))
 link.dynamic.lnx = $(if $(link.dynamic.lnx.$(COMPILER)),$(link.dynamic.lnx.$(COMPILER)),$(error link.dynamic.lnx.$(COMPILER) must be defined)) \
                    -Wl,-soname,$(@F).$(MAJORBINARY) -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
-link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) $(link.dynamic.flags) $(DEBL) \
-                   $(patsubst %_link.txt,@%_link.txt,$(LINKER_FLAGS_TRANSFORM)) -out:$@
+link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) \
+                   $(patsubst %_link.txt,@%_link.txt,$(patsubst %.def,-DEF:%.def,$1)) -out:$@
 link.dynamic.mac = $(if $(link.dynamic.mac.$(COMPILER)),$(link.dynamic.mac.$(COMPILER)),$(error link.dynamic.mac.$(COMPILER) must be defined)) \
                    -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(subst .dylib,.$(MAJORBINARY).dylib,$(@F)) \
                    -Wl,-current_version,$(MAJORBINARY).$(MINORBINARY).0 -Wl,-compatibility_version,$(MAJORBINARY).0.0 \
@@ -189,8 +131,8 @@ dpc.link.dynamic.cmd = $(call dpc.link.dynamic.$(_OS),$(or $1,$(^.no-mkdeps)) $(
 dpc.link.dynamic.lnx = $(if $(link.dynamic.lnx.dpcpp),$(link.dynamic.lnx.dpcpp),$(error link.dynamic.lnx.dpcpp must be defined)) -Wl,-soname,$(@F).$(MAJORBINARY) \
                        $(secure.opts.link.lnx) -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
 dpc.link.dynamic.win = $(if $(link.dynamic.win.dpcpp),$(link.dynamic.win.dpcpp),$(error link.dynamic.win.dpcpp must be defined)) \
-                       $(LD) $(patsubst %_link.txt,@%_link.txt,$(filter %_link.txt,$1)) $(filter-out -IMPLIB:%,$(filter %.lib,$1)) -o$@ \
-                       -link $(secure.opts.link.win) $(filter -IMPLIB:%,$1) $(LINKER_FLAGS_TRANSFORM_DPC) $(link.dynamic.flags_dpc) $(DEBL) 
+                       -LD $(patsubst %_link.txt,@%_link.txt,$(filter %_link.txt,$1)) $(filter-out -IMPLIB:%,$(filter %.lib,$1)) -o$@ \
+                       -link $(secure.opts.link.win) $(filter -IMPLIB:%,$1) $(patsubst %.def,-DEF:%.def,$(filter %.def,$1)) -WX -nologo -map $(-DEBL) 
 
 LINK.DYNAMIC.POST = $(call link.dynamic.post.$(_OS))
 link.dynamic.post.lnx =
