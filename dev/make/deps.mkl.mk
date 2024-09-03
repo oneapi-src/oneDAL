@@ -18,22 +18,6 @@
 #  Math backend (MKL) definitions for makefile
 #--
 
-ifdef PLAT
-  ifeq ($(PLAT),lnx32e)
-    start_group := -Wl,--start-group
-    end_group := -Wl,--end-group
-  else ifeq ($(PLAT),mac32e)
-    start_group := -Wl,--start-group
-    end_group := -Wl,--end-group
-  else ifeq ($(PLAT),fbsd32e)
-    start_group := -Wl,--start-group
-    end_group := -Wl,--end-group
-  else ifeq ($(PLAT),win32e)
-    start_group :=
-    end_group :=
-  endif
-endif
-
 MKLFPKDIR:= $(subst \,/,$(MKLROOT))
 MKLFPKDIR.include := $(MKLFPKDIR)/include
 MKLFPKDIR.libia   := $(MKLFPKDIR)/lib
@@ -91,6 +75,6 @@ daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.vml     := $(daaldep.$(PLAT).vml)
 daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 
-daaldep.math_backend.ext := $(start_group) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl_interfaces)  $(daaldep.math_backend.thr)  $(daaldep.mkl) $(end_group)
+daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl_interfaces)  $(daaldep.math_backend.thr)  $(daaldep.mkl)
 daaldep.math_backend.sycl := $(daaldep.math_backend.sycl)
 daaldep.math_backend.oneapi := $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl)
