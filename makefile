@@ -123,6 +123,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
+-DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
 -EHsc  := $(if $(OS_is_win),-EHsc,)
 -isystem := $(if $(OS_is_win),-I,-isystem)
 -sGRP  = $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
@@ -201,6 +202,7 @@ COV.libia := $(if $(BULLSEYEROOT),$(BULLSEYEROOT)/lib)
 topf = $(shell echo $1 | sed 's/ /111/g' | sed 's/(/222/g' | sed 's/)/333/g' | sed 's/\\/\//g')
 frompf = $(shell echo $1 | sed 's/111/ /g' | sed 's/222/(/g' | sed 's/333/)/g')
 frompf1 = $(shell echo $1 | sed 's/111/\\ /g' | sed 's/222/(/g' | sed 's/333/)/g')
+
 
 #============================= TBB folders =====================================
 TBBDIR := $(if $(wildcard $(DIR)/__deps/tbb/$(_OS)/*),$(DIR)/__deps/tbb/$(_OS)$(if $(OS_is_win),/tbb))
@@ -458,12 +460,11 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) $(daaldep.math_backend.sycl) \
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
                                             $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
-
 $(CORE.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
 $(CORE.objs_a): COPT += -DMKL_ILP64 -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -735,7 +736,7 @@ ifeq ($(BUILD_PARAMETERS_LIB),yes)
 $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y)/dll.res,) | $(ONEAPI.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y): \
-    $(WORKDIR.lib)/$(oneapi_y) $(daaldep.math_backend.ext) \
+    $(WORKDIR.lib)/$(oneapi_y) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(daaldep.rt.seq)
@@ -772,7 +773,7 @@ ifeq ($(BUILD_PARAMETERS_LIB),yes)
 $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt): \
     $(PARAMETERS.objs_y.dpc.filtered) $(if $(OS_is_win),$(ONEAPI.tmpdir_y.dpc)/dll.res,) | $(ONEAPI.tmpdir_y.dpc)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(parameters_y.dpc): \
-    $(WORKDIR.lib)/$(oneapi_y.dpc) $(daaldep.math_backend.ext) \
+    $(WORKDIR.lib)/$(oneapi_y.dpc) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y.dpc)/$(parameters_y.dpc:%.$y=%_link.txt) ; $(DPC.LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y.dpc): LOPT += $(daaldep.rt.dpc)
