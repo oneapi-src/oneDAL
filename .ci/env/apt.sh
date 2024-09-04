@@ -64,7 +64,7 @@ function install_qemu_emulation_deb {
     set +e
 
     versions=(9.0.2 9.0.1 8.2.4)
-    suffixes="" "~bpo12+1"
+    suffixes=("" "~bpo12+1")
     found_version=""
     for version in ${versions[@]}; do
         for suffix in ${suffixes[@]}; do
@@ -74,7 +74,7 @@ function install_qemu_emulation_deb {
             then
                 echo "Found qemu version ${version}"
                 found_version=${qemu_deb}
-                break
+                break 2
             fi
         done
     done
