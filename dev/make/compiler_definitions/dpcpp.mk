@@ -32,7 +32,7 @@ COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
 COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX \
                      -Wno-deprecated-declarations -fsycl-device-code-split=per_kernel
-
+#-fsycl-max-parallel-link-jobs=2
 link.dynamic.lnx.dpcpp = icpx -fsycl -m64 -fsycl-device-code-split=per_kernel
 link.dynamic.win.dpcpp = icx -fsycl -m64 -fsycl-device-code-split=per_kernel
 

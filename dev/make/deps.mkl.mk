@@ -23,12 +23,11 @@ MKLDIR.include := $(MKLDIR)/include
 MKLDIR.libia   := $(MKLDIR)/lib
 RELEASEDIR.include.mklgpu := $(RELEASEDIR.include)/services/internal/sycl/math
 
-MKLGPUDIR:= $(MKLDIR)
+MKLGPUDIR:= $(subst \,/,$(MKLROOT))
 MKLGPUDIR.include := $(MKLGPUDIR)/include/oneapi
 MKLGPUDIR.lib   := $(MKLGPUDIR)/lib
 
 mklgpu.HEADERS := $(MKLGPUDIR.include)/mkl.hpp
-mklgpu.LIBS_A := $(MKLGPUDIR.lib)/$(plib)mkl_sycl$d.$a
 
 daaldep.math_backend.incdir := $(MKLDIR.include)
 daaldep.math_backend_oneapi.incdir := $(MKLDIR.include) $(MKLGPUDIR.include)
@@ -39,11 +38,11 @@ daaldep.lnx32e.mkl.core := $(MKLDIR.libia)/$(plib)mkl_core.$a
 daaldep.lnx32e.mkl.interfaces := $(MKLDIR.libia)/$(plib)mkl_intel_ilp64.$a
 daaldep.lnx32e.mkl.sycl := $(MKLGPUDIR.lib)/$(plib)mkl_sycl.$a
 
-daaldep.win32e.mkl.thr := $(MKLDIR.libia)/$(plib)mkl_tbb_thread$d.$a
-daaldep.win32e.mkl.seq := $(MKLDIR.libia)/$(plib)mkl_sequential.$a
-daaldep.lnx32e.mkl.interfaces := $(MKLDIR.libia)/$(plib)mkl_intel_ilp64.$a
-daaldep.win32e.mkl.core := $(MKLDIR.libia)/$(plib)mkl_core.$a
-daaldep.win32e.mkl.sycl := $(MKLGPUDIR.lib)/$(plib)mkl_sycl.$d$a
+daaldep.win32e.mkl.thr := $(MKLDIR.libia)/mkl_tbb_thread$d.$a
+daaldep.win32e.mkl.seq := $(MKLDIR.libia)/mkl_sequential.$a
+daaldep.win32e.mkl.interfaces := $(MKLDIR.libia)/mkl_intel_ilp64.$a
+daaldep.win32e.mkl.core := $(MKLDIR.libia)/mkl_core.$a
+daaldep.win32e.mkl.sycl := $(MKLGPUDIR.lib)/mkl_sycl.$d$a
 
 daaldep.fbsd32e.mkl.thr := $(MKLDIR.libia)/$(plib)mkl_tbb_thread.$a
 daaldep.fbsd32e.mkl.seq := $(MKLDIR.libia)/$(plib)mkl_sequential.$a

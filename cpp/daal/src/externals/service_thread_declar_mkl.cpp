@@ -21,6 +21,8 @@ namespace internal
 {
 namespace mkl
 {
+//It's a placeholder, the real function calls exact in xfunctions.
+//TODO: add correct threading control
 int mkl_serv_set_num_threads_local(int nthreads)
 {
     return nthreads;

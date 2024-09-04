@@ -21,7 +21,8 @@ namespace internal
 {
 namespace mkl
 {
+//It's a placeholder, the real function calls exact in xfunctions.
 int mkl_serv_set_num_threads_local(int nthreads);
-}
+} // namespace mkl
 } // namespace internal
 } // namespace daal
