@@ -959,6 +959,19 @@ $(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(R
 endif
 endif
 
+ifneq ($(MKLGPUFPKDIR),)
+# Copies the file to the destination directory and renames daal -> onedal
+# $1: Path to the file to be copied
+# $2: Destination directory
+define .release.sycl.old
+_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1)))
+$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1))): $(call frompf1,$1) | $2/. ; $(value cpy)
+endef
+
+$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
+$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
+endif
+
 _release_c: ./deploy/pkg-config/pkg-config.tpl
 	python ./deploy/pkg-config/generate_pkgconfig.py --output_dir $(RELEASEDIR.pkgconfig) --template_name ./deploy/pkg-config/pkg-config.tpl
 
@@ -1080,4 +1093,4 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(MKLFPKDIR)!"
+	@echo "1" "!$(MKLDIR)!"

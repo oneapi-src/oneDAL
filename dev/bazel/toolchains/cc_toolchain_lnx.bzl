@@ -286,6 +286,12 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-Wl,-z,relro,-z,now",
                     "-z",
                 ) +
+                add_linker_option_if_supported(
+                    repo_ctx,
+                    tools.dpcc,
+                    "-fsycl-max-parallel-link-jobs=1",
+                    "-fsycl-max-parallel-link-jobs=1",
+                ) +
                 add_compiler_option_if_supported(
                     # Have gcc return the exit code from ld.
                     repo_ctx,

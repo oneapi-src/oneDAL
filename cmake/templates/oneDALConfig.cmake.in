@@ -61,14 +61,8 @@ if(NOT DEFINED ONEDAL_SET_TBB_MANUALLY AND DEFINED SET_TBB_MANUALLY)
   set(ONEDAL_SET_TBB_MANUALLY ${SET_TBB_MANUALLY})
 endif()
 
-if ("${ONEDAL_LINK}" STREQUAL "" OR "${ONEDAL_LINK}" STREQUAL "dynamic")
+if ("${ONEDAL_LINK}" STREQUAL "")
     set(ONEDAL_LINK "dynamic")
-    set(MKL_SYCL_LINK "dynamic")
-    set(MKL_LINK "dynamic")
-elseif ("${ONEDAL_LINK}" STREQUAL "static")
-    set(ONEDAL_LINK "static")
-    set(MKL_SYCL_LINK "static")
-    set(MKL_LINK "static")
 elseif (NOT "${ONEDAL_LINK}" STREQUAL "static" AND NOT "${ONEDAL_LINK}" STREQUAL "dynamic")
     message(FATAL_ERROR "ONEDAL_LINK must be 'static' or 'dynamic'")
 endif()
@@ -122,20 +116,15 @@ elseif (@VERSIONS_SET@ STREQUAL "FALSE")
     string(REGEX REPLACE ".*#define __INTEL_DAAL_MINOR_BINARY__ ([0-9]+).*" "\\1" _dal_ver_minor_bin "${DAL_VERSION_INFO}")
 endif()
 
-set(MKL_THREADING "tbb_thread")
-find_package(MKL REQUIRED MKL::MKL_SYCL)
-
-
 if (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "no")
-    list(APPEND oneDAL_IMPORTED_TARGETS MKL::mkl_sycl${DAL_DEBUG_SUFFIX})
+    list(APPEND DAL_LIBS onedal_sycl${DAL_DEBUG_SUFFIX})
 elseif (ONEDAL_USE_DPCPP STREQUAL "no" AND ONEDAL_INTERFACE STREQUAL "yes")
     list(APPEND DAL_LIBS onedal${DAL_DEBUG_SUFFIX})
     if(ONEDAL_USE_PARAMETERS_LIBRARY)
         list(APPEND DAL_LIBS onedal_parameters${DAL_DEBUG_SUFFIX})
     endif()
 elseif (ONEDAL_USE_DPCPP STREQUAL "yes" AND ONEDAL_INTERFACE STREQUAL "yes")
-    list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX})
-    list(APPEND oneDAL_IMPORTED_TARGETS MKL::mkl_sycl${DAL_DEBUG_SUFFIX})
+    list(APPEND DAL_LIBS onedal_dpc${DAL_DEBUG_SUFFIX} onedal_sycl${DAL_DEBUG_SUFFIX})
     if(ONEDAL_USE_PARAMETERS_LIBRARY)
         list(APPEND DAL_LIBS onedal_parameters_dpc${DAL_DEBUG_SUFFIX})
     endif()
@@ -145,7 +134,7 @@ list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX})
 
 set(THREADING_TYPE "parallel")
 set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})
- 
+
 if (ONEDAL_SET_TBB_MANUALLY STREQUAL "no")
     find_package(TBB REQUIRED tbb tbbmalloc)
     if (NOT TBB_IMPORTED_TARGETS)
@@ -223,7 +212,7 @@ foreach (_dal_component ${DAL_LIBS})
 
     set(oneDAL_${_dal_component}_FOUND 0)
 
-    if (${ONEDAL_LINK} STREQUAL "static")
+    if (${ONEDAL_LINK} STREQUAL "static" OR ${_dal_component} STREQUAL "onedal_sycl")
         add_library(oneDAL::${_dal_component} STATIC IMPORTED)
         find_library(
             _dal_lib
@@ -244,7 +233,7 @@ foreach (_dal_component ${DAL_LIBS})
                             INTERFACE_INCLUDE_DIRECTORIES "${_dal_include_dir}")
     unset(_dal_include_dir)
 
-    if (WIN32 AND ${ONEDAL_LINK} STREQUAL "dynamic")
+    if (WIN32 AND ${ONEDAL_LINK} STREQUAL "dynamic" AND NOT ${_dal_component} STREQUAL "onedal_sycl")
         find_file(${_dal_component}_dll ${_dal_component}.${_dal_ver_major_bin}.dll PATHS "${_dal_root}/@DLL_REL_PATH@")
         set_target_properties(oneDAL::${_dal_component} PROPERTIES
                               IMPORTED_LOCATION "${${_dal_component}_dll}"
