@@ -28,6 +28,17 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
+
+IF "%VS_VER%"=="2017_build_tools" (
+    @call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+) ELSE (
+    IF "%VS_VER%"=="2019_build_tools" (
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    ) ELSE (
+          @call "C:\temp\oneapi\setvars-vcvarsall.bat" %VS_VER%
+    )
+)
+
 echo make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3
 make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
 
