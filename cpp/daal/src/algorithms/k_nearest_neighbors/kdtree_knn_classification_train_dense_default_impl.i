@@ -589,7 +589,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     size_t sumMid = 0;
     size_t i      = 0;
-    for (; i < __KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT; ++i)
+    for (; i < sampleCount - 1; ++i)
     {
         if (sumMid + masterHist[i] > (end - start) / 2)
         {
