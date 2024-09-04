@@ -110,7 +110,7 @@ public:
     *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const double cover = 0.0)
+    NodeId addLeafNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t classLabel, const double cover)
     {
         NodeId resId;
         _status |= addLeafNodeInternal(treeId, parentId, position, classLabel, cover, resId);
@@ -127,7 +127,7 @@ public:
     *  \param[in] cover           Cover (Hessian sum) of the node
     *  \return Node identifier
     */
-    NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba, const double cover = 0.0)
+    NodeId addLeafNodeByProba(const TreeId treeId, const NodeId parentId, const size_t position, const double * const proba, const double cover)
     {
         NodeId resId;
         _status |= addLeafNodeByProbaInternal(treeId, parentId, position, proba, cover, resId);
@@ -147,7 +147,7 @@ public:
     *  \return Node identifier
     */
     NodeId addSplitNode(const TreeId treeId, const NodeId parentId, const size_t position, const size_t featureIndex, const double featureValue,
-                        const int defaultLeft = 0, const double cover = 0.0)
+                        const int defaultLeft, const double cover)
     {
         NodeId resId;
         _status |= addSplitNodeInternal(treeId, parentId, position, featureIndex, featureValue, defaultLeft, cover, resId);
