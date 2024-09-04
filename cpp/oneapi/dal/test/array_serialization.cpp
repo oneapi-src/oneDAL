@@ -26,7 +26,7 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename T>
-class array_serialization_test : te::policy_fixture {
+class array_serialization_test : te::algo_fixture {
 public:
     array<T> get_empty_array() {
         return array<T>{};
@@ -110,11 +110,12 @@ TEMPLATE_LIST_TEST_M(array_serialization_test,
 }
 #endif
 
-TEMPLATE_TEST_M(array_serialization_test,
-                "deserialize array to wrong type",
-                "[badarg]",
-                float,
-                double) {
+using array_types_float = std::tuple<float, double>;
+
+TEMPLATE_LIST_TEST_M(array_serialization_test,
+                     "deserialize array to wrong type",
+                     "[badarg]",
+                     array_types_float) {
     const std::int64_t count = 10;
     const auto host_array = this->get_host_backed_array(count);
 

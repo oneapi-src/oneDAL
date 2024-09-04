@@ -25,9 +25,11 @@ namespace oneapi::dal::rbf_kernel::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class rbf_kernel_overflow_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count_x = 0x7FFFFFFFF;
     static constexpr std::int64_t row_count_y = 0x7FFFFFFFF;
     static constexpr std::int64_t column_count = 2;
@@ -45,11 +47,10 @@ public:
     }
 };
 
-#define RBF_KERNEL_OVERFLOW_TEST(name)        \
-    TEMPLATE_TEST_M(rbf_kernel_overflow_test, \
-                    name,                     \
-                    "[rbf_kernel][overflow]", \
-                    rbf_kernel::method::dense)
+using rbf_kernel_types = COMBINE_TYPES((float, double), (rbf_kernel::method::dense));
+
+#define RBF_KERNEL_OVERFLOW_TEST(name) \
+    TEMPLATE_LIST_TEST_M(rbf_kernel_overflow_test, name, "[rbf_kernel][overflow]", rbf_kernel_types)
 
 RBF_KERNEL_OVERFLOW_TEST("compute throws if result values table leads to overflow") {
     const auto rbf_kernel_desc = this->get_descriptor();
