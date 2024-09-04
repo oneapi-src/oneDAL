@@ -71,8 +71,9 @@ template <typename Float>
 auto syevd_computation(sycl::queue& queue,
                        pr::ndview<Float, 2>& corr,
                        const bk::event_vector& deps = {}) {
-    const std::int64_t column_count = corr.get_dimension(1);
+    sycl::event::wait_and_throw(deps);
 
+    const std::int64_t column_count = corr.get_dimension(1);
     auto eigenvalues = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
 
     std::int64_t lda = column_count;
