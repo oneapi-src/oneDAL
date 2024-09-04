@@ -968,8 +968,8 @@ _release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,
 $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1))): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
-$(foreach t,$(MKLGPU.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpu))))
-$(foreach t,$(MKLGPU.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
+$(foreach t,$(mklgpu.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpu))))
+$(foreach t,$(mklgpu.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
 endif
 
 _release_c: ./deploy/pkg-config/pkg-config.tpl

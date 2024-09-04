@@ -67,11 +67,9 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      source /opt/intel/oneapi/mkl/latest/env/vars.sh
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
-      source /opt/intel/oneapi/mkl/latest/env/vars.sh
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
@@ -431,12 +429,10 @@ jobs:
     displayName: 'System info'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      source /opt/intel/oneapi/mkl/latest/env/vars.sh
       .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
     displayName: 'make daal'
   - script: |
       source /opt/intel/oneapi/compiler/latest/env/vars.sh
-      source /opt/intel/oneapi/mkl/latest/env/vars.sh
       .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal_dpc
     displayName: 'make onedal_dpc'
   - task: PublishPipelineArtifact@1
@@ -535,7 +531,9 @@ jobs:
                  --test_thread_mode=par
     displayName: 'cpp-examples-thread-release-static'
 
-  # uncomment after bazel or other fixes
+  # The issue that bazel doesnt link MKL libs via -Wl, --start-group..
+  # oneDAL make build pass this test
+  # TODO: add cycle linking in bazel
   # - script: |
   #     export DALROOT=`pwd`/bazel-bin/release/daal/latest
       # bazel test //examples/oneapi/cpp:all \
@@ -683,7 +681,6 @@ jobs:
   - script: |
       call C:\temp\oneapi\setvars.bat --force
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
-      link --help
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |

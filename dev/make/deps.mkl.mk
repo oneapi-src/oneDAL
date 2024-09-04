@@ -24,8 +24,8 @@ MKLDIR.libia   := $(MKLDIR)/lib
 RELEASEDIR.include.mklgpu := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUDIR:= $(MKLDIR)
-MKLGPU.include := $(MKLGPUDIR)/include/oneapi
-MKLGPU.lib   := $(MKLGPUDIR)/lib
+MKLGPUDIR.include := $(MKLGPUDIR)/include/oneapi
+MKLGPUDIR.lib   := $(MKLGPUDIR)/lib
 
 mklgpu.HEADERS := $(MKLGPUDIR.include)/mkl.hpp
 mklgpu.LIBS_A := $(MKLGPUDIR.lib)/$(plib)mkl_sycl$d.$a
