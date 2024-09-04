@@ -27,9 +27,11 @@ namespace oneapi::dal::kmeans::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class kmeans_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count = 8;
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
@@ -106,8 +108,10 @@ private:
     };
 };
 
+using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
+
 #define KMEANS_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(kmeans_badarg_test, name, "[kmeans][badarg]", method::lloyd_dense)
+    TEMPLATE_LIST_TEST_M(kmeans_badarg_test, name, "[kmeans][badarg]", kmeans_types)
 
 KMEANS_BADARG_TEST("accepts positive cluster_count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_cluster_count(1));

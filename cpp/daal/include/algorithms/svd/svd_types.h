@@ -161,7 +161,7 @@ namespace interface1
  * <a name="DAAL-STRUCT-ALGORITHMS__SVD__PARAMETER"></a>
  * \brief Parameters for the computation method of the SVD algorithm
  */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
     /**
      *  Default constructor
@@ -355,7 +355,7 @@ public:
      * \param[in]  par  Reference to the object with the algorithm parameters
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status addPartialResultStorage(size_t m, size_t n, Parameter & par);
+    services::Status addPartialResultStorage(size_t m, size_t n, Parameter & par);
 
     /**
      * Returns partial results of the SVD algorithm
@@ -470,7 +470,7 @@ public:
      * \return Status of allocation
      */
     template <typename algorithmFPType>
-    DAAL_EXPORT services::Status allocateImpl(size_t m, size_t n);
+    services::Status allocateImpl(size_t m, size_t n);
 
 protected:
     /** \private */

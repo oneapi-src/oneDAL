@@ -404,7 +404,7 @@ jobs:
 - job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
   variables:
-    release.dir: '__release_lnx_icx'
+    release.dir: '__release_lnx'
     platform.type : 'lnx32e'
   pool:
     vmImage: '$(VM_IMAGE)'

@@ -87,9 +87,9 @@ namespace interface1
  * \snippet pca/pca_explained_variance_types.h Parameter source code
  */
 /* [Parameter source code] */
-struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
+struct Parameter : public daal::algorithms::Parameter
 {
-    Parameter(size_t nFeatures, size_t nComponents);
+    DAAL_EXPORT Parameter(size_t nFeatures, size_t nComponents);
     virtual ~Parameter() {}
 
     size_t nFeatures;   /*!< Number of features */
@@ -100,7 +100,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     *
     * \return Status of computations
     */
-    virtual services::Status check() const;
+    DAAL_EXPORT virtual services::Status check() const;
 };
 /* [Parameter source code] */
 

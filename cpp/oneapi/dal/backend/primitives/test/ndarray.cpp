@@ -23,7 +23,9 @@ namespace oneapi::dal::backend::primitives::test {
 
 namespace la = dal::test::engine::linalg;
 
-#define ENUMERATE_AXIS_COUNT_123 ((std::int64_t axis_count), axis_count), 1, 2, 3
+#define ENUMERATE_AXIS_COUNT_123                                                                  \
+    ((typename T, std::int64_t axis_count), T, axis_count), (std::int64_t, 1), (std::int64_t, 2), \
+        (std::int64_t, 3)
 
 class ndarray_test {
 public:
@@ -139,7 +141,6 @@ TEST("ndarray has correct default strides in f-order", "[ndarray_base]") {
 
 TEMPLATE_SIG_TEST("can create empty ndview", "[ndview]", ENUMERATE_AXIS_COUNT_123) {
     const auto x = ndview<float, axis_count>{};
-
     REQUIRE(x.has_data() == false);
     REQUIRE(x.get_count() == 0);
     REQUIRE(x.get_data() == nullptr);

@@ -325,6 +325,18 @@ public:
         return default_root_;
     }
 
+    bool get_mpi_offload_support() override {
+        auto ccl_backend = ccl::get_library_version().cl_backend_name;
+        if (ccl_backend == "DPCPP") {
+            return true;
+        }
+        return false;
+    }
+
+    bool use_sendrecv_replace_alternative() override {
+        return false;
+    }
+
     void barrier() override {
         ccl::barrier(host_comm_->get_ref()).wait();
     }
@@ -396,7 +408,8 @@ public:
                                           std::int64_t count,
                                           const data_type& dtype,
                                           std::int64_t destination_rank,
-                                          std::int64_t source_rank) override {
+                                          std::int64_t source_rank,
+                                          byte_t* recv_buf = nullptr) override {
         ONEDAL_ASSERT(destination_rank >= 0);
         ONEDAL_ASSERT(source_rank >= 0);
         ONEDAL_ASSERT(destination_rank < rank_count_);
