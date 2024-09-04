@@ -21,11 +21,14 @@
 MKLDIR:= $(subst \,/,$(MKLROOT))
 MKLDIR.include := $(MKLDIR)/include
 MKLDIR.libia   := $(MKLDIR)/lib
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
+RELEASEDIR.include.mklgpu := $(RELEASEDIR.include)/services/internal/sycl/math
 
 MKLGPUDIR:= $(MKLDIR)
-MKLGPUDIR.include := $(MKLGPUDIR)/include/oneapi
-MKLGPUDIR.lib   := $(MKLGPUDIR)/lib
+MKLGPU.include := $(MKLGPUDIR)/include/oneapi
+MKLGPU.lib   := $(MKLGPUDIR)/lib
+
+mklgpu.HEADERS := $(MKLGPUDIR.include)/mkl.hpp
+mklgpu.LIBS_A := $(MKLGPUDIR.lib)/$(plib)mkl_sycl$d.$a
 
 daaldep.math_backend.incdir := $(MKLDIR.include)
 daaldep.math_backend_oneapi.incdir := $(MKLDIR.include) $(MKLGPUDIR.include)

@@ -959,7 +959,7 @@ $(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(R
 endif
 endif
 
-ifneq ($(MKLGPUFPKDIR),)
+ifneq ($(MKLGPUDIR),)
 # Copies the file to the destination directory and renames daal -> onedal
 # $1: Path to the file to be copied
 # $2: Destination directory
@@ -968,8 +968,8 @@ _release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,
 $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1))): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
-$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
-$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
+$(foreach t,$(MKLGPU.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpu))))
+$(foreach t,$(MKLGPU.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
 endif
 
 _release_c: ./deploy/pkg-config/pkg-config.tpl

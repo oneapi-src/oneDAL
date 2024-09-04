@@ -411,7 +411,7 @@ jobs:
 - job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
   variables:
-    release.dir: '__release_lnx_icx'
+    release.dir: '__release_lnx'
     platform.type : 'lnx32e'
   pool:
     vmImage: '$(VM_IMAGE)'
@@ -689,7 +689,7 @@ jobs:
   - script: |
       call "C:\temp\oneapi\setvars.bat"
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
-      call .\.ci\scripts\build.bat onedal_c vc avx2
+      .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
@@ -698,12 +698,12 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      call .\.ci\scripts\test.bat daal\cpp lib msvs cmake
-      call .\.ci\scripts\test.bat daal\cpp dll msvs cmake
+      .\.ci\scripts\test.bat daal\cpp lib msvs cmake
+      .\.ci\scripts\test.bat daal\cpp dll msvs cmake
     displayName: 'daal/cpp examples'
   - script: |
-      call .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
-      call .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
+      .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
+      .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
     displayName: 'oneapi/cpp examples'
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
