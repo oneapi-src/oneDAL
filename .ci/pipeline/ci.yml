@@ -72,12 +72,12 @@ jobs:
       call C:\temp\oneapi\setvars.bat --force
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
       link --help
-      .\.ci\scripts\build.bat daal vc avx2
+      .\.ci\scripts\build.bat daal icx avx2
     displayName: 'make daal'
   - script: |
       call "C:\temp\oneapi\setvars.bat"
       set MKL_FPK_GPU_VERSION_LINE=2024.0.0
-      call .\.ci\scripts\build.bat onedal_c vc avx2
+      call .\.ci\scripts\build.bat onedal_c icx avx2
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
     inputs:
