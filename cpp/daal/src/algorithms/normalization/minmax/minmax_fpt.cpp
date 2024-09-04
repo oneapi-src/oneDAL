@@ -44,7 +44,7 @@ namespace interface1
  * \param[in] method Computation method of the minmax normalization algorithm
  */
 template <typename algorithmFPType>
-Status Result::allocate(const daal::algorithms::Input * input, int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, int method)
 {
     DAAL_CHECK(input, ErrorNullInput);
 
@@ -62,7 +62,7 @@ Status Result::allocate(const daal::algorithms::Input * input, int method)
     return s;
 }
 
-template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, int method);
 
 } // namespace interface1
 } // namespace minmax
