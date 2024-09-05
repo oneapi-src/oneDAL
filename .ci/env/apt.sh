@@ -64,16 +64,19 @@ function install_qemu_emulation_deb {
     set +e
 
     versions=(9.0.2 9.0.1 8.2.4)
+    suffixes=("" "~bpo12+1")
     found_version=""
     for version in ${versions[@]}; do
-        qemu_deb="qemu-user-static_${version}+ds-1_amd64.deb"
-        echo "Checking for http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}"
-        if wget -q --method=HEAD http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb} &> /dev/null;
-        then
-            echo "Found qemu version ${version}"
-            found_version=${qemu_deb}
-            break
-        fi
+        for suffix in ${suffixes[@]}; do
+            qemu_deb="qemu-user-static_${version}+ds-1${suffix}_amd64.deb"
+            echo "Checking for http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}"
+            if wget -q --method=HEAD http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb} &> /dev/null;
+            then
+                echo "Found qemu version ${version}"
+                found_version=${qemu_deb}
+                break 2
+            fi
+        done
     done
 
     set -eo pipefail
