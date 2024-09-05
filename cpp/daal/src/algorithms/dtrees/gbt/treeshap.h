@@ -237,7 +237,7 @@ float unwoundPathSumZero(const float * pWeights, uint32_t uniqueDepth, uint32_t 
  * Important: nodeIndex is counted from 0 here!
 */
 template <typename algorithmFPType, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, size_t numOutputs,
                      const FeatureTypes * featureHelper, size_t nodeIndex, size_t depth, size_t uniqueDepth, size_t uniqueDepthPWeights,
                      PathElement * parentUniquePath, float * parentPWeights, algorithmFPType pWeightsResidual, float parentZeroFraction,
                      float parentOneFraction, int parentFeatureIndex, int condition, FeatureIndexType conditionFeature, float conditionFraction)
@@ -245,7 +245,6 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
     // stop if we have no weight coming down to us
     if (conditionFraction < FLT_EPSILON) return;
 
-    const size_t numOutputs                   = 1; // currently only support single-output models
     const ModelFPType * const splitValues     = tree->getSplitPoints() - 1;
     const int * const defaultLeft             = tree->getDefaultLeftForSplit() - 1;
     const FeatureIndexType * const fIndexes   = tree->getFeatureIndexesForSplit() - 1;
@@ -377,12 +376,12 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
     }
 
     treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
-        tree, x, phi, featureHelper, hotIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights + 1, uniquePath, pWeights, pWeightsResidual,
-        hotZeroFraction * incomingZeroFraction, incomingOneFraction, splitIndex, condition, conditionFeature, hotConditionFraction);
+        tree, x, phi, numOutputs, featureHelper, hotIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights + 1, uniquePath, pWeights,
+        pWeightsResidual, hotZeroFraction * incomingZeroFraction, incomingOneFraction, splitIndex, condition, conditionFeature, hotConditionFraction);
 
     treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(
-        tree, x, phi, featureHelper, coldIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights + 1, uniquePath, pWeights, pWeightsResidual,
-        coldZeroFraction * incomingZeroFraction, 0, splitIndex, condition, conditionFeature, coldConditionFraction);
+        tree, x, phi, numOutputs, featureHelper, coldIndex, depth + 1, uniqueDepth + 1, uniqueDepthPWeights + 1, uniquePath, pWeights,
+        pWeightsResidual, coldZeroFraction * incomingZeroFraction, 0, splitIndex, condition, conditionFeature, coldConditionFraction);
 }
 
 /**
@@ -395,7 +394,7 @@ inline void treeShap(const gbt::internal::GbtDecisionTree * tree, const algorith
  * \param conditionFeature the index of the feature to fix
  */
 template <typename algorithmFPType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, size_t numClasses,
                                  const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature)
 {
     services::Status st;
@@ -410,8 +409,8 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
     TArray<float, cpu> pWeights(nElements);
     DAAL_CHECK_MALLOC(pWeights.get());
 
-    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, 1, 0, 0, 0, uniquePathData.get(), pWeights.get(), 1,
-                                                                   1, 1, -1, condition, conditionFeature, 1);
+    treeShap<algorithmFPType, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, numClasses, featureHelper, 1, 0, 0, 0, uniquePathData.get(),
+                                                                   pWeights.get(), 1, 1, 1, -1, condition, conditionFeature, 1);
 
     return st;
 }
@@ -430,12 +429,13 @@ enum TreeShapVersion
  * \param tree current tree
  * \param x dense data matrix
  * \param phi dense output matrix of feature attributions
+ * \param numClasses number of classes in input data
  * \param featureHelper pointer to a FeatureTypes object (required to traverse tree)
  * \param condition fix one feature to either off (-1) on (1) or not fixed (0 default)
  * \param conditionFeature the index of the feature to fix
  */
 template <typename algorithmFPType, CpuType cpu, bool hasUnorderedFeatures, bool hasAnyMissing>
-inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi,
+inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, const algorithmFPType * x, algorithmFPType * phi, size_t numClasses,
                                  const FeatureTypes * featureHelper, int condition, FeatureIndexType conditionFeature,
                                  TreeShapVersion shapVersion = fast_v1)
 {
@@ -446,11 +446,12 @@ inline services::Status treeShap(const gbt::internal::GbtDecisionTree * tree, co
     switch (shapVersion)
     {
     case lundberg:
+        DAAL_CHECK(numClasses == 1, services::ErrorIncorrectParameter); // our lundberg version only supports single-class/regression
         return treeshap::internal::v0::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
                                                                                                            conditionFeature);
     case fast_v1:
-        return treeshap::internal::v1::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, featureHelper, condition,
-                                                                                                           conditionFeature);
+        return treeshap::internal::v1::treeShap<algorithmFPType, cpu, hasUnorderedFeatures, hasAnyMissing>(tree, x, phi, numClasses, featureHelper,
+                                                                                                           condition, conditionFeature);
     default: return services::Status(ErrorMethodNotImplemented);
     }
 }
