@@ -668,7 +668,7 @@ jobs:
     vmImage: 'windows-2022'
   steps:
   - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
-    displayName: install
+    displayName: Install oneAPI Base Toolkit
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature

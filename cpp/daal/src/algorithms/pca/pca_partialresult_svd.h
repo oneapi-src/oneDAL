@@ -41,7 +41,7 @@ namespace pca
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+DAAL_EXPORT services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                    const int method)
 {
     services::Status s;
@@ -55,7 +55,7 @@ services::Status PartialResult<svdDense>::allocate(const daal::algorithms::Input
 };
 
 template <typename algorithmFPType>
-services::Status PartialResult<svdDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+DAAL_EXPORT services::Status PartialResult<svdDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
                                                      const int method)
 {
     services::Status s;
