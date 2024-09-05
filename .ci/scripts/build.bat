@@ -28,14 +28,18 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
+echo "%VISUALSTUDIOVERSION% HERE"
 
 IF "%VS_VER%"=="2017_build_tools" (
     @call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    echo "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
 ) ELSE (
     IF "%VS_VER%"=="2019_build_tools" (
         @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+        echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     ) ELSE (
           @call "C:\temp\oneapi\setvars-vcvarsall.bat" %VS_VER%
+          echo "C:\temp\oneapi\setvars-vcvarsall.bat" %VS_VER%
     )
 )
 
