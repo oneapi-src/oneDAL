@@ -695,10 +695,12 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
+      call C:\temp\oneapi\setvars.bat --force
       .\.ci\scripts\test.bat daal\cpp lib msvs cmake
       .\.ci\scripts\test.bat daal\cpp dll msvs cmake
     displayName: 'daal/cpp examples'
   - script: |
+      call C:\temp\oneapi\setvars.bat --force
       .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
       .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
     displayName: 'oneapi/cpp examples'
