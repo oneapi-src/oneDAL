@@ -492,7 +492,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     algorithmFpType * subSamples, size_t subSampleCapacity, Status & status)
 {
     algorithmFpType samples[__KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT + 1];
-    const size_t sampleCount = sizeof(samples) / sizeof(samples[0]);
+    const size_t sampleCount = __KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT + 1;
 
     if (end - start <= sampleCount)
     {
