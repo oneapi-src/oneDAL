@@ -965,8 +965,8 @@ ifneq ($(MKLGPUDIR),)
 # $1: Path to the file to be copied
 # $2: Destination directory
 define .release.sycl.old
-_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1)))
-$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $(subst \,/,$1))): $(call frompf1,$1) | $2/. ; $(value cpy)
+_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
+$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
 $(foreach t,$(mklgpu.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpu))))
