@@ -589,6 +589,10 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     size_t sumMid = 0;
     size_t i      = 0;
+    // this iterates through the masterHist histogram and finds the median
+    // in almost all circumstances the break in the if statement will trigger
+    // unless masterHist does not contain sufficient data to exceed
+    // (end - start)/2 by the last bin.
     for (; i < sampleCount - 1; ++i)
     {
         if (sumMid + masterHist[i] > (end - start) / 2)
