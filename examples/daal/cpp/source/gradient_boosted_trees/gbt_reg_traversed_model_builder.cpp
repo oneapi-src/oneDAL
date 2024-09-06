@@ -216,13 +216,17 @@ bool buildTree(size_t treeId,
                bool &isRoot,
                ModelBuilder &builder,
                const ParentPlace &parentPlace) {
+    const int defaultLeft = 0;
+    const double cover = 0.0;
     if (node->left != NULL && node->right != NULL) {
         if (isRoot) {
             ModelBuilder::NodeId parent = builder.addSplitNode(treeId,
                                                                ModelBuilder::noParent,
                                                                0,
                                                                node->featureIndex,
-                                                               node->featureValue);
+                                                               node->featureValue,
+                                                               defaultLeft,
+                                                               cover);
 
             isRoot = false;
             buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent, 0));
@@ -233,7 +237,9 @@ bool buildTree(size_t treeId,
                                                                parentPlace.parentId,
                                                                parentPlace.place,
                                                                node->featureIndex,
-                                                               node->featureValue);
+                                                               node->featureValue,
+                                                               defaultLeft,
+                                                               cover);
 
             buildTree(treeId, node->left, isRoot, builder, ParentPlace(parent, 0));
             buildTree(treeId, node->right, isRoot, builder, ParentPlace(parent, 1));
@@ -241,11 +247,15 @@ bool buildTree(size_t treeId,
     }
     else {
         if (isRoot) {
-            builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->response);
+            builder.addLeafNode(treeId, ModelBuilder::noParent, 0, node->response, cover);
             isRoot = false;
         }
         else {
-            builder.addLeafNode(treeId, parentPlace.parentId, parentPlace.place, node->response);
+            builder.addLeafNode(treeId,
+                                parentPlace.parentId,
+                                parentPlace.place,
+                                node->response,
+                                cover);
         }
     }
 
