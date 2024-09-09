@@ -207,9 +207,7 @@ struct RefStatistics<double, cpu>
         double pt         = 0;
         for (vec_ptr = 0; vec_ptr < nVectors; ++vec_ptr)
         {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
             for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
             {
                 pt = data[vec_ptr * nFeatures + feature_ptr];
@@ -218,9 +216,7 @@ struct RefStatistics<double, cpu>
             }
         }
         double sumSqDivN; // S^2/n = n*\mu^2
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
         {
             sumSqDivN = sum[feature_ptr];
@@ -322,9 +318,7 @@ struct RefStatistics<float, cpu>
         float pt         = 0;
         for (vec_ptr = 0; vec_ptr < nVectors; ++vec_ptr)
         {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
             for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
             {
                 pt = data[vec_ptr * nFeatures + feature_ptr];
@@ -333,9 +327,7 @@ struct RefStatistics<float, cpu>
             }
         }
         float sumSqDivN; // S^2/n = n*\mu^2
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
         {
             sumSqDivN = sum[feature_ptr];

@@ -72,17 +72,13 @@ struct RefMath<double, cpu>
 
     static void vPowx(SizeType n, const double * in, double in1, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
     }
 
     static void vCeil(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
     }
 
@@ -94,17 +90,13 @@ struct RefMath<double, cpu>
 
     static void vErf(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
     }
 
     static void vExp(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
     }
 
@@ -115,33 +107,25 @@ struct RefMath<double, cpu>
 
     static void vTanh(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
     }
 
     static void vSqrt(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
     }
 
     static void vLog(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
     }
 
     static void vLog1p(SizeType n, const double * in, double * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
     }
 
@@ -185,17 +169,13 @@ struct RefMath<float, cpu>
 
     static void vPowx(SizeType n, const float * in, float in1, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
     }
 
     static void vCeil(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
     }
 
@@ -207,17 +187,13 @@ struct RefMath<float, cpu>
 
     static void vErf(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
     }
 
     static void vExp(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
     }
 
@@ -228,33 +204,25 @@ struct RefMath<float, cpu>
 
     static void vTanh(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
     }
 
     static void vSqrt(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
     }
 
     static void vLog(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
     }
 
     static void vLog1p(SizeType n, const float * in, float * out)
     {
-#ifdef NDEBUG
 #pragma omp simd
-#endif
         for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
     }
 
