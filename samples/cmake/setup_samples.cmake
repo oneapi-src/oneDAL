@@ -107,7 +107,11 @@ function(add_samples samples_paths)
         endif()
 
         target_compile_options(${sample} PRIVATE ${ONEDAL_CUSTOM_COMPILE_OPTIONS})
-        target_link_options(${sample} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS})
+        if(WIN32 AND "${ONEDAL_LINK}" STREQUAL "dynamic" AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC|IntelLLVM")
+            target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS} /DEPENDENTLOADFLAG:0x2000)
+        else()
+            target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS})
+        endif()
         set_target_properties(${sample} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/${CPU_ARCHITECTURE}_${LINK_TYPE}")
 
         add_custom_target(run_${sample}
