@@ -108,7 +108,7 @@ function(add_samples samples_paths)
 
         target_compile_options(${sample} PRIVATE ${ONEDAL_CUSTOM_COMPILE_OPTIONS})
         if(WIN32 AND "${ONEDAL_LINK}" STREQUAL "dynamic" AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC|IntelLLVM")
-            target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS} /DEPENDENTLOADFLAG:0x2000)
+            target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS},/DEPENDENTLOADFLAG:0x2000)
         else()
             target_link_options(${example} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS})
         endif()
