@@ -30,7 +30,7 @@ CORE.SERV.COMPILER.vc = generic
 # Disable C4661 because of false positives
 COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
 
-link.dynamic.win.vc = cl /DEPENDENTLOADFLAG:0x2000
+link.dynamic.win.vc = cl /DEPENDENTLOADFLAG:0x00000200
 
 p4_OPT.vc   =
 mc3_OPT.vc  =
