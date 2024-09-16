@@ -47,7 +47,7 @@ function install_dev-base {
 }
 
 function install_dev-base-conda {
-    mamba env create -f .ci/env/environment.yml
+    conda env create -f .ci/env/environment.yml
 }
 
 function install_gnu-cross-compilers {
