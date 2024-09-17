@@ -34,7 +34,7 @@ daaldep.math_backend_oneapi.incdir := $(MKLDIR.include) $(MKLGPUDIR.include)
 
 daaldep.lnx32e.mkl.thr := $(MKLDIR.libia)/$(plib)mkl_tbb_thread.$a
 daaldep.lnx32e.mkl.seq := $(MKLDIR.libia)/$(plib)mkl_sequential.$a
-daaldep.lnx32e.mkl.core := $(MKLDIR.libia)/$(plib)mkl_core.$a 
+daaldep.lnx32e.mkl.core := $(MKLDIR.libia)/$(plib)mkl_core.$a
 daaldep.lnx32e.mkl.interfaces := $(MKLDIR.libia)/$(plib)mkl_intel_ilp64.$a
 daaldep.lnx32e.mkl.sycl := $(MKLGPUDIR.lib)/$(plib)mkl_sycl.$a
 
@@ -71,5 +71,5 @@ daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.vml     := $(daaldep.$(PLAT).vml)
 daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 
-daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.math_backend.interfaces)  $(daaldep.math_backend.thr)  $(daaldep.math_backend.core)
+daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.math_backend.interfaces) $(daaldep.math_backend.core)
 daaldep.math_backend.sycl := $(daaldep.math_backend.sycl)
