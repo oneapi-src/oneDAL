@@ -14,7 +14,7 @@ what factors are considered important.
 Describe the problem you are trying to solve with a reasonable level of detail.
 
 **Details**
-* The definition of the function including interface and semantics. How this
+* The definition of the function including interface and semantics. Please include how this
 interface will be extendable for different hardware implementations.
 * What existing libraries have implementation of this function and can be used
 under oneDAL interface.
