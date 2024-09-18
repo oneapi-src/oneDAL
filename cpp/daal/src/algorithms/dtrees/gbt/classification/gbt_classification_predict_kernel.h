@@ -57,9 +57,11 @@ public:
      *  \param prob[out]        Prediction class probabilities
      *  \param nClasses[in]     Number of classes in gradient boosted trees algorithm parameter
      *  \param nIterations[in]  Number of iterations to predict in gradient boosted trees algorithm parameter
+     *  \param predShapContributions[in] Predict SHAP contributions
+     *  \param predShapInteractions[in] Predict SHAP interactions
      */
     services::Status compute(services::HostAppIface * pHostApp, const NumericTable * a, const classification::Model * m, NumericTable * r,
-                             NumericTable * prob, size_t nClasses, size_t nIterations);
+                             NumericTable * prob, size_t nClasses, size_t nIterations, bool predShapContributions, bool predShapInteractions);
 };
 
 } // namespace internal
