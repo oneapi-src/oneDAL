@@ -24,13 +24,13 @@ RUN apt-get update && \
       apt-get -y install sudo wget gnupg git make python3-setuptools doxygen software-properties-common
 
 # Install miniconda
-ENV CONDA_DIR /opt/conda
+ENV CONDA_DIR=/opt/conda
 RUN wget --quiet \
     "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
     bash Miniforge3* -b -p /opt/conda
 
 # Put conda in path to use conda activate
-ENV PATH $CONDA_DIR/bin:$PATH
+ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Installing environment for bazel
 RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && \
@@ -42,17 +42,17 @@ COPY . ${workdirectory}
 # Installing environment for base development dependencies
 RUN .ci/env/apt.sh dev-base
 
-# Installing environment for DPCPP development dependencies
-RUN .ci/env/apt.sh dpcpp
+# # Installing environment for DPCPP development dependencies
+# RUN .ci/env/apt.sh dpcpp
 
-# Installing environment for clang-format
-RUN .ci/env/apt.sh clang-format
+# # Installing environment for clang-format
+# RUN .ci/env/apt.sh clang-format
 
-# Installing openBLAS dependency
-RUN .ci/env/openblas.sh
+# # Installing openBLAS dependency
+# RUN .ci/env/openblas.sh
 
-# Installing MKL dependency
-RUN ./dev/download_micromkl.sh
+# # Installing MKL dependency
+# RUN ./dev/download_micromkl.sh
 
-# Installing oneTBB dependency
-RUN ./dev/download_tbb.sh
+# # Installing oneTBB dependency
+# RUN ./dev/download_tbb.sh
