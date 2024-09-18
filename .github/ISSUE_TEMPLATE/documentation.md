@@ -15,5 +15,5 @@ issue.
 Include pointers to documents that are impacted.
 
 **Additional details**
-Provide detailed description of the expected changes in documentation
-and suggestions you have.
+Please provide a detailed description of the expected changes in documentation
+and any suggestions that you may have.
