@@ -9,5 +9,5 @@ Fixes # - _issue number(s) if exists_
 - [ ] The unit tests pass successfully.
 - [ ] I have run it locally and tested the changes extensively.
 - [ ] I have resolved any merge conflicts that might occur with the base branch.
-- [ ] Git commit message contains an appropriate signed-off-by string _(see [CONTRIBUTING.md](https://github.com/oneapi-src/oneDAL/blob/main/CONTRIBUTING.md#pull-requests) for details)_
+- [ ] Git commit message contains an appropriate signed-off-by string _(see [CONTRIBUTING.md](../CONTRIBUTING.md#pull-requests) for details)_
 - [ ] I have added a respective label(s) to PR if I have a permission for that.
