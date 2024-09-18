@@ -142,13 +142,13 @@ Applications on Windows* OS
           | onedal_threadd.lib
       * - Dynamic linking
         -
-          | onedal_cored_dll.lib (onedal_cored_dll.2.lib),
-          | onedald_dll.lib (onedald_dll.2.lib),
-          | onedal_dpcd_dll.lib (onedal_dpcd_dll.2.lib),
-          | onedald.2.dll,
-          | onedal_cored.2.dll,
-          | onedal_dpcd.2.dll,
-          | onedal_threadd.2.dll
+          | onedal_cored_dll.lib (onedal_cored_dll.3.lib),
+          | onedald_dll.lib (onedald_dll.3.lib),
+          | onedal_dpcd_dll.lib (onedal_dpcd_dll.3.lib),
+          | onedald.3.dll,
+          | onedal_cored.3.dll,
+          | onedal_dpcd.3.dll,
+          | onedal_threadd.3.dll
 
 Examples
 ********

@@ -43,7 +43,7 @@ namespace interface2
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, ErrorNullPtr);
@@ -56,14 +56,13 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
 * \param[in] method    Algorithm computation method
 */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const int method)
 {
     return allocate<algorithmFPType>(input, NULL, method);
 }
 
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const int method);
-template DAAL_EXPORT Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                          const int method);
+template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const int method);
+template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace interface2
 } // namespace zscore

@@ -108,10 +108,13 @@ function(add_samples samples_paths)
 
         target_compile_options(${sample} PRIVATE ${ONEDAL_CUSTOM_COMPILE_OPTIONS})
         target_link_options(${sample} PRIVATE ${ONEDAL_CUSTOM_LINK_OPTIONS})
+        if(WIN32 AND "${ONEDAL_LINK}" STREQUAL "dynamic" AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC|IntelLLVM")
+            target_link_options(${sample} PRIVATE /DEPENDENTLOADFLAG:0x2000)
+        endif()
         set_target_properties(${sample} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/_cmake_results/${CPU_ARCHITECTURE}_${LINK_TYPE}")
 
         add_custom_target(run_${sample}
-            COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} \\
+            COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG}
                     ${MPIEXEC_MAX_NUMPROCS} -ppn ${MPIEXEC_NUMPROCS_PER_NODE} $<TARGET_FILE:${sample}>
             DEPENDS ${sample}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

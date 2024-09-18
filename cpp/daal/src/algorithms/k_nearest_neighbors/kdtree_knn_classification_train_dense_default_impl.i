@@ -492,7 +492,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     algorithmFpType * subSamples, size_t subSampleCapacity, Status & status)
 {
     algorithmFpType samples[__KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT + 1];
-    const size_t sampleCount = sizeof(samples) / sizeof(samples[0]);
+    const size_t sampleCount = __KDTREE_MEDIAN_RANDOM_SAMPLE_COUNT + 1;
 
     if (end - start <= sampleCount)
     {
@@ -589,7 +589,11 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
 
     size_t sumMid = 0;
     size_t i      = 0;
-    for (; i < sampleCount; ++i)
+    // this iterates through the masterHist histogram and finds the median
+    // in almost all circumstances the break in the if statement will trigger
+    // unless masterHist does not contain sufficient data to exceed
+    // (end - start)/2 by the last bin.
+    for (; i < sampleCount - 1; ++i)
     {
         if (sumMid + masterHist[i] > (end - start) / 2)
         {

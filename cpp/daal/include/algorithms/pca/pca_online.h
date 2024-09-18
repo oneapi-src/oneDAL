@@ -113,7 +113,7 @@ public:
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
-class DAAL_EXPORT Online : public Analysis<online>
+class Online : public Analysis<online>
 {};
 
 /**
@@ -124,7 +124,7 @@ class DAAL_EXPORT Online : public Analysis<online>
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
 template <typename algorithmFPType>
-class DAAL_EXPORT Online<algorithmFPType, correlationDense> : public Analysis<online>
+class Online<algorithmFPType, correlationDense> : public Analysis<online>
 {
 public:
     typedef algorithms::pca::Input InputType;
@@ -250,7 +250,7 @@ private:
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
 template <typename algorithmFPType>
-class DAAL_EXPORT Online<algorithmFPType, svdDense> : public Analysis<online>
+class Online<algorithmFPType, svdDense> : public Analysis<online>
 {
 public:
     typedef algorithms::pca::Input InputType;

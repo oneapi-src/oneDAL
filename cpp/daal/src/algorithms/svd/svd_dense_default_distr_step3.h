@@ -42,8 +42,7 @@ namespace interface1
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
-                                                           const int method)
+Status DistributedPartialResultStep3::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     Argument::set(finalResultFromStep3, ResultPtr(new Result()));
     return Status();
@@ -55,7 +54,7 @@ DAAL_EXPORT Status DistributedPartialResultStep3::allocate(const daal::algorithm
  * \param[in]  qCollection  DataCollection of all partial results from step 1 of the SVD algorithm in the distributed processing mode
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status DistributedPartialResultStep3::setPartialResultStorage(data_management::DataCollection * qCollection)
+Status DistributedPartialResultStep3::setPartialResultStorage(data_management::DataCollection * qCollection)
 {
     size_t qSize = qCollection->size();
     size_t m     = 0;

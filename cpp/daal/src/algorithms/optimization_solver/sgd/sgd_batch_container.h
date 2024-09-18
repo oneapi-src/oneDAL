@@ -29,7 +29,6 @@
 #include "src/algorithms/optimization_solver/sgd/sgd_dense_minibatch_kernel.h"
 #include "src/algorithms/optimization_solver/sgd/sgd_dense_momentum_kernel.h"
 #include "src/services/service_algo_utils.h"
-#include "src/algorithms/optimization_solver/sgd/oneapi/sgd_dense_kernel_oneapi.h"
 
 namespace daal
 {
@@ -44,17 +43,7 @@ namespace interface2
 template <typename algorithmFPType, Method method, CpuType cpu>
 BatchContainer<algorithmFPType, method, cpu>::BatchContainer(daal::services::Environment::env * daalEnv)
 {
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method == defaultDense || method == momentum)
-    {
-        __DAAL_INITIALIZE_KERNELS(internal::SGDKernel, algorithmFPType, method);
-    }
-    else
-    {
-        __DAAL_INITIALIZE_KERNELS_SYCL(internal::SGDKernelOneAPI, algorithmFPType, method);
-    }
+    __DAAL_INITIALIZE_KERNELS(internal::SGDKernel, algorithmFPType, method);
 }
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -81,21 +70,9 @@ services::Status BatchContainer<algorithmFPType, method, cpu>::compute()
     NumericTable * learningRateSequence = parameter->learningRateSequence.get();
     NumericTable * batchIndices         = parameter->batchIndices.get();
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu || method == defaultDense || method == momentum)
-    {
-        __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                           daal::services::internal::hostApp(*input), inputArgument, minimum.get(), nIterations, parameter, learningRateSequence,
-                           batchIndices, optionalArgument, optionalResult, *parameter->engine);
-    }
-    else
-    {
-        __DAAL_CALL_KERNEL_SYCL(env, internal::SGDKernelOneAPI, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute,
-                                daal::services::internal::hostApp(*input), inputArgument, minimum, nIterations, parameter, learningRateSequence,
-                                batchIndices, optionalArgument, optionalResult, *parameter->engine);
-    }
+    __DAAL_CALL_KERNEL(env, internal::SGDKernel, __DAAL_KERNEL_ARGUMENTS(algorithmFPType, method), compute, daal::services::internal::hostApp(*input),
+                       inputArgument, minimum.get(), nIterations, parameter, learningRateSequence, batchIndices, optionalArgument, optionalResult,
+                       *parameter->engine);
 }
 
 } // namespace interface2
