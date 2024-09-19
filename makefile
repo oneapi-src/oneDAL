@@ -459,7 +459,7 @@ $(WORKDIR.lib)/$(core_a):                   $(daaldep.math_backend.ext) $(CORE.t
 $(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
-$(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-LIBPATH:$$(RELEASEDIR.tbb.libia),-L$$(TBBDIR.soia.lnx))
+$(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-LIBPATH:$(RELEASEDIR.tbb.libia),-L$(TBBDIR.soia.lnx))
 ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
