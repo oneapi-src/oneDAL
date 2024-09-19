@@ -237,9 +237,9 @@ inline void threader_func_break(int i, bool & needBreak, const void * a)
 /// @param[in] reserved Parameter reserved for the future. Currently unused.
 /// @param[in] func     Callable object that defines the loop body.
 template <typename F>
-inline void threader_for(int n, int reserved, const F & callable)
+inline void threader_for(int n, int reserved, const F & func)
 {
-    const void * a = static_cast<const void *>(&callable);
+    const void * a = static_cast<const void *>(&func);
 
     _daal_threader_for(n, reserved, a, threader_func<F>);
 }
