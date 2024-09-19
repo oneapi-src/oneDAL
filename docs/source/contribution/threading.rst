@@ -69,7 +69,7 @@ This code shows how a typical parallel loop in oneDAL looks like:
 Thread-local Storage (TLS)
 **************************
 
-Lets consider you need to compute a dot product of two arrays.
+Consider you need to compute a dot product of two arrays.
 Here is a variant of sequential implementation:
 
 .. include:: ../includes/threading/dot-sequential.rst

@@ -224,10 +224,9 @@ inline void threader_func_break(int i, bool & needBreak, const void * a)
 }
 
 /// Pass a function to be executed in a for loop to the threading layer.
-/// The maximal number of iterations in the loop is 2^31 - 1.
+/// The maximal number of iterations in the loop is `2^31 - 1 (INT32_MAX)`.
 /// The default scheduling of the threading layer is used to assign
 /// the iterations of the loop to threads.
-/// The iterations of the loop should be logically independent.
 /// Data dependencies between the iterations are allowed, but may requre the use
 /// of synchronization primitives.
 ///
@@ -246,7 +245,7 @@ inline void threader_for(int n, int reserved, const F & lambda)
 }
 
 /// Pass a function to be executed in a for loop to the threading layer.
-/// The maximal number of iterations in the loop is 2^63 - 1.
+/// The maximal number of iterations in the loop is `2^63 - 1 (INT64_MAX)`.
 /// The default scheduling of the threading layer is used to assign
 /// the iterations of the loop to threads.
 /// The iterations of the loop should be logically independent.
@@ -269,15 +268,14 @@ inline void threader_for_int64(int64_t n, const F & lambda)
 /// Pass a function to be executed in a for loop to the threading layer.
 /// The maximal number of iterations in the loop is 2^31 - 1.
 ///
-/// The specifics of this loop comparing to `threader_for` is that the iteration spase
-/// of the loop is always chunked to the chunks of size 1.
-/// This means the threading layer tries to assign the consecutive iterations to
-/// a different threads if possible.
+/// The specifics of this loop comparing to `threader_for` is that the iteration space
+/// of the loop is always chunked with chunk size 1.
+/// This means the threading layer tries to assign consecutive iterations to
+/// different threads, if possible.
 /// In case of oneTBB threading backend this means that `simple_partitioner`
 /// (https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Partitioner_Summary.html)
-/// with chunk size 1 is used to produce iterations to threads mapping.
+/// with chunk size 1 is used to produce iteration to threads mappings.
 ///
-/// The iterations of the loop should be logically independent.
 /// Data dependencies between the iterations are allowed, but may requre the use
 /// of synchronization primitives.
 ///
@@ -313,17 +311,15 @@ inline void threader_for_int32ptr(const int * begin, const int * end, const F & 
 /// It is recommended to use this parallel loop if each iteration of the loop
 /// performs equal amount of work.
 ///
-/// Let `t` be the number of threads available to oneDAL.
-///
-/// Then the number of iterations processed by each threads (except maybe the last one)
-/// is computed as:
+/// Let `t` be the number of threads available to oneDAL. The number of iterations
+/// processed by each threads (except maybe the last one) is computed as:
 /// `nI = (n + t - 1) / t`
 ///
 /// Here is how the work is split across the threads:
 /// The 1st thread executes iterations `0, ..., nI - 1`;
 /// the 2nd thread executes iterations `nI, ..., 2 * nI - 1`;
 /// ...
-/// the t-th thread executes iterations `(t - 1) * nI, ..., n - 1`.
+/// the `t`-th thread executes iterations `(t - 1) * nI, ..., n - 1`.
 ///
 /// @tparam F   Lambda function of type `[/* captures */](size_t i, size_t tid) -> void`,
 ///             where
@@ -341,13 +337,13 @@ inline void static_threader_for(size_t n, const F & lambda)
 }
 
 /// Pass a function to be executed in a for loop to the threading layer.
-/// The maximal number of iterations in the loop is 2^31 - 1.
+/// The maximal number of iterations in the loop is `2^31 - 1 INT32_MAX`.
 /// The default scheduling of the threading layer is used to assign
 /// the iterations of the loop to threads.
 ///
 /// @tparam F   Lambda function of type `[/* captures */](int beginRange, int endRange) -> void`
 ///             where
-///                 `beginRange` is the starting index of the loop's iterations block to be
+///                 `beginRange` is the starting index of the loop iterations block to be
 ///                                processed by a thread, `0 <= beginRange < n`;
 ///                 `endRange`   is the index after the end of the loop's iterations block to be
 ///                                processed by a thread, `beginRange < endRange <= n`;
@@ -417,7 +413,7 @@ public:
 /// Thread-local storage (TLS).
 /// Can change its local variable after a nested parallel constructs.
 /// @note Thread-local storage in nested parallel regions is, in general, not thread local.
-/// The use of nested parallelism should be avioded if possible, otherwise extra care
+/// The use of nested parallelism should be avoided if possible, otherwise extra care
 /// must be taken with thread-local values.
 ///
 /// @tparam F  Type of the data located in the storage
