@@ -32,6 +32,7 @@ define set_daal_rt_deps
   $$(eval daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnx32e.threxport := export_lnx32e.$$(BACKEND_CONFIG).def)
+  $$(eval daaldep.lnx32e.tbb_rt := -L$$(TBBDIR.soia.lnx) -ltbb -lpthread)
 
   $$(eval daaldep.lnx.threxport.create = grep -v -E '^(EXPORTS|;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter) | sed -e 's/^/-u /')
 endef

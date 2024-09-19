@@ -26,10 +26,10 @@ include dev/make/function_definitions/32e.mk
 define set_daal_rt_deps
   $$(eval daaldep.win32e.rt.thr  := -LIBPATH:$$(RELEASEDIR.tbb.libia) \
           $$(dep_thr) $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
-  $$(eval daaldep.math_backend.ext := -LIBPATH:$$(RELEASEDIR.tbb.libia) tbb12.lib)
   $$(eval daaldep.win32e.rt.seq  := $$(dep_seq) \
           $$(if $$(CHECK_DLL_SIG),Wintrust.lib))
   $$(eval daaldep.win32e.threxport := export.def)
+  $$(eval daaldep.win32e.tbb_rt := -LIBPATH:$$(RELEASEDIR.tbb.libia) $$(dep_tbb))
 
   $$(eval daaldep.win.threxport.create = grep -v -E '^(;|$$$$$$$$)' $$$$< $$$$(USECPUS.out.grep.filter))
 endef
