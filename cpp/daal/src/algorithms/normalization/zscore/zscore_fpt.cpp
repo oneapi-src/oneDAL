@@ -43,7 +43,7 @@ namespace interface2
  * \param[in] method    Algorithm computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+services::Status Result::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
 {
     auto impl = ResultImpl::cast(getStorage(*this));
     DAAL_CHECK(impl, ErrorNullPtr);
@@ -62,8 +62,7 @@ Status Result::allocate(const daal::algorithms::Input * input, const int method)
 }
 
 template Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const int method);
-template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                    const daal::algorithms::Parameter * parameter, const int method);
+template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method);
 
 } // namespace interface2
 } // namespace zscore
