@@ -44,7 +44,8 @@ sycl::event compute_probabilities(sycl::queue& q,
     auto fill_event = fill<Float>(q, probabilities, Float(1), deps);
     using oneapi::dal::backend::operator+;
 
-    Float w0 = fit_intercept ? parameters.get_slice(0, 1).at_device(q, 0l, deps) : 0; // Poor perfomance
+    Float w0 =
+        fit_intercept ? parameters.get_slice(0, 1).at_device(q, 0l, deps) : 0; // Poor perfomance
     ndview<Float, 1> param_suf = fit_intercept ? parameters.get_slice(1, p + 1) : parameters;
 
     sycl::event gemv_event;
@@ -87,7 +88,8 @@ sycl::event compute_probabilities_sparse(sycl::queue& q,
     const std::int64_t p = parameters.get_dimension(0) - (fit_intercept ? 1 : 0);
 
     auto fill_event = fill<Float>(q, probabilities, Float(1), deps);
-    Float w0 = fit_intercept ? parameters.get_slice(0, 1).at_device(q, 0l, deps) : 0; // Poor perfomance
+    Float w0 =
+        fit_intercept ? parameters.get_slice(0, 1).at_device(q, 0l, deps) : 0; // Poor perfomance
     ndview<Float, 1> param_suf = fit_intercept ? parameters.get_slice(1, p + 1) : parameters;
 
     sycl::event gemv_event;
