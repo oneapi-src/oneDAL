@@ -26,4 +26,4 @@ If applicable, add output/screenshots to help explain your problem.
 **Environment:**
  - OS: [e.g. Ubuntu 22.04]
  - Compiler: [e.g. GCC12.1]
- - Version: [e.g. 2025 Update 1]
+ - Version: [e.g. 2025.1]
