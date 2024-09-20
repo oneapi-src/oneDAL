@@ -1052,7 +1052,6 @@ $2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
-$(if $(OS_is_win),$(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.soia)))),)
 
 #----- cmake configs generation
 
