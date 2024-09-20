@@ -330,7 +330,6 @@ $(eval $(call set_daal_rt_deps))
 daaldep.rt.thr  := $(daaldep.$(PLAT).rt.thr)
 daaldep.rt.seq  := $(daaldep.$(PLAT).rt.seq)
 daaldep.rt.dpc  := $(daaldep.$(PLAT).rt.dpc)
-daaldep.rt.tbb  := $(daaldep.$(PLAT).rt.tbb)
 
 # List oneAPI header files to populate release/include.
 release.ONEAPI.HEADERS.exclude := ! -path "*/backend/*" ! -path "*.impl.*" ! -path "*_test.*" ! -path "*/test/*"
@@ -456,7 +455,7 @@ $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  $(CORE.tmpdir_a)/$(core_a:%.$a=%_lin
 $(WORKDIR.lib)/$(core_a):                   LOPT:=
 $(WORKDIR.lib)/$(core_a):                   $(daaldep.math_backend.ext) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
 
-$(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC) $(daaldep.rt.tbb)
+$(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(core_y): LOPT += $(if $(OS_is_win),-LIBPATH:$(RELEASEDIR.tbb.libia),-L$(TBBDIR.soia.lnx))
@@ -1053,6 +1052,7 @@ $2/$(notdir $1): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 $(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.soia))))
 $(foreach t,$(releasetbb.LIBS_A),$(eval $(call .release.t,$t,$(RELEASEDIR.tbb.libia))))
+$(if $(OS_is_win),$(foreach t,$(releasetbb.LIBS_Y),$(eval $(call .release.t,$t,$(RELEASEDIR.soia)))),)
 
 #----- cmake configs generation
 
