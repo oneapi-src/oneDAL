@@ -129,7 +129,7 @@ def _preapre_builtin_include_directory_paths(repo_ctx, tools):
             "-xc++",
             get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc) +
             _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
-            _add_sycl_linkage(repo_ctx, tools.dpcc),
+            _add_sycl_linkage(repo_ctx, tools.dpcc) if tools.is_dpc_found else [],
         ) +
         required_tmp_includes,
     )
