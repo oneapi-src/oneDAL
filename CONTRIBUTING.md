@@ -83,6 +83,12 @@ editorconfig-checker
 
 For your convenience we also added [coding guidelines](http://oneapi-src.github.io/oneDAL/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
 
+## Custom Components
+
+### Threading Layer
+
+In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form are called the [threading layer](http://oneapi-src.github.io/oneDAL/contribution/threading.html). Contributors should leverage the primitives from the layer to implement parallel algorithms.
+
 ## Documentation Guidelines
 
 oneDAL uses `Doxygen` for inline comments in public header files that are used to build the API reference and  `reStructuredText` for the Developer Guide. See [oneDAL documentation](https://oneapi-src.github.io/oneDAL/) for reference.

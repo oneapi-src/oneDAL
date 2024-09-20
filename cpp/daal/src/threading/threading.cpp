@@ -103,7 +103,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     return 1;
 }
 
-DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func)
+DAAL_EXPORT void _daal_threader_for(int n, int reserved, const void * a, daal::functype func)
 {
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {
@@ -160,7 +160,7 @@ DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const v
     }
 }
 
-DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
+DAAL_EXPORT void _daal_threader_for_simple(int n, int reserved, const void * a, daal::functype func)
 {
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {
@@ -318,7 +318,7 @@ DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<double>, pair_fp64_uint64)
 
 #undef DAAL_PARALLEL_SORT_IMPL
 
-DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
+DAAL_EXPORT void _daal_threader_for_blocked(int n, int reserved, const void * a, daal::functype2 func)
 {
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {
