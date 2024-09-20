@@ -17,6 +17,7 @@
 FROM ubuntu:22.04@sha256:adbb90115a21969d2fe6fa7f9af4253e16d45f8d4c1e930182610c4731962658
 
 ARG workdirectory="/sources/oneDAL"
+ARG miniconda_version="py312_24.5.0-0"
 
 COPY . ${workdirectory}
 
@@ -28,7 +29,9 @@ RUN apt-get update && \
 
 # Install miniconda
 ENV CONDA_DIR /opt/conda
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${miniconda_version}-Linux-x86_64.sh -O ~/miniconda.sh && \
+    echo "4b3b3b1b99215e85fd73fb2c2d7ebf318ac942a457072de62d885056556eb83e" ~/miniconda.sh | sha256sum -c - && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 
 # Put conda in path to use conda activate
