@@ -51,7 +51,7 @@ daaldep.fbsd32e.mkl.core := $(MKLDIR.libia)/$(plib)mkl_core.$a
 daaldep.fbsd32e.mkl.sycl := $(MKLGPUDIR.lib)/$(plib)mkl_sycl.$a
 
 daaldep.math_backend.core     := $(daaldep.$(PLAT).mkl.core)
-daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr) $(daaldep.$(PLAT).mkl.interfaces)
+daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr) $(daaldep.$(PLAT).mkl.interfaces) $(daaldep.$(PLAT).mkl.core)
 daaldep.math_backend.seq := $(daaldep.$(PLAT).mkl.seq)
 daaldep.math_backend.sycl := $(daaldep.$(PLAT).mkl.sycl)
 
