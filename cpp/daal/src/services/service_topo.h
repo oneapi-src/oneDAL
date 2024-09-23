@@ -357,13 +357,13 @@ unsigned _internal_daal_GetLogicalProcessorCount();
 unsigned _internal_daal_GetCoresPerPackageProcessorCount();
 unsigned _internal_daal_GetProcessorPackageCount();
 unsigned _internal_daal_GetEnumerateAPICID(unsigned processor);
-unsigned _internal_daal_GetLogicalPerCoreProcessorCount();
 unsigned _internal_daal_GetCoreCount(unsigned long package_ordinal);
 unsigned _internal_daal_GetThreadCount(unsigned long package_ordinal, unsigned long core_ordinal);
 unsigned _internal_daal_GetLogicalProcessorQueue(int * queue);
 unsigned _internal_daal_GetStatus();
 
 unsigned _internal_daal_GetSysLogicalProcessorCount();
+unsigned _internal_daal_GetSysProcessorCoreCount();
 } // namespace internal
 } // namespace services
 } // namespace daal

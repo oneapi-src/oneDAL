@@ -25,6 +25,7 @@
 #define __SERVICE_SERVICE_MKL_H__
 
 #include "services/daal_defines.h"
+#include "src/services/service_topo.h"
 #include <mkl.h>
 #include <mkl_service.h>
 #include <string.h>
@@ -61,22 +62,22 @@ struct MklService
         // return memmove_s(dest, destSize, src, smax);
     }
 
-    static int serv_get_ht()
-    {
-        // TODO: real detection of hypertheading
-        return 0;
-    }
-
     static int serv_get_ncpus()
     {
-        // TODO: detection of npus
-        return 1;
+        unsigned int ncores = daal::services::internal::_internal_daal_GetSysProcessorCoreCount();
+        return (ncores ? ncores : 1);
     }
 
     static int serv_get_ncorespercpu()
     {
-        // TODO: detection of ncores per cpu
-        return 1;
+        unsigned int nlogicalcpu = daal::services::internal::_internal_daal_GetSysLogicalProcessorCount();
+        unsigned int ncpus = serv_get_ncpus();
+        return (ncpus > 0 && nlogicalcpu > 0 && nlogicalcpu > ncpus ? nlogicalcpu / ncpus : 1);
+    }
+
+    static int serv_get_ht()
+    {
+        return (serv_get_ncorespercpu() > 1 ? 1 : 0);
     }
 
     // TODO: The real call should be delegated to a backend library if the option is supported
