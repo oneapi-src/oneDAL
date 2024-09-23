@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2022 Intel Corporation
+.. * Copyright contributors to the oneDAL project
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,48 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+::
 
-.. toctree::
-   :caption: About
-   :maxdepth: 1
-   :hidden:
-
-   data-analytics-pipeline.rst
-   system-requirements.rst
-
-.. toctree::
-   :caption: Get Started
-   :maxdepth: 2
-
-   installation.rst
-   quick-start.rst
-   examples.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Developer Guide
-
-   oneapi-interfaces.rst
-   daal-interfaces.rst
-   bibliography.rst
-   deprecation.rst
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Developer Reference
-
-   api/index.rst
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Contributing Guide
-
-   contribution/coding_guide.rst
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Custom Components
-
-   contribution/threading.rst
+   float dot(const size_t n, const float* a, const float* b) {
+      float result = 0.0f;
+      for (size_t i = 0; i < n; ++i) {
+         result += a[i] * b[i];
+      }
+      return result;
+   }

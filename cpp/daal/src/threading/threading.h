@@ -198,107 +198,196 @@ inline size_t setNumberOfThreads(const size_t numThreads, void ** globalControl)
 template <typename F>
 inline void threader_func(int i, const void * a)
 {
-    const F & lambda = *static_cast<const F *>(a);
-    lambda(i);
+    const F & func = *static_cast<const F *>(a);
+    func(i);
 }
 
 template <typename F>
 inline void static_threader_func(size_t i, size_t tid, const void * a)
 {
-    const F & lambda = *static_cast<const F *>(a);
-    lambda(i, tid);
+    const F & func = *static_cast<const F *>(a);
+    func(i, tid);
 }
 
 template <typename F>
 inline void threader_func_b(int i0, int in, const void * a)
 {
-    const F & lambda = *static_cast<const F *>(a);
-    lambda(i0, in);
+    const F & func = *static_cast<const F *>(a);
+    func(i0, in);
 }
 
 template <typename F>
 inline void threader_func_break(int i, bool & needBreak, const void * a)
 {
-    const F & lambda = *static_cast<const F *>(a);
-    lambda(i, needBreak);
+    const F & func = *static_cast<const F *>(a);
+    func(i, needBreak);
 }
 
+/// Pass a function to be executed in a for loop to the threading layer.
+/// The maximal number of iterations in the loop is `2^31 - 1 (INT32_MAX)`.
+/// The default scheduling of the threading layer is used to assign
+/// the iterations of the loop to threads.
+/// Data dependencies between the iterations are allowed, but may requre the use
+/// of synchronization primitives.
+///
+/// @tparam F   Callable object of type `[/* captures */](int i) -> void`,
+///             where `i` is the loop's iteration index, `0 <= i < n`.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] reserved Parameter reserved for the future. Currently unused.
+/// @param[in] func     Callable object that defines the loop body.
 template <typename F>
-inline void threader_for(int n, int threads_request, const F & lambda)
+inline void threader_for(int n, int reserved, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
-    _daal_threader_for(n, threads_request, a, threader_func<F>);
+    _daal_threader_for(n, reserved, a, threader_func<F>);
 }
 
+/// Pass a function to be executed in a for loop to the threading layer.
+/// The maximal number of iterations in the loop is `2^63 - 1 (INT64_MAX)`.
+/// The default scheduling of the threading layer is used to assign
+/// the iterations of the loop to threads.
+/// The iterations of the loop should be logically independent.
+/// Data dependencies between the iterations are allowed, but may requre the use
+/// of synchronization primitives.
+///
+/// @tparam F   Callable object of type `[/* captures */](int64_t i) -> void`,
+///             where `i` is the loop's iteration index, `0 <= i < n`.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] func     Callable object that defines the loop body.
 template <typename F>
-inline void threader_for_int64(int64_t n, const F & lambda)
+inline void threader_for_int64(int64_t n, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
     _daal_threader_for_int64(n, a, threader_func<F>);
 }
 
+/// Pass a function to be executed in a for loop to the threading layer.
+/// The maximal number of iterations in the loop is 2^31 - 1.
+///
+/// The specifics of this loop comparing to `threader_for` is that the iteration space
+/// of the loop is always chunked with chunk size 1.
+/// This means the threading layer tries to assign consecutive iterations to
+/// different threads, if possible.
+/// In case of oneTBB threading backend this means that `simple_partitioner`
+/// (https://oneapi-src.github.io/oneTBB/main/tbb_userguide/Partitioner_Summary.html)
+/// with chunk size 1 is used to produce iteration to threads mappings.
+///
+/// Data dependencies between the iterations are allowed, but may requre the use
+/// of synchronization primitives.
+///
+/// @tparam F   Callable object of type `[/* captures */](int i) -> void`,
+///             where `i` is the loop's iteration index, `0 <= i < n`.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] reserved Parameter reserved for the future. Currently unused.
+/// @param[in] func     Callable object that defines iteration's body.
 template <typename F>
-inline void threader_for_simple(int n, int threads_request, const F & lambda)
+inline void threader_for_simple(int n, int reserved, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
-    _daal_threader_for_simple(n, threads_request, a, threader_func<F>);
+    _daal_threader_for_simple(n, reserved, a, threader_func<F>);
 }
 
 template <typename F>
-inline void threader_for_int32ptr(const int * begin, const int * end, const F & lambda)
+inline void threader_for_int32ptr(const int * begin, const int * end, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
     _daal_threader_for_int32ptr(begin, end, a, threader_func<F>);
 }
 
+/// Execute the for loop defined by the input parameters in parallel.
+/// The maximal number of iterations in the loop is `SIZE_MAX` in C99 standard.
+///
+/// The work is scheduled statically across threads.
+/// This means that the work is always scheduled in the same way across the threads:
+/// each thread processes the same set of iterations on each invocation of this loop.
+///
+/// It is recommended to use this parallel loop if each iteration of the loop
+/// performs equal amount of work.
+///
+/// Let `t` be the number of threads available to oneDAL. The number of iterations
+/// processed by each threads (except maybe the last one) is computed as:
+/// `nI = (n + t - 1) / t`
+///
+/// Here is how the work is split across the threads:
+/// The 1st thread executes iterations `0, ..., nI - 1`;
+/// the 2nd thread executes iterations `nI, ..., 2 * nI - 1`;
+/// ...
+/// the `t`-th thread executes iterations `(t - 1) * nI, ..., n - 1`.
+///
+/// @tparam F   Callable object of type `[/* captures */](size_t i, size_t tid) -> void`,
+///             where
+///                 `i` is the loop's iteration index, `0 <= i < n`;
+///                 `tid` is the index of the thread, `0 <= tid < t`.
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] func     Callable object that defines iteration's body.
 template <typename F>
-inline void static_threader_for(size_t n, const F & lambda)
+inline void static_threader_for(size_t n, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
     _daal_static_threader_for(n, a, static_threader_func<F>);
 }
 
+/// Pass a function to be executed in a for loop to the threading layer.
+/// The maximal number of iterations in the loop is `2^31 - 1 INT32_MAX`.
+/// The default scheduling of the threading layer is used to assign
+/// the iterations of the loop to threads.
+///
+/// @tparam F   Callable object of type `[/* captures */](int beginRange, int endRange) -> void`
+///             where
+///                 `beginRange` is the starting index of the loop iterations block to be
+///                                processed by a thread, `0 <= beginRange < n`;
+///                 `endRange`   is the index after the end of the loop's iterations block to be
+///                                processed by a thread, `beginRange < endRange <= n`;
+///
+/// @param[in] n        Number of iterations in the for loop.
+/// @param[in] reserved Parameter reserved for the future. Currently unused.
+/// @param[in] func     Callable object that processes the block of loop's iterations
+///                     `[beginRange, endRange)`.
 template <typename F>
-inline void threader_for_blocked(int n, int threads_request, const F & lambda)
+inline void threader_for_blocked(int n, int reserved, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
-    _daal_threader_for_blocked(n, threads_request, a, threader_func_b<F>);
+    _daal_threader_for_blocked(n, reserved, a, threader_func_b<F>);
 }
 
 template <typename F>
-inline void threader_for_optional(int n, int threads_request, const F & lambda)
+inline void threader_for_optional(int n, int threads_request, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
     _daal_threader_for_optional(n, threads_request, a, threader_func<F>);
 }
 
 template <typename F>
-inline void threader_for_break(int n, int threads_request, const F & lambda)
+inline void threader_for_break(int n, int threads_request, const F & func)
 {
-    const void * a = static_cast<const void *>(&lambda);
+    const void * a = static_cast<const void *>(&func);
 
     _daal_threader_for_break(n, threads_request, a, threader_func_break<F>);
 }
 
-template <typename lambdaType>
+template <typename callableType>
 inline void * tls_func(const void * a)
 {
-    const lambdaType & lambda = *static_cast<const lambdaType *>(a);
-    return lambda();
+    const callableType & func = *static_cast<const callableType *>(a);
+    return func();
 }
 
-template <typename F, typename lambdaType>
+template <typename F, typename callableType>
 inline void tls_reduce_func(void * v, const void * a)
 {
-    const lambdaType & lambda = *static_cast<const lambdaType *>(a);
-    lambda((F)v);
+    const callableType & func = *static_cast<const callableType *>(a);
+    func((F)v);
 }
 
 struct tlsBase
@@ -313,32 +402,49 @@ public:
     virtual void del(void * a) = 0;
 };
 
-template <typename lambdaType>
+template <typename callableType>
 class tls_deleter_ : public tls_deleter
 {
 public:
     virtual ~tls_deleter_() {}
-    virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
+    virtual void del(void * a) { delete static_cast<callableType *>(a); }
 };
 
+/// Thread-local storage (TLS).
+/// Can change its local variable after a nested parallel constructs.
+/// @note Thread-local storage in nested parallel regions is, in general, not thread local.
+/// The use of nested parallelism should be avoided if possible, otherwise extra care
+/// must be taken with thread-local values.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class tls : public tlsBase
 {
 public:
-    template <typename lambdaType>
-    explicit tls(const lambdaType & lambda)
+    /// Initialize thread-local storage
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */]() -> F`
+    ///
+    /// @param func Callable object that initializes a thread-local storage
+    template <typename callableType>
+    explicit tls(const callableType & func)
     {
-        lambdaType * locall = new lambdaType(lambda);
-        d                   = new tls_deleter_<lambdaType>();
+        callableType * localfunc = new callableType(func);
+        d                        = new tls_deleter_<callableType>();
 
-        //const void* ac = static_cast<const void*>(&lambda);
-        const void * ac = static_cast<const void *>(locall);
+        //const void* ac = static_cast<const void*>(&func);
+        const void * ac = static_cast<const void *>(localfunc);
         void * a        = const_cast<void *>(ac);
         voidLambda      = a;
 
-        tlsPtr = _daal_get_tls_ptr(a, tls_func<lambdaType>);
+        tlsPtr = _daal_get_tls_ptr(a, tls_func<callableType>);
     }
 
+    /// Destroys the memory associated with a thread-local storage
+    ///
+    /// @note TLS does not release the memory allocated by a callable object
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~tls()
     {
         d->del(voidLambda);
@@ -346,26 +452,43 @@ public:
         _daal_del_tls_ptr(tlsPtr);
     }
 
+    /// Access a local data of a thread by value
+    ///
+    /// @return When first invoked by a thread, a callable object provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local()
     {
         void * pf = _daal_get_tls_local(tlsPtr);
         return (static_cast<F>(pf));
     }
 
-    template <typename lambdaType>
-    void reduce(const lambdaType & lambda)
+    /// Sequential reduction.
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */](F) -> void`
+    ///
+    /// @param func Callable object that is applied to each element of thread-local
+    ///             storage sequentially.
+    template <typename callableType>
+    void reduce(const callableType & func)
     {
-        const void * ac = static_cast<const void *>(&lambda);
+        const void * ac = static_cast<const void *>(&func);
         void * a        = const_cast<void *>(ac);
-        _daal_reduce_tls(tlsPtr, a, tls_reduce_func<F, lambdaType>);
+        _daal_reduce_tls(tlsPtr, a, tls_reduce_func<F, callableType>);
     }
 
-    template <typename lambdaType>
-    void parallel_reduce(const lambdaType & lambda)
+    /// Parallel reduction.
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */](F) -> void`
+    ///
+    /// @param func     Callable object that is applied to each element of thread-local
+    ///                 storage in parallel.
+    template <typename callableType>
+    void parallel_reduce(const callableType & func)
     {
-        const void * ac = static_cast<const void *>(&lambda);
+        const void * ac = static_cast<const void *>(&func);
         void * a        = const_cast<void *>(ac);
-        _daal_parallel_reduce_tls(tlsPtr, a, tls_reduce_func<F, lambdaType>);
+        _daal_parallel_reduce_tls(tlsPtr, a, tls_reduce_func<F, callableType>);
     }
 
 private:
@@ -374,11 +497,11 @@ private:
     tls_deleter * d;
 };
 
-template <typename F, typename lambdaType>
+template <typename F, typename callableType>
 inline void * creater_func(const void * a)
 {
-    const lambdaType & lambda = *static_cast<const lambdaType *>(a);
-    return lambda();
+    const callableType & func = *static_cast<const callableType *>(a);
+    return func();
 }
 
 class static_tls_deleter
@@ -388,20 +511,28 @@ public:
     virtual void del(void * a) = 0;
 };
 
-template <typename lambdaType>
+template <typename callableType>
 class static_tls_deleter_ : public static_tls_deleter
 {
 public:
     virtual ~static_tls_deleter_() {}
-    virtual void del(void * a) { delete static_cast<lambdaType *>(a); }
+    virtual void del(void * a) { delete static_cast<callableType *>(a); }
 };
 
+/// Thread-local storage (TLS) for the case of static parallel work scheduling.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class static_tls
 {
 public:
-    template <typename lambdaType>
-    explicit static_tls(const lambdaType & lambda)
+    /// Initialize thread-local storage.
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */]() -> F`
+    ///
+    /// @param func Callable object that initializes a thread-local storage
+    template <typename callableType>
+    explicit static_tls(const callableType & func)
     {
         _nThreads = threader_get_max_threads_number();
 
@@ -417,8 +548,8 @@ public:
             _storage[i] = nullptr;
         }
 
-        lambdaType * locall = new lambdaType(lambda);
-        _deleter            = new static_tls_deleter_<lambdaType>();
+        callableType * locall = new callableType(func);
+        _deleter              = new static_tls_deleter_<callableType>();
         if (!locall || !_deleter)
         {
             return;
@@ -428,9 +559,14 @@ public:
         void * a        = const_cast<void *>(ac);
         _creater        = a;
 
-        _creater_func = creater_func<F, lambdaType>;
+        _creater_func = creater_func<F, callableType>;
     }
 
+    /// Destroys the memory associated with a thread-local storage.
+    ///
+    /// @note Static TLS does not release the memory allocated by a callable object
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~static_tls()
     {
         if (_deleter)
@@ -441,9 +577,16 @@ public:
         delete[] _storage;
     }
 
+    /// Access a local data of a specified thread by value.
+    ///
+    /// @param tid  Index of the thread.
+    ///
+    /// @return When first invoked by a thread, a callable object provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local(size_t tid)
     {
-        if (_storage)
+        if (_storage && tid < _nThreads)
         {
             if (!_storage[tid])
             {
@@ -458,18 +601,27 @@ public:
         }
     }
 
-    template <typename lambdaType>
-    void reduce(const lambdaType & lambda)
+    /// Sequential reduction.
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */](F) -> void`
+    ///
+    /// @param func Callable object that is applied to each element of thread-local
+    ///             storage sequentially.
+    template <typename callableType>
+    void reduce(const callableType & func)
     {
         if (_storage)
         {
             for (size_t i = 0; i < _nThreads; ++i)
             {
-                if (_storage[i]) lambda(_storage[i]);
+                if (_storage[i]) func(_storage[i]);
             }
         }
     }
 
+    /// Full number of threads.
+    ///
+    /// @return Total number of threads available to oneDAL.
     size_t nthreads() const { return _nThreads; }
 
 private:
@@ -480,25 +632,43 @@ private:
     static_tls_deleter * _deleter    = nullptr;
 };
 
+/// Local storage (LS) for the data of a thread.
+/// Does not change its local variable after nested parallel constructs,
+/// but can have performance penalties compared to thread-local storage type `daal::tls`.
+/// Can be safely used in case of nested parallel regions.
+///
+/// @tparam F  Type of the data located in the storage
 template <typename F>
 class ls : public tlsBase
 {
 public:
-    template <typename lambdaType>
-    explicit ls(const lambdaType & lambda, const bool isTls = false)
+    /// Initialize local storage.
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */]() -> F`
+    ///
+    /// @param func     Callable object that initializes local storage
+    /// @param isTls    if `true`, then local storage is a thread-local storage (`daal::tls`)
+    ///                 and might have problems in case of nested parallel regions.
+    template <typename callableType>
+    explicit ls(const callableType & func, const bool isTls = false)
     {
-        _isTls              = isTls;
-        lambdaType * locall = new lambdaType(lambda);
-        d                   = new tls_deleter_<lambdaType>();
+        _isTls                   = isTls;
+        callableType * localfunc = new callableType(func);
+        d                        = new tls_deleter_<callableType>();
 
-        //const void* ac = static_cast<const void*>(&lambda);
-        const void * ac = static_cast<const void *>(locall);
+        //const void* ac = static_cast<const void*>(&func);
+        const void * ac = static_cast<const void *>(localfunc);
         void * a        = const_cast<void *>(ac);
         voidLambda      = a;
 
-        lsPtr = _isTls ? _daal_get_tls_ptr(a, tls_func<lambdaType>) : _daal_get_ls_ptr(a, tls_func<lambdaType>);
+        lsPtr = _isTls ? _daal_get_tls_ptr(a, tls_func<callableType>) : _daal_get_ls_ptr(a, tls_func<callableType>);
     }
 
+    /// Destroys the memory associated with local storage.
+    ///
+    /// @note `ls` does not release the memory allocated by a callable object
+    ///       provided to the constructor.
+    ///       Developers are responsible for deletion of that memory.
     virtual ~ls()
     {
         d->del(voidLambda);
@@ -506,6 +676,11 @@ public:
         _isTls ? _daal_del_tls_ptr(lsPtr) : _daal_del_ls_ptr(lsPtr);
     }
 
+    /// Access the local data of a thread by value.
+    ///
+    /// @return When first invoked by a thread, a callable object provided to the constructor is
+    ///         called to initialize the local data of the thread and return it.
+    ///         All the following invocations just return the same thread-local data.
     F local()
     {
         void * pf = _isTls ? _daal_get_tls_local(lsPtr) : _daal_get_ls_local(lsPtr);
@@ -517,12 +692,18 @@ public:
         if (!_isTls) _daal_release_ls_local(lsPtr, p);
     }
 
-    template <typename lambdaType>
-    void reduce(const lambdaType & lambda)
+    /// Sequential reduction.
+    ///
+    /// @tparam callableType  Callable object of type `[/* captures */](F) -> void`
+    ///
+    /// @param func Callable object that is applied to each element of thread-local
+    ///             storage sequentially.
+    template <typename callableType>
+    void reduce(const callableType & func)
     {
-        const void * ac = static_cast<const void *>(&lambda);
+        const void * ac = static_cast<const void *>(&func);
         void * a        = const_cast<void *>(ac);
-        _isTls ? _daal_reduce_tls(lsPtr, a, tls_reduce_func<F, lambdaType>) : _daal_reduce_ls(lsPtr, a, tls_reduce_func<F, lambdaType>);
+        _isTls ? _daal_reduce_tls(lsPtr, a, tls_reduce_func<F, callableType>) : _daal_reduce_ls(lsPtr, a, tls_reduce_func<F, callableType>);
     }
 
 private:
