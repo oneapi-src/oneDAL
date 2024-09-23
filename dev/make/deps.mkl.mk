@@ -52,7 +52,7 @@ daaldep.fbsd32e.mkl.sycl := $(MKLGPUDIR.lib)/$(plib)mkl_sycl.$a
 
 daaldep.math_backend.core     := $(daaldep.$(PLAT).mkl.core)
 daaldep.math_backend.interfaces     := $(daaldep.$(PLAT).mkl.interfaces)
-daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr) $(daaldep.$(PLAT).mkl.interfaces) $(daaldep.$(PLAT).mkl.core)
+daaldep.math_backend.thr := $(daaldep.$(PLAT).mkl.thr)
 daaldep.math_backend.seq := $(daaldep.$(PLAT).mkl.seq)
 daaldep.math_backend.sycl := $(daaldep.$(PLAT).mkl.sycl)
 
@@ -71,5 +71,5 @@ daaldep.fbsd32e.ipp := $(if $(COV.libia),$(COV.libia)/libcov.a)
 daaldep.vml     := $(daaldep.$(PLAT).vml)
 daaldep.ipp     := $(daaldep.$(PLAT).ipp)
 
-daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.math_backend.interfaces) $(daaldep.math_backend.seq) $(daaldep.math_backend.core)
+daaldep.math_backend.ext := $(daaldep.ipp) $(daaldep.vml) $(daaldep.math_backend.interfaces) $(daaldep.math_backend.thr) $(daaldep.math_backend.core)
 daaldep.math_backend.sycl := $(daaldep.math_backend.sycl)
