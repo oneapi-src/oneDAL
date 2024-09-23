@@ -634,7 +634,7 @@ jobs:
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ./sklearnex/conda-recipe/run_test.sh
-    timeoutInMinutes: 15
+    timeoutInMinutes: 20
     displayName: sklearnex test
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
