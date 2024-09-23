@@ -71,14 +71,11 @@ struct MklService
     static int serv_get_ncorespercpu()
     {
         unsigned int nlogicalcpu = daal::services::internal::_internal_daal_GetSysLogicalProcessorCount();
-        unsigned int ncpus = serv_get_ncpus();
+        unsigned int ncpus       = serv_get_ncpus();
         return (ncpus > 0 && nlogicalcpu > 0 && nlogicalcpu > ncpus ? nlogicalcpu / ncpus : 1);
     }
 
-    static int serv_get_ht()
-    {
-        return (serv_get_ncorespercpu() > 1 ? 1 : 0);
-    }
+    static int serv_get_ht() { return (serv_get_ncorespercpu() > 1 ? 1 : 0); }
 
     // TODO: The real call should be delegated to a backend library if the option is supported
     static int serv_set_memory_limit(int type, size_t limit) { return MKL_Set_Memory_Limit(type, limit); }
