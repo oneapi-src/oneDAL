@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __SVD_KERNEL_H__
-#define __SVD_KERNEL_H__
+#ifndef __SVD_DENSE_DEFAULT_KERNEL_H__
+#define __SVD_DENSE_DEFAULT_KERNEL_H__
 
 #include "algorithms/svd/svd_batch.h"
 #include "src/algorithms/kernel.h"

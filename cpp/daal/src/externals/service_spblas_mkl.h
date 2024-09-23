@@ -27,16 +27,6 @@
 #include "services/daal_defines.h"
 #include <mkl.h>
 
-#if !defined(__DAAL_CONCAT4)
-    #define __DAAL_CONCAT4(a, b, c, d)  __DAAL_CONCAT41(a, b, c, d)
-    #define __DAAL_CONCAT41(a, b, c, d) a##b##c##d
-#endif
-
-#if !defined(__DAAL_CONCAT5)
-    #define __DAAL_CONCAT5(a, b, c, d, e)  __DAAL_CONCAT51(a, b, c, d, e)
-    #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
-#endif
-
 namespace daal
 {
 namespace internal

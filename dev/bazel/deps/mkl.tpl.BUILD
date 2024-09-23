@@ -19,28 +19,6 @@ cc_library(
     srcs = [
         "lib/libmkl_core.a",
         "lib/libmkl_intel_ilp64.a",
-    ],
-    linkopts = [
-        "-lpthread",
-    ],
-    deps = [
-        ":headers",
-    ]
-)
-
-cc_library(
-    name = "libmkl_sequential",
-    srcs = [
-        "lib/libmkl_sequential.a",
-    ],
-    deps = [
-        ":mkl_core",
-    ]
-)
-
-cc_library(
-    name = "mkl_thr",
-    srcs = [
         "lib/libmkl_tbb_thread.a",
     ],
     linkopts = [
@@ -48,17 +26,18 @@ cc_library(
     ],
     deps = [
         ":headers",
-        ":mkl_core",
     ]
 )
 
 cc_library(
-    name = "mkl_seq",
+    name = "mkl_thr",
+    linkopts = [
+        "-lpthread",
+    ],
     deps = [
         ":headers",
         ":mkl_core",
-        ":libmkl_sequential",
-    ],
+    ]
 )
 
 cc_library(
