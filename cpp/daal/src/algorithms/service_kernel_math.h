@@ -199,13 +199,13 @@ public:
         for (size_t iBlock = 0; iBlock < nBlocks; ++iBlock)
         {
             const size_t begin = iBlock * blockSize;
-            const size_t end   = services::internal::serviceMin<cpu, size_t>(begin + blockSize, n);
+            const size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, n);
             const size_t count = end - begin;
 
             // max(0, d) to remove negative distances before Sqrt
             for (size_t i = begin; i < end; ++i)
             {
-                a[i] = services::internal::serviceMax<cpu, FPType>(FPType(0), a[i]);
+                a[i] = services::internal::max<cpu, FPType>(FPType(0), a[i]);
             }
             MathInst<FPType, cpu>::vSqrt(count, a + begin, a + begin);
         }
@@ -262,7 +262,7 @@ protected:
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
             size_t begin = iBlock * blockSize;
-            size_t end   = services::internal::serviceMin<cpu, size_t>(begin + blockSize, nRows);
+            size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, nRows);
 
             ReadRows<FPType, cpu> dataRows(const_cast<NumericTable &>(ntData), begin, end - begin);
             DAAL_CHECK_BLOCK_STATUS_THR(dataRows);

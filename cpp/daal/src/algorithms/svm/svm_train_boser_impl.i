@@ -303,8 +303,8 @@ inline void SVMTrainTask<algorithmFPType, cpu>::updateAlpha(int Bi, int Bj, algo
     const algorithmFPType cwj       = _cw[Bj];
 
     const algorithmFPType alphaBiDelta = (yi > 0.0f) ? cwi - oldAlphai : oldAlphai;
-    const algorithmFPType alphaBjDelta = services::internal::serviceMin<cpu, algorithmFPType>((yj > 0.0f) ? oldAlphaj : cwj - oldAlphaj, delta);
-    delta                              = services::internal::serviceMin<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
+    const algorithmFPType alphaBjDelta = services::internal::min<cpu, algorithmFPType>((yj > 0.0f) ? oldAlphaj : cwj - oldAlphaj, delta);
+    delta                              = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
 
     algorithmFPType newAlphai = oldAlphai + yi * delta;
     algorithmFPType newAlphaj = oldAlphaj - yj * delta;

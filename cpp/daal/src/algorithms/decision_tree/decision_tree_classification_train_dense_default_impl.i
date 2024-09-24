@@ -59,7 +59,7 @@ class REPPruningData : public PruningData<cpu, int>
 
 public:
     REPPruningData(size_t size, size_t numberOfClasses)
-        : BaseType(size), _numberOfClasses(numberOfClasses), _counters(daal_alloc<size_t>(serviceMax<cpu, size_t>(1, size * numberOfClasses)))
+        : BaseType(size), _numberOfClasses(numberOfClasses), _counters(daal_alloc<size_t>(max<cpu, size_t>(1, size * numberOfClasses)))
     {
         resetCounters();
     }

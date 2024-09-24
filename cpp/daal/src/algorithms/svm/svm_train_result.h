@@ -312,11 +312,11 @@ protected:
             }
             if (HelperTrainSVM<algorithmFPType, cpu>::isUpper(yi, ai, cwi, signNuType))
             {
-                ub = services::internal::serviceMin<cpu, algorithmFPType>(ub, gradi);
+                ub = services::internal::min<cpu, algorithmFPType>(ub, gradi);
             }
             if (HelperTrainSVM<algorithmFPType, cpu>::isLower(yi, ai, cwi, signNuType))
             {
-                lb = services::internal::serviceMax<cpu, algorithmFPType>(lb, gradi);
+                lb = services::internal::max<cpu, algorithmFPType>(lb, gradi);
             }
         }
 

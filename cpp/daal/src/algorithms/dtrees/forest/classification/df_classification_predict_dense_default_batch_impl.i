@@ -1063,7 +1063,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t begin = iBlock * localBlockSize;
-            const size_t end   = services::internal::serviceMin<cpu, size_t>(nRowsOfRes, begin + localBlockSize);
+            const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + localBlockSize);
 
             services::internal::service_memset_seq<algorithmFPType, cpu>(commonBufVal + begin * _nClasses, algorithmFPType(0),
                                                                          (end - begin) * _nClasses);
@@ -1127,7 +1127,7 @@ Status PredictClassificationTask<algorithmFPType, cpu>::predictAllPointsByAllTre
 
             daal::threader_for(nBlocks, nBlocks, [&, nCols](const size_t iBlock) {
                 const size_t begin = iBlock * localBlockSize;
-                const size_t end   = services::internal::serviceMin<cpu, size_t>(nRowsOfRes, begin + localBlockSize);
+                const size_t end   = services::internal::min<cpu, size_t>(nRowsOfRes, begin + localBlockSize);
 
                 if (prob != nullptr)
                 {

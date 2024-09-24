@@ -216,7 +216,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             services::Status s;
 
             const size_t first = iBlock * rowsPerBlock;
-            const size_t last  = serviceMin<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
             const algorithmFpType radius = MaxVal::get();
             data_management::BlockDescriptor<algorithmFpType> xBD;

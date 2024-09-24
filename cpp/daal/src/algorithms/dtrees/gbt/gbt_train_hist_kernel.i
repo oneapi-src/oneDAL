@@ -232,8 +232,8 @@ struct ComputeGHSumByRows
         const size_t prefetchOffset      = 10; // heuristic, prefetch on 10 rows ahead
         const size_t elementsInCacheLine = cacheLineSize / sizeof(BinIndexType);
 
-        const size_t noPrefetchSize              = services::internal::serviceMin<cpu, size_t>(prefetchOffset + elementsInCacheLine, nRows);
-        const size_t iEndWithPrefetch            = services::internal::serviceMin<cpu, size_t>(nRows - noPrefetchSize, iEnd);
+        const size_t noPrefetchSize              = services::internal::min<cpu, size_t>(prefetchOffset + elementsInCacheLine, nRows);
+        const size_t iEndWithPrefetch            = services::internal::min<cpu, size_t>(nRows - noPrefetchSize, iEnd);
         const size_t nCacheLinesToPrefetchOneRow = nFeatures / elementsInCacheLine + !!(nFeatures % elementsInCacheLine);
 
         RowIndexType i = iStart;
@@ -330,8 +330,8 @@ struct ComputeGHSumByRows<RowIndexType, BinIndexType, float, SSE42_ALL>
         const size_t prefetchOffset      = 10; // heuristic, prefetch on 10 rows ahead
         const size_t elementsInCacheLine = cacheLineSize / sizeof(IndexType);
 
-        const size_t noPrefetchSize              = services::internal::serviceMin<SSE42_ALL, size_t>(prefetchOffset + elementsInCacheLine, nRows);
-        const size_t iEndWithPrefetch            = services::internal::serviceMin<SSE42_ALL, size_t>(nRows - noPrefetchSize, iEnd);
+        const size_t noPrefetchSize              = services::internal::min<SSE42_ALL, size_t>(prefetchOffset + elementsInCacheLine, nRows);
+        const size_t iEndWithPrefetch            = services::internal::min<SSE42_ALL, size_t>(nRows - noPrefetchSize, iEnd);
         const size_t nCacheLinesToPrefetchOneRow = nFeatures / elementsInCacheLine + !!(nFeatures % elementsInCacheLine);
 
         __m128 adds;

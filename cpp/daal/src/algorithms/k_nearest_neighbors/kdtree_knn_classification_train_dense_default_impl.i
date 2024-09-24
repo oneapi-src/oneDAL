@@ -337,7 +337,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             if (bboxLocal)
             {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = serviceMin<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+                const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
                 if (first < last)
                 {
@@ -396,7 +396,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t start, size_t end, size_t * sampleIndexes, algorithmFpType * sampleValues, size_t sampleCount, const NumericTable & x,
     const size_t * indexes, engines::BatchBase * engine)
 {
-    const size_t elementCount = serviceMin<cpu>(end - start, sampleCount);
+    const size_t elementCount = min<cpu>(end - start, sampleCount);
     const size_t xColumnCount = x.getNumberOfColumns();
     const size_t xRowCount    = x.getNumberOfRows();
 
@@ -562,7 +562,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         if (hist)
         {
             const size_t first = start + iBlock * rowsPerBlock;
-            const size_t last  = serviceMin<cpu>(first + rowsPerBlock, end);
+            const size_t last  = min<cpu>(first + rowsPerBlock, end);
 
             for (size_t l = first; l < last; ++l)
             {
@@ -724,7 +724,7 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     daal::threader_for(blockCount, blockCount, [=, &leftSegmentStartPerBlock, &rightSegmentStartPerBlock](int iBlock) {
         const size_t first = start + iBlock * rowsPerBlock;
-        const size_t last  = serviceMin<cpu>(first + rowsPerBlock, end);
+        const size_t last  = min<cpu>(first + rowsPerBlock, end);
 
         size_t left  = first;
         size_t right = last - 1;
@@ -860,7 +860,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
         daal::threader_for(blockCount, blockCount, [=](int iBlock) {
             const size_t first = iBlock * rowsPerBlock;
-            const size_t last  = serviceMin<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
             size_t j = first;
             if (last > 4)
@@ -882,7 +882,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         {
             daal::threader_for(blockCount, blockCount, [=](int iBlock) {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = serviceMin<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+                const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
                 auto j = first;
                 if (last > 4)
@@ -1028,7 +1028,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             if (local)
             {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = serviceMin<cpu>(first + rowsPerBlock, posQ);
+                const size_t last  = min<cpu>(first + rowsPerBlock, posQ);
 
                 BuildNode bn, bnLeft, bnRight;
                 BBox *bboxCur = nullptr, *bboxLeft = nullptr, *bboxRight = nullptr;
@@ -1122,7 +1122,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                 {
                                     if (extraIndex >= local->extraKDTreeNodesCapacity)
                                     {
-                                        const size_t newCapacity = serviceMax<cpu>(
+                                        const size_t newCapacity = max<cpu>(
                                             local->extraKDTreeNodesCapacity > 0 ? local->extraKDTreeNodesCapacity * 2 : static_cast<size_t>(1024),
                                             extraIndex + 1);
                                         KDTreeNode * const newNodes =
@@ -1142,7 +1142,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                 }
                                 else
                                 {
-                                    local->extraKDTreeNodesCapacity = serviceMax<cpu>(extraIndex + 1, static_cast<size_t>(1024));
+                                    local->extraKDTreeNodesCapacity = max<cpu>(extraIndex + 1, static_cast<size_t>(1024));
                                     local->extraKDTreeNodes         = static_cast<KDTreeNode *>(
                                         service_malloc<KDTreeNode, cpu>(local->extraKDTreeNodesCapacity * sizeof(KDTreeNode)));
 
@@ -1347,8 +1347,8 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         return approximatedMedian;
     } // if (end - start < sortValueCount)
 
-    size_t sampleCount = serviceMin<cpu>(static_cast<size_t>(static_cast<algorithmFpType>(end - start) * __KDTREE_SAMPLES_PERCENT / 100),
-                                         static_cast<size_t>(__KDTREE_MAX_SAMPLES + 1));
+    size_t sampleCount = min<cpu>(static_cast<size_t>(static_cast<algorithmFpType>(end - start) * __KDTREE_SAMPLES_PERCENT / 100),
+                                  static_cast<size_t>(__KDTREE_MAX_SAMPLES + 1));
 
     if (sampleCount < __KDTREE_MIN_SAMPLES)
     {

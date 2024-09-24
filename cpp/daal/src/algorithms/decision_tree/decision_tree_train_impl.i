@@ -754,7 +754,7 @@ public:
             for (size_t iBlock = 0; iBlock < blockCount; iBlock++)
             {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = serviceMin<cpu>(first + rowsPerBlock, xRowCount);
+                const size_t last  = min<cpu>(first + rowsPerBlock, xRowCount);
 
                 for (size_t i = first; i < last; ++i)
                 {
@@ -1042,7 +1042,7 @@ protected:
         status = services::Status();
         if (_nodeCount >= _nodeCapacity)
         {
-            status = reserve(serviceMax<cpu>(_nodeCount + 1, _nodeCapacity * 2));
+            status = reserve(max<cpu>(_nodeCount + 1, _nodeCapacity * 2));
         }
 
         return _nodeCount++;
@@ -1177,7 +1177,7 @@ protected:
             for (size_t iBlock = 0; iBlock < blockCount; iBlock++)
             {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = serviceMin<cpu>(first + rowsPerBlock, indexCount);
+                const size_t last  = min<cpu>(first + rowsPerBlock, indexCount);
 
                 for (size_t i = first; i < last; ++i)
                 {
@@ -1360,7 +1360,7 @@ protected:
 
         typename SplitCriterion::DependentVariableType leafDependentVariableValue;
         const size_t maxThreads                   = threader_get_threads_number();
-        const size_t workItemCountForDataParallel = serviceMax<cpu, size_t>(maxThreads / 4, 2);
+        const size_t workItemCountForDataParallel = max<cpu, size_t>(maxThreads / 4, 2);
         while (workQueue.size() < workItemCountForDataParallel)
         {
             if (workQueue.size() == 1)
@@ -1625,7 +1625,7 @@ protected:
             const size_t blockCount   = (workSize + rowsPerBlock - 1) / rowsPerBlock;
             daal::threader_for(blockCount, blockCount, [=, &workArray, &indexes, &mutex, &indexCount, &context, &statPush, &safeStat](int iBlock) {
                 const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = serviceMin<cpu>(first + rowsPerBlock, workSize);
+                const size_t last  = min<cpu>(first + rowsPerBlock, workSize);
 
                 SplitCriterion localSplitCriterion(context.splitCriterion);
                 typename SplitCriterion::DependentVariableType leafDependentVariableValue;
@@ -1844,7 +1844,7 @@ protected:
                 for (size_t iBlock = 0; iBlock < blockCount; iBlock++)
                 {
                     const size_t first = iBlock * rowsPerBlock;
-                    const size_t last  = serviceMin<cpu>(first + rowsPerBlock, indexCount);
+                    const size_t last  = min<cpu>(first + rowsPerBlock, indexCount);
 
                     for (size_t i = first; i < last; ++i)
                     {

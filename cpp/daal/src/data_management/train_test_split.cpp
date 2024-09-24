@@ -120,7 +120,7 @@ services::Status generateShuffledIndicesImpl(const NumericTablePtr & idxTable, c
     {
         daal::threader_for(nRngBlocks, nRngBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * rngBlockSize;
-            const size_t end   = daal::services::internal::serviceMin<cpu, size_t>(start + rngBlockSize, nRandomUInts);
+            const size_t end   = daal::services::internal::min<cpu, size_t>(start + rngBlockSize, nRandomUInts);
 
             s |= generateRandomNumbers<cpu>(rngState, randomUInts, start, end - start);
         });
@@ -191,7 +191,7 @@ services::Status assignColumnSubset(const DataType * origDataPtr, const NumericT
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * BLOCK_CONST;
-            const size_t end   = daal::services::internal::serviceMin<cpu, size_t>(start + BLOCK_CONST, nRows);
+            const size_t end   = daal::services::internal::min<cpu, size_t>(start + BLOCK_CONST, nRows);
 
             s |= assignColumnValues<DataType, IdxType, cpu>(origDataPtr, dataTable, idxPtr, start, end - start, iCol);
         });
@@ -254,7 +254,7 @@ services::Status assignRowsSubset(const DataType * origDataPtr, const NumericTab
 
         daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
             const size_t start = iBlock * blockSize;
-            const size_t end   = daal::services::internal::serviceMin<cpu, size_t>(start + blockSize, nRows);
+            const size_t end   = daal::services::internal::min<cpu, size_t>(start + blockSize, nRows);
 
             s |= assignRows<DataType, IdxType, cpu>(origDataPtr, dataTable, idxTable, start, end - start, nColumns);
         });
@@ -272,7 +272,7 @@ services::Status splitRows(const NumericTablePtr & inputTable, const NumericTabl
                            const size_t nTestRows, const size_t nColumns, const size_t nThreads)
 {
     services::Status s;
-    const size_t blockSize = daal::services::internal::serviceMax<cpu, size_t>(BLOCK_CONST / nColumns, 1);
+    const size_t blockSize = daal::services::internal::max<cpu, size_t>(BLOCK_CONST / nColumns, 1);
     daal::internal::ReadRows<DataType, cpu> origBlock(*inputTable, 0, inputTable->getNumberOfRows());
     const DataType * origDataPtr = origBlock.get();
     DAAL_CHECK_MALLOC(origDataPtr);

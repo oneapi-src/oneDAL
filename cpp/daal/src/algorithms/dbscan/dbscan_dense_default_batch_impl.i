@@ -77,7 +77,7 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::processNeighborhoodParal
         size_t total_elems = 0;
 
         size_t begin = iBlock * blockSize;
-        size_t end   = services::internal::serviceMin<cpu, size_t>(begin + blockSize, neigh.size());
+        size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, neigh.size());
 
         total_elems += end - begin;
 
@@ -270,7 +270,7 @@ Status DBSCANBatchKernel<algorithmFPType, method, cpu>::computeNoMemSave(const N
     const size_t blockSize = neighs.size() / nBlocks + !!(neighs.size() % nBlocks);
     daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
         size_t begin = iBlock * blockSize;
-        size_t end   = services::internal::serviceMin<cpu, size_t>(begin + blockSize, neighs.size());
+        size_t end   = services::internal::min<cpu, size_t>(begin + blockSize, neighs.size());
 
         for (size_t i = begin; i < end; ++i)
         {

@@ -65,7 +65,7 @@ public:
             }
             else
             {
-                for (size_t i = 0; i < n; ++i) res[i] = services::internal::serviceMax<cpu, DataType>(res[i], ptr[i]);
+                for (size_t i = 0; i < n; ++i) res[i] = services::internal::max<cpu, DataType>(res[i], ptr[i]);
             }
         });
     }
@@ -190,18 +190,18 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
 {
     TlsMax<IdxType, cpu> maxTlsData(1);
     const IdxType nThreads    = threader_get_threads_number();
-    const IdxType sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(blockOfRows, N / nThreads + 1);
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(blockOfRows, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
     SafeStatus safeStat;
     daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(N, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
         IdxType * localMax   = maxTlsData.local();
         DAAL_CHECK_MALLOC_THR(localMax);
         for (IdxType i = iStart; i < iEnd; ++i)
         {
-            localMax[0] = services::internal::serviceMax<cpu, IdxType>(localMax[0], IdxType((row[i + 1] - row[i])));
+            localMax[0] = services::internal::max<cpu, IdxType>(localMax[0], IdxType((row[i + 1] - row[i])));
         }
     });
     DAAL_CHECK_SAFE_STATUS();
@@ -237,23 +237,23 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     });
 
     const IdxType nThreads = tlsBox.nthreads();
-    // const IdxType sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(256, (N + nThreads - 1) / nThreads);
+    // const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (N + nThreads - 1) / nThreads);
     // const IdxType nBlocks     = (N + sizeOfBlock - 1) / sizeOfBlock;
-    const IdxType sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(256, N / nThreads + 1);
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         DataType * localBox = tlsBox.local(tid);
         if (localBox == nullptr) return;
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(N, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
 
         for (IdxType i = iStart; i < iEnd; ++i)
         {
-            localBox[0] = services::internal::serviceMin<cpu, DataType>(localBox[0], pos[i].x);
-            localBox[1] = services::internal::serviceMax<cpu, DataType>(localBox[1], pos[i].x);
-            localBox[2] = services::internal::serviceMin<cpu, DataType>(localBox[2], pos[i].y);
-            localBox[3] = services::internal::serviceMax<cpu, DataType>(localBox[3], pos[i].y);
+            localBox[0] = services::internal::min<cpu, DataType>(localBox[0], pos[i].x);
+            localBox[1] = services::internal::max<cpu, DataType>(localBox[1], pos[i].x);
+            localBox[2] = services::internal::min<cpu, DataType>(localBox[2], pos[i].y);
+            localBox[3] = services::internal::max<cpu, DataType>(localBox[3], pos[i].y);
         }
     });
     DAAL_CHECK_SAFE_STATUS();
@@ -261,10 +261,10 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     tlsBox.reduce([&](DataType * ptr) -> void {
         if (ptr == nullptr) return;
 
-        box[0] = services::internal::serviceMin<cpu, DataType>(box[0], ptr[0]);
-        box[1] = services::internal::serviceMax<cpu, DataType>(box[1], ptr[1]);
-        box[2] = services::internal::serviceMin<cpu, DataType>(box[2], ptr[2]);
-        box[3] = services::internal::serviceMax<cpu, DataType>(box[3], ptr[3]);
+        box[0] = services::internal::min<cpu, DataType>(box[0], ptr[0]);
+        box[1] = services::internal::max<cpu, DataType>(box[1], ptr[1]);
+        box[2] = services::internal::min<cpu, DataType>(box[2], ptr[2]);
+        box[3] = services::internal::max<cpu, DataType>(box[3], ptr[3]);
 
         services::internal::service_free<DataType, cpu>(ptr);
     });
@@ -272,7 +272,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     //save results
     centerx = (box[0] + box[1]) * DataType(0.5);
     centery = (box[2] + box[3]) * DataType(0.5);
-    radius  = services::internal::serviceMax<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * scale;
+    radius  = services::internal::max<cpu, DataType>(box[1] - box[0], box[3] - box[2]) * scale;
 
     return services::Status();
 }
@@ -393,7 +393,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
 
     const IdxType nThreads    = tlsHist1024.nthreads();
     const int capacity        = mem._capacity;
-    const IdxType sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
@@ -401,7 +401,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
         if (hist == nullptr) return;
 
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(capacity, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         const DataType rootx = centerx - radius;
         const DataType rooty = centery - radius;
 
@@ -643,12 +643,12 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     }
 
     nThreads    = threader_get_threads_number();
-    sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(256, (qTree.size + nThreads - 1) / nThreads);
+    sizeOfBlock = services::internal::min<cpu, IdxType>(256, (qTree.size + nThreads - 1) / nThreads);
     nBlocks     = (qTree.size + sizeOfBlock - 1) / sizeOfBlock;
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(qTree.size, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(qTree.size, iStart + sizeOfBlock);
         for (IdxType i = iStart; i < iEnd; ++i)
         {
             DataType iMass = DataType(1) / qTree.tree[i].cnt;
@@ -677,7 +677,7 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
 
     const int capacity        = mem._capacity;
     const IdxType nThreads    = sumTlsData.nthreads();
-    const IdxType sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, (capacity + nThreads - 1) / nThreads);
     const IdxType nBlocks     = (capacity + sizeOfBlock - 1) / sizeOfBlock;
 
     TArray<IdxType, cpu> nStackArr(nThreads * TSNE_Q_TREE_MAX_LEVEL * 4);
@@ -690,7 +690,7 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
 
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(capacity, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(capacity, iStart + sizeOfBlock);
         DataType * lSum      = sumTlsData.local(tid);
         DAAL_CHECK_MALLOC_THR(lSum);
 
@@ -813,12 +813,12 @@ struct AttractiveKernel
         });
 
         const IdxType nThreads    = threader_get_threads_number();
-        const IdxType sizeOfBlock = services::internal::serviceMin<cpu, size_t>(256, N / nThreads + 1);
+        const IdxType sizeOfBlock = services::internal::min<cpu, size_t>(256, N / nThreads + 1);
         const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
-            const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(N, iStart + sizeOfBlock);
+            const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
             DataType * logLocal  = logTlsData.local();
             if (logLocal == nullptr) return;
             DataType * divLocal = divTlsData.local();
@@ -844,7 +844,7 @@ struct AttractiveKernel
 
                     y1d = row_point.x - mem._pos[iCol].x; // 1*NNZ Flop, 4*N + 4*NNZ byte
                     y2d = row_point.y - mem._pos[iCol].y; // 1*NNZ Flop, 4*N + 4*NNZ byte
-                    // const DataType sqDist = services::internal::serviceMax<cpu, DataType>(DataType(0), y1d * y1d + y2d * y2d); // To deal with NaNs     // 4*NNZ Flop
+                    // const DataType sqDist = services::internal::max<cpu, DataType>(DataType(0), y1d * y1d + y2d * y2d); // To deal with NaNs     // 4*NNZ Flop
                     // const DataType PQ     = val[index] / (sqDist + 1.);            // 1*NNZ div, 1*NNZ flop, 4*NNZ byte
                     sqDist = 1.0 + y1d * y1d + y2d * y2d;
                     PQ     = val[index] / sqDist;
@@ -891,7 +891,7 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
                                        const IdxType & blockOfRows)
 {
     const IdxType nThreads    = threader_get_threads_number();
-    const IdxType sizeOfBlock = services::internal::serviceMin<cpu, IdxType>(256, N / nThreads + 1);
+    const IdxType sizeOfBlock = services::internal::min<cpu, IdxType>(256, N / nThreads + 1);
     const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
     daal::StaticTlsSum<DataType, cpu> sumTlsData(1);
@@ -900,7 +900,7 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
     SafeStatus safeStat;
     daal::static_threader_for(nBlocks, [&](IdxType iBlock, IdxType tid) {
         const IdxType iStart = iBlock * sizeOfBlock;
-        const IdxType iEnd   = services::internal::serviceMin<cpu, IdxType>(N, iStart + sizeOfBlock);
+        const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
         DataType ux, uy, gx, gy;
         DataType * localSum = sumTlsData.local(tid);
         DAAL_CHECK_MALLOC_THR(localSum);

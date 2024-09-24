@@ -134,8 +134,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::compute(const Nume
     TArray<char, cpu> I(nWS);
     DAAL_CHECK_MALLOC(I.get());
 
-    size_t defaultCacheSize = services::internal::serviceMin<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
-    defaultCacheSize        = services::internal::serviceMax<cpu, size_t>(nWS, defaultCacheSize);
+    size_t defaultCacheSize = services::internal::min<cpu, size_t>(nVectors, cacheSize / nVectors / sizeof(algorithmFPType));
+    defaultCacheSize        = services::internal::max<cpu, size_t>(nWS, defaultCacheSize);
     auto cachePtr           = SVMCache<thunder, lruCache, algorithmFPType, cpu>::create(defaultCacheSize, nWS, nVectors, xTable, kernel, status);
     DAAL_CHECK_STATUS_VAR(status);
 
@@ -240,12 +240,12 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::classificationInit
         {
             if (y[i] > 0)
             {
-                alpha[i] = services::internal::serviceMin<cpu, algorithmFPType>(sumPos, cw[i]);
+                alpha[i] = services::internal::min<cpu, algorithmFPType>(sumPos, cw[i]);
                 sumPos -= alpha[i];
             }
             else
             {
-                alpha[i] = services::internal::serviceMin<cpu, algorithmFPType>(sumNeg, cw[i]);
+                alpha[i] = services::internal::min<cpu, algorithmFPType>(sumNeg, cw[i]);
                 sumNeg -= alpha[i];
             }
         }
@@ -320,7 +320,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::regressionInit(Num
         algorithmFPType sum = nu * cwSum / algorithmFPType(2);
         for (size_t i = 0; i < nVectors; ++i)
         {
-            alpha[i] = alpha[i + nVectors] = services::internal::serviceMin<cpu, algorithmFPType>(sum, cw[i]);
+            alpha[i] = alpha[i + nVectors] = services::internal::min<cpu, algorithmFPType>(sum, cw[i]);
             sum -= alpha[i];
         }
     }
@@ -352,7 +352,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
         SafeStatus safeStat;
 
         /* Gather data to local buffers */
-        const size_t blockSizeWS = services::internal::serviceMin<cpu, algorithmFPType>(nWS, 16);
+        const size_t blockSizeWS = services::internal::min<cpu, algorithmFPType>(nWS, 16);
         const size_t nBlocks     = nWS / blockSizeWS;
         daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
             const size_t startRow = iBlock * blockSizeWS;
@@ -453,7 +453,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
                 KBiBlock = KBiBlockNeg;
             }
 
-            localDiff = services::internal::serviceMax<cpu, algorithmFPType>(GMax2Pos - GMinPos, GMax2Neg - GMinNeg);
+            localDiff = services::internal::max<cpu, algorithmFPType>(GMax2Pos - GMinPos, GMax2Neg - GMinNeg);
         }
         else
         {
@@ -469,7 +469,7 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
 
         if (iter == 0)
         {
-            localEps  = services::internal::serviceMax<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
+            localEps  = services::internal::max<cpu, algorithmFPType>(accuracyThreshold, localDiff * algorithmFPType(1e-1));
             firstDiff = localDiff;
         }
         if (localDiff < localEps)
@@ -485,8 +485,8 @@ services::Status SVMTrainImpl<thunder, algorithmFPType, cpu>::SMOBlockSolver(
         /* Update coefficients */
         const algorithmFPType alphaBiDelta = (yBi > zero) ? cwBi - alphaLocal[Bi] : alphaLocal[Bi];
         const algorithmFPType alphaBjDelta =
-            services::internal::serviceMin<cpu, algorithmFPType>((yBj > zero) ? alphaLocal[Bj] : cwBj - alphaLocal[Bj], delta);
-        delta = services::internal::serviceMin<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
+            services::internal::min<cpu, algorithmFPType>((yBj > zero) ? alphaLocal[Bj] : cwBj - alphaLocal[Bj], delta);
+        delta = services::internal::min<cpu, algorithmFPType>(alphaBiDelta, alphaBjDelta);
 
         /* Update alpha */
         alphaLocal[Bi] += delta * yBi;

@@ -21,6 +21,7 @@
 //--
 */
 
+#include "src/services/service_utils.h"
 #include "src/services/service_algo_utils.h"
 #include "services/error_indexes.h"
 #include "services/error_handling.h"

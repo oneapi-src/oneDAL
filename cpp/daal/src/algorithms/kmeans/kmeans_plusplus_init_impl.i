@@ -209,7 +209,7 @@ public:
                 dist2 *= aWeights[iRow];
             }
 
-            pDistSq[iRow] = daal::services::internal::serviceMin<cpu, algorithmFPType>(pDistSqBest[iRow], dist2);
+            pDistSq[iRow] = daal::services::internal::min<cpu, algorithmFPType>(pDistSqBest[iRow], dist2);
             sumOfDist2 += pDistSq[iRow];
         }
 
@@ -320,7 +320,7 @@ public:
                 dist2 *= aWeights[iRow];
             }
 
-            pDistSq[iRow] = daal::services::internal::serviceMin<cpu, algorithmFPType>(pDistSqBest[iRow], dist2);
+            pDistSq[iRow] = daal::services::internal::min<cpu, algorithmFPType>(pDistSqBest[iRow], dist2);
             sumOfDist2 += pDistSq[iRow];
         }
 
