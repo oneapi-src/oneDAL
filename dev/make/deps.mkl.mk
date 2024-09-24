@@ -42,7 +42,7 @@ daaldep.win32e.mkl.thr := $(MKLDIR.libia)/mkl_tbb_thread$d.$a
 daaldep.win32e.mkl.seq := $(MKLDIR.libia)/mkl_sequential.$a
 daaldep.win32e.mkl.interfaces := $(MKLDIR.libia)/mkl_intel_ilp64.$a
 daaldep.win32e.mkl.core := $(MKLDIR.libia)/mkl_core.$a
-daaldep.win32e.mkl.sycl := $(MKLGPUDIR.lib)/mkl_sycl.$a
+daaldep.win32e.mkl.sycl := $(MKLGPUDIR.lib)/mkl_sycl$d.$a
 
 daaldep.fbsd32e.mkl.thr := $(MKLDIR.libia)/$(plib)mkl_tbb_thread.$a
 daaldep.fbsd32e.mkl.seq := $(MKLDIR.libia)/$(plib)mkl_sequential.$a
