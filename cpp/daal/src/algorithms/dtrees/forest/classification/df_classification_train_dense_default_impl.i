@@ -1652,7 +1652,7 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
             for (size_t j = 0; j < _nClasses; ++j)
             {
                 resDecisionFunction[i * _nClasses + j] =
-                    static_cast<algorithmFPType>(ptr[j]) / services::internal::max<cpu, algorithmFPType>(sum, eps);
+                    static_cast<algorithmFPType>(ptr[j]) / services::internal::serviceMax<cpu, algorithmFPType>(sum, eps);
             }
         }
         if (maxVal == 0)

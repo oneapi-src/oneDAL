@@ -81,7 +81,7 @@ services::Status DecisionTreePredictKernel<algorithmFPType, defaultDense, cpu>::
 
     daal::threader_for(blockCount, blockCount, [=, &featureTypesCache, &treeTable, &modelImpl](int iBlock) {
         const size_t first = iBlock * rowsPerBlock;
-        const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+        const size_t last  = serviceMin<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
         BlockDescriptor<algorithmFPType> xBD;
         const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);

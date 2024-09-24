@@ -663,7 +663,7 @@ private:
 
     void initialize()
     {
-        size_t startsSize = daal::services::internal::max<cpu, size_t>(_nRowBlocks, _nColBlocks);
+        size_t startsSize = daal::services::internal::serviceMax<cpu, size_t>(_nRowBlocks, _nColBlocks);
         algorithmFPAccessType ** dataStarts =
             static_cast<algorithmFPAccessType **>(daal::services::internal::service_malloc<algorithmFPAccessType *, cpu>(
                 startsSize)); // TODO allocate more memory to eliminate cache false sharings in threading version

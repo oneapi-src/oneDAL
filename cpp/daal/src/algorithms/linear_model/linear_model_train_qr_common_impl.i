@@ -61,7 +61,7 @@ Status CommonKernel<algorithmFPType, cpu>::computeWorkSize(DAAL_INT nRows, DAAL_
     DAAL_CHECK(info == 0, services::ErrorLinearRegressionInternal);
 
     lwork2 = (DAAL_INT)workLocal;
-    lwork  = daal::services::internal::max<cpu, DAAL_INT>(lwork1, lwork2);
+    lwork  = daal::services::internal::serviceMax<cpu, DAAL_INT>(lwork1, lwork2);
 
     return Status();
 }
@@ -80,7 +80,7 @@ Status CommonKernel<algorithmFPType, cpu>::computeQRForBlock(DAAL_INT p, DAAL_IN
     /* Copy result into matrix R */
     const DAAL_INT xOffset             = (n > p ? (n - p) * p : 0);
     const DAAL_INT rOffset             = (n > p ? 0 : (p - n) * p);
-    const DAAL_INT nRowsInR            = daal::services::internal::min<cpu, DAAL_INT>(p, n);
+    const DAAL_INT nRowsInR            = daal::services::internal::serviceMin<cpu, DAAL_INT>(p, n);
     const DAAL_INT jOffset             = (n > p ? 0 : p - n);
     const algorithmFPType * const xPtr = x + xOffset;
     algorithmFPType * const rPtr       = r + rOffset;
