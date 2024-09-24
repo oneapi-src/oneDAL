@@ -72,7 +72,7 @@ struct MklService
 
     static int serv_get_ncorespercpu()
     {
-        unsigned int nlogicalcpu = daal::services::internal::_internal_daal_GetSysLogicalProcessorCount();
+        unsigned int nlogicalcpu = daal::services::internal::_internal_daal_GetProcessorCoreCount();
         unsigned int ncpus       = serv_get_ncpus();
         return (ncpus > 0 && nlogicalcpu > 0 && nlogicalcpu > ncpus ? nlogicalcpu / ncpus : 1);
     }
