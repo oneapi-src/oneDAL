@@ -111,7 +111,7 @@ constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
         #endif
 
     #else /* WINDOWS */
-
+        #define NOMINMAX
         #include <windows.h>
 
         #ifdef _M_IA64
