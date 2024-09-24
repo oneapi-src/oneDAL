@@ -200,13 +200,13 @@ inline float infToBigValue(float arg)
     }
 }
 
-template <CpuType cpu, typename T>
+template <typename T>
 inline const T & min(const T & a, const T & b)
 {
     return !(b < a) ? a : b;
 }
 
-template <CpuType cpu, typename T>
+template <typename T>
 inline const T & max(const T & a, const T & b)
 {
     return (a < b) ? b : a;
