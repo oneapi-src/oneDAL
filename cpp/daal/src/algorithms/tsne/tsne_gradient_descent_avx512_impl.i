@@ -57,12 +57,12 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
         });
 
         const IdxType nThreads    = threader_get_threads_number();
-        const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
+        const IdxType sizeOfBlock = services::internal::serviceMin<avx512, size_t>(256, N / nThreads + 1);
         const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
-            const IdxType iEnd   = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
+            const IdxType iEnd   = services::internal::serviceMin<avx512, IdxType>(N, iStart + sizeOfBlock);
             float * logLocal     = logTlsData.local();
             if (logLocal == nullptr) return;
 
@@ -144,7 +144,7 @@ struct AttractiveKernel<DivComp, IdxType, float, avx512>
 
                         y1d    = row_point.x - mem._pos[iCol].x;
                         y2d    = row_point.y - mem._pos[iCol].y;
-                        sqDist = services::internal::max<avx512, float>(0.f, y1d * y1d + y2d * y2d);
+                        sqDist = services::internal::serviceMax<avx512, float>(0.f, y1d * y1d + y2d * y2d);
                         PQ     = val[index] / (sqDist + 1.f);
 
                         // Apply forces
@@ -206,12 +206,12 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
         });
 
         const IdxType nThreads    = threader_get_threads_number();
-        const IdxType sizeOfBlock = services::internal::min<avx512, size_t>(256, N / nThreads + 1);
+        const IdxType sizeOfBlock = services::internal::serviceMin<avx512, size_t>(256, N / nThreads + 1);
         const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
         daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
-            const IdxType iEnd   = services::internal::min<avx512, IdxType>(N, iStart + sizeOfBlock);
+            const IdxType iEnd   = services::internal::serviceMin<avx512, IdxType>(N, iStart + sizeOfBlock);
             double * logLocal    = logTlsData.local();
             if (logLocal == nullptr) return;
 
@@ -294,7 +294,7 @@ struct AttractiveKernel<DivComp, IdxType, double, avx512>
 
                         y1d    = row_point.x - mem._pos[iCol].x;
                         y2d    = row_point.y - mem._pos[iCol].y;
-                        sqDist = services::internal::max<avx512, double>(double(0), y1d * y1d + y2d * y2d);
+                        sqDist = services::internal::serviceMax<avx512, double>(double(0), y1d * y1d + y2d * y2d);
                         PQ     = val[index] / (sqDist + 1.);
 
                         // Apply forces

@@ -60,7 +60,7 @@ struct TaskWorkingSet
         DAAL_CHECK_MALLOC(_indicator.get());
         services::internal::service_memset_seq<bool, cpu>(_indicator.get(), false, _nVectors);
 
-        _nWS       = services::internal::min<cpu, algorithmFPType>(maxPowTwo(_nNonZeroWeights), _maxWS);
+        _nWS       = services::internal::serviceMin<cpu, algorithmFPType>(maxPowTwo(_nNonZeroWeights), _maxWS);
         _nSelected = 0;
 
         _wsIndices.reset(_nWS);

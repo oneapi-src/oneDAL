@@ -111,8 +111,8 @@ Status DBSCANDistrStep2Kernel<algorithmFPType, method, cpu>::compute(const DataC
             {
                 for (size_t j = 0; j < nFeatures; j++)
                 {
-                    boundingBox[j]             = min<cpu, algorithmFPType>(boundingBox[j], data[i * nFeatures + j]);
-                    boundingBox[j + nFeatures] = max<cpu, algorithmFPType>(boundingBox[j + nFeatures], data[i * nFeatures + j]);
+                    boundingBox[j]             = serviceMin<cpu, algorithmFPType>(boundingBox[j], data[i * nFeatures + j]);
+                    boundingBox[j + nFeatures] = serviceMax<cpu, algorithmFPType>(boundingBox[j + nFeatures], data[i * nFeatures + j]);
                 }
             }
         }
@@ -154,8 +154,8 @@ Status DBSCANDistrStep3Kernel<algorithmFPType, method, cpu>::compute(const DataC
 
         for (size_t i = 0; i < nFeatures; i++)
         {
-            boundingBox[i]             = min<cpu, algorithmFPType>(boundingBox[i], partialBoundingBox[i]);
-            boundingBox[i + nFeatures] = max<cpu, algorithmFPType>(boundingBox[i + nFeatures], partialBoundingBox[i + nFeatures]);
+            boundingBox[i]             = serviceMin<cpu, algorithmFPType>(boundingBox[i], partialBoundingBox[i]);
+            boundingBox[i + nFeatures] = serviceMax<cpu, algorithmFPType>(boundingBox[i + nFeatures], partialBoundingBox[i + nFeatures]);
         }
     }
 

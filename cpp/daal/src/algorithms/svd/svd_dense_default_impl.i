@@ -161,9 +161,9 @@ Status compute_QR_on_one_node(DAAL_INT m, DAAL_INT n, algorithmFPType * a_q, DAA
     LapackInst<algorithmFPType, cpu>::xgeqrf(m, n, a_q, lda_q, tau, workQuery, workDim, &mklStatus);
 
     // a bug in Intel(R) MKL with XORGQR workDim query, to be fixed
-    const DAAL_INT nColumnsInQ = daal::services::internal::min<cpu, DAAL_INT>(m, n);
+    const DAAL_INT nColumnsInQ = daal::services::internal::serviceMin<cpu, DAAL_INT>(m, n);
     LapackInst<algorithmFPType, cpu>::xorgqr(m, nColumnsInQ, nColumnsInQ, a_q, lda_q, tau, &workQuery[1], workDim, &mklStatus);
-    workDim = daal::services::internal::max<cpu, algorithmFPType>(workQuery[0], workQuery[1]);
+    workDim = daal::services::internal::serviceMax<cpu, algorithmFPType>(workQuery[0], workQuery[1]);
 
     // allocate buffer
     TArray<algorithmFPType, cpu> workPtr(workDim);
