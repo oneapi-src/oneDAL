@@ -41,7 +41,8 @@ namespace interface1
  * Allocates memory to store partial results of the SVD algorithm
  */
 template <typename algorithmFPType>
-Status DistributedPartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, const int method)
+DAAL_EXPORT services::Status DistributedPartialResult::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                                const int method)
 {
     set(outputOfStep2ForStep3, KeyValueDataCollectionPtr(new KeyValueDataCollection()));
     Argument::set(finalResultFromStep2Master, ResultPtr(new Result()));
@@ -61,7 +62,7 @@ Status DistributedPartialResult::allocate(const daal::algorithms::Input * input,
  * \param[out] nBlocks         Number of rows in the input data set
  */
 template <typename algorithmFPType>
-Status DistributedPartialResult::setPartialResultStorage(KeyValueDataCollection * inCollection, size_t & nBlocks)
+DAAL_EXPORT services::Status DistributedPartialResult::setPartialResultStorage(KeyValueDataCollection * inCollection, size_t & nBlocks)
 {
     KeyValueDataCollectionPtr partialCollection = staticPointerCast<KeyValueDataCollection, SerializationIface>(Argument::get(outputOfStep2ForStep3));
     if (!partialCollection)
