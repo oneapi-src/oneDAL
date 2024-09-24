@@ -138,7 +138,7 @@ public:
     }
 
     //returns right border of the bin if the feature is a binned one
-    ModelFPType minModel(size_t iCol) const
+    ModelFPType min(size_t iCol) const
     {
         DAAL_ASSERT(isBinned(iCol));
         return _entries[iCol].min;
