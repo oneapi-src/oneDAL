@@ -397,7 +397,7 @@ THR.srcdir       := $(CPPDIR.daal)/src/threading
 CORE.srcdir      := $(CPPDIR.daal)/src/algorithms
 EXTERNALS.srcdir := $(CPPDIR.daal)/src/externals
 
-CORE.SERV.srcdir          := $(CPPDIR.daal)/src/services
+CORE.SERV.srcdir := $(subst \,/,$(CPPDIR.daal)/src/services)
 CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/src/services/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
