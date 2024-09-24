@@ -51,18 +51,6 @@ namespace internal
 
 #define __KDTREE_NULLDIMENSION (static_cast<size_t>(-1))
 
-template <CpuType cpu, typename T>
-inline const T & min(const T & a, const T & b)
-{
-    return !(b < a) ? a : b;
-}
-
-template <CpuType cpu, typename T>
-inline const T & max(const T & a, const T & b)
-{
-    return (a < b) ? b : a;
-}
-
 template <typename T, CpuType cpu>
 class Stack
 {
