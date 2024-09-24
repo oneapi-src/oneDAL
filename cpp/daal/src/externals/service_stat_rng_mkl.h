@@ -24,11 +24,6 @@
 #ifndef __SERVICE_STAT_RNG_MKL_H__
 #define __SERVICE_STAT_RNG_MKL_H__
 
-#if !defined(__DAAL_CONCAT5)
-    #define __DAAL_CONCAT5(a, b, c, d, e)  __DAAL_CONCAT51(a, b, c, d, e)
-    #define __DAAL_CONCAT51(a, b, c, d, e) a##b##c##d##e
-#endif
-
 #define __DAAL_VSLFN_CALL_NR(f_name, f_args, errcode) __DAAL_VSLFN_CALL_NO_V(f_name, f_args, errcode)
 #define __DAAL_VSLFN_CALL_NR_WHILE(f_name, f_args, errcode)           \
     {                                                                 \

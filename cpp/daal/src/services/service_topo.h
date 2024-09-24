@@ -352,7 +352,7 @@ static int __internal_daal_countBits(DWORD_PTR x);
 unsigned _internal_daal_GetMaxCPUSupportedByOS();
 unsigned _internal_daal_GetOSLogicalProcessorCount();
 unsigned _internal_daal_GetSysProcessorPackageCount();
-unsigned _internal_daal_GetProcessorCoreCount();
+unsigned _internal_daal_GetSysProcessorCoreCount();
 unsigned _internal_daal_GetLogicalProcessorCount();
 unsigned _internal_daal_GetCoresPerPackageProcessorCount();
 unsigned _internal_daal_GetProcessorPackageCount();
