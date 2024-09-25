@@ -87,7 +87,7 @@ auto syevd_computation(sycl::queue& queue,
                                                                  eigenvalues,
                                                                  { deps });
     }
-
+    syevd_event.wait_and_throw();
     return std::make_tuple(eigenvalues, syevd_event);
 }
 
