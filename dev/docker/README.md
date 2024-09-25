@@ -16,13 +16,18 @@
 *******************************************************************************/-->
 
 # Docker Development Environment
+
 ## How To Use
+
 There is a simple docker dev environment for the oneDAL development and build process.
 It includes dependencies for building all oneDAL components with ``make`` and ``bazel``
 
-Note: The docker setup assumes that it is executed from the oneDAL repo and copies repo files inside the container
+Note: The docker setup assumes that it is executed from the oneDAL repo and copies repo files inside the container. In order to build the container locally from the root of the `oneDAL` repository, execute the following:
+```shell
+docker build -t onedal-dev -f dev/docker/onedal-dev.Dockerfile .
+```
 
-For that, run:
-   ```sh
-   docker run -it onedal-dev /bin/bash
-   ```
+Then, in order to use the container interactively, run:
+```shell
+docker run -it onedal-dev /bin/bash
+```
