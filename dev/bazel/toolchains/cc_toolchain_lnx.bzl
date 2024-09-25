@@ -128,7 +128,8 @@ def _preapre_builtin_include_directory_paths(repo_ctx, tools):
             tools.dpcc,
             "-xc++",
             get_no_canonical_prefixes_opt(repo_ctx, tools.dpcc) +
-            _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc),
+            _add_gcc_toolchain_if_needed(repo_ctx, tools.dpcc) +
+            _add_sycl_linkage(repo_ctx, tools.dpcc) if tools.is_dpc_found else [],
         ) +
         required_tmp_includes,
     )
@@ -151,6 +152,12 @@ def _get_gcc_toolchain_path(repo_ctx):
 def _add_gcc_toolchain_if_needed(repo_ctx, cc):
     if ("clang" in cc) or ("icpx" in cc):
         return ["--gcc-toolchain=" + _get_gcc_toolchain_path(repo_ctx)]
+    else:
+        return []
+
+def _add_sycl_linkage(repo_ctx, cc):
+    if ("icx" in cc) or ("icpx" in cc):
+        return ["-fsycl"]
     else:
         return []
 
