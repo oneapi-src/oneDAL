@@ -26,3 +26,10 @@ cpp/           @Alexsandruss @samir-nasibli @Alexandr-Solovev
 
 # Tree based methods
 dtrees         @razdoburdin @ahuber21 @avolkov-intel @icfaust
+
+# Governance and process
+/.github/CODEOWNERS @oneapi-src/owner-onedal
+/SECURITY.md @oneapi-src/owner-onedal
+/MAINTAINERS.md @oneapi-src/owner-onedal
+/CONTRIBUTING.md @oneapi-src/owner-onedal
+/CODE_OF_CONDUCT.md @oneapi-src/owner-onedal
