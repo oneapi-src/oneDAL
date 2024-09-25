@@ -25,7 +25,7 @@
 #define __PCA_PARTIALRESULT_CORRELATION_
 
 #include "algorithms/pca/pca_types.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 namespace daal
 {
@@ -33,7 +33,6 @@ namespace algorithms
 {
 namespace pca
 {
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 /**
  * Allocates memory to store partial results of the PCA  SVD algorithm
@@ -42,41 +41,26 @@ using daal::data_management::internal::SyclHomogenNumericTable;
  * \param[in] method    Computation method
  */
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<correlationDense>::allocate(const daal::algorithms::Input * input,
-                                                                       const daal::algorithms::Parameter * parameter, const int method)
+services::Status PartialResult<correlationDense>::allocate(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                           const int method)
 {
     services::Status s;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (deviceInfo.isCpu)
-    {
-        set(nObservationsCorrelation,
-            data_management::HomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
-        set(sumCorrelation, data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
-                                                                                          data_management::NumericTableIface::doAllocate, 0, &s));
-        set(crossProductCorrelation,
-            data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                          (static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                          data_management::NumericTableIface::doAllocate, 0, &s));
-    }
-    else
-    {
-        set(nObservationsCorrelation, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
-        set(sumCorrelation, SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
-                                                                             data_management::NumericTableIface::doAllocate, 0, &s));
-        set(crossProductCorrelation, SyclHomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
-                                                                                      (static_cast<const InputIface *>(input))->getNFeatures(),
+    set(nObservationsCorrelation,
+        data_management::HomogenNumericTable<algorithmFPType>::create(1, 1, data_management::NumericTableIface::doAllocate, 0, &s));
+    set(sumCorrelation, data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(), 1,
                                                                                       data_management::NumericTableIface::doAllocate, 0, &s));
-    }
+    set(crossProductCorrelation,
+        data_management::HomogenNumericTable<algorithmFPType>::create((static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                      (static_cast<const InputIface *>(input))->getNFeatures(),
+                                                                      data_management::NumericTableIface::doAllocate, 0, &s));
 
     return s;
 };
 
 template <typename algorithmFPType>
-DAAL_EXPORT services::Status PartialResult<correlationDense>::initialize(const daal::algorithms::Input * input,
-                                                                         const daal::algorithms::Parameter * parameter, const int method)
+services::Status PartialResult<correlationDense>::initialize(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter,
+                                                             const int method)
 {
     services::Status s;
     DAAL_CHECK_STATUS(s, get(nObservationsCorrelation)->assign((algorithmFPType)0.0))

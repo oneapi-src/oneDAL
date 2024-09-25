@@ -105,7 +105,7 @@ public:
  *      - \ref Method  Computation methods for the algorithm
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
-class DAAL_EXPORT Batch : public Analysis<batch>
+class Batch : public Analysis<batch>
 {
 public:
     typedef algorithms::pca::Input InputType;

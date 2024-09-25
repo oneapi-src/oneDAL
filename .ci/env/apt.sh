@@ -23,17 +23,15 @@ function update {
 }
 
 function add_repo {
-    wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-    sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-    rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-    echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-    sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
-    sudo apt-get update
+    wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | \
+        gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
+        | sudo tee /etc/apt/sources.list.d/oneAPI.list
+    sudo apt update
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.1
-    sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp intel-oneapi-runtime-libs
 }
 
 function install_mkl {
@@ -42,8 +40,6 @@ function install_mkl {
 
 function install_clang-format {
     sudo apt-get install -y clang-format-14
-    sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 100
-    sudo update-alternatives --set clang-format /usr/bin/clang-format-14
 }
 
 function install_dev-base {
@@ -63,10 +59,34 @@ function install_qemu_emulation_apt {
 }
 
 function install_qemu_emulation_deb {
-    qemu_deb=qemu-user-static_8.2.1+ds-1~bpo12+1_amd64.deb
+    set +e
+
+    versions=(9.0.2 9.0.1 8.2.4)
+    suffixes=("" "~bpo12+1")
+    found_version=""
+    for version in ${versions[@]}; do
+        for suffix in ${suffixes[@]}; do
+            qemu_deb="qemu-user-static_${version}+ds-1${suffix}_amd64.deb"
+            echo "Checking for http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}"
+            if wget -q --method=HEAD http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb} &> /dev/null;
+            then
+                echo "Found qemu version ${version}"
+                found_version=${qemu_deb}
+                break 2
+            fi
+        done
+    done
+
     set -eo pipefail
-    wget http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}
-    sudo dpkg -i ${qemu_deb}
+    if [[ -z "${found_version}" ]] ; then
+        # If nothing is found, error out and fail
+        echo "None of the requested qemu versions ${versions[*]} are available."
+        false
+    fi
+
+    wget http://ftp.debian.org/debian/pool/main/q/qemu/${found_version}
+    sudo dpkg -i ${found_version}
+
     sudo systemctl restart systemd-binfmt.service
     set +eo pipefail
 }

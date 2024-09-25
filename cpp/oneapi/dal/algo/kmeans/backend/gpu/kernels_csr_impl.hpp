@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/reduction.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
@@ -372,7 +371,7 @@ sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](auto it) {
-            const auto local_id = it.get_local_id(1);
+            const auto local_id = it.get_local_id()[1];
             for (std::int64_t cluster_id = rank; cluster_id < num_clusters;
                  cluster_id += rank_count) {
                 // no need to handle non-empty clusters

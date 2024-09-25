@@ -152,7 +152,7 @@ public:
  *      - \ref interface1::DistributedParameter class
  */
 template <ComputeStep computeStep, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = correlationDense>
-class DAAL_EXPORT Distributed : public Analysis<distributed>
+class Distributed : public Analysis<distributed>
 {};
 
 /**
@@ -170,7 +170,7 @@ class DAAL_EXPORT Distributed : public Analysis<distributed>
  *      - \ref interface1::DistributedParameter class
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+class Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
@@ -218,7 +218,7 @@ private:
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
 template <typename algorithmFPType>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, correlationDense> : public Analysis<distributed>
+class Distributed<step2Master, algorithmFPType, correlationDense> : public Analysis<distributed>
 {
 public:
     typedef algorithms::pca::DistributedInput<correlationDense> InputType;
@@ -348,7 +348,7 @@ private:
  * \tparam algorithmFPType  Data type to use in intermediate computations of the PCA algorithm, double or float
  */
 template <typename algorithmFPType>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, svdDense> : public Analysis<distributed>
+class Distributed<step2Master, algorithmFPType, svdDense> : public Analysis<distributed>
 {
 public:
     typedef algorithms::pca::DistributedInput<svdDense> InputType;

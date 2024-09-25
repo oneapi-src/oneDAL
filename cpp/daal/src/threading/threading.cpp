@@ -61,6 +61,33 @@ DAAL_EXPORT void _daal_tbb_task_scheduler_free(void *& globalControl)
     }
 }
 
+DAAL_EXPORT void _daal_tbb_task_scheduler_handle_free(void *& schedulerHandle)
+{
+    // Note: TBB 13 deletes task_scheduler_handle itself during the destruction of thread context
+
+    // #if defined(TARGET_X86_64)
+    //     if (schedulerHandle)
+    //     {
+    //         delete reinterpret_cast<tbb::task_scheduler_handle *>(schedulerHandle);
+    //         schedulerHandle = nullptr;
+    //     }
+    // #endif
+}
+
+DAAL_EXPORT size_t _setSchedulerHandle(void ** schedulerHandle)
+{
+#if defined(TARGET_X86_64)
+    #if (TBB_INTERFACE_VERSION < 12120)
+    schedulerHandle = nullptr;
+    #else
+    *schedulerHandle = reinterpret_cast<void *>(new tbb::task_scheduler_handle(tbb::attach {}));
+    #endif
+    // It is necessary for initializing tbb in cases where DAAL does not use it.
+    tbb::task_arena {}.initialize();
+#endif
+    return 0;
+}
+
 DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalControl)
 {
     static tbb::spin_mutex mt;
@@ -76,7 +103,7 @@ DAAL_EXPORT size_t _setNumberOfThreads(const size_t numThreads, void ** globalCo
     return 1;
 }
 
-DAAL_EXPORT void _daal_threader_for(int n, int threads_request, const void * a, daal::functype func)
+DAAL_EXPORT void _daal_threader_for(int n, int reserved, const void * a, daal::functype func)
 {
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {
@@ -133,7 +160,7 @@ DAAL_EXPORT void _daal_threader_for_blocked_size(size_t n, size_t block, const v
     }
 }
 
-DAAL_EXPORT void _daal_threader_for_simple(int n, int threads_request, const void * a, daal::functype func)
+DAAL_EXPORT void _daal_threader_for_simple(int n, int reserved, const void * a, daal::functype func)
 {
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {
@@ -291,7 +318,7 @@ DAAL_PARALLEL_SORT_IMPL(daal::IdxValType<double>, pair_fp64_uint64)
 
 #undef DAAL_PARALLEL_SORT_IMPL
 
-DAAL_EXPORT void _daal_threader_for_blocked(int n, int threads_request, const void * a, daal::functype2 func)
+DAAL_EXPORT void _daal_threader_for_blocked(int n, int reserved, const void * a, daal::functype2 func)
 {
     if (daal::threader_env()->getNumberOfThreads() > 1)
     {

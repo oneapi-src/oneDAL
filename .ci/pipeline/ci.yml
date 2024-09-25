@@ -30,16 +30,21 @@ variables:
   SYSROOT_OS: 'jammy'
 
 jobs:
-- job: 'ClangFormat'
+- job: 'FormatterChecks'
   pool:
     vmImage: '$(VM_IMAGE)'
   steps:
     - script: |
         .ci/env/apt.sh clang-format
-      displayName: 'apt-get'
+        .ci/env/editorconfig-checker.sh
+      displayName: 'Install Dependencies'
     - script: |
         .ci/scripts/clang-format.sh
       displayName: 'clang-format check'
+      failOnStderr: true
+    - script: |
+        editorconfig-checker
+      displayName: 'editorconfig-checker'
       failOnStderr: true
 
 - job: 'LinuxMakeGNU_MKL'
@@ -399,7 +404,7 @@ jobs:
 - job: 'LinuxMakeDPCPP'
   timeoutInMinutes: 0
   variables:
-    release.dir: '__release_lnx_icx'
+    release.dir: '__release_lnx'
     platform.type : 'lnx32e'
   pool:
     vmImage: '$(VM_IMAGE)'
@@ -558,7 +563,7 @@ jobs:
       fi
     displayName: 'bazel-cache-limit'
 
-- job: LinuxDaal4py
+- job: LinuxSklearnex
   dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
   variables:
@@ -583,57 +588,49 @@ jobs:
     displayName: 'System info'
   - script: |
       conda update -y -q conda
-      conda create -q -y -n CB -c intel python=$(python.version) tbb mpich
+      conda create -q -y -n CB -c conda-forge python=$(python.version) tbb mpich
     displayName: 'Conda create'
   - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git daal4py
-    displayName: Clone daal4py
+      git clone https://github.com/intel/scikit-learn-intelex.git sklearnex
+    displayName: Clone sklearnex
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
-      pip install -r daal4py/dependencies-dev
-      pip install -r daal4py/requirements-test.txt
+      pip install -r sklearnex/dependencies-dev
+      pip install -r sklearnex/requirements-test.txt
     displayName: Create python environment
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
       export DALROOT=$(Pipeline.Workspace)/daal/latest
       source ${DALROOT}/env/vars.sh
-      cd daal4py
+      export PREFIX=${CONDA_PREFIX}
+      cd sklearnex
       export PYTHON=python
       ./conda-recipe/build.sh
-    displayName: daal4py build
+    displayName: sklearnex build
   - task: PublishPipelineArtifact@1
     inputs:
-      artifactName: '$(platform.type) daal4py build'
-      targetPath: '$(Build.Repository.LocalPath)/daal4py'
-    displayName: 'Upload daal4py build artifacts'
+      artifactName: '$(platform.type) sklearnex build'
+      targetPath: '$(Build.Repository.LocalPath)/sklearnex'
+    displayName: 'Upload sklearnex build artifacts'
     continueOnError: true
-  - script: |
-      . /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      cd daal4py
-      python setup_sklearnex.py install --single-version-externally-managed --record=record.txt
-    displayName: sklearnex build
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      ./daal4py/conda-recipe/run_test.sh
-    timeoutInMinutes: 15
-    displayName: daal4py test
+      ./sklearnex/conda-recipe/run_test.sh
+    timeoutInMinutes: 20
+    displayName: sklearnex test
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ret_code=0
-      python -m daal4py daal4py/tests/run_examples.py
-      ret_code=$(($ret_code + $?))
-      python -m daal4py daal4py/tests/daal4py/sycl/sklearn_sycl.py
+      python -m sklearnex sklearnex/tests/run_examples.py
       ret_code=$(($ret_code + $?))
       exit $ret_code
-    displayName: daal4py examples
+    displayName: sklearnex examples
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
       conda activate CB

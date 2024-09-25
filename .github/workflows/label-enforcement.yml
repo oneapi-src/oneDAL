@@ -1,0 +1,25 @@
+name: Enforce Labels
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  label_checker:
+    name: Please include labels on your pull request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: test
+        run: |
+          LABELS=`gh api -H "Accept: application/vnd.github+json" /repos/oneapi-src/oneDAL/issues/${{ github.event.pull_request.number }}/labels | jq '[.[].name]'`
+          echo $LABELS
+          if [[ $LABELS == "[]" ]] || [[ $LABELS == "[\"RFC\"]" ]]; then
+            echo "::error::No label set on the pull request"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

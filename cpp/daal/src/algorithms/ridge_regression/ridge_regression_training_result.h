@@ -44,7 +44,7 @@ using namespace daal::services;
  * \param[in] method Computation method for the algorithm
  */
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
+Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
     const Input * const in = static_cast<const Input *>(input);
 
@@ -66,7 +66,7 @@ DAAL_EXPORT Status Result::allocate(const daal::algorithms::Input * input, const
 //  * \param[in] parameter     %Parameter of ridge regression model-based training
 
 template <typename algorithmFPType>
-DAAL_EXPORT Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const Parameter * parameter, int method)
+Status Result::allocate(const daal::algorithms::PartialResult * partialResult, const Parameter * parameter, int method)
 {
     const PartialResult * const partialRes = static_cast<const PartialResult *>(partialResult);
 
