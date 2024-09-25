@@ -72,7 +72,7 @@ mkl_repo(
     name = "mkl",
     root_env_var = "MKLROOT",
     urls = [
-        #when the issue with binutils will be solved, replace 2023.0 to 2024.2
+        # TODO: when the issue with binutils will be solved, replace 2023.0 to 2024.2
         "https://files.pythonhosted.org/packages/76/8c/2e6fb6186fa9335a0feb7845e001e18c22627a06ae68650e5a84ca2b536d/mkl_static-2023.0.0-py2.py3-none-manylinux1_x86_64.whl",
         #"https://files.pythonhosted.org/packages/c1/44/42ea3ad7bbaa65acb54c977961118d7b24ea687e7c3d64aba0a019cbfa19/mkl_static-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
         "https://files.pythonhosted.org/packages/80/e4/93ddfd475420f1c24d96f3bba1f87ec31a1eea847884c4ccb243cb336a61/mkl_include-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",

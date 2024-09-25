@@ -57,16 +57,16 @@ auto compute_sums(sycl::queue& queue,
     return std::make_tuple(sums, sums_event);
 }
 
-// ///  A wrapper that computes 1d array of eigenvalues and 2d array of eigenvectors from the covariance matrix
-// ///
-// /// @tparam Float Floating-point type used to perform computations
-// ///
-// /// @param[in]  queue The SYCL queue
-// /// @param[in]  corr  The input covariance/correlation matrix of size `column_count` x `column_count`
-// /// @param[in]  deps  Events indicating availability of the `data` for reading or writing
-// ///
-// /// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
-// /// of size `component_count` x `column_count` and the second element is the resulting 1d array of eigenvalues
+///  A wrapper that computes 1d array of eigenvalues and 2d array of eigenvectors from the covariance matrix
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  corr  The input covariance/correlation matrix of size `column_count` x `column_count`
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return A tuple of two elements, where the first element is the resulting 2d array of eigenvectors
+/// of size `component_count` x `column_count` and the second element is the resulting 1d array of eigenvalues
 template <typename Float>
 auto syevd_computation(sycl::queue& queue,
                        pr::ndview<Float, 2>& corr,
@@ -91,16 +91,16 @@ auto syevd_computation(sycl::queue& queue,
     return std::make_tuple(eigenvalues, syevd_event);
 }
 
-// ///  A wrapper that flips 2d array of eigenvectors from the syevd result in necessary order
-// ///
-// /// @tparam Float Floating-point type used to perform computations
-// ///
-// /// @param[in]  queue The SYCL queue
-// /// @param[in]  data  The input eigenvectors in ascending order of size `column_count` x `column_count`
-// /// @param[in]  component_count  The number of `component_count` of the descriptor
-// /// @param[in]  deps  Events indicating availability of the `data` for reading or writing
-// ///
-// /// @return The resulting 2d array of eigenvectors
+///  A wrapper that flips 2d array of eigenvectors from the syevd result in necessary order
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  The input eigenvectors in ascending order of size `column_count` x `column_count`
+/// @param[in]  component_count  The number of `component_count` of the descriptor
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return The resulting 2d array of eigenvectors
 template <typename Float>
 auto flip_eigenvectors(sycl::queue& queue,
                        pr::ndview<Float, 2>& data,
@@ -129,16 +129,16 @@ auto flip_eigenvectors(sycl::queue& queue,
     return flipped_eigenvectors_host;
 }
 
-// ///  A wrapper that flips 1d array of eigenvalues from syevd result in descending order
-// ///
-// /// @tparam Float Floating-point type used to perform computations
-// ///
-// /// @param[in]  queue The SYCL queue
-// /// @param[in]  eigenvalues  The input eigenvalues in ascending order of size `column_count`
-// /// @param[in]  component_count  The number of `component_count` of the descriptor
-// /// @param[in]  deps  Events indicating availability of the `data` for reading or writing
-// ///
-// /// @return The resulting 1d array of eigenvalues
+///  A wrapper that flips 1d array of eigenvalues from syevd result in descending order
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  eigenvalues  The input eigenvalues in ascending order of size `column_count`
+/// @param[in]  component_count  The number of `component_count` of the descriptor
+/// @param[in]  deps  Events indicating availability of the `data` for reading or writing
+///
+/// @return The resulting 1d array of eigenvalues
 template <typename Float>
 auto flip_eigenvalues(sycl::queue& queue,
                       pr::ndview<Float, 1>& eigenvalues,
