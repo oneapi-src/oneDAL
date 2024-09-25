@@ -136,8 +136,10 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
         flip_eigenvectors(q_, eigenvectors, component_count, { syevd_event });
 
     if (desc.get_result_options().test(result_options::singular_values)) {
-        auto singular_values =
-            compute_singular_values_on_host(q_, flipped_eigvals_host, row_count, { syevd_event });
+        auto singular_values = compute_singular_values_on_host(q_,
+                                                               flipped_eigvals_host,
+                                                               rows_count_global,
+                                                               { syevd_event });
         result.set_singular_values(
             homogen_table::wrap(singular_values.flatten(), 1, component_count));
     }
