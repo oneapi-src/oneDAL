@@ -30,10 +30,11 @@ namespace svd
 {
 namespace interface1
 {
-template services::Status DistributedPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
-                                                                          const daal::algorithms::Parameter * parameter, const int method);
-template services::Status DistributedPartialResult::setPartialResultStorage<DAAL_FPTYPE>(data_management::KeyValueDataCollection * inCollection,
-                                                                                         size_t & nBlocks);
+template DAAL_EXPORT services::Status DistributedPartialResult::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input,
+                                                                                      const daal::algorithms::Parameter * parameter,
+                                                                                      const int method);
+template DAAL_EXPORT services::Status DistributedPartialResult::setPartialResultStorage<DAAL_FPTYPE>(
+    data_management::KeyValueDataCollection * inCollection, size_t & nBlocks);
 
 } // namespace interface1
 } // namespace svd
