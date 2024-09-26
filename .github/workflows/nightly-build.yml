@@ -70,7 +70,7 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-          call .\.ci\scripts\install_windows.bat https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel
+          .ci/scripts/install_windows.bat https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel
       - name: System Info
         shell: cmd
         run: |
