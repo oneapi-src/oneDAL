@@ -100,6 +100,7 @@ jobs:
         shell: cmd
         run: |
           call C:\temp\oneapi\setvars.bat --force
+          set MKL_FPK_GPU_VERSION_LINE=2024.0.0
           call C:\temp\compiler\latest\bin\sycl-ls.exe
           call .\.ci\scripts\build.bat onedal_dpc vc avx2
       - name: Archive build
