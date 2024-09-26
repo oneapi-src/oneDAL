@@ -73,9 +73,7 @@ jobs:
         with:
           repository: oneapi-src/oneDAL
       - name: Install DPC++
-        shell: cmd
-        run: |
-          call .\.ci\scripts\install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_ALL_COMPONENTS)
+        run: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_ALL_COMPONENTS)
       - name: System Info
         shell: cmd
         run: |
