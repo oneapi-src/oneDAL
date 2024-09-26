@@ -76,7 +76,7 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }}
+            call .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }}
       - name: System Info
         shell: cmd
         run: |
@@ -87,18 +87,20 @@ jobs:
       - name: Make daal
         shell: cmd
         run: |
+          call C:\temp\oneapi\setvars.bat --force
           set MKL_FPK_GPU_VERSION_LINE=2024.0.0
           call .\.ci\scripts\build.bat daal vc avx2
       - name: Make onedal
         shell: cmd
         run: |
+          call C:\temp\oneapi\setvars.bat --force
           set MKL_FPK_GPU_VERSION_LINE=2024.0.0
           call .\.ci\scripts\build.bat onedal_c vc avx2
       - name: Make oneapi_dpc
         shell: cmd
         run: |
-          call .\dpcpp\compiler\latest\env\vars.bat
-          call .\dpcpp\compiler\latest\bin\sycl-ls.exe
+          call C:\temp\oneapi\setvars.bat --force
+          call C:\temp\compiler\latest\bin\sycl-ls.exe
           call .\.ci\scripts\build.bat onedal_dpc vc avx2
       - name: Archive build
         uses: actions/upload-artifact@v4
