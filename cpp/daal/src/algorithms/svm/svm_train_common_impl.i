@@ -1,6 +1,7 @@
 /* file: svm_train_common_impl.i */
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,6 +42,10 @@
 
         #endif // __CPUID__(DAAL_CPU) == __avx512__
     #endif     // defined (_M_AMD64) || defined (__amd64) || defined (__x86_64) || defined (__x86_64__)
+#elif defined(TARGET_ARM)
+    #if (__CPUID__(DAAL_CPU) == __sve__)
+        #include "src/algorithms/svm/svm_train_common_sve_impl.i"
+    #endif // __CPUID__(DAAL_CPU) == __sve__
 #endif         // DAAL_INTEL_CPP_COMPILER
 
 namespace daal
