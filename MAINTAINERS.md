@@ -53,7 +53,6 @@ Responsibilities:
 
 Requirements:
   * Experience as Contributor for at least 6 months.
-  * Commit at least 25% of working time to the project.
   * Track record of accepted code contributions to a specific project component.
   * Track record of contributions to the code review process.
   * Demonstrated in-depth knowledge of the architecture of a specific project
@@ -86,7 +85,6 @@ Responsibilities:
 
 Requirements:
   * Experience as a Code Owner for at least 12 months.
-  * Commit at least 25% of working time to the project.
   * Track record of major project contributions to a specific project component.
   * Demonstrated deep knowledge of a specific project component.
   * Demonstrated broad knowledge of the project across multiple areas.
