@@ -26,7 +26,7 @@ permissions:
 
 env:
   WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe'
-  WINDOWS_ALL_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel'
+  WINDOWS_ALL_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
 
 jobs:
   build_lnx:
@@ -76,9 +76,6 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            dir
-            dir .\.ci\
-            dir .\.ci\scripts
             .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }}
       - name: System Info
         shell: cmd
