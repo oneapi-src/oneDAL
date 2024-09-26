@@ -23,17 +23,15 @@ function update {
 }
 
 function add_repo {
-    wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-    sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-    rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-    echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-    sudo add-apt-repository -y "deb https://apt.repos.intel.com/oneapi all main"
-    sudo apt-get update
+    wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | \
+        gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
+        | sudo tee /etc/apt/sources.list.d/oneAPI.list
+    sudo apt update
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2024.2
-    sudo bash -c 'echo libintelocl.so > /etc/OpenCL/vendors/intel-cpu.icd'
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp intel-oneapi-runtime-libs
 }
 
 function install_mkl {
