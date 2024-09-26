@@ -32,7 +32,6 @@ env:
 jobs:
   build_lnx:
     name: oneDAL Linux nightly build
-    if: github.repository == 'oneapi-src/oneDAL'
     runs-on: ubuntu-22.04
     timeout-minutes: 120
 
@@ -65,7 +64,6 @@ jobs:
 
   build_win:
     name: oneDAL Windows nightly build
-    if: github.repository == 'oneapi-src/oneDAL'
     runs-on: windows-2022
     timeout-minutes: 120
 
