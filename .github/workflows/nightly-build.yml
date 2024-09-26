@@ -75,7 +75,7 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-          bash .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_ALL_COMPONENTS)
+          ./.ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_ALL_COMPONENTS)
       - name: System Info
         shell: cmd
         run: |
