@@ -38,7 +38,8 @@ jobs:
       - name: Checkout oneDAL
         uses: actions/checkout@v4
         with:
-          repository: oneapi-src/oneDAL
+          repository: Alexandr-Solovev/oneDAL
+          ref: 'dev/asolovev_onemkl_enabling_clear'
       - name: Install DPC++
         run: .ci/env/apt.sh dpcpp
       - name: Install MKL
@@ -70,7 +71,8 @@ jobs:
       - name: Checkout oneDAL
         uses: actions/checkout@v4
         with:
-          repository: oneapi-src/oneDAL
+          repository: Alexandr-Solovev/oneDAL
+          ref: 'dev/asolovev_onemkl_enabling_clear'
       - name: Install DPC++
         shell: cmd
         run: |
