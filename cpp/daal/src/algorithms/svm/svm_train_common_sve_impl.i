@@ -73,9 +73,7 @@ inline void HelperTrainSVM<float, sve>::WSSjLocal(const size_t jStart, const siz
     svfloat32_t Kii_vec = svdup_f32(Kii);
     svfloat32_t tau_vec = svdup_f32(tau);
 
-    size_t j_cur = jStart;
-
-    for (j_cur; j_cur < jEnd; j_cur += w)
+    for (size_t j_cur = jStart; j_cur < jEnd; j_cur += w)
     {
         svint32_t Bj_vec_cur = svindex_s32(j_cur, 1);      // Bj value starts with j_cur
         svbool_t pg2         = svwhilelt_b32(j_cur, jEnd); // adapts to vector length
