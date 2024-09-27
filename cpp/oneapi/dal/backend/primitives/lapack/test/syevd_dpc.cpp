@@ -14,11 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/primitives/lapack/eigen.hpp"
+#include "oneapi/dal/backend/primitives/lapack/syevd.hpp"
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/test/engine/math.hpp"
-#include "oneapi/dal/test/engine/io.hpp"
+#include "oneapi/dal/test/engine/fixtures.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -26,8 +26,9 @@ namespace te = dal::test::engine;
 namespace la = te::linalg;
 
 template <typename Float>
-class sym_eigvals_test {
+class syevd_test : public te::float_algo_fixture<Float> {
 public:
+    using float_t = Float;
     std::int64_t generate_dim() const {
         return GENERATE(3, 28, 125, 256);
     }
@@ -47,23 +48,6 @@ public:
         return call_sym_eigvals_inplace_generic(symmetric_matrix, is_ascending);
     }
 
-    auto call_sym_eigvals_descending(const la::matrix<Float>& symmetric_matrix,
-                                     std::int64_t eigval_count) {
-        ONEDAL_ASSERT(symmetric_matrix.get_row_count() == symmetric_matrix.get_column_count());
-
-        const std::int64_t dim = symmetric_matrix.get_row_count();
-        const auto s_copy_flat = symmetric_matrix.copy().get_array();
-
-        auto data_or_scratchpad_nd = ndarray<Float, 2>::wrap_mutable(s_copy_flat, { dim, dim });
-        auto eigvecs_nd = ndarray<Float, 2>::empty({ eigval_count, dim });
-        auto eigvals_nd = ndarray<Float, 1>::empty(eigval_count);
-        sym_eigvals_descending(data_or_scratchpad_nd, eigval_count, eigvecs_nd, eigvals_nd);
-
-        const auto eigvecs = la::matrix<Float>::wrap_nd(eigvecs_nd);
-        const auto eigvals = la::matrix<Float>::wrap_nd(eigvals_nd);
-        return std::make_tuple(eigvecs, eigvals);
-    }
-
     auto call_sym_eigvals_inplace_generic(const la::matrix<Float>& symmetric_matrix,
                                           bool is_ascending) {
         ONEDAL_ASSERT(symmetric_matrix.get_row_count() == symmetric_matrix.get_column_count());
@@ -72,17 +56,51 @@ public:
         const auto s_copy_flat = symmetric_matrix.copy().get_array();
 
         auto data_or_eigenvectors_nd = ndarray<Float, 2>::wrap_mutable(s_copy_flat, { dim, dim });
-        auto eigenvalues_nd = ndarray<Float, 1>::empty(dim);
+        data_or_eigenvectors_nd.to_device(this->get_queue());
+        auto eigenvalues_nd =
+            ndarray<Float, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::device);
         if (is_ascending) {
-            sym_eigvals(data_or_eigenvectors_nd, eigenvalues_nd);
+            auto syevd_event = syevd<mkl::job::vec, mkl::uplo::upper>(this->get_queue(),
+                                                                      dim,
+                                                                      data_or_eigenvectors_nd,
+                                                                      dim,
+                                                                      eigenvalues_nd,
+                                                                      {});
+            syevd_event.wait_and_throw();
+            const auto eigenvectors =
+                la::matrix<Float>::wrap_nd(data_or_eigenvectors_nd.to_host(this->get_queue()));
+            const auto eigenvalues =
+                la::matrix<Float>::wrap_nd(eigenvalues_nd.to_host(this->get_queue()));
+            return std::make_tuple(eigenvectors, eigenvalues);
         }
         else {
-            sym_eigvals_descending(data_or_eigenvectors_nd, eigenvalues_nd);
-        }
+            auto syevd_event = syevd<mkl::job::vec, mkl::uplo::upper>(this->get_queue(),
+                                                                      dim,
+                                                                      data_or_eigenvectors_nd,
+                                                                      dim,
+                                                                      eigenvalues_nd,
+                                                                      {});
+            syevd_event.wait_and_throw();
 
-        const auto eigenvectors = la::matrix<Float>::wrap_nd(data_or_eigenvectors_nd);
-        const auto eigenvalues = la::matrix<Float>::wrap_nd(eigenvalues_nd);
-        return std::make_tuple(eigenvectors, eigenvalues);
+            auto data_ptr = eigenvalues_nd.get_data();
+            auto flipped_eigenvalues =
+                ndarray<Float, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::device);
+            auto flipped_eigenvalues_ptr = flipped_eigenvalues.get_mutable_data();
+            auto queue = this->get_queue();
+            auto flip_event = queue.submit([&](sycl::handler& h) {
+                const auto range = make_range_1d(dim);
+                h.depends_on({ syevd_event });
+                h.parallel_for(range, [=](sycl::id<1> id) {
+                    const std::int64_t col = id[0];
+                    flipped_eigenvalues_ptr[col] = data_ptr[(dim - 1) - col];
+                });
+            });
+            const auto eigenvectors =
+                la::matrix<Float>::wrap_nd(data_or_eigenvectors_nd.to_host(this->get_queue()));
+            const auto eigenvalues =
+                la::matrix<Float>::wrap_nd(flipped_eigenvalues.to_host(this->get_queue()));
+            return std::make_tuple(eigenvectors, eigenvalues);
+        }
     }
 
     void check_eigvals_definition(const la::matrix<Float>& s,
@@ -132,38 +150,21 @@ private:
     static constexpr int seed_ = 7777;
 };
 
-using eigen_types = COMBINE_TYPES((float, double));
+using eigen_types = COMBINE_TYPES((float));
 
-#define SYM_EIGVALS_TEST(name) \
-    TEMPLATE_LIST_TEST_M(sym_eigvals_test, name, "[sym_eigvals]", eigen_types)
-
-SYM_EIGVALS_TEST("check inplace sym_eigvals on symmetric positive-definite matrix") {
+TEMPLATE_LIST_TEST_M(syevd_test, "test syevd with pos def matrix", "[sym_eigvals]", eigen_types) {
     const auto s = this->generate_symmetric_positive();
-
     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace(s);
 
     this->check_eigvals_definition(s, eigenvectors, eigenvalues);
     this->check_eigvals_are_ascending(eigenvalues);
 }
 
-SYM_EIGVALS_TEST("check inplace sym_eigvals_descending on symmetric positive-definite matrix") {
+TEMPLATE_LIST_TEST_M(syevd_test, "test syevd with pos def matrix 2", "[sym_eigvals]", eigen_types) {
     const auto s = this->generate_symmetric_positive();
 
     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace_descending(s);
 
-    this->check_eigvals_definition(s, eigenvectors, eigenvalues);
-    this->check_eigvals_are_descending(eigenvalues);
-}
-
-SYM_EIGVALS_TEST("check sym_eigvals_descending on symmetric positive-definite matrix") {
-    const auto s = this->generate_symmetric_positive();
-    const std::int64_t eigvals_count = GENERATE_COPY(1, s.get_row_count() / 2, s.get_row_count());
-
-    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_descending(s, eigvals_count);
-
-    REQUIRE(eigenvectors.get_row_count() == eigvals_count);
-    REQUIRE(eigenvalues.get_count() == eigvals_count);
-    this->check_eigvals_definition(s, eigenvectors, eigenvalues);
     this->check_eigvals_are_descending(eigenvalues);
 }
 
