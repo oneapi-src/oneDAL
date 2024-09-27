@@ -328,6 +328,12 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                 add_linker_option_if_supported(
                     repo_ctx,
                     tools.dpcc,
+                    "-fsycl-max-parallel-link-jobs=40",
+                    "-fsycl-max-parallel-link-jobs=40",
+                ) +
+                add_linker_option_if_supported(
+                    repo_ctx,
+                    tools.dpcc,
                     "-Wl,-z,relro,-z,now",
                     "-z",
                 ) +
