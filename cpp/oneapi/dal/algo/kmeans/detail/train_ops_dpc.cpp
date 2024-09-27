@@ -43,10 +43,13 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
     template struct ONEDAL_EXPORT                                         \
         train_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
+#define INSTANTIATE_SINGLE_NODE(F, M, T) \
+    template struct ONEDAL_EXPORT train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
+
 INSTANTIATE(float, method::lloyd_dense, task::clustering)
 INSTANTIATE(double, method::lloyd_dense, task::clustering)
-INSTANTIATE(float, method::lloyd_csr, task::clustering)
-INSTANTIATE(double, method::lloyd_csr, task::clustering)
+INSTANTIATE_SINGLE_NODE(float, method::lloyd_csr, task::clustering)
+INSTANTIATE_SINGLE_NODE(double, method::lloyd_csr, task::clustering)
 
 } // namespace v1
 } // namespace oneapi::dal::kmeans::detail

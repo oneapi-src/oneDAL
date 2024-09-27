@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
@@ -111,7 +112,6 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        auto& comm = ctx.get_communicator();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
@@ -129,6 +129,10 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<std::int64_t, 1>::wrap(arr_col.get_data(), arr_col.get_count());
         auto row_offsets =
             pr::ndarray<std::int64_t, 1>::wrap(arr_row.get_data(), arr_row.get_count());
+
+        pr::sparse_matrix_handle data_handle(queue);
+        auto set_csr_data_event = pr::set_csr_data(queue, data_handle, data);
+
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
@@ -153,9 +157,8 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                                                          arr_centroid_squares,
                                                                          { data_squares_event });
         auto assign_event = assign_clusters(queue,
-                                            values,
-                                            column_indices,
-                                            row_offsets,
+                                            row_count,
+                                            data_handle,
                                             arr_data_squares,
                                             arr_centroids,
                                             arr_centroid_squares,
@@ -168,10 +171,7 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
             auto objective_function =
                 calc_objective_function(queue, arr_closest_distances, { assign_event });
-            {
-                // Reduce objective function value over all ranks
-                comm.allreduce(objective_function).wait();
-            }
+
             result.set_objective_function_value(objective_function);
         }
 
