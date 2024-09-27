@@ -16,7 +16,7 @@
 
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_train_kernel.h>
 #include <src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h>
-
+#include <iostream>
 #include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/train_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -50,7 +50,7 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         throw unimplemented(
             dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
     }
-
+    std::cout << "step 1" << std::endl;
     using model_t = model<Task>;
     using daal_model_interop_t = model_interop;
     const std::int64_t column_count = data.get_column_count();
@@ -63,30 +63,30 @@ static train_result<Task> call_daal_kernel(const context_cpu& ctx,
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         dal::detail::integral_cast<int>(dummy_seed),
         data_use_in_model);
-
+    std::cout << "step 2" << std::endl;
     Status status;
     const auto model_ptr = daal_knn::Model::create(column_count, &status);
     interop::status_to_exception(status);
-
+    std::cout << "step 3" << std::endl;
     auto knn_model = static_cast<daal_knn::Model*>(model_ptr.get());
     // Data or responses should not be copied, copy will be happened when
     // the tables are passed to old ifaces
     const bool copy_data_responses = data_use_in_model == daal_knn::doNotUse;
     knn_model->impl()->setData<Float>(daal_data, copy_data_responses);
-
+    std::cout << "step 4" << std::endl;
     auto daal_responses = daal::data_management::NumericTablePtr();
     if (desc.get_result_options().test(result_options::responses)) {
         daal_responses = interop::convert_to_daal_table<Float>(responses);
         knn_model->impl()->setLabels<Float>(daal_responses, copy_data_responses);
     }
-
+    std::cout << "step 5" << std::endl;
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         knn_model->impl()->getData().get(),
         knn_model->impl()->getLabels().get(),
         knn_model,
         *daal_parameter.engine.get()));
-
+    std::cout << "step 6" << std::endl;
     const auto model_impl =
         std::make_shared<kd_tree_model_impl<Task>>(new daal_model_interop_t(model_ptr));
     return train_result<Task>().set_model(dal::detail::make_private<model_t>(model_impl));

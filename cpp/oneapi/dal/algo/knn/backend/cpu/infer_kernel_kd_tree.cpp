@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #include <daal/src/algorithms/k_nearest_neighbors/kdtree_knn_classification_predict_dense_default_batch.h>
-
+#include <iostream>
 #include "oneapi/dal/algo/knn/backend/model_conversion.hpp"
 #include "oneapi/dal/algo/knn/backend/cpu/infer_kernel.hpp"
 #include "oneapi/dal/algo/knn/backend/model_impl.hpp"
@@ -49,7 +49,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         throw unimplemented(
             dal::detail::error_messages::knn_regression_task_is_not_implemented_for_cpu());
     }
-
+    std::cout << "step 1 infer" << std::endl;
     const std::int64_t row_count = data.get_row_count();
     const std::int64_t neighbor_count = desc.get_neighbor_count();
 
@@ -63,15 +63,16 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doNotUse;
+    std::cout << "step 2 infer" << std::endl;
     daal_knn::Parameter daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         dal::detail::integral_cast<int>(dummy_seed),
         data_use_in_model);
-
+    std::cout << "step 3 infer" << std::endl;
     const auto daal_voting_mode = convert_to_daal_kdtree_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
-
+    std::cout << "step 4 infer" << std::endl;
     if (desc.get_result_options().test(result_options::responses)) {
         arr_responses.reset(1 * row_count);
         daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
@@ -79,7 +80,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;
     }
-
+    std::cout << "step 5 infer" << std::endl;
     if (desc.get_result_options().test(result_options::indices)) {
         dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
@@ -87,7 +88,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_indices =
             interop::convert_to_daal_homogen_table(arr_indices, row_count, neighbor_count);
     }
-
+    std::cout << "step 6 infer" << std::endl;
     if (desc.get_result_options().test(result_options::distances)) {
         dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;
@@ -95,11 +96,11 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_distance =
             interop::convert_to_daal_homogen_table(arr_distances, row_count, neighbor_count);
     }
-
+    std::cout << "step 7 infer" << std::endl;
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-
+    std::cout << "step 8 infer" << std::endl;
     const auto model_ptr = dynamic_cast_to_knn_model<Task, kd_tree_model_impl<Task>>(m);
-
+    std::cout << "step 9 infer" << std::endl;
     interop::status_to_exception(interop::call_daal_kernel<Float, daal_knn_kd_tree_kernel_t>(
         ctx,
         daal_data.get(),

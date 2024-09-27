@@ -122,18 +122,18 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                                                                                    const daal::algorithms::Parameter * par)
 {
     Status status;
-
+    std::cout << "here debug 1" << std::endl;
     typedef GlobalNeighbors<algorithmFpType, cpu> Neighbors;
     typedef Heap<Neighbors, cpu> MaxHeap;
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
     typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
-
+    std::cout << "here debug 2" << std::endl;
     size_t k;
     size_t nClasses;
     VoteWeights voteWeights       = voteUniform;
     DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
-
+    std::cout << "here debug 3" << std::endl;
     const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
     if (par3)
     {
@@ -142,7 +142,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         resultsToEvaluate = par3->resultsToEvaluate;
         nClasses          = par3->nClasses;
     }
-
+    std::cout << "here debug 4" << std::endl;
     if (par3 == NULL) return Status(ErrorNullParameterNotSupported);
 
     const Model * const model    = static_cast<const Model *>(m);
@@ -154,7 +154,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     {
         labels = model->impl()->getLabels().get();
     }
-
+    std::cout << "here debug 5" << std::endl;
     const NumericTable * const modelIndices = model->impl()->getIndices().get();
 
     size_t iSize = 1;
@@ -163,11 +163,15 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         iSize *= 2;
     }
     const size_t heapSize = (iSize / 16 + 1) * 16;
-
-    const size_t xRowCount        = x->getNumberOfRows();
-    const algorithmFpType base    = 2.0;
+    std::cout << "here debug 6" << std::endl;
+    const size_t xRowCount     = x->getNumberOfRows();
+    const algorithmFpType base = 2.0;
+    std::cout << "here debug math 1" << std::endl;
     const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
-    const size_t stackSize        = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
+    std::cout << "here debug math 2" << std::endl;
+    const size_t stackSize = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
+    std::cout << "here debug math 3" << std::endl;
+    std::cout << "here debug 7" << std::endl;
     struct Local
     {
         MaxHeap heap;
@@ -478,9 +482,9 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         {
             distancesPtr[i] = heap[i].distance;
         }
-
+        std::cout << "here debug math 4" << std::endl;
         Math::vSqrt(heapSize, distancesPtr, distancesPtr);
-
+        std::cout << "here debug math 5" << std::endl;
         for (size_t i = heapSize; i < nDistances; ++i)
         {
             distancesPtr[i] = -1;
@@ -547,7 +551,9 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             {
                 for (size_t i = 0; i < heapSize; ++i)
                 {
+                    std::cout << "here debug math 10" << std::endl;
                     classWeights[(size_t)(classes[i])] += Math::sSqrt(1 / heap[i].distance);
+                    std::cout << "here debug math 11" << std::endl;
                 }
             }
         }

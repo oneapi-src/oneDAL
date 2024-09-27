@@ -23,7 +23,7 @@
 
 #ifndef __KDTREE_KNN_CLASSIFICATION_MODEL_H__
 #define __KDTREE_KNN_CLASSIFICATION_MODEL_H__
-
+#include <iostream>
 #include "algorithms/classifier/classifier_model.h"
 #include "data_management/data/aos_numeric_table.h"
 #include "data_management/data/soa_numeric_table.h"
@@ -111,6 +111,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
           resultsToCompute(resToCompute),
           voteWeights(vote)
     {
+        std::cout << "here param init" << std::endl;
         this->resultsToEvaluate = resToEvaluate;
     }
 
