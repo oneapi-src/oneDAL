@@ -1,4 +1,3 @@
-@echo off
 rem ============================================================================
 rem Copyright contributors to the oneDAL project
 rem
@@ -30,7 +29,7 @@ echo test
 curl.exe --output %TEMP%\webimage.exe --url %URL% --retry 5 --retry-delay 5
 start /b /wait %TEMP%\webimage.exe -s -x -f webimage_extracted --log extract.log
 del %TEMP%\webimage.exe
-webimage_extracted\bootstrapper.exe -s --action install --components=%COMPONENTS% --eula=accept --install-dir=%DIRECTORY% -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
+webimage_extracted\bootstrapper.exe -s --action install --components %COMPONENTS% --eula accept --install-dir %DIRECTORY% -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
 set installer_exit_code=%ERRORLEVEL%
 rd /s/q "webimage_extracted"
 exit /b %installer_exit_code%
