@@ -29,14 +29,14 @@ echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
 IF "%VS_VER%"=="2017_build_tools" (
-    @call C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat
+    @call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     echo "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
 ) ELSE (
     IF "%VS_VER%"=="2019_build_tools" (
-        @call C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
         echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     ) ELSE (
-          @call %ONEAPI_ROOT%\setvars-vcvarsall.bat %VS_VER%
+          @call "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
           echo "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
     )
 )
