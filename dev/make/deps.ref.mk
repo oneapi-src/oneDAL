@@ -30,3 +30,6 @@ daaldep.math_backend.seq := $(OPENBLASDIR.libia)/libopenblas.$a
 daaldep.math_backend.incdir := $(OPENBLASDIR.include)
 daaldep.math_backend_oneapi.incdir := $(OPENBLASDIR.include)
 
+daaldep.math_backend.ext := $(daaldep.math_backend.thr)
+daaldep.math_backend.sycl := $(daaldep.math_backend.thr)
+daaldep.math_backend.oneapi := $(daaldep.math_backend.thr)

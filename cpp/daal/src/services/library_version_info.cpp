@@ -27,7 +27,7 @@
 #include "services/env_detect.h"
 
 #ifndef DAAL_REF // temporary!!! should depend both on BACKEND and TARGETARCH
-    #include "mkl_daal.h"
+    #include <mkl.h>
 static const char * cpu_long_names[] = { "Generic",
                                          "Supplemental Streaming SIMD Extensions 3",
                                          "Intel(R) Streaming SIMD Extensions 4.2",
@@ -50,8 +50,7 @@ DAAL_EXPORT daal::services::LibraryVersionInfo::LibraryVersionInfo()
       build_rev(BUILD_REV),
       name(PRODUCT_NAME_STR),
 #ifndef DAAL_REF
-      //    fpk_serv_cpuisknm might be instantiated from backed like other MKL functions
-      processor(cpu_long_names[daal::services::Environment::getInstance()->getCpuId() + 2 * fpk_serv_cpuisknm()])
+      processor(cpu_long_names[daal::services::Environment::getInstance()->getCpuId()])
 #else
       processor(cpu_long_names[0])
 #endif

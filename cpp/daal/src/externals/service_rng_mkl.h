@@ -24,7 +24,7 @@
 #ifndef __SERVICE_RNG_MKL_H__
 #define __SERVICE_RNG_MKL_H__
 
-#include "vmlvsl.h"
+#include <mkl.h>
 #include "src/externals/service_stat_rng_mkl.h"
 #include "src/externals/service_rng_common.h"
 
@@ -67,7 +67,7 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
         int nb     = len / 2;
         int nn     = (int)n;
         int * rr   = (int *)r;
-        __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniform, (method, stream, nn, rr, na, nb), errcode);
+        __DAAL_VSLFN_CALL_NR_WHILE(iRngUniform, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, na, nb), errcode);
 
         if (errcode != 0)
         {
@@ -90,7 +90,7 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
             int nb     = len / 2;
             int nn     = (int)n;
             int * rr   = (int *)r + n;
-            __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniform, (method, stream, nn, rr, na, nb), errcode);
+            __DAAL_VSLFN_CALL_NR_WHILE(iRngUniform, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, na, nb), errcode);
 
             if (errcode != 0)
             {
@@ -120,7 +120,7 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
                 for (int i = 0; i < 64; i++) dv /= 2.0;
                 int nn                = (int)n;
                 unsigned __int64 * rr = cr;
-                __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits64, (method, stream, nn, rr), errcode);
+                __DAAL_VSLFN_CALL_NR_WHILE(iRngUniformBits64, ((const MKL_INT)method, stream, (const MKL_INT)nn, (unsigned MKL_INT64 *)rr), errcode);
 
                 if (errcode != 0)
                 {
@@ -136,7 +136,8 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
                     n                     = cn - pos;
                     int nn                = (int)n;
                     unsigned __int64 * rr = cr + pos;
-                    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits64, (method, stream, nn, rr), errcode);
+                    __DAAL_VSLFN_CALL_NR_WHILE(iRngUniformBits64, ((const MKL_INT)method, stream, (const MKL_INT)nn, (unsigned MKL_INT64 *)rr),
+                                               errcode);
 
                     if (errcode != 0)
                     {
@@ -169,7 +170,7 @@ int uniformRNG(const size_t n, int * r, void * stream, const int a, const int b,
     int errcode = 0;
     int nn      = (int)n;
     int * rr    = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniform, (method, stream, nn, rr, a, b), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(iRngUniform, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, a, b), errcode);
     return errcode;
 }
 
@@ -179,7 +180,7 @@ int uniformRNG(const size_t n, float * r, void * stream, const float a, const fl
     int errcode = 0;
     int nn      = (int)n;
     float * rr  = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, sRngUniform, (method, stream, nn, rr, a, b), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(sRngUniform, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, a, b), errcode);
     return errcode;
 }
 
@@ -189,7 +190,7 @@ int uniformRNG(const size_t n, double * r, void * stream, const double a, const 
     int errcode = 0;
     int nn      = (int)n;
     double * rr = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, dRngUniform, (method, stream, nn, rr, a, b), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(dRngUniform, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, a, b), errcode);
     return errcode;
 }
 
@@ -199,7 +200,7 @@ int uniformBits32RNG(const size_t n, unsigned int * r, void * stream, const int 
     int errcode       = 0;
     int nn            = (int)n;
     unsigned int * rr = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngUniformBits32, (method, stream, nn, rr), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(iRngUniformBits32, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr), errcode);
     return errcode;
 }
 
@@ -213,7 +214,7 @@ int gaussianRNG(const size_t n, float * r, void * stream, const float a, const f
     int errcode = 0;
     int nn      = (int)n;
     float * rr  = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, sRngGaussian, (method, stream, nn, rr, a, sigma), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(sRngGaussian, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, a, sigma), errcode);
     return errcode;
 }
 
@@ -223,7 +224,7 @@ int gaussianRNG(const size_t n, double * r, void * stream, const double a, const
     int errcode = 0;
     int nn      = (int)n;
     double * rr = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, dRngGaussian, (method, stream, nn, rr, a, sigma), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(dRngGaussian, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, a, sigma), errcode);
     return errcode;
 }
 
@@ -237,7 +238,7 @@ int bernoulliRNG(const size_t n, int * r, void * stream, const double p, const i
     int errcode = 0;
     int nn      = (int)n;
     int * rr    = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(fpk_vsl_kernel, iRngBernoulli, (method, stream, nn, rr, p), errcode);
+    __DAAL_VSLFN_CALL_NR_WHILE(iRngBernoulli, ((const MKL_INT)method, stream, (const MKL_INT)nn, rr, p), errcode);
     return errcode;
 }
 
@@ -252,7 +253,7 @@ public:
         {
             _seed[0]    = seed;
             int errcode = 0;
-            __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslNewStreamEx, (&_stream, brngId, 1, &seed), errcode);
+            __DAAL_VSLFN_CALL_NR(vslNewStreamEx, (&_stream, (const MKL_INT)brngId, (const MKL_INT)1, &seed), errcode);
         }
     }
 
@@ -270,7 +271,7 @@ public:
                 }
             }
             int errcode = 0;
-            __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslNewStreamEx, (&_stream, brngId, n, seed), errcode);
+            __DAAL_VSLFN_CALL_NR(vslNewStreamEx, (&_stream, (const MKL_INT)brngId, (const MKL_INT)n, seed), errcode);
         }
     }
 
@@ -284,8 +285,8 @@ public:
                 _seed[i] = other._seed[i];
             }
             int errcode = 0;
-            __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslNewStreamEx, (&_stream, _brngId, _seedSize, _seed), errcode);
-            if (!errcode) __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslCopyStreamState, (_stream, other._stream), errcode);
+            __DAAL_VSLFN_CALL_NR(vslNewStreamEx, (&_stream, (const MKL_INT)_brngId, (const MKL_INT)_seedSize, _seed), errcode);
+            if (!errcode) __DAAL_VSLFN_CALL_NR(vslCopyStreamState, (_stream, other._stream), errcode);
         }
     }
 
@@ -293,42 +294,42 @@ public:
     {
         daal::services::daal_free((void *)_seed);
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslDeleteStream, (&_stream), errcode);
+        __DAAL_VSLFN_CALL_NR(vslDeleteStream, (&_stream), errcode);
     }
 
     int getStateSize() const
     {
         int res = 0;
-        __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslGetStreamSize, (_stream), res);
+        __DAAL_VSLFN_CALL_NR(vslGetStreamSize, (_stream), res);
         return res;
     }
 
     int saveState(void * dest) const
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslSaveStreamM, (_stream, (char *)dest), errcode);
+        __DAAL_VSLFN_CALL_NR(vslSaveStreamM, (_stream, (char *)dest), errcode);
         return errcode;
     }
 
     int loadState(const void * src)
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslDeleteStream, (&_stream), errcode);
-        if (!errcode) __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslLoadStreamM, (&_stream, (const char *)src), errcode);
+        __DAAL_VSLFN_CALL_NR(vslDeleteStream, (&_stream), errcode);
+        if (!errcode) __DAAL_VSLFN_CALL_NR(vslLoadStreamM, (&_stream, (const char *)src), errcode);
         return errcode;
     }
 
     int leapfrog(size_t threadNum, size_t nThreads)
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslLeapfrogStream, (_stream, threadNum, nThreads), errcode);
+        __DAAL_VSLFN_CALL_NR(vslLeapfrogStream, (_stream, (const MKL_INT)threadNum, (const MKL_INT)nThreads), errcode);
         return errcode;
     }
 
     int skipAhead(size_t nSkip)
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(fpk_vsl_sub_kernel, vslSkipAheadStream, (_stream, nSkip), errcode);
+        __DAAL_VSLFN_CALL_NR(vslSkipAheadStream, (_stream, nSkip), errcode);
         return errcode;
     }
 

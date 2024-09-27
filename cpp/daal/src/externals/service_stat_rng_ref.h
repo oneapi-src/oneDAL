@@ -27,11 +27,6 @@
 
 #include "src/externals/service_stat_rng_ref.h"
 
-#if !defined(__DAAL_CONCAT2)
-    #define __DAAL_CONCAT2(a, b) a##b
-#endif
-
-#define __DAAL_VSLFN(f_pref, f_name)                          __DAAL_CONCAT2(f_pref, f_name)
 #define __DAAL_VSLFN_CALL_NR(f_pref, f_name, f_args, errcode) __DAAL_VSLFN_CALL(f_pref, f_name, f_args, errcode)
 #define __DAAL_VSLFN_CALL_NR_WHILE(f_pref, f_name, f_args, errcode) \
     {                                                               \
