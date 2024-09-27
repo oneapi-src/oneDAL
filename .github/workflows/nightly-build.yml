@@ -31,6 +31,7 @@ env:
 jobs:
   build_lnx:
     name: oneDAL Linux nightly build
+    if: github.repository == 'oneapi-src/oneDAL'
     runs-on: ubuntu-22.04
     timeout-minutes: 120
 
@@ -63,6 +64,7 @@ jobs:
 
   build_win:
     name: oneDAL Windows nightly build
+    if: github.repository == 'oneapi-src/oneDAL'
     runs-on: windows-2022
     timeout-minutes: 120
 
@@ -78,8 +80,6 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            @echo on
-            echo hello
             call .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
       - name: Prepare Intel OpenCL CPU runtime
         run: |
