@@ -34,7 +34,7 @@ show_help() {
 --plat:The platform to build for. This is passed to the oneDAL top level Makefile
 --blas-dir:The BLAS installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
 --tbb-dir:The TBB installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
---use-openrng:Set this to yes if openrng is to be used as RNG backend. Use this with the `ref` backend.
+--use-openrng:Set this to yes if openrng is to be used as RNG backend. Use this only with the `ref` backend.
 --sysroot:The sysroot to use, in the case that clang is used as the cross-compiler
 '
 }

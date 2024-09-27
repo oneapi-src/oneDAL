@@ -55,10 +55,6 @@ ARCH_is_$(ARCH)                    := yes
 DEFAULT_BUILD_PARAMETERS_LIB       := $(if $(OS_is_win),no,yes)
 BUILD_PARAMETERS_LIB               ?= $(DEFAULT_BUILD_PARAMETERS_LIB)
 
-ifeq ($(RNG_BACKEND), openrng)
-	RNG_OPENRNG := yes
-endif
-
 ifdef OS_is_win
 ifeq ($(BUILD_PARAMETERS_LIB),yes)
 $(error Building with the parameters library is not available on Windows OS)
@@ -284,6 +280,23 @@ MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
 
 mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)daal_sycl$d.$(a)
 mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+
+ifeq ($(BACKEND_CONFIG), ref)
+    ifeq ($(RNG_BACKEND), openrng)
+        RNG_OPENRNG := yes
+    endif
+    ifndef RNG_BACKEND
+        RNG_BACKEND := ref
+    endif
+    $(if $(filter $(RNG_BACKEND),ref openrng),,$(error unknown rng backend $(RNG_BACKEND)))
+endif
+
+ifeq ($(BACKEND_CONFIG), mkl)
+    ifndef RNG_BACKEND
+        RNG_BACKEND := mkl
+    endif
+    $(if $(filter $(RNG_BACKEND),mkl),,$(error mkl backend does not support the rng backend $(RNG_BACKEND)))
+endif
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
