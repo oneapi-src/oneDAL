@@ -30,7 +30,7 @@ variables:
   SYSROOT_OS: 'jammy'
   WIN_BASEKIT_VERSION: '2024.2.1.101'
   WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_$(WIN_BASEKIT_VERSION)_offline.exe'
-  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
+  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
 
 jobs:
 - job: 'FormatterChecks'
