@@ -669,7 +669,7 @@ jobs:
   pool:
     vmImage: 'windows-2022'
   steps:
-  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS) .\oneapi\
+  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: Install oneAPI Base Toolkit
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
@@ -677,15 +677,15 @@ jobs:
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
   - script: |
-      call .\oneapi\setvars.bat --force
+      call %TEMP%\oneapi\setvars.bat --force
       bash .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      call .\oneapi\setvars.bat --force
+      call %TEMP%\oneapi\setvars.bat --force
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |
-      call .\oneapi\setvars.bat --force
+      call %TEMP%\oneapi\setvars.bat --force
       .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
