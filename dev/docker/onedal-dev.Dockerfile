@@ -40,6 +40,9 @@ RUN .ci/env/apt.sh dev-base
 # Installing environment for DPCPP development dependencies
 RUN .ci/env/apt.sh dpcpp
 
+# Installing environment for MKL development dependencies
+RUN .ci/env/apt.sh mkl
+
 # Installing environment for clang-format
 RUN .ci/env/apt.sh clang-format
 
@@ -50,9 +53,6 @@ RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazeli
 
 # Installing openBLAS dependency
 RUN .ci/env/openblas.sh
-
-# Installing MKL dependency
-RUN ./dev/download_micromkl.sh
 
 # Installing oneTBB dependency
 RUN ./dev/download_tbb.sh

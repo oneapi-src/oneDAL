@@ -1,5 +1,6 @@
+/* file: service_thread_declar_mkl.h */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,22 +15,14 @@
 * limitations under the License.
 *******************************************************************************/
 
-//
-// Abstract:
-//
-// External header file for libistrconv.
-//
-// =============================================================================
-
-#ifndef _ISTRCONV_EL_H_
-#define _ISTRCONV_EL_H_
-
-#if defined(__cplusplus)
-    #define _ISTRCONV_EXTERN_C extern "C"
-#else
-    #define _ISTRCONV_EXTERN_C extern
-#endif
-
-_ISTRCONV_EXTERN_C int __FPK_string_to_int_generic(const char * nptr, char ** endptr);
-
-#endif /*_ISTRCONV_H_*/
+namespace daal
+{
+namespace internal
+{
+namespace mkl
+{
+//It's a placeholder, the real function calls exact in xfunctions.
+int mkl_serv_set_num_threads_local(int nthreads);
+} // namespace mkl
+} // namespace internal
+} // namespace daal

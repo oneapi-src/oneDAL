@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,17 +26,12 @@ namespace oneapi::dal::backend::primitives {
 
 namespace mkl = oneapi::mkl;
 
-template <mkl::jobsvd jobu, mkl::jobsvd jobvt, typename Float>
-sycl::event gesvd(sycl::queue& queue,
-                  std::int64_t row_count,
+template <mkl::job jobz, mkl::uplo uplo, typename Float>
+sycl::event syevd(sycl::queue& queue,
                   std::int64_t column_count,
                   ndview<Float, 2>& a,
                   std::int64_t lda,
-                  ndview<Float, 1>& s,
-                  ndview<Float, 2>& u,
-                  std::int64_t ldu,
-                  ndview<Float, 2>& vt,
-                  std::int64_t ldvt,
+                  ndview<Float, 1>& eigenvalues,
                   const event_vector& deps = {});
 
 #endif
