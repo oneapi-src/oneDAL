@@ -1,3 +1,4 @@
+@echo on
 rem ============================================================================
 rem Copyright contributors to the oneDAL project
 rem
