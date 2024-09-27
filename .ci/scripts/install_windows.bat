@@ -21,7 +21,7 @@ rem %3 - install directory (default: C:\temp\oneapi\)
 
 set URL=%1
 if "%2"=="" (set COMPONENTS=default) else (set COMPONENTS=%2)
-if "%3"=="" (set DIRECTORY=C:\temp\oneapi\) else (set DIRECTORY=%3)
+if "%3"=="" (set DIRECTORY=%TEMP%\oneapi\) else (set DIRECTORY=%3)
 
 curl.exe --output %TEMP%\webimage.exe --url %URL% --retry 5 --retry-delay 5
 start /b /wait %TEMP%\webimage.exe -s -x -f webimage_extracted --log extract.log
