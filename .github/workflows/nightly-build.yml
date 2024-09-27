@@ -78,6 +78,8 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
+            @echo on
+            echo hello
             call .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
       - name: Prepare Intel OpenCL CPU runtime
         run: |
