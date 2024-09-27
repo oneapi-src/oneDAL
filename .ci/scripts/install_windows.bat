@@ -20,7 +20,7 @@ rem %2 - components to download (following oneapi standards, default: default)
 rem %3 - install directory (default: C:\temp\oneapi\)
 
 set URL=%1
-set "%2"=="" (set COMPONENTS=default) else (set COMPONENTS=%2)
+if "%2"=="" (set COMPONENTS=default) else (set COMPONENTS=%2)
 if "%3"=="" (set DIRECTORY=C:\temp\oneapi\) else (set DIRECTORY=%3)
 
 curl.exe --output %TEMP%\webimage.exe --url %URL% --retry 5 --retry-delay 5
