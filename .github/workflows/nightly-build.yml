@@ -81,6 +81,10 @@ jobs:
         shell: cmd
         run: |
             call .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
+      - name: Prepare Intel OpenCL CPU runtime
+        run: |
+          # Store the unpacked runtime to centralize and reduce external downloads
+          & .ci/scripts/collect_opencl_rt.ps1
       - name: System Info
         shell: cmd
         run: |
@@ -118,3 +122,8 @@ jobs:
         with:
           name: icx_compiler
           path: .\icx.zip
+      - name: Archive Intel OpenCL CPU runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencl_rt_installer
+          path: .\opencl_rt.msi
