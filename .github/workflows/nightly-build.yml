@@ -90,7 +90,7 @@ jobs:
         run: |
           set PATH=C:\msys64\usr\bin;%PATH%
           pip install cpufeature
-          call .\setvars.bat
+          call .\oneapi\setvars.bat
           bash .ci/scripts/describe_system.sh
       - name: Make daal
         shell: cmd
