@@ -15,17 +15,18 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 rem ============================================================================
 
+rem %1 - url to download
+rem %2 - components to download (following oneapi standards, default: default)
+rem %3 - install directory (default: C:\temp\oneapi\)
+
 set URL=%1
-set COMPONENTS=%2
+set "%2"=="" (set COMPONENTS=default) else (set COMPONENTS=%2)
+if "%3"=="" (set DIRECTORY=C:\temp\oneapi\) else (set DIRECTORY=%3)
 
 curl.exe --output %TEMP%\webimage.exe --url %URL% --retry 5 --retry-delay 5
 start /b /wait %TEMP%\webimage.exe -s -x -f webimage_extracted --log extract.log
 del %TEMP%\webimage.exe
-if "%COMPONENTS%"=="" (
-  webimage_extracted\bootstrapper.exe -s --action install --eula=accept --install-dir=C:\temp\oneapi\ -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
-) else (
-  webimage_extracted\bootstrapper.exe -s --action install --components=%COMPONENTS% --eula=accept --install-dir=C:\temp\oneapi\ -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
-)
+webimage_extracted\bootstrapper.exe -s --action install --components=%COMPONENTS% --eula=accept --install-dir=DIRECTORY -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
 set installer_exit_code=%ERRORLEVEL%
 rd /s/q "webimage_extracted"
 exit /b %installer_exit_code%
