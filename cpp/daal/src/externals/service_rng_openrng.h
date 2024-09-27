@@ -1,4 +1,4 @@
-/* file: service_rng_openrng.h.h */
+/* file: service_rng_openrng.h */
 /*******************************************************************************
 * Copyright contributors to the oneDAL project
 *
@@ -19,7 +19,6 @@
 #define __SERVICE_RNG_OPENRNG_H__
 
 #include "openrng.h"
-#include "src/externals/service_stat_rng_ref.h"
 #include "src/externals/service_rng_common.h"
 
 // RNGs
@@ -56,12 +55,12 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
 
     if (sizeof(size_t) == sizeof(unsigned int))
     {
-        size_t len = b - a;
-        int na     = -(len / 2 + len % 2);
-        int nb     = len / 2;
-        int nn     = (int)n;
-        int * rr   = (int *)r;
-        __DAAL_VSLFN_CALL_NR_WHILE(, viRngUniform, (method, stream, nn, rr, na, nb), errcode);
+        size_t len       = b - a;
+        int na           = -(len / 2 + len % 2);
+        int nb           = len / 2;
+        openrng_int_t nn = (openrng_int_t)n;
+        int * rr         = (int *)r;
+        errcode          = viRngUniform((openrng_int_t)method, stream, nn, rr, na, nb);
 
         if (errcode != 0)
         {
@@ -79,12 +78,12 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
         // works only for case when sizeof(size_t) > sizeof(unsigned int)
         if (b - a < ((size_t)1 << sizeof(size_t) * 8 / 2))
         {
-            size_t len = b - a;
-            int na     = -(len / 2 + len % 2);
-            int nb     = len / 2;
-            int nn     = (int)n;
-            int * rr   = (int *)r + n;
-            __DAAL_VSLFN_CALL_NR_WHILE(, viRngUniform, (method, stream, nn, rr, na, nb), errcode);
+            size_t len       = b - a;
+            int na           = -(len / 2 + len % 2);
+            int nb           = len / 2;
+            openrng_int_t nn = (openrng_int_t)n;
+            int * rr         = (int *)r + n;
+            errcode          = viRngUniform((openrng_int_t)method, stream, nn, rr, na, nb);
 
             if (errcode != 0)
             {
@@ -112,9 +111,9 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
             {
                 dv = len;
                 for (int i = 0; i < 64; i++) dv /= 2.0;
-                int nn                = (int)n;
+                openrng_int_t nn      = (openrng_int_t)n;
                 unsigned __int64 * rr = cr;
-                __DAAL_VSLFN_CALL_NR_WHILE(, viRngUniformBits64, (method, stream, nn, rr), errcode);
+                errcode               = viRngUniformBits64((openrng_int_t)method, stream, nn, rr);
 
                 if (errcode != 0)
                 {
@@ -128,9 +127,9 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
                 while (pos < cn)
                 {
                     n                     = cn - pos;
-                    int nn                = (int)n;
+                    openrng_int_t nn      = (openrng_int_t)n;
                     unsigned __int64 * rr = cr + pos;
-                    __DAAL_VSLFN_CALL_NR_WHILE(, viRngUniformBits64, (method, stream, nn, rr), errcode);
+                    errcode               = viRngUniformBits64((openrng_int_t)method, stream, nn, rr);
 
                     if (errcode != 0)
                     {
@@ -160,30 +159,30 @@ int uniformRNG(const size_t cn, size_t * r, void * stream, const size_t a, const
 template <CpuType cpu>
 int uniformRNG(const size_t n, int * r, void * stream, const int a, const int b, const int method)
 {
-    int errcode = 0;
-    int nn      = (int)n;
-    int * rr    = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, viRngUniform, (method, stream, nn, rr, a, b), errcode);
+    int errcode      = 0;
+    openrng_int_t nn = (openrng_int_t)n;
+    int * rr         = r;
+    errcode          = viRngUniform((openrng_int_t)method, stream, nn, rr, a, b);
     return errcode;
 }
 
 template <CpuType cpu>
 int uniformRNG(const size_t n, float * r, void * stream, const float a, const float b, const int method)
 {
-    int errcode = 0;
-    int nn      = (int)n;
-    float * rr  = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, vsRngUniform, (method, stream, nn, rr, a, b), errcode);
+    int errcode      = 0;
+    openrng_int_t nn = (openrng_int_t)n;
+    float * rr       = r;
+    errcode          = vsRngUniform((openrng_int_t)method, stream, nn, rr, a, b);
     return errcode;
 }
 
 template <CpuType cpu>
 int uniformRNG(const size_t n, double * r, void * stream, const double a, const double b, const int method)
 {
-    int errcode = 0;
-    int nn      = (int)n;
-    double * rr = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, vdRngUniform, (method, stream, nn, rr, a, b), errcode);
+    int errcode      = 0;
+    openrng_int_t nn = (openrng_int_t)n;
+    double * rr      = r;
+    errcode          = vdRngUniform((openrng_int_t)method, stream, nn, rr, a, b);
     return errcode;
 }
 
@@ -191,9 +190,9 @@ template <CpuType cpu>
 int uniformBits32RNG(const size_t n, unsigned int * r, void * stream, const int method)
 {
     int errcode       = 0;
-    int nn            = (int)n;
+    openrng_int_t nn  = (openrng_int_t)n;
     unsigned int * rr = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, viRngUniformBits32, (method, stream, nn, rr), errcode);
+    errcode           = viRngUniformBits32((openrng_int_t)method, stream, nn, rr);
     return errcode;
 }
 
@@ -204,20 +203,20 @@ int gaussianRNG(const size_t n, T * r, void * stream, const T a, const T sigma, 
 template <CpuType cpu>
 int gaussianRNG(const size_t n, float * r, void * stream, const float a, const float sigma, const int method)
 {
-    int errcode = 0;
-    int nn      = (int)n;
-    float * rr  = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, vsRngGaussian, (method, stream, nn, rr, a, sigma), errcode);
+    int errcode      = 0;
+    openrng_int_t nn = (openrng_int_t)n;
+    float * rr       = r;
+    errcode          = vsRngGaussian((openrng_int_t)method, stream, nn, rr, a, sigma);
     return errcode;
 }
 
 template <CpuType cpu>
 int gaussianRNG(const size_t n, double * r, void * stream, const double a, const double sigma, const int method)
 {
-    int errcode = 0;
-    int nn      = (int)n;
-    double * rr = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, vdRngGaussian, (method, stream, nn, rr, a, sigma), errcode);
+    int errcode      = 0;
+    openrng_int_t nn = (openrng_int_t)n;
+    double * rr      = r;
+    errcode          = vdRngGaussian((openrng_int_t)method, stream, nn, rr, a, sigma);
     return errcode;
 }
 
@@ -228,10 +227,10 @@ int bernoulliRNG(const size_t n, T * r, void * stream, const double p, const int
 template <CpuType cpu>
 int bernoulliRNG(const size_t n, int * r, void * stream, const double p, const int method)
 {
-    int errcode = 0;
-    int nn      = (int)n;
-    int * rr    = r;
-    __DAAL_VSLFN_CALL_NR_WHILE(, viRngBernoulli, (method, stream, nn, rr, p), errcode);
+    int errcode      = 0;
+    openrng_int_t nn = (openrng_int_t)n;
+    int * rr         = r;
+    errcode          = viRngBernoulli((openrng_int_t)method, stream, nn, rr, p);
     return errcode;
 }
 
@@ -246,7 +245,7 @@ public:
         {
             _seed[0]    = seed;
             int errcode = 0;
-            __DAAL_VSLFN_CALL_NR(, vslNewStreamEx, (&_stream, brngId, 1, &seed), errcode);
+            errcode     = vslNewStreamEx(&_stream, (openrng_int_t)brngId, 1, &seed);
         }
     }
 
@@ -264,7 +263,7 @@ public:
                 }
             }
             int errcode = 0;
-            __DAAL_VSLFN_CALL_NR(, vslNewStreamEx, (&_stream, brngId, n, seed), errcode);
+            errcode     = vslNewStreamEx(&_stream, (openrng_int_t)brngId, (openrng_int_t)n, seed);
         }
     }
 
@@ -278,8 +277,8 @@ public:
                 _seed[i] = other._seed[i];
             }
             int errcode = 0;
-            __DAAL_VSLFN_CALL_NR(, vslNewStreamEx, (&_stream, _brngId, _seedSize, _seed), errcode);
-            if (!errcode) __DAAL_VSLFN_CALL_NR(, vslCopyStreamState, (_stream, other._stream), errcode);
+            errcode     = vslNewStreamEx(&_stream, _brngId, _seedSize, _seed);
+            if (!errcode) errcode = vslCopyStreamState(_stream, other._stream);
         }
     }
 
@@ -287,42 +286,42 @@ public:
     {
         daal::services::daal_free((void *)_seed);
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(, vslDeleteStream, (&_stream), errcode);
+        errcode     = vslDeleteStream(&_stream);
     }
 
     int getStateSize() const
     {
         int res = 0;
-        __DAAL_VSLFN_CALL_NR(, vslGetStreamSize, (_stream), res);
+        res     = vslGetStreamSize(_stream);
         return res;
     }
 
     int saveState(void * dest) const
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(, vslSaveStreamM, (_stream, (char *)dest), errcode);
+        errcode     = vslSaveStreamM(_stream, (char *)dest);
         return errcode;
     }
 
     int loadState(const void * src)
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(, vslDeleteStream, (&_stream), errcode);
-        if (!errcode) __DAAL_VSLFN_CALL_NR(, vslLoadStreamM, (&_stream, (const char *)src), errcode);
+        errcode     = vslDeleteStream(&_stream);
+        if (!errcode) errcode = vslLoadStreamM(&_stream, (const char *)src);
         return errcode;
     }
 
     int leapfrog(size_t threadNum, size_t nThreads)
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(, vslLeapfrogStream, (_stream, threadNum, nThreads), errcode);
+        errcode     = vslLeapfrogStream(_stream, (openrng_int_t)threadNum, (openrng_int_t)nThreads);
         return errcode;
     }
 
     int skipAhead(size_t nSkip)
     {
         int errcode = 0;
-        __DAAL_VSLFN_CALL_NR(, vslSkipAheadStream, (_stream, nSkip), errcode);
+        errcode     = vslSkipAheadStream(_stream, (long long int)nSkip);
         return errcode;
     }
 
