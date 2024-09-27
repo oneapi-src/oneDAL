@@ -24,6 +24,6 @@ Describe what your are expecting from steps above
 If applicable, add output/screenshots to help explain your problem.
 
 **Environment:**
- - OS: [e.g. Ubuntu 18.04]
- - Compiler: [e.g. GCC9.2]
- - Version: [e.g. 2019 Update 4]
+ - OS: [e.g. Ubuntu 22.04]
+ - Compiler: [e.g. GCC12.1]
+ - Version: [e.g. 2025.1]

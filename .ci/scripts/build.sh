@@ -164,8 +164,7 @@ fi
 #main actions
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
-    echo "Sourcing MKL env"
-    "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
+    source /opt/intel/oneapi/mkl/latest/env/vars.sh
 elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
     export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then

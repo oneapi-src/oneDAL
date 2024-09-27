@@ -113,18 +113,22 @@ result_t finalize_train_kernel_cov_impl<Float>::operator()(const descriptor_t& d
         data_to_compute = corr;
     }
 
-    auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q,
-                                                           std::move(data_to_compute),
-                                                           component_count,
-                                                           { corr_event, vars_event, cov_event });
+    auto [eigvals, syevd_event] =
+        syevd_computation(q, data_to_compute, { cov_event, corr_event, vars_event });
+
+    auto flipped_eigvals_host = flip_eigenvalues(q, eigvals, component_count, { syevd_event });
+
+    auto flipped_eigenvectors_host =
+        flip_eigenvectors(q, data_to_compute, component_count, { syevd_event });
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+        result.set_eigenvalues(
+            homogen_table::wrap(flipped_eigvals_host.flatten(), 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::singular_values)) {
         auto singular_values =
             compute_singular_values_on_host(q,
-                                            eigvals,
+                                            flipped_eigvals_host,
                                             rows_count_global,
                                             { corr_event, vars_event, cov_event });
         result.set_singular_values(
@@ -135,7 +139,7 @@ result_t finalize_train_kernel_cov_impl<Float>::operator()(const descriptor_t& d
         auto vars_host = vars.to_host(q);
         auto explained_variances_ratio =
             compute_explained_variances_on_host(q,
-                                                eigvals,
+                                                flipped_eigvals_host,
                                                 vars_host,
                                                 { corr_event, vars_event, cov_event });
         result.set_explained_variances_ratio(
@@ -143,12 +147,13 @@ result_t finalize_train_kernel_cov_impl<Float>::operator()(const descriptor_t& d
     }
 
     if (desc.get_deterministic()) {
-        sign_flip(eigvecs);
+        sign_flip(flipped_eigenvectors_host);
     }
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        result.set_eigenvectors(
-            homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+        result.set_eigenvectors(homogen_table::wrap(flipped_eigenvectors_host.flatten(),
+                                                    component_count,
+                                                    column_count));
     }
 
     return result;

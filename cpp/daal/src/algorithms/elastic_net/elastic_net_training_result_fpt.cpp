@@ -40,7 +40,7 @@ using namespace daal::services;
  * \param[in] method Computation method for the algorithm
  */
 template <typename algorithmFPType>
-Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
+DAAL_EXPORT services::Status Result::allocate(const daal::algorithms::Input * input, const Parameter * parameter, const int method)
 {
     const Input * const in = static_cast<const Input *>(input);
 
@@ -57,7 +57,8 @@ Status Result::allocate(const daal::algorithms::Input * input, const Parameter *
     return s;
 }
 
-template services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter, const int method);
+template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::Input * input, const Parameter * parameter,
+                                                                    const int method);
 
 } // namespace training
 } // namespace elastic_net

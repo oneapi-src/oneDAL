@@ -43,3 +43,7 @@ ifeq ($(RNG_OPENRNG), yes)
 
 	daaldep.math_backend.incdir += $(daaldep.rng_backend.incdir)
 endif
+
+daaldep.math_backend.ext := $(daaldep.math_backend.thr)
+daaldep.math_backend.sycl := $(daaldep.math_backend.thr)
+daaldep.math_backend.oneapi := $(daaldep.math_backend.thr)

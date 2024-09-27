@@ -371,7 +371,7 @@ sycl::event handle_empty_clusters(const dal::backend::context_gpu& ctx,
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](auto it) {
-            const auto local_id = it.get_local_id(1);
+            const auto local_id = it.get_local_id()[1];
             for (std::int64_t cluster_id = rank; cluster_id < num_clusters;
                  cluster_id += rank_count) {
                 // no need to handle non-empty clusters

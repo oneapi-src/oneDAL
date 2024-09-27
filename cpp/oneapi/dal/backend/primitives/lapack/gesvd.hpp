@@ -24,7 +24,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-namespace mkl = oneapi::fpk;
+namespace mkl = oneapi::mkl;
 
 template <mkl::jobsvd jobu, mkl::jobsvd jobvt, typename Float>
 sycl::event gesvd(sycl::queue& queue,

@@ -1817,14 +1817,14 @@ unsigned _internal_daal_GetSysLogicalProcessorCount()
 }
 
 /*
- * _internal_daal_GetSysProcessorCoreCount
+ * _internal_daal_GetProcessorCoreCount
  *
  * Returns count of processor cores in the system that were enumerated by this app
  *
  * Arguments: None
  * Return: Number of physical processors or 0 if number can not be calculated
  */
-unsigned _internal_daal_GetSysProcessorCoreCount()
+unsigned _internal_daal_GetProcessorCoreCount()
 {
     if (!glbl_obj.isInit) __internal_daal_initCpuTopology();
 
@@ -1870,7 +1870,7 @@ unsigned _internal_daal_GetCoreCountPerEachCache(unsigned subleaf, unsigned cach
 unsigned _internal_daal_GetLogicalProcessorQueue(int * queue)
 {
     const int cpus = _internal_daal_GetSysLogicalProcessorCount();
-    int cores      = _internal_daal_GetSysProcessorCoreCount();
+    int cores      = _internal_daal_GetProcessorCoreCount();
 
     if (cores == 0) cores = 1;
 
