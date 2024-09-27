@@ -685,7 +685,7 @@ jobs:
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |
-       call .\oneapi\setvars.bat --force
+      call .\oneapi\setvars.bat --force
       .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
