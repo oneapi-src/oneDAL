@@ -95,14 +95,12 @@ jobs:
       - name: Make daal
         shell: cmd
         run: |
-          call .\oneapi\tbb\latest\bin\vars.bat
-          call .\oneapi\mkl\latest\bin\vars.bat
+          call .\oneapi\setvars.bat
           call .\.ci\scripts\build.bat daal vc avx2
       - name: Make onedal
         shell: cmd
         run: |
-          call .\oneapi\tbb\latest\bin\vars.bat
-          call .\oneapi\mkl\latest\bin\vars.bat
+          call .\oneapi\setvars.bat
           call .\.ci\scripts\build.bat onedal_c vc avx2
       - name: Make oneapi_dpc
         shell: cmd
