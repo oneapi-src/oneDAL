@@ -36,15 +36,14 @@ int main(int argc, char const *argv[]) {
     const auto knn_desc =
         dal::knn::descriptor<float, dal::knn::method::kd_tree, dal::knn::task::classification>(5,
                                                                                                1);
-    std::cout << "before train" << std::endl;
+
     const auto train_result = dal::train(knn_desc, x_train, y_train);
-    std::cout << "after train" << std::endl;
+
     const auto x_test = dal::read<dal::table>(dal::csv::data_source{ test_data_file_name });
     const auto y_true = dal::read<dal::table>(dal::csv::data_source{ test_response_file_name });
 
-    std::cout << "before infer" << std::endl;
     const auto test_result = dal::infer(knn_desc, x_test, train_result.get_model());
-    std::cout << "after infer" << std::endl;
+
     std::cout << "Test results:\n" << test_result.get_responses() << std::endl;
     std::cout << "True responses:\n" << y_true << std::endl;
 

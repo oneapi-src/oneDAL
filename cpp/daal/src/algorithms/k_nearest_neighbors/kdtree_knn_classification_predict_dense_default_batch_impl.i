@@ -39,7 +39,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
-
+#include <iostream>
 namespace daal
 {
 namespace algorithms
@@ -122,6 +122,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                                                                                    const daal::algorithms::Parameter * par)
 {
     Status status;
+    SafeStatus safeStat;
     std::cout << "here debug 1" << std::endl;
     typedef GlobalNeighbors<algorithmFpType, cpu> Neighbors;
     typedef Heap<Neighbors, cpu> MaxHeap;
@@ -178,21 +179,21 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         SearchStack stack;
     };
     std::cout << "here debug 8" << std::endl;
-    daal::tls<Local *> localTLS([=, &status]() -> Local * {
+    daal::tls<Local *> localTLS([&]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
         {
             if (!ptr->heap.init(heapSize))
             {
                 std::cout << "error 1" << std::endl;
-                status.add(services::ErrorMemoryAllocationFailed);
+                safeStat.add(services::ErrorMemoryAllocationFailed);
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
             }
             if (!ptr->stack.init(stackSize))
             {
                 std::cout << "error 2" << std::endl;
-                status.add(services::ErrorMemoryAllocationFailed);
+                safeStat.add(services::ErrorMemoryAllocationFailed);
                 ptr->heap.clear();
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
@@ -201,7 +202,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         else
         {
             std::cout << "error 3" << std::endl;
-            status.add(services::ErrorMemoryAllocationFailed);
+            safeStat.add(services::ErrorMemoryAllocationFailed);
         }
         return ptr;
     });
@@ -213,9 +214,9 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     std::cout << "maxthreads =" << maxThreads << std::endl;
     std::cout << "nthreads =" << nThreads << std::endl;
     const size_t xColumnCount = x->getNumberOfColumns();
-    const size_t rowsPerBlock = (xRowCount + nThreads - 1) / nThreads;
+    const size_t rowsPerBlock = 128;
     const size_t blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
-    SafeStatus safeStat;
+
     std::cout << "here debug 11" << std::endl;
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
@@ -223,6 +224,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         if (!safeStat.ok()) return;
         Local * const local = localTLS.local();
+        DAAL_CHECK_MALLOC_THR(local);
         if (local)
         {
             const size_t first = iBlock * rowsPerBlock;
@@ -248,11 +250,15 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             if (labels)
             {
                 std::cout << "in parallel for 3" << std::endl;
+                std::cout << "in parallel for lables 1" << std::endl;
                 const size_t yColumnCount = y->getNumberOfColumns();
+                std::cout << "in parallel for lables 2" << std::endl;
                 data_management::BlockDescriptor<algorithmFpType> yBD;
+                std::cout << "in parallel for lables 3" << std::endl;
                 y->getBlockOfRows(first, last - first, writeOnly, yBD);
+                std::cout << "in parallel for lables 4" << std::endl;
                 auto * const dy = yBD.getBlockPtr();
-
+                std::cout << "in parallel for lables 5" << std::endl;
                 for (size_t i = 0; i < last - first; ++i)
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
@@ -260,8 +266,9 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                     DAAL_CHECK_STATUS_THR(
                         predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
-
+                std::cout << "in parallel for lables 6" << std::endl;
                 DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
+                std::cout << "in parallel for lables 7" << std::endl;
             }
             else
             {
