@@ -28,8 +28,8 @@ cpp/           @Alexsandruss @samir-nasibli @Alexandr-Solovev
 dtrees         @razdoburdin @ahuber21 @avolkov-intel @icfaust
 
 # Governance and process
-/.github/CODEOWNERS @oneapi-src/owner-onedal
-/SECURITY.md @oneapi-src/owner-onedal
-/MAINTAINERS.md @oneapi-src/owner-onedal
-/CONTRIBUTING.md @oneapi-src/owner-onedal
-/CODE_OF_CONDUCT.md @oneapi-src/owner-onedal
+/.github/CODEOWNERS @oneapi-src/oneDAL-maintainer
+/SECURITY.md @oneapi-src/oneDAL-maintainer
+/MAINTAINERS.md @oneapi-src/oneDAL-maintainer
+/CONTRIBUTING.md @oneapi-src/oneDAL-maintainer
+/CODE_OF_CONDUCT.md @oneapi-src/oneDAL-maintainer
