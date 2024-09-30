@@ -96,7 +96,7 @@ struct distance_accessor {
 
 template <typename Descriptor>
 distance_impl* get_distance_impl(Descriptor&& desc) {
-    const auto& distance = distance_accessor{}.get_distance_impl(std::forward<Descriptor>(desc));
+    const auto distance = distance_accessor{}.get_distance_impl(std::forward<Descriptor>(desc));
     return distance ? distance->get_impl() : nullptr;
 }
 
