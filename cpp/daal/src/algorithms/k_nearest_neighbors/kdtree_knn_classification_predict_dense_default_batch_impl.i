@@ -224,8 +224,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         Local * const local = localTLS.local();
         if (local)
         {
-            services::Status s;
-
             const size_t first = iBlock * rowsPerBlock;
             const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
@@ -238,17 +236,17 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             data_management::BlockDescriptor<algorithmFpType> distancesBD;
             if (indices)
             {
-                s = indices->getBlockOfRows(first, last - first, writeOnly, indicesBD);
-                DAAL_CHECK_STATUS_THR(s);
+                std::cout << "in parallel for 1" << std::endl;
+                DAAL_CHECK_STATUS_THR(indices->getBlockOfRows(first, last - first, writeOnly, indicesBD));
             }
             if (distances)
             {
-                s = distances->getBlockOfRows(first, last - first, writeOnly, distancesBD);
-                DAAL_CHECK_STATUS_THR(s);
+                std::cout << "in parallel for 2" << std::endl;
+                DAAL_CHECK_STATUS_THR(distances->getBlockOfRows(first, last - first, writeOnly, distancesBD));
             }
-
             if (labels)
             {
+                std::cout << "in parallel for 3" << std::endl;
                 const size_t yColumnCount = y->getNumberOfColumns();
                 data_management::BlockDescriptor<algorithmFpType> yBD;
                 y->getBlockOfRows(first, last - first, writeOnly, yBD);
@@ -258,34 +256,37 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
                                          isHomogenSOA, soa_arrays);
-                    s = predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses);
-                    DAAL_CHECK_STATUS_THR(s)
+                    DAAL_CHECK_STATUS_THR(
+                        predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
 
-                s |= y->releaseBlockOfRows(yBD);
-                DAAL_CHECK_STATUS_THR(s);
+                DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
             }
             else
             {
+                std::cout << "in parallel for 4" << std::endl;
                 for (size_t i = 0; i < last - first; ++i)
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
                                          isHomogenSOA, soa_arrays);
-                    s = predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses);
-                    DAAL_CHECK_STATUS_THR(s)
+                    DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
+                std::cout << "in parallel for 5" << std::endl;
             }
 
             if (indices)
             {
-                s |= indices->releaseBlockOfRows(indicesBD);
+                std::cout << "in parallel for 6" << std::endl;
+                DAAL_CHECK_STATUS_THR(indices->releaseBlockOfRows(indicesBD));
+                std::cout << "in parallel for 6.1" << std::endl;
             }
-            DAAL_CHECK_STATUS_THR(s);
+
             if (distances)
             {
-                s |= distances->releaseBlockOfRows(distancesBD);
+                std::cout << "in parallel for 7" << std::endl;
+                DAAL_CHECK_STATUS_THR(distances->releaseBlockOfRows(distancesBD));
+                std::cout << "in parallel for 7.1" << std::endl;
             }
-            DAAL_CHECK_STATUS_THR(s);
 
             const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
         }
@@ -302,7 +303,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         }
     });
     std::cout << "here debug 17" << std::endl;
-    return status;
+
+    return safeStat.detach();
 }
 
 template <typename algorithmFpType, CpuType cpu>
