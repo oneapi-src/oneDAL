@@ -63,14 +63,15 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
 
     const std::int64_t dummy_seed = 777;
     const auto data_use_in_model = daal_knn::doNotUse;
-
     daal_knn::Parameter daal_parameter(
         dal::detail::integral_cast<std::size_t>(desc.get_class_count()),
         dal::detail::integral_cast<std::size_t>(desc.get_neighbor_count()),
         dal::detail::integral_cast<int>(dummy_seed),
         data_use_in_model);
+
     const auto daal_voting_mode = convert_to_daal_kdtree_voting_mode(desc.get_voting_mode());
     daal_parameter.voteWeights = daal_voting_mode;
+
     if (desc.get_result_options().test(result_options::responses)) {
         arr_responses.reset(1 * row_count);
         daal_responses = interop::convert_to_daal_homogen_table(arr_responses, row_count, 1);
@@ -78,6 +79,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
     else {
         daal_parameter.resultsToEvaluate = daal_classifier::none;
     }
+
     if (desc.get_result_options().test(result_options::indices)) {
         dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeIndicesOfNeighbors;
@@ -85,6 +87,7 @@ static infer_result<Task> call_daal_kernel(const context_cpu& ctx,
         daal_indices =
             interop::convert_to_daal_homogen_table(arr_indices, row_count, neighbor_count);
     }
+
     if (desc.get_result_options().test(result_options::distances)) {
         dal::detail::check_mul_overflow(neighbor_count, row_count);
         daal_parameter.resultsToCompute |= daal_knn::computeDistances;

@@ -334,38 +334,36 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
         daal::threader_for(blockCount, blockCount, [=, &bboxTLS](int iBlock) {
             BBox * const bboxLocal = bboxTLS.local();
-            if (bboxLocal)
+
+            const size_t first = iBlock * rowsPerBlock;
+            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+
+            if (first < last)
             {
-                const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
-
-                if (first < last)
+                BBox b;
+                size_t i = first;
+                b.upper  = dx[indexes[i]];
+                b.lower  = dx[indexes[i]];
+                PRAGMA_IVDEP
+                for (++i; i < last; ++i)
                 {
-                    BBox b;
-                    size_t i = first;
-                    b.upper  = dx[indexes[i]];
-                    b.lower  = dx[indexes[i]];
-                    PRAGMA_IVDEP
-                    for (++i; i < last; ++i)
+                    if (b.lower > dx[indexes[i]])
                     {
-                        if (b.lower > dx[indexes[i]])
-                        {
-                            b.lower = dx[indexes[i]];
-                        }
-                        if (b.upper < dx[indexes[i]])
-                        {
-                            b.upper = dx[indexes[i]];
-                        }
+                        b.lower = dx[indexes[i]];
                     }
+                    if (b.upper < dx[indexes[i]])
+                    {
+                        b.upper = dx[indexes[i]];
+                    }
+                }
 
-                    if (bboxLocal->upper < b.upper)
-                    {
-                        bboxLocal->upper = b.upper;
-                    }
-                    if (bboxLocal->lower > b.lower)
-                    {
-                        bboxLocal->lower = b.lower;
-                    }
+                if (bboxLocal->upper < b.upper)
+                {
+                    bboxLocal->upper = b.upper;
+                }
+                if (bboxLocal->lower > b.lower)
+                {
+                    bboxLocal->lower = b.lower;
                 }
             }
         });

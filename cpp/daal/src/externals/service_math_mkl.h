@@ -103,54 +103,54 @@ struct MklMath<double, cpu>
 
     static void vPowx(SizeType n, const double * in, double in1, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdPowx, ((int)n, in, in1, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdPowx, ((MKL_INT)n, in, in1, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vCeil(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdCeil, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdCeil, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vErfInv(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdErfInv, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdErfInv, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vErf(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdErf, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdErf, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vExp(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdExp, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdExp, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static double vExpThreshold() { return -650.0; }
 
     static void vTanh(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdTanh, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdTanh, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vSqrt(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdSqrt, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdSqrt, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vLog(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdLn, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdLn, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vLog1p(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdLog1p, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdLog1p, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vCdfNormInv(SizeType n, const double * in, double * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmdCdfNormInv, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmdCdfNormInv, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 };
 
@@ -215,54 +215,54 @@ struct MklMath<float, cpu>
 
     static void vPowx(SizeType n, const float * in, float in1, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsPowx, ((int)n, in, in1, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsPowx, ((MKL_INT)n, in, in1, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vCeil(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsCeil, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsCeil, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vErfInv(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsErfInv, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsErfInv, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vErf(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsErf, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsErf, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vExp(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsExp, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsExp, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static float vExpThreshold() { return -75.0f; }
 
     static void vTanh(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsTanh, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsTanh, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vSqrt(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsSqrt, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsSqrt, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vLog(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsLn, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsLn, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vLog1p(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsLog1p, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsLog1p, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
     static void vCdfNormInv(SizeType n, const float * in, float * out)
     {
-        __DAAL_MKLFN_CALL_MATH(vmsCdfNormInv, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+        __DAAL_MKLFN_CALL_MATH(vmsCdfNormInv, ((MKL_INT)n, in, out, (MKL_INT)(VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 };
 

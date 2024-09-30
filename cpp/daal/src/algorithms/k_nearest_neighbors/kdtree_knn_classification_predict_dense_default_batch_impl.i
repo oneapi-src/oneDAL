@@ -39,7 +39,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -123,19 +123,16 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 {
     Status status;
     SafeStatus safeStat;
-    std::cout << "here debug 1" << std::endl;
     typedef GlobalNeighbors<algorithmFpType, cpu> Neighbors;
     typedef Heap<Neighbors, cpu> MaxHeap;
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
     typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
-    std::cout << "here debug 2" << std::endl;
     size_t k;
     size_t nClasses;
     VoteWeights voteWeights       = voteUniform;
     DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
-    std::cout << "here debug 3" << std::endl;
-    const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
+    const auto par3               = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
     if (par3)
     {
         k                 = par3->k;
@@ -143,7 +140,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         resultsToEvaluate = par3->resultsToEvaluate;
         nClasses          = par3->nClasses;
     }
-    std::cout << "here debug 4" << std::endl;
     if (par3 == NULL) return Status(ErrorNullParameterNotSupported);
 
     const Model * const model    = static_cast<const Model *>(m);
@@ -155,7 +151,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     {
         labels = model->impl()->getLabels().get();
     }
-    std::cout << "here debug 5" << std::endl;
     const NumericTable * const modelIndices = model->impl()->getIndices().get();
 
     size_t iSize = 1;
@@ -163,36 +158,28 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     {
         iSize *= 2;
     }
-    const size_t heapSize = (iSize / 16 + 1) * 16;
-    std::cout << "here debug 6" << std::endl;
-    const size_t xRowCount     = x->getNumberOfRows();
-    const algorithmFpType base = 2.0;
-    std::cout << "here debug math 1" << std::endl;
+    const size_t heapSize         = (iSize / 16 + 1) * 16;
+    const size_t xRowCount        = x->getNumberOfRows();
+    const algorithmFpType base    = 2.0;
     const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
-    std::cout << "here debug math 2" << std::endl;
-    const size_t stackSize = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
-    std::cout << "here debug math 3" << std::endl;
-    std::cout << "here debug 7" << std::endl;
+    const size_t stackSize        = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
     struct Local
     {
         MaxHeap heap;
         SearchStack stack;
     };
-    std::cout << "here debug 8" << std::endl;
     daal::tls<Local *> localTLS([&]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
         {
             if (!ptr->heap.init(heapSize))
             {
-                std::cout << "error 1" << std::endl;
                 safeStat.add(services::ErrorMemoryAllocationFailed);
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
             }
             if (!ptr->stack.init(stackSize))
             {
-                std::cout << "error 2" << std::endl;
                 safeStat.add(services::ErrorMemoryAllocationFailed);
                 ptr->heap.clear();
                 service_scalable_free<Local, cpu>(ptr);
@@ -201,108 +188,81 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         }
         else
         {
-            std::cout << "error 3" << std::endl;
             safeStat.add(services::ErrorMemoryAllocationFailed);
         }
         return ptr;
     });
 
     DAAL_CHECK_STATUS_OK((status.ok()), status);
-    std::cout << "here debug 9" << std::endl;
-    const auto maxThreads = threader_get_threads_number();
-    auto nThreads         = (maxThreads < 1) ? 1 : maxThreads;
-    std::cout << "maxthreads =" << maxThreads << std::endl;
-    std::cout << "nthreads =" << nThreads << std::endl;
+    const auto maxThreads     = threader_get_threads_number();
+    auto nThreads             = (maxThreads < 1) ? 1 : maxThreads;
     const size_t xColumnCount = x->getNumberOfColumns();
     const size_t rowsPerBlock = 128;
     const size_t blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
-    std::cout << "here debug 11" << std::endl;
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
-    std::cout << "here debug 12" << std::endl;
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
-        if (!safeStat.ok()) return;
         Local * const local = localTLS.local();
         DAAL_CHECK_MALLOC_THR(local);
-        if (local)
+
+        const size_t first = iBlock * rowsPerBlock;
+        const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+
+        const algorithmFpType radius = MaxVal::get();
+        data_management::BlockDescriptor<algorithmFpType> xBD;
+        const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
+        const algorithmFpType * const dx = xBD.getBlockPtr();
+
+        data_management::BlockDescriptor<int> indicesBD;
+        data_management::BlockDescriptor<algorithmFpType> distancesBD;
+        if (indices)
         {
-            const size_t first = iBlock * rowsPerBlock;
-            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
-
-            const algorithmFpType radius = MaxVal::get();
-            data_management::BlockDescriptor<algorithmFpType> xBD;
-            const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
-            const algorithmFpType * const dx = xBD.getBlockPtr();
-
-            data_management::BlockDescriptor<int> indicesBD;
-            data_management::BlockDescriptor<algorithmFpType> distancesBD;
-            if (indices)
-            {
-                std::cout << "in parallel for 1" << std::endl;
-                DAAL_CHECK_STATUS_THR(indices->getBlockOfRows(first, last - first, writeOnly, indicesBD));
-            }
-            if (distances)
-            {
-                std::cout << "in parallel for 2" << std::endl;
-                DAAL_CHECK_STATUS_THR(distances->getBlockOfRows(first, last - first, writeOnly, distancesBD));
-            }
-            if (labels)
-            {
-                std::cout << "in parallel for 3" << std::endl;
-                std::cout << "in parallel for lables 1" << std::endl;
-                const size_t yColumnCount = y->getNumberOfColumns();
-                std::cout << "in parallel for lables 2" << std::endl;
-                data_management::BlockDescriptor<algorithmFpType> yBD;
-                std::cout << "in parallel for lables 3" << std::endl;
-                y->getBlockOfRows(first, last - first, writeOnly, yBD);
-                std::cout << "in parallel for lables 4" << std::endl;
-                auto * const dy = yBD.getBlockPtr();
-                std::cout << "in parallel for lables 5" << std::endl;
-                for (size_t i = 0; i < last - first; ++i)
-                {
-                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                                         isHomogenSOA, soa_arrays);
-                    DAAL_CHECK_STATUS_THR(
-                        predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
-                }
-                std::cout << "in parallel for lables 6" << std::endl;
-                DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
-                std::cout << "in parallel for lables 7" << std::endl;
-            }
-            else
-            {
-                std::cout << "in parallel for 4" << std::endl;
-                for (size_t i = 0; i < last - first; ++i)
-                {
-                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                                         isHomogenSOA, soa_arrays);
-                    DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
-                }
-                std::cout << "in parallel for 5" << std::endl;
-            }
-
-            if (indices)
-            {
-                std::cout << "in parallel for 6" << std::endl;
-                DAAL_CHECK_STATUS_THR(indices->releaseBlockOfRows(indicesBD));
-                std::cout << "in parallel for 6.1" << std::endl;
-            }
-
-            if (distances)
-            {
-                std::cout << "in parallel for 7" << std::endl;
-                DAAL_CHECK_STATUS_THR(distances->releaseBlockOfRows(distancesBD));
-                std::cout << "in parallel for 7.1" << std::endl;
-            }
-
-            const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
+            DAAL_CHECK_STATUS_THR(indices->getBlockOfRows(first, last - first, writeOnly, indicesBD));
         }
+        if (distances)
+        {
+            DAAL_CHECK_STATUS_THR(distances->getBlockOfRows(first, last - first, writeOnly, distancesBD));
+        }
+        if (labels)
+        {
+            const size_t yColumnCount = y->getNumberOfColumns();
+            data_management::BlockDescriptor<algorithmFpType> yBD;
+            y->getBlockOfRows(first, last - first, writeOnly, yBD);
+            auto * const dy = yBD.getBlockPtr();
+            for (size_t i = 0; i < last - first; ++i)
+            {
+                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
+                                     soa_arrays);
+                DAAL_CHECK_STATUS_THR(
+                    predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+            }
+            DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
+        }
+        else
+        {
+            for (size_t i = 0; i < last - first; ++i)
+            {
+                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
+                                     soa_arrays);
+                DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+            }
+        }
+
+        if (indices)
+        {
+            DAAL_CHECK_STATUS_THR(indices->releaseBlockOfRows(indicesBD));
+        }
+
+        if (distances)
+        {
+            DAAL_CHECK_STATUS_THR(distances->releaseBlockOfRows(distancesBD));
+        }
+
+        const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
     });
     status = safeStat.detach();
-    std::cout << "here debug 15" << std::endl;
     DAAL_CHECK_SAFE_STATUS()
-    std::cout << "here debug 16" << std::endl;
     localTLS.reduce([=](Local * ptr) -> void {
         if (ptr)
         {
@@ -311,7 +271,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             service_scalable_free<Local, cpu>(ptr);
         }
     });
-    std::cout << "here debug 17" << std::endl;
 
     return status;
 }
@@ -501,9 +460,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         {
             distancesPtr[i] = heap[i].distance;
         }
-        std::cout << "here debug math 4" << std::endl;
         Math::vSqrt(heapSize, distancesPtr, distancesPtr);
-        std::cout << "here debug math 5" << std::endl;
         for (size_t i = heapSize; i < nDistances; ++i)
         {
             distancesPtr[i] = -1;
@@ -570,9 +527,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             {
                 for (size_t i = 0; i < heapSize; ++i)
                 {
-                    std::cout << "here debug math 10" << std::endl;
                     classWeights[(size_t)(classes[i])] += Math::sSqrt(1 / heap[i].distance);
-                    std::cout << "here debug math 11" << std::endl;
                 }
             }
         }
