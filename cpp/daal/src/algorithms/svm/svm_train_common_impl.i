@@ -46,7 +46,7 @@
     #if (__CPUID__(DAAL_CPU) == __sve__)
         #include "src/algorithms/svm/svm_train_common_sve_impl.i"
     #endif // __CPUID__(DAAL_CPU) == __sve__
-#endif     // DAAL_INTEL_CPP_COMPILER
+#endif     
 
 namespace daal
 {

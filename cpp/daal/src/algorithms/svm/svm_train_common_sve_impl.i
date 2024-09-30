@@ -14,7 +14,7 @@
 * limitations under the License.
 *******************************************************************************/
 /*
- * Contains optimizations for SVE.
+ * Contains SVE optimizations for WSSj (Working Set Selection) algorithm.
 */
 
 #include <arm_sve.h>
@@ -31,6 +31,13 @@ namespace training
 namespace internal
 {
 
+/**
+ * \brief Working set selection (WSSj) function.
+ *        Select an index j from a pair of indices B = {i, j} using WSS algorithm.
+ *
+ * \return The function implicitly returns GMax, which represents:
+ *         M(alpha) = max { (GMin - (-y[j]*grad[j]))^2 / (2 * (Kii + Kjj - 2Kij)) } : j belongs to I_LOW(alpha)       
+ */
 template <>
 inline void HelperTrainSVM<float, sve>::WSSjLocal(const size_t jStart, const size_t jEnd, const float * KiBlock, const float * kernelDiag,
                                                   const float * grad, const char * I, const float GMin, const float Kii, const float tau, int & Bj,
