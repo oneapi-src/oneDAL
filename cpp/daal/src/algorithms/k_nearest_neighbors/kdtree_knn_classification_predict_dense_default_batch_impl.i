@@ -221,6 +221,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
     std::cout << "here debug 12" << std::endl;
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
+        if (!safeStat.ok()) return;
         Local * const local = localTLS.local();
         if (local)
         {
@@ -291,6 +292,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
         }
     });
+    status = safeStat.detach();
     std::cout << "here debug 15" << std::endl;
     DAAL_CHECK_SAFE_STATUS()
     std::cout << "here debug 16" << std::endl;
@@ -304,7 +306,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     });
     std::cout << "here debug 17" << std::endl;
 
-    return safeStat.detach();
+    return status;
 }
 
 template <typename algorithmFpType, CpuType cpu>
