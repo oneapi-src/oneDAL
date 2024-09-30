@@ -80,7 +80,7 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            call .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
+            call .\.ci\scripts\install_basekit.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
       - name: Prepare Intel OpenCL CPU runtime
         run: |
           # Store the unpacked runtime to centralize and reduce external downloads
