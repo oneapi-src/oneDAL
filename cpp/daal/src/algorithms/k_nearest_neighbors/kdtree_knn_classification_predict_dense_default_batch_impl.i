@@ -128,11 +128,13 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
     typedef daal::services::internal::MaxVal<algorithmFpType> MaxVal;
     typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
+
     size_t k;
     size_t nClasses;
     VoteWeights voteWeights       = voteUniform;
     DAAL_UINT64 resultsToEvaluate = classifier::computeClassLabels;
-    const auto par3               = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
+
+    const auto par3 = dynamic_cast<const kdtree_knn_classification::interface3::Parameter *>(par);
     if (par3)
     {
         k                 = par3->k;
@@ -140,6 +142,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         resultsToEvaluate = par3->resultsToEvaluate;
         nClasses          = par3->nClasses;
     }
+
     if (par3 == NULL) return Status(ErrorNullParameterNotSupported);
 
     const Model * const model    = static_cast<const Model *>(m);
@@ -151,6 +154,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     {
         labels = model->impl()->getLabels().get();
     }
+
     const NumericTable * const modelIndices = model->impl()->getIndices().get();
 
     size_t iSize = 1;
@@ -263,7 +267,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     });
     status = safeStat.detach();
     DAAL_CHECK_SAFE_STATUS()
-    localTLS.reduce([=](Local * ptr) -> void {
+    localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
             ptr->stack.clear();
@@ -271,7 +275,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             service_scalable_free<Local, cpu>(ptr);
         }
     });
-
     return status;
 }
 
@@ -460,7 +463,9 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         {
             distancesPtr[i] = heap[i].distance;
         }
+
         Math::vSqrt(heapSize, distancesPtr, distancesPtr);
+
         for (size_t i = heapSize; i < nDistances; ++i)
         {
             distancesPtr[i] = -1;
