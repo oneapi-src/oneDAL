@@ -177,18 +177,21 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         MaxHeap heap;
         SearchStack stack;
     };
-    daal::tls<Local *> localTLS([&]() -> Local * {
+    std::cout << "here debug 8" << std::endl;
+    daal::tls<Local *> localTLS([=, &status]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
         {
             if (!ptr->heap.init(heapSize))
             {
+                std::cout << "error 1" << std::endl;
                 status.add(services::ErrorMemoryAllocationFailed);
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
             }
             if (!ptr->stack.init(stackSize))
             {
+                std::cout << "error 2" << std::endl;
                 status.add(services::ErrorMemoryAllocationFailed);
                 ptr->heap.clear();
                 service_scalable_free<Local, cpu>(ptr);
@@ -197,22 +200,26 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         }
         else
         {
+            std::cout << "error 3" << std::endl;
             status.add(services::ErrorMemoryAllocationFailed);
         }
         return ptr;
     });
 
     DAAL_CHECK_STATUS_OK((status.ok()), status);
-
-    const auto maxThreads     = threader_get_threads_number();
+    std::cout << "here debug 9" << std::endl;
+    const auto maxThreads = threader_get_threads_number();
+    auto nThreads         = (maxThreads < 1) ? 1 : maxThreads;
+    std::cout << "maxthreads =" << maxThreads << std::endl;
+    std::cout << "nthreads =" << nThreads << std::endl;
     const size_t xColumnCount = x->getNumberOfColumns();
-    const auto rowsPerBlock   = (xRowCount + maxThreads - 1) / maxThreads;
-    const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    const size_t rowsPerBlock = (xRowCount + nThreads - 1) / nThreads;
+    const size_t blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
     SafeStatus safeStat;
-
+    std::cout << "here debug 11" << std::endl;
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
-
+    std::cout << "here debug 12" << std::endl;
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
         if (local)
@@ -283,10 +290,10 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
         }
     });
-
+    std::cout << "here debug 15" << std::endl;
     DAAL_CHECK_SAFE_STATUS()
-
-    localTLS.reduce([&](Local * ptr) -> void {
+    std::cout << "here debug 16" << std::endl;
+    localTLS.reduce([=](Local * ptr) -> void {
         if (ptr)
         {
             ptr->stack.clear();
@@ -294,6 +301,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             service_scalable_free<Local, cpu>(ptr);
         }
     });
+    std::cout << "here debug 17" << std::endl;
     return status;
 }
 
