@@ -143,7 +143,7 @@ struct kernel_function_accessor {
 
 template <typename Descriptor>
 kernel_function_impl* get_kernel_function_impl(Descriptor&& desc) {
-    const auto& kernel = kernel_function_accessor{}.get_kernel_impl(std::forward<Descriptor>(desc));
+    const auto kernel = kernel_function_accessor{}.get_kernel_impl(std::forward<Descriptor>(desc));
     return kernel ? kernel->get_impl() : nullptr;
 }
 
