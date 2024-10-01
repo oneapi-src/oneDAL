@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
-
+#include <iostream>
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_kernel_hist_impl.hpp"
@@ -385,6 +385,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         Index* const selected_row_ptr = ctx.distr_mode_ ? selected_row.get_mutable_data() : nullptr;
         Index* const node_list_ptr = node_list_host.get_mutable_data();
         pr::rng<Index> rn_gen;
+        std::cout << "here parallel for 20" << std::endl;
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             Index* gen_row_idx_global_ptr =
                 selected_row_global_ptr + ctx.selected_row_total_count_ * node_idx;
@@ -450,7 +451,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
             // in case of no bootstrap
             // it is valid case if this worker's rows set wasn't taken for tree build
             // i.e. row_count can be eq 0
-
+            std::cout << "here parallel for 21" << std::endl;
             Index* node_list_ptr = node_list_host.get_mutable_data();
             auto set_event = queue_.submit([&](sycl::handler& cgh) {
                 cgh.parallel_for(sycl::range<1>{ std::size_t(node_count) }, [=](sycl::id<1> idx) {
@@ -514,6 +515,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
     }
     else {
         sycl::event fill_event;
+        std::cout << "here parallel for 22" << std::endl;
         for (Index node = 0; node < node_count; ++node) {
             auto selected_features_host_ptr = selected_features_com.get_mutable_data();
 

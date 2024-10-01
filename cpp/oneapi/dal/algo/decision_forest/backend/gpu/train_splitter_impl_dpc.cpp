@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
-
+#include <iostream>
 #ifdef ONEDAL_DATA_PARALLEL
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_splitter_impl.hpp"
@@ -134,7 +134,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
 
     const auto nd_range =
         bk::make_multiple_nd_range_2d({ local_size, node_in_block_count }, { local_size, 1 });
-
+    std::cout << "here parallel for 60" << std::endl;
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> local_hist_buf(hist_size, cgh);
@@ -554,6 +554,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     // Main kernel:
     // calculates histograms and impurity decrease based on histograms
     // and selects best split for each feature.
+    std::cout << "here parallel for 70" << std::endl;
     sycl::event last_event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         local_accessor_rw_t<hist_type_t> hist(bin_block * hist_prop_count, cgh);
@@ -686,7 +687,7 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
             }
         });
     });
-
+    std::cout << "here parallel for 71" << std::endl;
     // Merging kernel: selects best split among all features.
     const auto merge_range =
         bk::make_multiple_nd_range_2d({ node_count, local_size }, { 1, local_size });

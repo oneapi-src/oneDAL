@@ -19,7 +19,7 @@
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_helpers.hpp"
-
+#include <iostream>
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace oneapi::dal::decision_forest::backend {
@@ -59,7 +59,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::initialize_tree_orde
     Index* tree_order_ptr = tree_order.get_mutable_data();
     const sycl::range<2> range{ de::integral_cast<std::size_t>(row_count),
                                 de::integral_cast<std::size_t>(tree_count) };
-
+    std::cout << "here parallel for 30" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(range, [=](sycl::id<2> id) {
@@ -91,7 +91,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::get_split_node_count
     auto krn_local_size = preferable_sbg_size_;
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(krn_local_size, krn_local_size);
-
+    std::cout << "here parallel for 31" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -155,7 +155,7 @@ train_service_kernels<Float, Bin, Index, Task>::calculate_left_child_row_count_o
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(preferable_partition_groups_count_ * krn_local_size,
                                       krn_local_size);
-
+    std::cout << "here parallel for 32" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -282,7 +282,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::do_level_partition_b
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(preferable_partition_groups_count_ * krn_local_size,
                                       krn_local_size);
-
+    std::cout << "here parallel for 33" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -417,7 +417,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::update_mdi_var_impor
     const Index leaf_mark = impl_const_t::leaf_mark_;
     const Index max_sub_groups_num =
         max_sbg_count_per_group_; //need to calculate it via device info
-
+    std::cout << "here parallel for 35" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         sycl::local_accessor<Float, 1> buf(max_sub_groups_num, cgh);
@@ -506,7 +506,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::mark_present_rows(
 
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
-
+    std::cout << "here parallel for 36" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -558,7 +558,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_fo
 
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
-
+    std::cout << "here parallel for 37" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -617,7 +617,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::count_absent_rows_to
 
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
-
+    std::cout << "here parallel for 38" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
@@ -673,7 +673,7 @@ sycl::event train_service_kernels<Float, Bin, Index, Task>::fill_oob_rows_list_b
 
     const sycl::nd_range<1> nd_range =
         bk::make_multiple_nd_range_1d(krn_local_size * sbg_sum_count, krn_local_size);
-
+    std::cout << "here parallel for 39.1" << std::endl;
     auto event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.parallel_for(nd_range, [=](sycl::nd_item<1> item) {
