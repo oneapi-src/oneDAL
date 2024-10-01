@@ -204,6 +204,19 @@ struct OpenBlasLapack<double, cpu>
         dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
+    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
+                      DAAL_INT * lwork, DAAL_INT * info)
+    {
+        dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
+    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
+                       DAAL_INT * lwork, DAAL_INT * info)
+    {
+        openblas_thread_setter ots(1);
+        dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
                        DAAL_INT * ldc, double * work, DAAL_INT * lwork, DAAL_INT * info)
     {
@@ -215,6 +228,14 @@ struct OpenBlasLapack<double, cpu>
     {
         openblas_thread_setter ots(1);
         dormqr_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
+    }
+
+    static void xrscl(const DAAL_INT * n, const double * sa, double * sx, const DAAL_INT * incx) { drscl_(n, sa, sx, incx); }
+
+    static void xxrscl(const DAAL_INT * n, const double * sa, double * sx, const DAAL_INT * incx)
+    {
+        openblas_thread_setter ots(1);
+        drscl_(n, sa, sx, incx);
     }
 };
 
@@ -381,6 +402,19 @@ struct OpenBlasLapack<float, cpu>
         ssyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
+    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
+                      DAAL_INT * lwork, DAAL_INT * info)
+    {
+        ssyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
+    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
+                       DAAL_INT * lwork, DAAL_INT * info)
+    {
+        openblas_thread_setter ots(1);
+        ssyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,
                        DAAL_INT * ldc, float * work, DAAL_INT * lwork, DAAL_INT * info)
     {
@@ -392,6 +426,14 @@ struct OpenBlasLapack<float, cpu>
     {
         openblas_thread_setter ots(1);
         sormqr_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
+    }
+
+    static void xrscl(const DAAL_INT * n, const float * sa, float * sx, const DAAL_INT * incx) { srscl_(n, sa, sx, incx); }
+
+    static void xxrscl(const DAAL_INT * n, const float * sa, float * sx, const DAAL_INT * incx)
+    {
+        openblas_thread_setter ots(1);
+        srscl_(n, sa, sx, incx);
     }
 };
 

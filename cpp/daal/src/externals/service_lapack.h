@@ -21,6 +21,11 @@
 //--
 */
 
+/* Note: this file is not auto-generated. These 'x'/'xx' functions are manually added here on an
+as-needed basis, and are only used internally within the library so their signatures might not
+match LAPACK's to every minutiae like passing pointers to scalars or passing them by value, or
+having 'const' qualifiers or not. */
+
 #ifndef __SERVICE_LAPACK_H__
 #define __SERVICE_LAPACK_H__
 
@@ -193,6 +198,18 @@ struct Lapack
         _impl<fpType, cpu>::xxsyevd(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
+    static void xsyev(const char * jobz, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda, fpType * w, fpType * work,
+                      SizeType * lwork, SizeType * info)
+    {
+        _impl<fpType, cpu>::xsyev(jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
+    static void xxsyev(const char * jobz, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda, fpType * w, fpType * work,
+                       SizeType * lwork, SizeType * info)
+    {
+        _impl<fpType, cpu>::xxsyev(jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
     static void xormqr(char * side, char * trans, SizeType * m, SizeType * n, SizeType * k, fpType * a, SizeType * lda, fpType * tau, fpType * c,
                        SizeType * ldc, fpType * work, SizeType * lwork, SizeType * info)
     {
@@ -204,6 +221,10 @@ struct Lapack
     {
         _impl<fpType, cpu>::xxormqr(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
     }
+
+    static void xrscl(const SizeType * n, const fpType * sa, fpType * sx, const SizeType * incx) { _impl<fpType, cpu>::xrscl(n, sa, sx, incx); }
+
+    static void xxrscl(const SizeType * n, const fpType * sa, fpType * sx, const SizeType * incx) { _impl<fpType, cpu>::xxrscl(n, sa, sx, incx); }
 };
 
 template <typename fpType, CpuType cpu>
@@ -359,6 +380,18 @@ struct LapackAutoDispatch
                         SizeType * iwork, SizeType * liwork, SizeType * info)
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxsyevd, jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
+    }
+
+    static void xsyev(char * jobz, char * uplo, SizeType * n, fpType * a, SizeType * lda, fpType * w, fpType * work, SizeType * lwork,
+                      SizeType * info)
+    {
+        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xsyev, jobz, uplo, n, a, lda, w, work, lwork, info);
+    }
+
+    static void xxsyev(char * jobz, char * uplo, SizeType * n, fpType * a, SizeType * lda, fpType * w, fpType * work, SizeType * lwork,
+                       SizeType * info)
+    {
+        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxsyev, jobz, uplo, n, a, lda, w, work, lwork, info);
     }
 
     static void xormqr(char * side, char * trans, SizeType * m, SizeType * n, SizeType * k, fpType * a, SizeType * lda, fpType * tau, fpType * c,

@@ -243,6 +243,20 @@ struct MklLapack<double, cpu>
         mkl_set_num_threads_local(old_nthr);
     }
 
+    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
+                      DAAL_INT * lwork, DAAL_INT * info)
+    {
+        __DAAL_MKLFN_CALL_LAPACK(dsyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+    }
+
+    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
+                       DAAL_INT * lwork, DAAL_INT * info)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        __DAAL_MKLFN_CALL_LAPACK(dsyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+        mkl_set_num_threads_local(old_nthr);
+    }
+
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
                        DAAL_INT * ldc, double * work, DAAL_INT * lwork, DAAL_INT * info)
     {
@@ -256,6 +270,18 @@ struct MklLapack<double, cpu>
         int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL_LAPACK(dormqr, (side, trans, (MKL_INT *)m, (MKL_INT *)n, (MKL_INT *)k, a, (MKL_INT *)lda, tau, c, (MKL_INT *)ldc, work,
                                           (MKL_INT *)lwork, (MKL_INT *)info));
+        mkl_set_num_threads_local(old_nthr);
+    }
+
+    static void xrscl(const DAAL_INT * n, const double * sa, double * sx, const DAAL_INT * incx)
+    {
+        __DAAL_MKLFN_CALL_LAPACK(drscl, ((MKL_INT *)n, sa, sx, (MKL_INT *)incx));
+    }
+
+    static void xxrscl(const DAAL_INT * n, const double * sa, double * sx, const DAAL_INT * incx)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        __DAAL_MKLFN_CALL_LAPACK(drscl, ((MKL_INT *)n, sa, sx, (MKL_INT *)incx));
         mkl_set_num_threads_local(old_nthr);
     }
 };
@@ -461,6 +487,20 @@ struct MklLapack<float, cpu>
         mkl_set_num_threads_local(old_nthr);
     }
 
+    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
+                      DAAL_INT * lwork, DAAL_INT * info)
+    {
+        __DAAL_MKLFN_CALL_LAPACK(ssyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+    }
+
+    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
+                       DAAL_INT * lwork, DAAL_INT * info)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        __DAAL_MKLFN_CALL_LAPACK(ssyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+        mkl_set_num_threads_local(old_nthr);
+    }
+
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,
                        DAAL_INT * ldc, float * work, DAAL_INT * lwork, DAAL_INT * info)
     {
@@ -474,6 +514,18 @@ struct MklLapack<float, cpu>
         int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL_LAPACK(sormqr, (side, trans, (MKL_INT *)m, (MKL_INT *)n, (MKL_INT *)k, a, (MKL_INT *)lda, tau, c, (MKL_INT *)ldc, work,
                                           (MKL_INT *)lwork, (MKL_INT *)info));
+        mkl_set_num_threads_local(old_nthr);
+    }
+
+    static void xrscl(const DAAL_INT * n, const float * sa, float * sx, const DAAL_INT * incx)
+    {
+        __DAAL_MKLFN_CALL_LAPACK(srscl, ((MKL_INT *)n, sa, sx, (MKL_INT *)incx));
+    }
+
+    static void xxrscl(const DAAL_INT * n, const float * sa, float * sx, const DAAL_INT * incx)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        __DAAL_MKLFN_CALL_LAPACK(srscl, ((MKL_INT *)n, sa, sx, (MKL_INT *)incx));
         mkl_set_num_threads_local(old_nthr);
     }
 };

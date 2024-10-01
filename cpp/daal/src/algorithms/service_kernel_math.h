@@ -24,6 +24,8 @@
 #ifndef __SERVICE_KERNEL_MATH_H__
 #define __SERVICE_KERNEL_MATH_H__
 
+#include <limits>
+
 #include "services/daal_defines.h"
 #include "services/env_detect.h"
 #include "src/algorithms/service_error_handling.h"
@@ -660,6 +662,15 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     }
     if (info != 0) return false;
 
+    /* Note: there can be cases in which the matrix is singular / rank-deficient, but due to numerical
+    inaccuracies, Cholesky still succeeds. In such cases, it might produce a solution successfully, but
+    it will not be the minimum-norm solution, and might be prone towards having too large numbers. Thus
+    it's preferrable to fall back to a different type of solver that can work correctly with those. */
+    for (size_t ix = 0; ix < n; ix++)
+    {
+        if (a[ix * (ix + 1)] < 1e-6) return false;
+    }
+
     /* Solve L*L' * x = b */
     if (sequential)
     {
@@ -673,72 +684,152 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
 }
 
 template <typename FPType, CpuType cpu>
-bool solveEquationsSystemWithPLU(FPType * a, FPType * b, size_t n, size_t nX, bool sequential, bool extendFromSymmetric)
+bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
-    if (extendFromSymmetric)
+    /* Storage for the eigenvalues.
+    Note: this allocates more size than they might require when nX > 1, because the same
+    buffer will get reused later on and needs the extra size. Those additional entries
+    will not be filled with eigenvalues. */
+    TArrayScalable<FPType, cpu> eigenvalues(n * nX);
+    DAAL_CHECK_MALLOC(eigenvalues.get());
+
+    /* SYEV parameters */
+    char jobz = 'V';
+    char uplo = 'U';
+    DAAL_INT info;
+
+    /* Query the procedure for size of required buffer */
+    DAAL_INT lwork = -1;
+    FPType buffer_size;
+    if (sequential)
     {
-        /* Extend symmetric matrix to generic through filling of upper triangle */
-        for (size_t i = 0; i < n; ++i)
+        LapackInst<FPType, cpu>::xxsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), &buffer_size, &lwork, &info);
+    }
+
+    else
+    {
+        LapackInst<FPType, cpu>::xsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), &buffer_size, &lwork, &info);
+    }
+
+    if (info) return false;
+
+    /* Check that buffer size will not overflow when passed to LAPACK */
+    if (static_cast<size_t>(buffer_size) > std::numeric_limits<DAAL_INT>::max()) return false;
+
+    /* Allocate work buffer as needed */
+    DAAL_INT work_buffer_size = static_cast<DAAL_INT>(buffer_size);
+    TArrayScalable<FPType, cpu> work_buffer(work_buffer_size);
+    DAAL_CHECK_MALLOC(work_buffer.get());
+
+    /* Perform Q*diag(l)*Q' factorization of A */
+    if (sequential)
+    {
+        LapackInst<FPType, cpu>::xxsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), work_buffer.get(), &work_buffer_size,
+                                        &info);
+    }
+    else
+    {
+        LapackInst<FPType, cpu>::xsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), work_buffer.get(), &work_buffer_size,
+                                       &info);
+    }
+    if (info) return false;
+
+    /* Components with small singular values get eliminated using the exact same logic as 'gelsd' with default parameters */
+    constexpr const FPType eps = std::numeric_limits<FPType>::epsilon();
+    if (eigenvalues[n - 1] <= eps) return false;
+    const double component_threshold = eps * eigenvalues[n - 1];
+    DAAL_INT num_discarded;
+    for (num_discarded = 0; num_discarded < static_cast<DAAL_INT>(n) - 1; num_discarded++)
+    {
+        if (eigenvalues[num_discarded] > component_threshold)
         {
-            for (size_t j = 0; j < i; ++j)
-            {
-                a[j * n + i] = a[i * n + j];
-            }
+            break;
         }
     }
 
-    /* GETRF and GETRS parameters */
-    char trans    = 'N';
-    DAAL_INT info = 0;
+    /* Create the square root of the inverse: Qis = Q * diag(1 / sqrt(l)) */
+    DAAL_INT one = 1;
+    for (size_t col = num_discarded; col < n; col++)
+    {
+        const FPType scale = std::sqrt(eigenvalues[col]);
+        if (sequential)
+        {
+            LapackInst<FPType, cpu>::xxrscl((DAAL_INT *)&n, &scale, a + col * n, &one);
+        }
 
-    TArrayScalable<DAAL_INT, cpu> ipiv(n);
-    DAAL_CHECK_MALLOC(ipiv.get());
+        else
+        {
+            LapackInst<FPType, cpu>::xrscl((DAAL_INT *)&n, &scale, a + col * n, &one);
+        }
+    }
 
-    /* Perform P*L*U factorization of A */
+    /* Now calculate the actual solution: Qis * Qis' * B */
+    char trans_yes     = 'T';
+    char trans_no      = 'N';
+    FPType one_fp      = 1;
+    FPType zero        = 0;
+    DAAL_INT num_taken = static_cast<DAAL_INT>(n) - num_discarded;
+    a += static_cast<size_t>(num_discarded) * n;
     if (sequential)
     {
-        LapackInst<FPType, cpu>::xxgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
-    }
-    else
-    {
-        LapackInst<FPType, cpu>::xgetrf((DAAL_INT *)&n, (DAAL_INT *)&n, a, (DAAL_INT *)&n, ipiv.get(), &info);
-    }
-    if (info != 0) return false;
+        if (nX == 1)
+        {
+            BlasInst<FPType, cpu>::xxgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, b, &one, &zero, eigenvalues.get(),
+                                          &one);
+            BlasInst<FPType, cpu>::xxgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, eigenvalues.get(), &one, &zero, b, &one);
+        }
 
-    /* Solve P*L*U * x = b */
-    if (sequential)
-    {
-        LapackInst<FPType, cpu>::xxgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+        else
+        {
+            BlasInst<FPType, cpu>::xxgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp, a, (DAAL_INT *)&n, b,
+                                          (DAAL_INT *)&n, &zero, eigenvalues.get(), &num_taken);
+            BlasInst<FPType, cpu>::xxgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp, a, (DAAL_INT *)&n,
+                                          eigenvalues.get(), &num_taken, &zero, b, (DAAL_INT *)&n);
+        }
     }
+
     else
     {
-        LapackInst<FPType, cpu>::xgetrs(&trans, (DAAL_INT *)&n, (DAAL_INT *)&nX, a, (DAAL_INT *)&n, ipiv.get(), b, (DAAL_INT *)&n, &info);
+        if (nX == 1)
+        {
+            BlasInst<FPType, cpu>::xgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, b, &one, &zero, eigenvalues.get(), &one);
+            BlasInst<FPType, cpu>::xgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, eigenvalues.get(), &one, &zero, b, &one);
+        }
+
+        else
+        {
+            BlasInst<FPType, cpu>::xgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp, a, (DAAL_INT *)&n, b,
+                                         (DAAL_INT *)&n, &zero, eigenvalues.get(), &num_taken);
+            BlasInst<FPType, cpu>::xgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp, a, (DAAL_INT *)&n,
+                                         eigenvalues.get(), &num_taken, &zero, b, (DAAL_INT *)&n);
+        }
     }
-    return (info == 0);
+
+    return true;
 }
 
 template <typename FPType, CpuType cpu>
 bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, bool sequential)
 {
-    /* Copy data for fallback from Cholesky to PLU factorization */
+    /* Copy data for fallback from Cholesky to spectral decomposition */
     TArrayScalable<FPType, cpu> aCopy(n * n);
     TArrayScalable<FPType, cpu> bCopy(n);
     DAAL_CHECK_MALLOC(aCopy.get());
     DAAL_CHECK_MALLOC(bCopy.get());
 
     int copy_status = services::internal::daal_memcpy_s(aCopy.get(), n * n * sizeof(FPType), a, n * n * sizeof(FPType));
-    copy_status += services::internal::daal_memcpy_s(bCopy.get(), n * sizeof(FPType), b, n * sizeof(FPType));
+    copy_status += services::internal::daal_memcpy_s(bCopy.get(), n * nX * sizeof(FPType), b, n * nX * sizeof(FPType));
 
     if (copy_status != 0) return false;
 
     /* Try to solve with Cholesky factorization */
     if (!solveEquationsSystemWithCholesky<FPType, cpu>(a, b, n, nX, sequential))
     {
-        /* Fallback to PLU factorization */
-        bool status = solveEquationsSystemWithPLU<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential, true);
+        /* Fall back to spectral decomposition */
+        bool status = solveEquationsSystemWithSpectralDecomposition<FPType, cpu>(aCopy.get(), bCopy.get(), n, nX, sequential);
         if (status)
         {
-            status = status && (services::internal::daal_memcpy_s(b, n * sizeof(FPType), bCopy.get(), n * sizeof(FPType)) == 0);
+            status = status && (services::internal::daal_memcpy_s(b, n * nX * sizeof(FPType), bCopy.get(), n * nX * sizeof(FPType)) == 0);
         }
         return status;
     }
