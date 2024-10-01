@@ -122,7 +122,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                                                                                    const daal::algorithms::Parameter * par)
 {
     Status status;
-    SafeStatus safeStat;
+
     typedef GlobalNeighbors<algorithmFpType, cpu> Neighbors;
     typedef Heap<Neighbors, cpu> MaxHeap;
     typedef kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> SearchStack;
@@ -172,6 +172,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         MaxHeap heap;
         SearchStack stack;
     };
+
+    SafeStatus safeStat;
     daal::tls<Local *> localTLS([&]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
@@ -201,7 +203,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto maxThreads     = threader_get_threads_number();
     auto nThreads             = (maxThreads < 1) ? 1 : maxThreads;
     const size_t xColumnCount = x->getNumberOfColumns();
-    const size_t rowsPerBlock = 128;
+    const size_t rowsPerBlock = (xRowCount + maxThreads - 1) / maxThreads;
     const size_t blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
@@ -265,8 +267,9 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
         const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
     });
+
     status = safeStat.detach();
-    DAAL_CHECK_SAFE_STATUS()
+
     localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
