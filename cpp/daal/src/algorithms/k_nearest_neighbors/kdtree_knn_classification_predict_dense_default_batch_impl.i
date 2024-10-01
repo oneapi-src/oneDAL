@@ -24,8 +24,8 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "src/threading/threading.h"
 #include "services/daal_defines.h"
+#include "src/threading/threading.h"
 #include "src/services/service_utils.h"
 #include "algorithms/algorithm.h"
 #include "services/daal_atomic_int.h"
@@ -208,6 +208,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
+
+    services::Environment::getInstance()->setNumberOfThreads(1);
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
         DAAL_CHECK_MALLOC_THR(local);
@@ -270,7 +272,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     status = safeStat.detach();
     if (!status) return status;
-
+    services::Environment::getInstance()->setNumberOfThreads(nThreads);
     localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
