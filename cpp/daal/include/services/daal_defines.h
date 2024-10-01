@@ -45,8 +45,11 @@
     #define DAAL_INTEL_CPP_COMPILER
 #endif
 
-#if !(defined(_MSC_VER) || defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER))
+#if !defined(__int32)
     #define __int32 int
+#endif
+
+#if !defined(__int64)
     #define __int64 long long int
 #endif
 
