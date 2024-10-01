@@ -46,10 +46,10 @@ $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RU
 
 MAKE_PID := $(shell echo $$PPID)
 JOB_FLAG := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
-JOBS     := $(subst -j,,$(JOB_FLAG))
+MAKE_JOBS := $(subst -j,,$(JOB_FLAG))
+MAKE_JOBS := $(if $(filter $(MAKE_JOBS),$(shell seq 1 999)),$(MAKE_JOBS),$(shell nproc))
 
-JOBS := $(if $(filter $(JOBS),$(shell seq 1 999)),$(JOBS),1)
-SYCL_LINK_PRL := $(JOBS)
+SYCL_LINK_PRL := $(MAKE_JOBS)
 
 COMPILER_is_$(COMPILER)            := yes
 COMPILER_is_cross                  := $(if $(filter $(PLAT),$(IDENTIFIED_PLAT)),no,yes)
