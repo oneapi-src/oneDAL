@@ -281,6 +281,23 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
 
 #============================= Math backend folders =====================================
 
+ifeq ($(BACKEND_CONFIG), ref)
+    ifeq ($(RNG_BACKEND), openrng)
+        RNG_OPENRNG := yes
+    endif
+    ifndef RNG_BACKEND
+        RNG_BACKEND := ref
+    endif
+    $(if $(filter $(RNG_BACKEND),ref openrng),,$(error unknown rng backend $(RNG_BACKEND)))
+endif
+
+ifeq ($(BACKEND_CONFIG), mkl)
+    ifndef RNG_BACKEND
+        RNG_BACKEND := mkl
+    endif
+    $(if $(filter $(RNG_BACKEND),mkl),,$(error mkl backend does not support the rng backend $(RNG_BACKEND)))
+endif
+
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
 #===============================================================================
