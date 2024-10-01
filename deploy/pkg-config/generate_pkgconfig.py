@@ -33,7 +33,7 @@ def detect_cpu_architecture():
     elif architecture.startswith('arm') or architecture == 'aarch64':
         return 'aarch64'
     else:
-        sys.stderr.write("Unknown Architecture {} Detected. " \
+        sys.stderr.write("Unknown Architecture {} Detected. "
                          "Only 'x86_64', 'AMD64' and 'aarch64' supported.\n".format(architecture))
         sys.exit(1)
 
