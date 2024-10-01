@@ -20,7 +20,7 @@
 Required Software:
 * C/C++ Compiler
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html) if building with SYCL support
-* Python version 3.7 or higher
+* Python version 3.9 or higher
 * TBB library (repository contains script to download it)
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2](http://msys2.github.io) (Windows\* only)
@@ -93,7 +93,7 @@ is available as an alternative to the manual setup.
 
             ./dev/download_tbb.sh
 
-6. Download and install Python (version 3.7 or higher).
+6. Download and install Python (version 3.9 or higher).
 
 7. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
