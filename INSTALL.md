@@ -22,6 +22,7 @@ Required Software:
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2](http://msys2.github.io) (Windows\* only)
+* Python
 * `make` and `dos2unix` tools; install these packages using MSYS2 on Windows\* as follows:
 
         pacman -S msys/make msys/dos2unix
