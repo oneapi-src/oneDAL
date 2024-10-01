@@ -203,8 +203,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto maxThreads     = threader_get_threads_number();
     auto nThreads             = (maxThreads < 1) ? 1 : maxThreads;
     const size_t xColumnCount = x->getNumberOfColumns();
-    const size_t rowsPerBlock = (xRowCount + maxThreads - 1) / maxThreads;
-    const size_t blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
+    const auto rowsPerBlock   = 128;
+    const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
