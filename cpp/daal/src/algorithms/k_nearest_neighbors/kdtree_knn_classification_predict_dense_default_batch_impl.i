@@ -269,6 +269,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     });
 
     status = safeStat.detach();
+    if (!status) return status;
 
     localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)

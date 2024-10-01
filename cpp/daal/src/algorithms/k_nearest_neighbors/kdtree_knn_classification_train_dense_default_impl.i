@@ -315,8 +315,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
         const_cast<NumericTable &>(x).getBlockOfColumnValues(j, 0, xRowCount, readOnly, columnBD);
         const algorithmFpType * const dx = columnBD.getBlockPtr();
-
-        daal::tls<BBox *> bboxTLS([=, &status]() -> BBox * {
+        SafeStatus safeStat;
+        daal::tls<BBox *> bboxTLS([&]() -> BBox * {
             BBox * const ptr = service_scalable_calloc<BBox, cpu>(1);
             if (ptr)
             {
@@ -325,16 +325,16 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             }
             else
             {
-                status.add(services::ErrorMemoryAllocationFailed);
+                safeStat.add(services::ErrorMemoryAllocationFailed);
             }
             return ptr;
         });
 
         DAAL_CHECK_STATUS_OK((status.ok()), status);
 
-        daal::threader_for(blockCount, blockCount, [=, &bboxTLS](int iBlock) {
+        daal::threader_for(blockCount, blockCount, [=, &bboxTLS, &safeStat](int iBlock) {
             BBox * const bboxLocal = bboxTLS.local();
-
+            DAAL_CHECK_MALLOC_THR(bboxLocal);
             const size_t first = iBlock * rowsPerBlock;
             const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
@@ -367,6 +367,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                 }
             }
         });
+
+        status = safeStat.detach();
+        if (!status) return status;
 
         bboxTLS.reduce([=](BBox * v) -> void {
             if (v)
