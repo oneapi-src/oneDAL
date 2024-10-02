@@ -24,7 +24,7 @@
 #ifndef __SERVICE_KERNEL_MATH_H__
 #define __SERVICE_KERNEL_MATH_H__
 
-#include <limits>
+#include <type_traits>
 
 #include "services/daal_defines.h"
 #include "services/env_detect.h"
@@ -665,10 +665,13 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     /* Note: there can be cases in which the matrix is singular / rank-deficient, but due to numerical
     inaccuracies, Cholesky still succeeds. In such cases, it might produce a solution successfully, but
     it will not be the minimum-norm solution, and might be prone towards having too large numbers. Thus
-    it's preferrable to fall back to a different type of solver that can work correctly with those. */
+    it's preferrable to fall back to a different type of solver that can work correctly with those.
+    Note that the thresholds chosen there are just a guess and not based on any properties of floating
+    points or academic research. */
+    const FPType threshold_chol_diag = std::is_same<FPType, float>::value? 1e-4 : 1e-6;
     for (size_t ix = 0; ix < n; ix++)
     {
-        if (a[ix * (ix + 1)] < 1e-6) return false;
+        if (a[ix * (ix + 1)] < threshold_chol_diag) return false;
     }
 
     /* Solve L*L' * x = b */
@@ -735,7 +738,7 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     if (info) return false;
 
     /* Components with small singular values get eliminated using the exact same logic as 'gelsd' with default parameters */
-    constexpr const FPType eps = std::numeric_limits<FPType>::epsilon();
+    const FPType eps = std::is_same<FPType, float>::value? 1.1920929e-07 : 2.220446049250313e-16;
     if (eigenvalues[n - 1] <= eps) return false;
     const double component_threshold = eps * eigenvalues[n - 1];
     DAAL_INT num_discarded;
@@ -752,7 +755,7 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     PRAGMA_IVDEP
     for (size_t col = num_discarded; col < n; col++)
     {
-        const FPType scale = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(eigenvalues[col]);
+        const FPType scale = daal::internal::MathInst<FPType, cpu>::sSqrt(eigenvalues[col]);
         if (sequential)
         {
             LapackInst<FPType, cpu>::xxrscl((DAAL_INT *)&n, &scale, a + col * n, &one);
