@@ -813,7 +813,7 @@ bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, 
 {
     /* Copy data for fallback from Cholesky to spectral decomposition */
     TArrayScalable<FPType, cpu> aCopy(n * n);
-    TArrayScalable<FPType, cpu> bCopy(n);
+    TArrayScalable<FPType, cpu> bCopy(n * nX);
     DAAL_CHECK_MALLOC(aCopy.get());
     DAAL_CHECK_MALLOC(bCopy.get());
 
