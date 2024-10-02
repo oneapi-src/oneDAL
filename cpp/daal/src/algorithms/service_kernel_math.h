@@ -749,6 +749,7 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
 
     /* Create the square root of the inverse: Qis = Q * diag(1 / sqrt(l)) */
     DAAL_INT one = 1;
+    PRAGMA_IVDEP
     for (size_t col = num_discarded; col < n; col++)
     {
         const FPType scale = std::sqrt(eigenvalues[col]);
