@@ -48,6 +48,7 @@ TEMPLATE_LIST_TEST_M(lr_batch_test, "LR common flow", "[lr][batch]", lr_types) {
     this->generate(777);
 
     this->run_and_check_linear();
+    this->run_and_check_linear_indefinite();
 }
 
 TEMPLATE_LIST_TEST_M(lr_batch_test, "RR common flow", "[rr][batch]", lr_types) {
