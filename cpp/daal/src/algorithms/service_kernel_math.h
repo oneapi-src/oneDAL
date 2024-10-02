@@ -752,7 +752,7 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     PRAGMA_IVDEP
     for (size_t col = num_discarded; col < n; col++)
     {
-        const FPType scale = std::sqrt(eigenvalues[col]);
+        const FPType scale = daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(eigenvalues[col]);
         if (sequential)
         {
             LapackInst<FPType, cpu>::xxrscl((DAAL_INT *)&n, &scale, a + col * n, &one);
