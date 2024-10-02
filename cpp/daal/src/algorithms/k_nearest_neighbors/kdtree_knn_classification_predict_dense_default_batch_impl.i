@@ -165,8 +165,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const size_t heapSize         = (iSize / 16 + 1) * 16;
     const size_t xRowCount        = x->getNumberOfRows();
     const algorithmFpType base    = 2.0;
-    const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
-    const size_t stackSize        = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
+    const size_t expectedMaxDepth = (Math::xsLog(xRowCount) / Math::xsLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
+    const size_t stackSize        = Math::xsPowx(base, Math::xsCeil(Math::xsLog(expectedMaxDepth) / Math::xsLog(base)));
     struct Local
     {
         MaxHeap heap;
@@ -203,13 +203,12 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto maxThreads     = threader_get_threads_number();
     auto nThreads             = (maxThreads < 1) ? 1 : maxThreads;
     const size_t xColumnCount = x->getNumberOfColumns();
-    const auto rowsPerBlock   = 128;
+    const auto rowsPerBlock   = (xRowCount + nThreads - 1) / nThreads;
     const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
 
-    services::Environment::getInstance()->setNumberOfThreads(1);
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
         DAAL_CHECK_MALLOC_THR(local);
@@ -272,7 +271,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     status = safeStat.detach();
     if (!status) return status;
-    services::Environment::getInstance()->setNumberOfThreads(nThreads);
     localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
@@ -470,7 +468,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             distancesPtr[i] = heap[i].distance;
         }
 
-        Math::vSqrt(heapSize, distancesPtr, distancesPtr);
+        Math::xvSqrt(heapSize, distancesPtr, distancesPtr);
 
         for (size_t i = heapSize; i < nDistances; ++i)
         {
