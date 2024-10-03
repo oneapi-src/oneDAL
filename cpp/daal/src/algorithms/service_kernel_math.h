@@ -668,7 +668,7 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     it's preferrable to fall back to a different type of solver that can work correctly with those.
     Note that the thresholds chosen there are just a guess and not based on any properties of floating
     points or academic research. */
-    const FPType threshold_chol_diag = std::is_same<FPType, float>::value ? 1e-4 : 1e-6;
+    const FPType threshold_chol_diag = 1e-6;
     for (size_t ix = 0; ix < n; ix++)
     {
         if (a[ix * (ix + 1)] < threshold_chol_diag) return false;
@@ -756,7 +756,9 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     }
     if (info) return false;
 
-    /* Components with small singular values get eliminated using the exact same logic as 'gelsd' with default parameters */
+    /* Components with small singular values get eliminated using the exact same logic as 'gelsd' with default parameters
+    Note: these are hard-coded versions of machine epsilon for single and double precision. They aren't obtained through
+    'std::numeric_limits' in order to avoid potential template instantiation errors with some types. */
     const FPType eps = std::is_same<FPType, float>::value ? 1.1920929e-07 : 2.220446049250313e-16;
     if (eigenvalues[n - 1] <= eps) return false;
     const double component_threshold = eps * eigenvalues[n - 1];
