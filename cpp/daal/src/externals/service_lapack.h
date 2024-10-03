@@ -418,6 +418,16 @@ struct LapackAutoDispatch
     {
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxormqr, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info);
     }
+
+    static void xrscl(SizeType * n, const fpType * sa, fpType * sx, const SizeType * incx)
+    {
+        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xrscl, n, sa, sx, incx);
+    }
+
+    static void xxrscl(SizeType * n, const fpType * sa, fpType * sx, const SizeType * incx)
+    {
+        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxrscl, n, sa, sx, incx);
+    }
 };
 
 } // namespace internal
