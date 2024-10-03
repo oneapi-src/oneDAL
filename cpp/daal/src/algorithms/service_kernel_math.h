@@ -671,7 +671,7 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     const FPType threshold_chol_diag = 1e-6;
     for (size_t ix = 0; ix < n; ix++)
     {
-        if (a[ix * (ix + 1)] < threshold_chol_diag) return false;
+        if (a[ix * (n + 1)] < threshold_chol_diag) return false;
     }
 
     /* Solve L*L' * x = b */
@@ -788,27 +788,27 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     }
 
     /* Now calculate the actual solution: Qis * Qis' * B */
-    char trans_yes                  = 'T';
-    char trans_no                   = 'N';
-    FPType one_fp                   = 1;
-    const size_t eigenvalues_offset = static_cast<size_t>(num_discarded) * n;
+    char trans_yes                   = 'T';
+    char trans_no                    = 'N';
+    FPType one_fp                    = 1;
+    const size_t eigenvectors_offset = static_cast<size_t>(num_discarded) * n;
     if (sequential)
     {
         if (nX == 1)
         {
-            BlasInst<FPType, cpu>::xxgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b,
-                                          &one, &zero, eigenvalues.get(), &one);
-            BlasInst<FPType, cpu>::xxgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n,
+            BlasInst<FPType, cpu>::xxgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n,
+                                          b, &one, &zero, eigenvalues.get(), &one);
+            BlasInst<FPType, cpu>::xxgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n,
                                           eigenvalues.get(), &one, &zero, b, &one);
         }
 
         else
         {
             BlasInst<FPType, cpu>::xxgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp,
-                                          eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &zero, eigenvalues.get(),
+                                          eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &zero, eigenvalues.get(),
                                           &num_taken);
             BlasInst<FPType, cpu>::xxgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp,
-                                          eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, eigenvalues.get(), &num_taken, &zero, b,
+                                          eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n, eigenvalues.get(), &num_taken, &zero, b,
                                           (DAAL_INT *)&n);
         }
     }
@@ -817,20 +817,20 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     {
         if (nX == 1)
         {
-            BlasInst<FPType, cpu>::xgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b,
+            BlasInst<FPType, cpu>::xgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n, b,
                                          &one, &zero, eigenvalues.get(), &one);
-            BlasInst<FPType, cpu>::xgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n,
+            BlasInst<FPType, cpu>::xgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n,
                                          eigenvalues.get(), &one, &zero, b, &one);
         }
 
         else
         {
             BlasInst<FPType, cpu>::xgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp,
-                                         eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &zero, eigenvalues.get(),
+                                         eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &zero, eigenvalues.get(),
                                          &num_taken);
-            BlasInst<FPType, cpu>::xgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp,
-                                         eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, eigenvalues.get(), &num_taken, &zero, b,
-                                         (DAAL_INT *)&n);
+            BlasInst<FPType, cpu>::xxgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp,
+                                          eigenvectors.get() + eigenvectors_offset, (DAAL_INT *)&n, eigenvalues.get(), &num_taken, &zero, b,
+                                          (DAAL_INT *)&n);
         }
     }
 
