@@ -36,7 +36,7 @@ namespace internal
  *        Select an index j from a pair of indices B = {i, j} using WSS algorithm.
  *
  * \return The function implicitly returns GMax, which represents:
- *         M(alpha) = max { (GMin - (-y[j]*grad[j]))^2 / (2 * (Kii + Kjj - 2Kij)) } : j belongs to I_LOW(alpha)       
+ *         M(alpha) = max { (GMin - (-y[j]*grad[j]))^2 / (2 * (Kii + Kjj - 2Kij)) } : j belongs to I_LOW(alpha)
  */
 template <>
 inline void HelperTrainSVM<float, sve>::WSSjLocal(const size_t jStart, const size_t jEnd, const float * KiBlock, const float * kernelDiag,
