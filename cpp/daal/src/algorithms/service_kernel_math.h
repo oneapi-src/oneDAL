@@ -668,7 +668,7 @@ bool solveEquationsSystemWithCholesky(FPType * a, FPType * b, size_t n, size_t n
     it's preferrable to fall back to a different type of solver that can work correctly with those.
     Note that the thresholds chosen there are just a guess and not based on any properties of floating
     points or academic research. */
-    const FPType threshold_chol_diag = std::is_same<FPType, float>::value? 1e-4 : 1e-6;
+    const FPType threshold_chol_diag = std::is_same<FPType, float>::value ? 1e-4 : 1e-6;
     for (size_t ix = 0; ix < n; ix++)
     {
         if (a[ix * (ix + 1)] < threshold_chol_diag) return false;
@@ -696,99 +696,118 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     TArrayScalable<FPType, cpu> eigenvalues(n * nX);
     DAAL_CHECK_MALLOC(eigenvalues.get());
 
+    TArrayScalable<FPType, cpu> eigenvectors(n * n);
+    DAAL_CHECK_MALLOC(eigenvectors.get());
+
+    TArrayScalable<DAAL_INT, cpu> buffer_isuppz(2 * n);
+    DAAL_CHECK_MALLOC(buffer_isuppz.get());
+
     /* SYEV parameters */
-    char jobz = 'V';
-    char uplo = 'U';
+    const char jobz  = 'V';
+    const char range = 'A';
+    const char uplo  = 'U';
+    FPType zero      = 0;
     DAAL_INT info;
+    DAAL_INT num_eigenvalues;
 
     /* Query the procedure for size of required buffer */
-    DAAL_INT lwork = -1;
-    FPType buffer_size;
+    DAAL_INT lwork_query_indicator = -1;
+    FPType buffer_size_work        = 0;
+    DAAL_INT buffer_size_iwork     = 0;
     if (sequential)
     {
-        LapackInst<FPType, cpu>::xxsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), &buffer_size, &lwork, &info);
+        LapackInst<FPType, cpu>::xxsyevr(&jobz, &range, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, nullptr, nullptr, nullptr, nullptr, &zero,
+                                         &num_eigenvalues, eigenvalues.get(), eigenvectors.get(), (DAAL_INT *)&n, buffer_isuppz.get(),
+                                         &buffer_size_work, &lwork_query_indicator, &buffer_size_iwork, &lwork_query_indicator, &info);
     }
 
     else
     {
-        LapackInst<FPType, cpu>::xsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), &buffer_size, &lwork, &info);
+        LapackInst<FPType, cpu>::xsyevr(&jobz, &range, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, nullptr, nullptr, nullptr, nullptr, &zero,
+                                        &num_eigenvalues, eigenvalues.get(), eigenvectors.get(), (DAAL_INT *)&n, buffer_isuppz.get(),
+                                        &buffer_size_work, &lwork_query_indicator, &buffer_size_iwork, &lwork_query_indicator, &info);
     }
 
     if (info) return false;
 
-    /* Check that buffer size will not overflow when passed to LAPACK */
-    if (static_cast<size_t>(buffer_size) > std::numeric_limits<DAAL_INT>::max()) return false;
+    /* Check that buffer sizes will not overflow when passed to LAPACK */
+    if (static_cast<size_t>(buffer_size_work) > std::numeric_limits<DAAL_INT>::max()) return false;
+    if (buffer_size_iwork < 0) return false;
 
-    /* Allocate work buffer as needed */
-    DAAL_INT work_buffer_size = static_cast<DAAL_INT>(buffer_size);
+    /* Allocate work buffers as needed */
+    DAAL_INT work_buffer_size = static_cast<DAAL_INT>(buffer_size_work);
     TArrayScalable<FPType, cpu> work_buffer(work_buffer_size);
     DAAL_CHECK_MALLOC(work_buffer.get());
+    TArrayScalable<DAAL_INT, cpu> iwork_buffer(buffer_size_iwork);
+    DAAL_CHECK_MALLOC(iwork_buffer.get());
 
     /* Perform Q*diag(l)*Q' factorization of A */
     if (sequential)
     {
-        LapackInst<FPType, cpu>::xxsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), work_buffer.get(), &work_buffer_size,
-                                        &info);
+        LapackInst<FPType, cpu>::xxsyevr(&jobz, &range, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, nullptr, nullptr, nullptr, nullptr, &zero,
+                                         &num_eigenvalues, eigenvalues.get(), eigenvectors.get(), (DAAL_INT *)&n, buffer_isuppz.get(),
+                                         work_buffer.get(), &work_buffer_size, iwork_buffer.get(), &buffer_size_iwork, &info);
     }
     else
     {
-        LapackInst<FPType, cpu>::xsyev(&jobz, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, eigenvalues.get(), work_buffer.get(), &work_buffer_size,
-                                       &info);
+        LapackInst<FPType, cpu>::xsyevr(&jobz, &range, &uplo, (DAAL_INT *)&n, a, (DAAL_INT *)&n, nullptr, nullptr, nullptr, nullptr, &zero,
+                                        &num_eigenvalues, eigenvalues.get(), eigenvectors.get(), (DAAL_INT *)&n, buffer_isuppz.get(),
+                                        work_buffer.get(), &work_buffer_size, iwork_buffer.get(), &buffer_size_iwork, &info);
     }
     if (info) return false;
 
     /* Components with small singular values get eliminated using the exact same logic as 'gelsd' with default parameters */
-    const FPType eps = std::is_same<FPType, float>::value? 1.1920929e-07 : 2.220446049250313e-16;
+    const FPType eps = std::is_same<FPType, float>::value ? 1.1920929e-07 : 2.220446049250313e-16;
     if (eigenvalues[n - 1] <= eps) return false;
     const double component_threshold = eps * eigenvalues[n - 1];
     DAAL_INT num_discarded;
     for (num_discarded = 0; num_discarded < static_cast<DAAL_INT>(n) - 1; num_discarded++)
     {
-        if (eigenvalues[num_discarded] > component_threshold)
-        {
-            break;
-        }
+        if (eigenvalues[num_discarded] > component_threshold) break;
     }
 
     /* Create the square root of the inverse: Qis = Q * diag(1 / sqrt(l)) */
+    DAAL_INT num_taken = static_cast<DAAL_INT>(n) - num_discarded;
+    daal::internal::MathInst<FPType, cpu>::vSqrt(num_taken, eigenvalues.get() + num_discarded, eigenvalues.get() + num_discarded);
     DAAL_INT one = 1;
     PRAGMA_IVDEP
     for (size_t col = num_discarded; col < n; col++)
     {
-        const FPType scale = daal::internal::MathInst<FPType, cpu>::sSqrt(eigenvalues[col]);
+        const FPType scale = eigenvalues[col];
         if (sequential)
         {
-            LapackInst<FPType, cpu>::xxrscl((DAAL_INT *)&n, &scale, a + col * n, &one);
+            LapackInst<FPType, cpu>::xxrscl((DAAL_INT *)&n, &scale, eigenvectors.get() + col * n, &one);
         }
 
         else
         {
-            LapackInst<FPType, cpu>::xrscl((DAAL_INT *)&n, &scale, a + col * n, &one);
+            LapackInst<FPType, cpu>::xrscl((DAAL_INT *)&n, &scale, eigenvectors.get() + col * n, &one);
         }
     }
 
     /* Now calculate the actual solution: Qis * Qis' * B */
-    char trans_yes     = 'T';
-    char trans_no      = 'N';
-    FPType one_fp      = 1;
-    FPType zero        = 0;
-    DAAL_INT num_taken = static_cast<DAAL_INT>(n) - num_discarded;
-    a += static_cast<size_t>(num_discarded) * n;
+    char trans_yes                  = 'T';
+    char trans_no                   = 'N';
+    FPType one_fp                   = 1;
+    const size_t eigenvalues_offset = static_cast<size_t>(num_discarded) * n;
     if (sequential)
     {
         if (nX == 1)
         {
-            BlasInst<FPType, cpu>::xxgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, b, &one, &zero, eigenvalues.get(),
-                                          &one);
-            BlasInst<FPType, cpu>::xxgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, eigenvalues.get(), &one, &zero, b, &one);
+            BlasInst<FPType, cpu>::xxgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b,
+                                          &one, &zero, eigenvalues.get(), &one);
+            BlasInst<FPType, cpu>::xxgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n,
+                                          eigenvalues.get(), &one, &zero, b, &one);
         }
 
         else
         {
-            BlasInst<FPType, cpu>::xxgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp, a, (DAAL_INT *)&n, b,
-                                          (DAAL_INT *)&n, &zero, eigenvalues.get(), &num_taken);
-            BlasInst<FPType, cpu>::xxgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp, a, (DAAL_INT *)&n,
-                                          eigenvalues.get(), &num_taken, &zero, b, (DAAL_INT *)&n);
+            BlasInst<FPType, cpu>::xxgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp,
+                                          eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &zero, eigenvalues.get(),
+                                          &num_taken);
+            BlasInst<FPType, cpu>::xxgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp,
+                                          eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, eigenvalues.get(), &num_taken, &zero, b,
+                                          (DAAL_INT *)&n);
         }
     }
 
@@ -796,16 +815,20 @@ bool solveEquationsSystemWithSpectralDecomposition(FPType * a, FPType * b, size_
     {
         if (nX == 1)
         {
-            BlasInst<FPType, cpu>::xgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, b, &one, &zero, eigenvalues.get(), &one);
-            BlasInst<FPType, cpu>::xgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, a, (DAAL_INT *)&n, eigenvalues.get(), &one, &zero, b, &one);
+            BlasInst<FPType, cpu>::xgemv(&trans_yes, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b,
+                                         &one, &zero, eigenvalues.get(), &one);
+            BlasInst<FPType, cpu>::xgemv(&trans_no, (DAAL_INT *)&n, &num_taken, &one_fp, eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n,
+                                         eigenvalues.get(), &one, &zero, b, &one);
         }
 
         else
         {
-            BlasInst<FPType, cpu>::xgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp, a, (DAAL_INT *)&n, b,
-                                         (DAAL_INT *)&n, &zero, eigenvalues.get(), &num_taken);
-            BlasInst<FPType, cpu>::xgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp, a, (DAAL_INT *)&n,
-                                         eigenvalues.get(), &num_taken, &zero, b, (DAAL_INT *)&n);
+            BlasInst<FPType, cpu>::xgemm(&trans_yes, &trans_no, &num_taken, (DAAL_INT *)&nX, (DAAL_INT *)&n, &one_fp,
+                                         eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, b, (DAAL_INT *)&n, &zero, eigenvalues.get(),
+                                         &num_taken);
+            BlasInst<FPType, cpu>::xgemm(&trans_no, &trans_no, (DAAL_INT *)&n, (DAAL_INT *)&nX, &num_taken, &one_fp,
+                                         eigenvectors.get() + eigenvalues_offset, (DAAL_INT *)&n, eigenvalues.get(), &num_taken, &zero, b,
+                                         (DAAL_INT *)&n);
         }
     }
 

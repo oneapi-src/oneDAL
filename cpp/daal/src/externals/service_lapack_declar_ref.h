@@ -82,8 +82,10 @@ extern "C"
     extern void ssyevd_(char *, char *, DAAL_INT *, float *, DAAL_INT *, float *, float *, DAAL_INT *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
     extern void dsyevd_(char *, char *, DAAL_INT *, double *, DAAL_INT *, double *, double *, DAAL_INT *, DAAL_INT *, DAAL_INT *, DAAL_INT *);
 
-    extern void ssyev_(const char *, const char *, const DAAL_INT *, float *, const DAAL_INT *, float *, float *, DAAL_INT *, DAAL_INT *);
-    extern void dsyev_(const char *, const char *, const DAAL_INT *, double *, const DAAL_INT *, double *, double *, DAAL_INT *, DAAL_INT *);
+    extern void ssyevr_(const char *, const char *, const char *, const int *, float *, const int *, const float *, const float *, const int *,
+                        const int *, const float *, int *, float *, float *, const int *, int *, float *, const int *, int *, const int *, int *);
+    extern void dsyevr_(const char *, const char *, const char *, const int *, double *, const int *, const double *, const double *, const int *,
+                        const int *, const double *, int *, double *, double *, const int *, int *, double *, const int *, int *, const int *, int *);
 
     extern void sormqr_(char *, char *, DAAL_INT *, DAAL_INT *, DAAL_INT *, float *, DAAL_INT *, float *, float *, DAAL_INT *, float *, DAAL_INT *,
                         DAAL_INT *);

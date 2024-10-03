@@ -243,17 +243,25 @@ struct MklLapack<double, cpu>
         mkl_set_num_threads_local(old_nthr);
     }
 
-    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
-                      DAAL_INT * lwork, DAAL_INT * info)
+    static void xsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda,
+                       const double * vl, const double * vu, const DAAL_INT * il, const DAAL_INT * iu, const double * abstol, DAAL_INT * m,
+                       double * w, double * z, const DAAL_INT * ldz, DAAL_INT * isuppz, double * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                       const DAAL_INT * liwork, DAAL_INT * info)
     {
-        __DAAL_MKLFN_CALL_LAPACK(dsyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+        __DAAL_MKLFN_CALL_LAPACK(dsyevr, (jobz, range, uplo, (const MKL_INT *)n, a, (const MKL_INT *)lda, vl, vu, (const MKL_INT *)il,
+                                          (const MKL_INT *)iu, abstol, (MKL_INT *)m, w, z, (const MKL_INT *)ldz, (MKL_INT *)isuppz, work,
+                                          (const MKL_INT *)lwork, (MKL_INT *)iwork, (const MKL_INT *)liwork, (MKL_INT *)info));
     }
 
-    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
-                       DAAL_INT * lwork, DAAL_INT * info)
+    static void xxsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda,
+                        const double * vl, const double * vu, const DAAL_INT * il, const DAAL_INT * iu, const double * abstol, DAAL_INT * m,
+                        double * w, double * z, const DAAL_INT * ldz, DAAL_INT * isuppz, double * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                        const DAAL_INT * liwork, DAAL_INT * info)
     {
         int old_nthr = mkl_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL_LAPACK(dsyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+        __DAAL_MKLFN_CALL_LAPACK(dsyevr, (jobz, range, uplo, (const MKL_INT *)n, a, (const MKL_INT *)lda, vl, vu, (const MKL_INT *)il,
+                                          (const MKL_INT *)iu, abstol, (MKL_INT *)m, w, z, (const MKL_INT *)ldz, (MKL_INT *)isuppz, work,
+                                          (const MKL_INT *)lwork, (MKL_INT *)iwork, (const MKL_INT *)liwork, (MKL_INT *)info));
         mkl_set_num_threads_local(old_nthr);
     }
 
@@ -487,17 +495,25 @@ struct MklLapack<float, cpu>
         mkl_set_num_threads_local(old_nthr);
     }
 
-    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
-                      DAAL_INT * lwork, DAAL_INT * info)
+    static void xsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda,
+                       const float * vl, const float * vu, const DAAL_INT * il, const DAAL_INT * iu, const float * abstol, DAAL_INT * m, float * w,
+                       float * z, const DAAL_INT * ldz, DAAL_INT * isuppz, float * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                       const DAAL_INT * liwork, DAAL_INT * info)
     {
-        __DAAL_MKLFN_CALL_LAPACK(ssyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+        __DAAL_MKLFN_CALL_LAPACK(ssyevr, (jobz, range, uplo, (const MKL_INT *)n, a, (const MKL_INT *)lda, vl, vu, (const MKL_INT *)il,
+                                          (const MKL_INT *)iu, abstol, (MKL_INT *)m, w, z, (const MKL_INT *)ldz, (MKL_INT *)isuppz, work,
+                                          (const MKL_INT *)lwork, (MKL_INT *)iwork, (const MKL_INT *)liwork, (MKL_INT *)info));
     }
 
-    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
-                       DAAL_INT * lwork, DAAL_INT * info)
+    static void xxsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda,
+                        const float * vl, const float * vu, const DAAL_INT * il, const DAAL_INT * iu, const float * abstol, DAAL_INT * m, float * w,
+                        float * z, const DAAL_INT * ldz, DAAL_INT * isuppz, float * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                        const DAAL_INT * liwork, DAAL_INT * info)
     {
         int old_nthr = mkl_set_num_threads_local(1);
-        __DAAL_MKLFN_CALL_LAPACK(ssyev, (jobz, uplo, (MKL_INT *)n, a, (MKL_INT *)lda, w, work, (MKL_INT *)lwork, (MKL_INT *)info));
+        __DAAL_MKLFN_CALL_LAPACK(ssyevr, (jobz, range, uplo, (const MKL_INT *)n, a, (const MKL_INT *)lda, vl, vu, (const MKL_INT *)il,
+                                          (const MKL_INT *)iu, abstol, (MKL_INT *)m, w, z, (const MKL_INT *)ldz, (MKL_INT *)isuppz, work,
+                                          (const MKL_INT *)lwork, (MKL_INT *)iwork, (const MKL_INT *)liwork, (MKL_INT *)info));
         mkl_set_num_threads_local(old_nthr);
     }
 

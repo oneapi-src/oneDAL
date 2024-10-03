@@ -204,17 +204,21 @@ struct OpenBlasLapack<double, cpu>
         dsyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
-    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
-                      DAAL_INT * lwork, DAAL_INT * info)
+    static void xsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda,
+                       const double * vl, const double * vu, const DAAL_INT * il, const DAAL_INT * iu, const double * abstol, DAAL_INT * m,
+                       double * w, double * z, const DAAL_INT * ldz, DAAL_INT * isuppz, double * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                       const DAAL_INT * liwork, DAAL_INT * info)
     {
-        dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+        dsyevr_(jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z ldz, isuppz, work, lwork, iwork, liwork, info);
     }
 
-    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda, double * w, double * work,
-                       DAAL_INT * lwork, DAAL_INT * info)
+    static void xxsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, double * a, const DAAL_INT * lda,
+                        const double * vl, const double * vu, const DAAL_INT * il, const DAAL_INT * iu, const double * abstol, DAAL_INT * m,
+                        double * w, double * z, const DAAL_INT * ldz, DAAL_INT * isuppz, double * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                        const DAAL_INT * liwork, DAAL_INT * info)
     {
         openblas_thread_setter ots(1);
-        dsyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+        dsyevr_(jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z ldz, isuppz, work, lwork, iwork, liwork, info);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, double * a, DAAL_INT * lda, double * tau, double * c,
@@ -402,17 +406,21 @@ struct OpenBlasLapack<float, cpu>
         ssyevd_(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
-    static void xsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
-                      DAAL_INT * lwork, DAAL_INT * info)
+    static void xsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda,
+                       const float * vl, const float * vu, const DAAL_INT * il, const DAAL_INT * iu, const float * abstol, DAAL_INT * m, float * w,
+                       float * z, const DAAL_INT * ldz, DAAL_INT * isuppz, float * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                       const DAAL_INT * liwork, DAAL_INT * info)
     {
-        ssyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+        ssyevr_(jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z ldz, isuppz, work, lwork, iwork, liwork, info);
     }
 
-    static void xxsyev(const char * jobz, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda, float * w, float * work,
-                       DAAL_INT * lwork, DAAL_INT * info)
+    static void xxsyevr(const char * jobz, const char * range, const char * uplo, const DAAL_INT * n, float * a, const DAAL_INT * lda,
+                        const float * vl, const float * vu, const DAAL_INT * il, const DAAL_INT * iu, const float * abstol, DAAL_INT * m, float * w,
+                        float * z, const DAAL_INT * ldz, DAAL_INT * isuppz, float * work, const DAAL_INT * lwork, DAAL_INT * iwork,
+                        const DAAL_INT * liwork, DAAL_INT * info)
     {
         openblas_thread_setter ots(1);
-        ssyev_(jobz, uplo, n, a, lda, w, work, lwork, info);
+        ssyevr_(jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z ldz, isuppz, work, lwork, iwork, liwork, info);
     }
 
     static void xormqr(char * side, char * trans, DAAL_INT * m, DAAL_INT * n, DAAL_INT * k, float * a, DAAL_INT * lda, float * tau, float * c,

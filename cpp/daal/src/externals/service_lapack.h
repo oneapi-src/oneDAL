@@ -186,6 +186,9 @@ struct Lapack
         _impl<fpType, cpu>::xxgesvd(jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, info);
     }
 
+    /* Note: 'syevd' and 'syevr' both compute symmetric eigenvalues, but they use different routines. 'syevd'
+    is slower but more precise and should thus be preferred for situations in which small numerical inaccuracies
+    have adverse side effects, whereas 'syevr' is faster and more suitable for general usage. */
     static void xsyevd(char * jobz, char * uplo, SizeType * n, fpType * a, SizeType * lda, fpType * w, fpType * work, SizeType * lwork,
                        SizeType * iwork, SizeType * liwork, SizeType * info)
     {
@@ -198,16 +201,20 @@ struct Lapack
         _impl<fpType, cpu>::xxsyevd(jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
-    static void xsyev(const char * jobz, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda, fpType * w, fpType * work,
-                      SizeType * lwork, SizeType * info)
+    static void xsyevr(const char * jobz, const char * range, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda,
+                       const fpType * vl, const fpType * vu, const SizeType * il, const SizeType * iu, const fpType * abstol, SizeType * m,
+                       fpType * w, fpType * z, const SizeType * ldz, SizeType * isuppz, fpType * work, const SizeType * lwork, SizeType * iwork,
+                       const SizeType * liwork, SizeType * info)
     {
-        _impl<fpType, cpu>::xsyev(jobz, uplo, n, a, lda, w, work, lwork, info);
+        _impl<fpType, cpu>::xsyevr(jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z, ldz, isuppz, work, lwork, iwork, liwork, info);
     }
 
-    static void xxsyev(const char * jobz, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda, fpType * w, fpType * work,
-                       SizeType * lwork, SizeType * info)
+    static void xxsyevr(const char * jobz, const char * range, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda,
+                        const fpType * vl, const fpType * vu, const SizeType * il, const SizeType * iu, const fpType * abstol, SizeType * m,
+                        fpType * w, fpType * z, const SizeType * ldz, SizeType * isuppz, fpType * work, const SizeType * lwork, SizeType * iwork,
+                        const SizeType * liwork, SizeType * info)
     {
-        _impl<fpType, cpu>::xxsyev(jobz, uplo, n, a, lda, w, work, lwork, info);
+        _impl<fpType, cpu>::xxsyevr(jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z, ldz, isuppz, work, lwork, iwork, liwork, info);
     }
 
     static void xormqr(char * side, char * trans, SizeType * m, SizeType * n, SizeType * k, fpType * a, SizeType * lda, fpType * tau, fpType * c,
@@ -382,16 +389,22 @@ struct LapackAutoDispatch
         DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxsyevd, jobz, uplo, n, a, lda, w, work, lwork, iwork, liwork, info);
     }
 
-    static void xsyev(char * jobz, char * uplo, SizeType * n, fpType * a, SizeType * lda, fpType * w, fpType * work, SizeType * lwork,
-                      SizeType * info)
+    static void xsyevr(const char * jobz, const char * range, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda,
+                       const fpType * vl, const fpType * vu, const SizeType * il, const SizeType * iu, const fpType * abstol, SizeType * m,
+                       fpType * w, fpType * z, const SizeType * ldz, SizeType * isuppz, fpType * work, const SizeType * lwork, SizeType * iwork,
+                       const SizeType * liwork, SizeType * info)
     {
-        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xsyev, jobz, uplo, n, a, lda, w, work, lwork, info);
+        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xsyevr, jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z, ldz, isuppz, work, lwork, iwork,
+                                    liwork, info);
     }
 
-    static void xxsyev(char * jobz, char * uplo, SizeType * n, fpType * a, SizeType * lda, fpType * w, fpType * work, SizeType * lwork,
-                       SizeType * info)
+    static void xxsyevr(const char * jobz, const char * range, const char * uplo, const SizeType * n, fpType * a, const SizeType * lda,
+                        const fpType * vl, const fpType * vu, const SizeType * il, const SizeType * iu, const fpType * abstol, SizeType * m,
+                        fpType * w, fpType * z, const SizeType * ldz, SizeType * isuppz, fpType * work, const SizeType * lwork, SizeType * iwork,
+                        const SizeType * liwork, SizeType * info)
     {
-        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxsyev, jobz, uplo, n, a, lda, w, work, lwork, info);
+        DAAL_DISPATCH_LAPACK_BY_CPU(fpType, xxsyevr, jobz, range, uplo, n, a, lda, vl, vu, il, iu, abstol, m, w, z, ldz, isuppz, work, lwork, iwork,
+                                    liwork, info);
     }
 
     static void xormqr(char * side, char * trans, SizeType * m, SizeType * n, SizeType * k, fpType * a, SizeType * lda, fpType * tau, fpType * c,
