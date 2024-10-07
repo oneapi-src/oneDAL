@@ -19,10 +19,11 @@
 
 Required Software:
 * C/C++ Compiler
-* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
+* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html) if building with SYCL support
+* Python
+* TBB library (repository contains script to download it)
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2](http://msys2.github.io) (Windows\* only)
-* Python
 * `make` and `dos2unix` tools; install these packages using MSYS2 on Windows\* as follows:
 
         pacman -S msys/make msys/dos2unix
@@ -92,7 +93,7 @@ is available as an alternative to the manual setup.
 
             ./dev/download_tbb.sh
 
-6. Download and install Python (version 3.7 or higher).
+6. Download and install Python (version 3.9 or higher).
 
 7. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
@@ -138,3 +139,35 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 **NOTE:** Built libraries are located in the `__release_{os_name}[_{compiler_name}]/daal` directory.
 
 ---
+
+After having built the library, if one wishes to use it for building [scikit-learn-intelex](https://github.com/intel/scikit-learn-intelex/tree/main) or for executing the usage examples, one can set the required environment variables to point to the generated build by sourcing the script that it creates under the `env` folder. The script will be located under `__release_{os_name}[_{compiler_name}]/daal/latest/env/vars.sh` and can be sourced with a POSIX-compliant shell such as `bash`, by executing something like the following from inside the `__release*` folder:
+
+```shell
+cd daal/latest
+source env/vars.sh
+```
+
+The provided unit tests for the library can be executed through the Bazel system - see the [Bazel docs](https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel) for more information.
+
+Examples of library usage will also be auto-generated as part of the build under path `daal/latest/examples/daal/cpp/source`. These can be built through CMake - assuming one starts from the release path `__release_{os_name}[_{compiler_name}]`, the following would do:
+
+```shell
+cd daal/latest/examples/daal/cpp
+mkdir -p build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
+This will generate executables under path `daal/latest/examples/daal/cpp/_cmake_results/{platform_name}`. They can be executed as follows (note that they require access to the data files under `daal/latest/examples/daal/data`), assuming that one starts from inside the `build` folder (as at the end of the previous step):
+
+```shell
+cd ..
+./_cmake_results/{platform_name}/{example}
+```
+
+For example, in a Linux platform, assuming one wishes to execute the `adaboost_dense_batch` example:
+
+```shell
+./_cmake_results/intel_intel64_so/adaboost_dense_batch
+```
