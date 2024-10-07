@@ -90,9 +90,9 @@ std::int32_t most_frequent_element(const std::atomic<std::int32_t> *components,
                                    const std::int64_t &samples_count = 1024) {
     std::int32_t *rnd_vertex_ids = allocate(vertex_allocator, samples_count);
 
-    dal::backend::primitives::engine eng;
-    dal::backend::primitives::rng<std::int32_t> rn_gen;
-    rn_gen.uniform(samples_count, rnd_vertex_ids, eng.get_state(), 0, vertex_count);
+    dal::backend::primitives::daal_engine eng;
+    dal::backend::primitives::daal_rng<std::int32_t> rn_gen;
+    rn_gen.uniform(samples_count, rnd_vertex_ids, eng, 0, vertex_count);
 
     std::int32_t *root_sample_counts = allocate(vertex_allocator, vertex_count);
 

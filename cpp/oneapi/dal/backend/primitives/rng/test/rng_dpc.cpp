@@ -149,7 +149,7 @@ public:
 //     auto rng_engine_ = this->get_engine(seed);
 
 //     rn_gen.uniform_cpu(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
-//     rn_gen.uniform_gpu_internal(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
+//     rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
 
 //     this->check_results(arr_gpu, arr_host);
 // }
@@ -185,7 +185,7 @@ public:
 // //     auto rng_engine_1 = this->get_engine(seed);
 // //     auto rng_engine_2 = this->get_engine(seed);
 // //     BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
-// //         rn_gen_.uniform_gpu_internal(this->get_queue(),
+// //         rn_gen_.uniform_gpu(this->get_queue(),
 // //                                      elem_count,
 // //                                      arr_gpu_ptr_,
 // //                                      rng_engine_1,
@@ -217,7 +217,7 @@ public:
 //     rn_gen.uniform_cpu(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
 //     rn_gen.uniform_cpu(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
 
-//     rn_gen.uniform_gpu_internal(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
 //     rn_gen.uniform_cpu(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
 //     this->check_results_host(arr_host_init_1, arr_host_init_2);
@@ -240,11 +240,11 @@ public:
 //     auto rng_engine = this->get_engine(seed);
 //     auto rng_engine_2 = this->get_engine(seed);
 
-//     rn_gen.uniform_gpu_internal(this->get_queue(), elem_count, arr_device_init_1_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_device_init_1_ptr, rng_engine, 0, elem_count);
 //     rn_gen
-//         .uniform_gpu_internal(this->get_queue(), elem_count, arr_device_init_2_ptr, rng_engine_2, 0, elem_count);
+//         .uniform_gpu(this->get_queue(), elem_count, arr_device_init_2_ptr, rng_engine_2, 0, elem_count);
 
-//     rn_gen.uniform_gpu_internal(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+//     rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
 //     rn_gen.uniform_cpu(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
 //     this->check_results_device(arr_device_init_1, arr_device_init_2);

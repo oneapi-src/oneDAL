@@ -24,14 +24,14 @@ namespace bk = oneapi::dal::backend;
 
 template <typename Type, typename Size>
 template <engine_list EngineType>
-void rng<Type, Size>::uniform_gpu_internal(sycl::queue& queue,
+void oneapi_rng<Type, Size>::uniform_gpu(sycl::queue& queue,
                                            Size count,
                                            Type* dst,
                                            engine<EngineType>& engine_,
                                            Type a,
                                            Type b,
                                            const event_vector& deps) {
-    auto local_engine = engine_.get_oneapi_state();
+    auto local_engine = engine_.get_gpu_engine();
     oneapi::mkl::rng::uniform<Type> distr(a, b);
     auto event = oneapi::mkl::rng::generate(distr, local_engine, count, dst, { deps });
     event.wait_and_throw();
@@ -41,7 +41,7 @@ void rng<Type, Size>::uniform_gpu_internal(sycl::queue& queue,
 
 template <typename Type, typename Size>
 template <engine_list EngineType>
-void rng<Type, Size>::uniform(sycl::queue& queue,
+void oneapi_rng<Type, Size>::uniform(sycl::queue& queue,
                               Size count,
                               Type* dst,
                               engine<EngineType>& engine_,
@@ -49,19 +49,19 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
                               Type b,
                               bool distr_mode /* = false */,
                               const event_vector& deps) {
-    if (count > 5000) {
-        uniform_gpu_internal(queue, count, dst, engine_, a, b);
-    }
-    else {
-        uniform_cpu(count, dst, engine_, a, b);
-    }
+    // if (count > 5000) {
+        uniform_gpu(queue, count, dst, engine_, a, b);
+    // }
+    // else {
+    //     uniform_cpu(count, dst, engine_, a, b);
+    // }
 }
 
 // template <typename Type, typename Size>
-// void rng<Type, Size>::uniform_without_replacement(sycl::queue& queue,
+// void oneapi_rng<Type, Size>::uniform_without_replacement(sycl::queue& queue,
 //                                                   Size count,
 //                                                   Type* dst,
-//                                                   std::uint8_t* state,
+//                                                   engine<EngineType>& engine_,
 //                                                   Type a,
 //                                                   Type b,
 //                                                   const event_vector& deps) {
@@ -105,7 +105,7 @@ void rng<Type, Size>::uniform(sycl::queue& queue,
 // }
 
 #define INSTANTIATE(F, Size, EngineType)                                           \
-    template ONEDAL_EXPORT void rng<F, Size>::uniform(sycl::queue& queue,          \
+    template ONEDAL_EXPORT void oneapi_rng<F, Size>::uniform(sycl::queue& queue,          \
                                                       Size count_,                 \
                                                       F* dst,                      \
                                                       engine<EngineType>& engine_, \
@@ -129,7 +129,7 @@ INSTANTIATE_FLOAT(std::int64_t);
 INSTANTIATE_FLOAT(std::int32_t);
 
 #define INSTANTIATE_(F, Size, EngineType)                                                       \
-    template ONEDAL_EXPORT void rng<F, Size>::uniform_gpu_internal(sycl::queue& queue,          \
+    template ONEDAL_EXPORT void oneapi_rng<F, Size>::uniform_gpu(sycl::queue& queue,          \
                                                                    Size count_,                 \
                                                                    F* dst,                      \
                                                                    engine<EngineType>& engine_, \

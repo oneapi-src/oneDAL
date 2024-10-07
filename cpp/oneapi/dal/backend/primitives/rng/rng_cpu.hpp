@@ -17,27 +17,87 @@
 #pragma once
 
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
-
+#include <daal/include/algorithms/engines/mcg59/mcg59.h>
+#include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Type, typename Size = std::int64_t>
-class rng {
-public:
-    rng() = default;
-    ~rng() = default;
+namespace engine {
+namespace v1 {
 
-    void uniform(Size count, Type* dst, void* state, Type a, Type b) {
+/// Tag-type that denotes the mt2203 engine.
+struct mt2203 {};
+
+/// Tag-type that denotes the mcg59 engine.
+struct mcg59 {};
+
+/// Tag-type that denotes the mt19937 engine.
+struct mt19937 {};
+
+/// Alias tag-type for the default engine (mt2203).
+using by_default = mt2203;
+
+} // namespace v1
+} // namespace engine
+
+template <engine_list EngineType = engine::v1::by_default>
+class daal_engine {
+public:
+    explicit daal_engine(std::int64_t seed = 777)
+            : daal_engine_(initialize_daal_engine(seed)),
+              impl_(dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(
+                  daal_engine_.get())) {
+        if (!impl_) {
+            throw std::domain_error("RNG engine is not supported");
+        }
+    }
+
+    virtual ~daal_engine() = default;
+
+    void* get_cpu_engine_state() const {
+        return impl_->getState();
+    }
+
+    auto& get_cpu_engine() {
+        return daal_engine_;
+    }
+private:
+    daal::algorithms::engines::EnginePtr initialize_daal_engine(std::int64_t seed) {
+        switch (EngineType) {
+            case engine_list::mt2203:
+                return daal::algorithms::engines::mt2203::Batch<>::create(seed);
+            case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
+            case engine_list::mt19937:
+                return daal::algorithms::engines::mt19937::Batch<>::create(seed);
+            default: throw std::invalid_argument("Unsupported engine type");
+        }
+    }
+
+    daal::algorithms::engines::EnginePtr daal_engine_;
+    daal::algorithms::engines::internal::BatchBaseImpl* impl_;
+};
+
+template <typename Type, typename Size = std::int64_t>
+class daal_rng {
+public:
+    daal_rng() = default;
+    ~daal_rng() = default;
+
+    template <engine_list EngineType>
+    void uniform(Size count, Type* dst, daal_engine<EngineType>& engine_, Type a, Type b) {
+        void* state = engine_.get_cpu_engine_state();
         uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 
-    void uniform_without_replacement(Size count,
+    template <engine_list EngineType>
+    void uniform_without_replacement_cpu(Size count,
                                      Type* dst,
                                      Type* buffer,
-                                     void* state,
+                                     daal_engine<EngineType>& engine_,
                                      Type a,
                                      Type b) {
+        void* state = engine_.get_cpu_engine_state();
         uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
                                                                      dst,
                                                                      buffer,
@@ -46,56 +106,17 @@ public:
                                                                      b);
     }
 
-    template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle(Size count, Type* dst, void* state) {
+    template <engine_list EngineType, typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
+    void shuffle(Size count, Type* dst, daal_engine<EngineType>& engine_) {
         Type idx[2];
+
+        void* state = engine_.get_cpu_engine_state();
 
         for (Size i = 0; i < count; ++i) {
             uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
         }
     }
-
-private:
-    daal::internal::RNGsInst<Type, DAAL_BASE_CPU> daal_rng_;
-};
-
-class engine {
-public:
-    explicit engine(std::int64_t seed = 777)
-            : engine_(daal::algorithms::engines::mt2203::Batch<>::create(seed)) {
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(engine_.get());
-        if (!impl_) {
-            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
-        }
-    }
-
-    explicit engine(const daal::algorithms::engines::EnginePtr& eng) : engine_(eng) {
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
-        if (!impl_) {
-            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
-        }
-    }
-
-    virtual ~engine() = default;
-
-    engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
-        engine_ = eng;
-        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
-        if (!impl_) {
-            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
-        }
-
-        return *this;
-    }
-
-    void* get_state() const {
-        return impl_->getState();
-    }
-
-private:
-    daal::algorithms::engines::EnginePtr engine_;
-    daal::algorithms::engines::internal::BatchBaseImpl* impl_;
 };
 
 } // namespace oneapi::dal::backend::primitives
