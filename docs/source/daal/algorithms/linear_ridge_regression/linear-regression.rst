@@ -108,4 +108,4 @@ Examples
 
   .. tab:: Python*
 
-    - :daal4py_example:`lin_reg_model.py`
+    - :daal4py_example:`linear_regression.py`
