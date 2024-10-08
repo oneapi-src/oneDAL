@@ -60,7 +60,7 @@ jobs:
         run: |
           tar -cvzf __release_lnx.tar.gz .\__release_lnx
       - name: Archive build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: __release_lnx
           path: ./__release_lnx.tar.gz
@@ -121,7 +121,7 @@ jobs:
           ren .\__release_win_vc .\__release_win
           tar -cvzf __release_win.tar.gz .\__release_win
       - name: Archive build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: __release_win
           path: .\__release_win.tar.gz
@@ -131,7 +131,7 @@ jobs:
           name: intel_oneapi_basekit
           path: .\oneapi.tar.gz
       - name: Archive Intel OpenCL CPU runtime
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: opencl_rt_installer
           path: .\opencl_rt.msi
