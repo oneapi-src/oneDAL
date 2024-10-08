@@ -57,7 +57,7 @@ jobs:
           source /opt/intel/oneapi/compiler/latest/env/vars.sh
           .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal
       - name: Archive build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: __release_lnx
           path: ./__release_lnx
@@ -109,7 +109,7 @@ jobs:
           call .\oneapi\compiler\latest\bin\sycl-ls.exe
           call .\.ci\scripts\build.bat onedal_dpc vc avx2
       - name: Archive build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: __release_win
           path: .\__release_win_vc
@@ -118,12 +118,12 @@ jobs:
         run: |
           tar -cvzf icx.zip .\oneapi
       - name: Archive DPC++
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: icx_compiler
           path: .\icx.zip
       - name: Archive Intel OpenCL CPU runtime
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.4.0
         with:
           name: opencl_rt_installer
           path: .\opencl_rt.msi
