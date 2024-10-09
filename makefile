@@ -44,6 +44,13 @@ MSVC_RUNTIME_VERSIONs = release debug
 MSVC_RUNTIME_VERSION ?= release
 $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
+MAKE_PID := $(shell echo $$PPID)
+JOB_FLAG := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
+MAKE_JOBS := $(subst -j,,$(JOB_FLAG))
+MAKE_JOBS := $(if $(filter $(MAKE_JOBS),$(shell seq 1 999)),$(MAKE_JOBS),$(shell nproc))
+
+SYCL_LINK_PRL := $(MAKE_JOBS)
+
 COMPILER_is_$(COMPILER)            := yes
 COMPILER_is_cross                  := $(if $(filter $(PLAT),$(IDENTIFIED_PLAT)),no,yes)
 OS_is_$(_OS)                       := yes
@@ -120,6 +127,7 @@ y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
 -cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
 -fPIC  := $(if $(OS_is_win),,-fPIC)
+-DMKL_ILP64 := $(if $(filter mkl,$(BACKEND_CONFIG)),-DMKL_ILP64)
 -Zl    := $(-Zl.$(COMPILER))
 -DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
 -DEBJ  := $(if $(REQDBG),-g,-g:none)
@@ -271,15 +279,24 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
 
-#============================= Micromkl folders =====================================
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
+#============================= Math backend folders =====================================
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
-MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
-MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
+ifeq ($(BACKEND_CONFIG), ref)
+    ifeq ($(RNG_BACKEND), openrng)
+        RNG_OPENRNG := yes
+    endif
+    ifndef RNG_BACKEND
+        RNG_BACKEND := ref
+    endif
+    $(if $(filter $(RNG_BACKEND),ref openrng),,$(error unknown rng backend $(RNG_BACKEND)))
+endif
 
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)daal_sycl$d.$(a)
-mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+ifeq ($(BACKEND_CONFIG), mkl)
+    ifndef RNG_BACKEND
+        RNG_BACKEND := mkl
+    endif
+    $(if $(filter $(RNG_BACKEND),mkl),,$(error mkl backend does not support the rng backend $(RNG_BACKEND)))
+endif
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
@@ -404,7 +421,7 @@ THR.srcdir       := $(CPPDIR.daal)/src/threading
 CORE.srcdir      := $(CPPDIR.daal)/src/algorithms
 EXTERNALS.srcdir := $(CPPDIR.daal)/src/externals
 
-CORE.SERV.srcdir          := $(CPPDIR.daal)/src/services
+CORE.SERV.srcdir := $(subst \,/,$(CPPDIR.daal)/src/services)
 CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/src/services/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
@@ -473,7 +490,7 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
-$(CORE.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(CORE.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64)
 $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
@@ -482,7 +499,7 @@ $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(eval $(call append_uarch_copt,$(CORE.objs_a)))
 
 $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
-$(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC)
+$(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64)
 $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
                         -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -533,7 +550,7 @@ PARAMETERS.tmpdir_a.dpc := $(WORKDIR)/parameters_dpc_static
 PARAMETERS.tmpdir_y.dpc := $(WORKDIR)/parameters_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend.incdir) $(TBBDIR.include)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend_oneapi.incdir) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp) $(ONEAPI.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
@@ -665,7 +682,7 @@ $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_a.dpc),.dpcpp))
 
 # Set compilation options to the object files which are part of DYNAMIC lib
 $(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -678,7 +695,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y)))
 
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
-$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
+$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DMKL_ILP64) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DONEDAL_DATA_PARALLEL \
@@ -771,7 +788,8 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(REQDBG),-flink-huge-device-code,)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.math_backend.sycl)
+
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
 endif
@@ -814,14 +832,14 @@ THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
-$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.math_backend.thr) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) ; $(LINK.STATIC)
 
 $(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
 	$(daaldep.$(_OS).threxport.create) > $@
 
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.math_backend.thr) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 THR.objs_a := $(THR_TBB.objs_a)
 THR.objs_y := $(THR_TBB.objs_y)
@@ -966,17 +984,17 @@ $(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(R
 endif
 endif
 
-ifneq ($(MKLGPUFPKDIR),)
+ifneq ($(MKLGPUDIR),)
 # Copies the file to the destination directory and renames daal -> onedal
 # $1: Path to the file to be copied
 # $2: Destination directory
 define .release.sycl.old
-_release_common: $2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
-$2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
+_release_common: $2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
+$2/$(subst mkl_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
 endef
 
-$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
-$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
+$(foreach t,$(mklgpu.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpu))))
+$(foreach t,$(daaldep.math_backend.sycl), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
 endif
 
 _release_c: ./deploy/pkg-config/pkg-config.tpl
@@ -1100,6 +1118,4 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(mklgpufpk.LIBS_A)!"
-	@echo "2" "!$(MKLGPUFPKDIR)!"
-	@echo "3" "!$(MKLGPUFPKROOT)!"
+	@echo "1" "!$(MKLDIR)!"

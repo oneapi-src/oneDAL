@@ -305,7 +305,6 @@ Samples
 -------
 
 - :cpp_sample:`mysql/sources/datasource_mysql.cpp`
-- :cpp_sample:`kdb/sources/datasource_kdb.cpp`
 
 Examples
 --------

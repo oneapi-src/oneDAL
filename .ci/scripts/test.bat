@@ -34,8 +34,20 @@ echo CPUCOUNT=%CPUCOUNT%
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 
-echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64 || set errorcode=1
+echo "%VISUALSTUDIOVERSION% HERE"
+
+IF "%VS_VER%"=="2017_build_tools" (
+    @call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    echo "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+) ELSE (
+    IF "%VS_VER%"=="2019_build_tools" (
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+        echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    ) ELSE (
+          @call "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+          echo "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+    )
+)
 
 echo call __release_win_vc\daal\latest\env\vars.bat
 call __release_win_vc\daal\latest\env\vars.bat || set errorcode=1

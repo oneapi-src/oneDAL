@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __NAIVEBAYES_TRAIN_FPK_H__
-#define __NAIVEBAYES_TRAIN_FPK_H__
+#ifndef __NAIVEBAYES_TRAIN_KERNEL_H__
+#define __NAIVEBAYES_TRAIN_KERNEL_H__
 
 #include "algorithms/naive_bayes/multinomial_naive_bayes_model.h"
 #include "algorithms/naive_bayes/multinomial_naive_bayes_training_types.h"

@@ -34,6 +34,7 @@ show_help() {
 --plat:The platform to build for. This is passed to the oneDAL top level Makefile
 --blas-dir:The BLAS installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
 --tbb-dir:The TBB installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
+--use-openrng:Set this to yes if openrng is to be used as RNG backend. Use this only with the `ref` backend.
 --sysroot:The sysroot to use, in the case that clang is used as the cross-compiler
 '
 }
@@ -71,6 +72,9 @@ while [[ $# -gt 0 ]]; do
         shift;;
         --sysroot)
         sysroot="$2"
+        shift;;
+        --use-openrng)
+        use_openrng="$2"
         shift;;
         --help)
         show_help
@@ -160,8 +164,7 @@ fi
 #main actions
 echo "Call env scripts"
 if [ "${backend_config}" == "mkl" ]; then
-    echo "Sourcing MKL env"
-    "${ONEDAL_DIR}"/dev/download_micromkl.sh with_gpu="${with_gpu}"
+    source /opt/intel/oneapi/mkl/latest/env/vars.sh
 elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
     export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then
@@ -187,6 +190,14 @@ elif [ "${backend_config}" == "ref" ]; then
         "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
     fi
     export OPENBLASROOT="${ONEDAL_DIR}/__deps/openblas_${ARCH}"
+    if [ "${use_openrng}" == "yes" ]; then
+        echo "Sourcing ref(openrng) env"
+        if [ ! -d "${ONEDAL_DIR}"/__deps/openrng ]; then
+            echo "${ONEDAL_DIR}"/.ci/env/openrng.sh
+            "${ONEDAL_DIR}"/.ci/env/openrng.sh
+        fi
+        export OPENRNGROOT="${ONEDAL_DIR}"/__deps/openrng
+    fi
 else
     echo "Not supported backend env"
 fi
@@ -230,6 +241,10 @@ make_options=("${target:-onedal_c}"
 
 if [ "${cross_compile}" == "yes" ] && [ "${compiler}" == "clang" ] ; then
     make_options+=(SYSROOT="${sysroot}")
+fi
+
+if [ "${use_openrng}" == "yes" ]; then
+    make_options+=(RNG_BACKEND=openrng)
 fi
 
 echo "Calling make"

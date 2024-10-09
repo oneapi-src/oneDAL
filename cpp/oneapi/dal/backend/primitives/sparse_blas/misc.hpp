@@ -18,11 +18,11 @@
 
 #include "oneapi/dal/table/common.hpp"
 
-#include <mkl_dal_sycl.hpp>
+#include <oneapi/mkl.hpp>
 
 namespace oneapi::dal::backend::primitives {
 
-namespace mkl = oneapi::fpk;
+namespace mkl = oneapi::mkl;
 
 /// Convert oneDAL `sparse_indexing` to oneMKL `index_base`
 inline constexpr mkl::index_base sparse_indexing_to_mkl(const sparse_indexing indexing) {

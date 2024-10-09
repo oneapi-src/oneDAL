@@ -71,7 +71,7 @@ struct objective_accessor {
 
 template <typename Descriptor>
 objective_impl* get_objective_impl(Descriptor&& desc) {
-    const auto& objective = objective_accessor{}.get_objective_impl(std::forward<Descriptor>(desc));
+    const auto objective = objective_accessor{}.get_objective_impl(std::forward<Descriptor>(desc));
     return objective ? objective->get_impl() : nullptr;
 }
 

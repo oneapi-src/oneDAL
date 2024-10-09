@@ -1,5 +1,6 @@
+/* file: service_thread_declar_mkl.cpp */
 /*******************************************************************************
-* Copyright 2021 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,23 +15,18 @@
 * limitations under the License.
 *******************************************************************************/
 
-#pragma once
-
-#include "oneapi/dal/common.hpp"
-
-namespace oneapi::dal::backend::micromkl {
-
-template <typename Cpu, typename Float>
-void syevd(char jobz,
-           char uplo,
-           std::int64_t n,
-           Float* a,
-           std::int64_t lda,
-           Float* w,
-           Float* work,
-           std::int64_t lwork,
-           std::int64_t* iwork,
-           std::int64_t liwork,
-           std::int64_t& info);
-
-} // namespace oneapi::dal::backend::micromkl
+namespace daal
+{
+namespace internal
+{
+namespace mkl
+{
+//It's a placeholder, the real function calls exact in xfunctions.
+//TODO: add correct threading control
+int mkl_serv_set_num_threads_local(int nthreads)
+{
+    return nthreads;
+}
+} // namespace mkl
+} // namespace internal
+} // namespace daal

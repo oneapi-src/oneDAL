@@ -22,21 +22,6 @@ opencl_repo(
     name = "opencl",
 )
 
-load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo")
-micromkl_repo(
-    name = "micromkl",
-    root_env_var = "MKLFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20230413.tgz",
-    sha256 = "e99dd6fb18f1fda382c53373262d1bb44c1b58aa6edff94cfb0e9d8dcd3395ed",
-)
-
-micromkl_dpc_repo(
-    name = "micromkl_dpc",
-    root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20240605.tgz",
-    sha256 = "0787a92e9580ed6b9fb97d054a0ed77994dbc18b4b3fb099451cb1e6ebdf4f16",
-)
-
 load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
 openblas_repo(
     name = "openblas",
@@ -87,16 +72,23 @@ mkl_repo(
     name = "mkl",
     root_env_var = "MKLROOT",
     urls = [
+        # TODO: when the issue with binutils will be solved, replace 2023.0 to 2024.2
         "https://files.pythonhosted.org/packages/76/8c/2e6fb6186fa9335a0feb7845e001e18c22627a06ae68650e5a84ca2b536d/mkl_static-2023.0.0-py2.py3-none-manylinux1_x86_64.whl",
-        "https://files.pythonhosted.org/packages/cf/d1/ea2d769006337d968a89337dd1c3eb09c528f9ac629e8ab99324e1122f03/mkl_include-2023.0.0-py2.py3-none-manylinux1_x86_64.whl",
+        #"https://files.pythonhosted.org/packages/c1/44/42ea3ad7bbaa65acb54c977961118d7b24ea687e7c3d64aba0a019cbfa19/mkl_static-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/80/e4/93ddfd475420f1c24d96f3bba1f87ec31a1eea847884c4ccb243cb336a61/mkl_include-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/c9/3a/8797ef320a04e0b939a07365f09ce11f5484150bd3600c6400391c5c36e9/mkl_devel_dpcpp-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
     ],
     sha256s = [
         "49d16f315f6803b1046a4796686af766ad487f9f6d98ea76b6cdb2ebd5b559f9",
-        "14b0958dff799378975d83fbd00ce756645aa36b9f924bdfdb0fb031f72b734d",
+        #"8c2a6c6a144c5619f1df75fd550b32730f3e0632b55a15a42a95516e142ccf47",
+        "63ed16ece64d9420e9fe1d5e1b55e0680632b61ad1c0e5f207b17f85233fcc09",
+        "b80099209aef1b147b8f1c1621a47078fba2c17b2faee131939ea4d32da2c35c",
     ],
     strip_prefixes = [
         "mkl_static-2023.0.0.data/data",
-        "mkl_include-2023.0.0.data/data",
+        #"mkl_static-2024.2.0.data/data",
+        "mkl_include-2024.2.0.data/data",
+        "mkl_devel_dpcpp-2024.2.0.data/data",
     ],
 )
 

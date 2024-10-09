@@ -33,7 +33,7 @@ namespace oneapi::dal::pca::backend {
 
 namespace bk = dal::backend;
 namespace pr = dal::backend::primitives;
-namespace mkl = oneapi::fpk;
+namespace mkl = oneapi::mkl;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
