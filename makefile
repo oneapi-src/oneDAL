@@ -832,14 +832,14 @@ THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
-$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.math_backend.thr) ; $(LINK.STATIC)
 
 $(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
 	$(daaldep.$(_OS).threxport.create) > $@
 
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.math_backend.thr) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 THR.objs_a := $(THR_TBB.objs_a)
 THR.objs_y := $(THR_TBB.objs_y)
