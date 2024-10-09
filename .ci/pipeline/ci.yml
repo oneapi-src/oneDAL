@@ -665,7 +665,6 @@ jobs:
   variables:
     release.dir: '__release_win_vc'
     platform.type : 'win32e'
-    MKL_FPK_GPU_VERSION_LINE : 2024.0.0
   pool:
     vmImage: 'windows-2022'
   steps:
