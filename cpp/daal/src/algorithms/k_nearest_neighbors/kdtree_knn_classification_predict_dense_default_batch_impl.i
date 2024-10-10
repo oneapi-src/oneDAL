@@ -24,8 +24,8 @@
 #ifndef __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 #define __KDTREE_KNN_CLASSIFICATION_PREDICT_DENSE_DEFAULT_BATCH_IMPL_I__
 
-#include "src/threading/threading.h"
 #include "services/daal_defines.h"
+#include "src/threading/threading.h"
 #include "src/services/service_utils.h"
 #include "algorithms/algorithm.h"
 #include "services/daal_atomic_int.h"
@@ -39,7 +39,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
-
+#include <iostream>
 namespace daal
 {
 namespace algorithms
@@ -145,11 +145,11 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     if (par3 == NULL) return Status(ErrorNullParameterNotSupported);
 
-    const Model * const model    = static_cast<const Model *>(m);
-    const auto & kdTreeTable     = *(model->impl()->getKDTreeTable());
-    const auto rootTreeNodeIndex = model->impl()->getRootNodeIndex();
-    const NumericTable & data    = *(model->impl()->getData());
-    const NumericTable * labels  = nullptr;
+    const Model * const model       = static_cast<const Model *>(m);
+    const KDTreeTable & kdTreeTable = *(model->impl()->getKDTreeTable());
+    const auto rootTreeNodeIndex    = model->impl()->getRootNodeIndex();
+    const NumericTable & data       = *(model->impl()->getData());
+    const NumericTable * labels     = nullptr;
     if (resultsToEvaluate != 0)
     {
         labels = model->impl()->getLabels().get();
@@ -162,30 +162,31 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     {
         iSize *= 2;
     }
-    const size_t heapSize = (iSize / 16 + 1) * 16;
-
+    const size_t heapSize         = (iSize / 16 + 1) * 16;
     const size_t xRowCount        = x->getNumberOfRows();
     const algorithmFpType base    = 2.0;
-    const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
-    const size_t stackSize        = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
+    const size_t expectedMaxDepth = (Math::xsLog(xRowCount) / Math::xsLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
+    const size_t stackSize        = Math::xsPowx(base, Math::xsCeil(Math::xsLog(expectedMaxDepth) / Math::xsLog(base)));
     struct Local
     {
         MaxHeap heap;
         SearchStack stack;
     };
+
+    SafeStatus safeStat;
     daal::tls<Local *> localTLS([&]() -> Local * {
         Local * const ptr = service_scalable_calloc<Local, cpu>(1);
         if (ptr)
         {
             if (!ptr->heap.init(heapSize))
             {
-                status.add(services::ErrorMemoryAllocationFailed);
+                safeStat.add(services::ErrorMemoryAllocationFailed);
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
             }
             if (!ptr->stack.init(stackSize))
             {
-                status.add(services::ErrorMemoryAllocationFailed);
+                safeStat.add(services::ErrorMemoryAllocationFailed);
                 ptr->heap.clear();
                 service_scalable_free<Local, cpu>(ptr);
                 return nullptr;
@@ -193,95 +194,81 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         }
         else
         {
-            status.add(services::ErrorMemoryAllocationFailed);
+            safeStat.add(services::ErrorMemoryAllocationFailed);
         }
         return ptr;
     });
 
     DAAL_CHECK_STATUS_OK((status.ok()), status);
-
     const auto maxThreads     = threader_get_threads_number();
+    auto nThreads             = (maxThreads < 1) ? 1 : maxThreads;
     const size_t xColumnCount = x->getNumberOfColumns();
-    const auto rowsPerBlock   = (xRowCount + maxThreads - 1) / maxThreads;
+    const auto rowsPerBlock   = (xRowCount + nThreads - 1) / nThreads;
     const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
-    SafeStatus safeStat;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
 
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
-        if (local)
+        DAAL_CHECK_MALLOC_THR(local);
+
+        const size_t first = iBlock * rowsPerBlock;
+        const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+
+        const algorithmFpType radius = MaxVal::get();
+        data_management::BlockDescriptor<algorithmFpType> xBD;
+        const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
+        const algorithmFpType * const dx = xBD.getBlockPtr();
+
+        data_management::BlockDescriptor<int> indicesBD;
+        data_management::BlockDescriptor<algorithmFpType> distancesBD;
+        if (indices)
         {
-            services::Status s;
-
-            const size_t first = iBlock * rowsPerBlock;
-            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
-
-            const algorithmFpType radius = MaxVal::get();
-            data_management::BlockDescriptor<algorithmFpType> xBD;
-            const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
-            const algorithmFpType * const dx = xBD.getBlockPtr();
-
-            data_management::BlockDescriptor<int> indicesBD;
-            data_management::BlockDescriptor<algorithmFpType> distancesBD;
-            if (indices)
-            {
-                s = indices->getBlockOfRows(first, last - first, writeOnly, indicesBD);
-                DAAL_CHECK_STATUS_THR(s);
-            }
-            if (distances)
-            {
-                s = distances->getBlockOfRows(first, last - first, writeOnly, distancesBD);
-                DAAL_CHECK_STATUS_THR(s);
-            }
-
-            if (labels)
-            {
-                const size_t yColumnCount = y->getNumberOfColumns();
-                data_management::BlockDescriptor<algorithmFpType> yBD;
-                y->getBlockOfRows(first, last - first, writeOnly, yBD);
-                auto * const dy = yBD.getBlockPtr();
-
-                for (size_t i = 0; i < last - first; ++i)
-                {
-                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                                         isHomogenSOA, soa_arrays);
-                    s = predict(&(dy[i * yColumnCount]), local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses);
-                    DAAL_CHECK_STATUS_THR(s)
-                }
-
-                s |= y->releaseBlockOfRows(yBD);
-                DAAL_CHECK_STATUS_THR(s);
-            }
-            else
-            {
-                for (size_t i = 0; i < last - first; ++i)
-                {
-                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                                         isHomogenSOA, soa_arrays);
-                    s = predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses);
-                    DAAL_CHECK_STATUS_THR(s)
-                }
-            }
-
-            if (indices)
-            {
-                s |= indices->releaseBlockOfRows(indicesBD);
-            }
-            DAAL_CHECK_STATUS_THR(s);
-            if (distances)
-            {
-                s |= distances->releaseBlockOfRows(distancesBD);
-            }
-            DAAL_CHECK_STATUS_THR(s);
-
-            const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
+            DAAL_CHECK_STATUS_THR(indices->getBlockOfRows(first, last - first, writeOnly, indicesBD));
         }
+        if (distances)
+        {
+            DAAL_CHECK_STATUS_THR(distances->getBlockOfRows(first, last - first, writeOnly, distancesBD));
+        }
+        if (labels)
+        {
+            const size_t yColumnCount = y->getNumberOfColumns();
+            data_management::BlockDescriptor<algorithmFpType> yBD;
+            y->getBlockOfRows(first, last - first, writeOnly, yBD);
+            auto * const dy = yBD.getBlockPtr();
+            for (size_t i = 0; i < last - first; ++i)
+            {
+                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
+                                     soa_arrays);
+                DAAL_CHECK_STATUS_THR(
+                    predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+            }
+            y->releaseBlockOfRows(yBD);
+        }
+        else
+        {
+            for (size_t i = 0; i < last - first; ++i)
+            {
+                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
+                                     soa_arrays);
+                DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+            }
+        }
+
+        if (indices)
+        {
+            DAAL_CHECK_STATUS_THR(indices->releaseBlockOfRows(indicesBD));
+        }
+
+        if (distances)
+        {
+            DAAL_CHECK_STATUS_THR(distances->releaseBlockOfRows(distancesBD));
+        }
+        const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
     });
-
-    DAAL_CHECK_SAFE_STATUS()
-
+    status = safeStat.detach();
+    if (!status) return status;
     localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
@@ -351,6 +338,8 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     GlobalNeighbors<algorithmFpType, cpu> curNeighbor;
     size_t i;
     SearchNode<algorithmFpType> cur, toPush;
+    const KDTreeNode * const nodes = static_cast<const KDTreeNode *>(kdTreeTable.getArray());
+
     const KDTreeNode * node;
     cur.nodeIndex   = rootTreeNodeIndex;
     cur.minDistance = 0;
@@ -361,7 +350,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
     for (;;)
     {
-        node = static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex;
+        node = &nodes[cur.nodeIndex];
         if (node->dimension == __KDTREE_NULLDIMENSION)
         {
             start = node->leftIndex;
@@ -398,7 +387,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             if (!stack.empty())
             {
                 cur = stack.pop();
-                DAAL_PREFETCH_READ_T0(static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex);
+                DAAL_PREFETCH_READ_T0(&nodes[cur.nodeIndex]);
             }
             else
             {
@@ -421,7 +410,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             else if (!stack.empty())
             {
                 cur = stack.pop();
-                DAAL_PREFETCH_READ_T0(static_cast<const KDTreeNode *>(kdTreeTable.getArray()) + cur.nodeIndex);
+                DAAL_PREFETCH_READ_T0(&nodes[cur.nodeIndex]);
             }
             else
             {
@@ -438,22 +427,18 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     data_management::BlockDescriptor<algorithmFpType> & distances, size_t index, const size_t nClasses)
 {
     typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
-
     const size_t heapSize = heap.size();
     if (heapSize < 1) return services::Status();
-
     if (indices.getNumberOfRows() != 0)
     {
         DAAL_ASSERT(modelIndices);
 
         services::Status s;
         data_management::BlockDescriptor<int> modelIndicesBD;
-
         const auto nIndices = indices.getNumberOfColumns();
         DAAL_ASSERT(heapSize <= nIndices);
 
         int * const indicesPtr = indices.getBlockPtr() + index * nIndices;
-
         for (size_t i = 0; i < heapSize; ++i)
         {
             s |= const_cast<NumericTable *>(modelIndices)->getBlockOfRows(heap[i].index, 1, readOnly, modelIndicesBD);
@@ -469,18 +454,14 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     if (distances.getNumberOfRows() != 0)
     {
         services::Status s;
-
         const auto nDistances = distances.getNumberOfColumns();
         DAAL_ASSERT(heapSize <= nDistances);
-
         algorithmFpType * const distancesPtr = distances.getBlockPtr() + index * nDistances;
         for (size_t i = 0; i < heapSize; ++i)
         {
             distancesPtr[i] = heap[i].distance;
         }
-
-        Math::vSqrt(heapSize, distancesPtr, distancesPtr);
-
+        Math::xvSqrt(heapSize, distancesPtr, distancesPtr);
         for (size_t i = heapSize; i < nDistances; ++i)
         {
             distancesPtr[i] = -1;
@@ -490,25 +471,21 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     if (labels)
     {
         DAAL_ASSERT(predictedClass);
-
         data_management::BlockDescriptor<algorithmFpType> labelBD;
         algorithmFpType * classes      = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
         algorithmFpType * classWeights = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(nClasses));
         DAAL_CHECK_MALLOC(classWeights);
         DAAL_CHECK_MALLOC(classes);
-
         for (size_t i = 0; i < nClasses; ++i)
         {
             classWeights[i] = 0;
         }
-
         for (size_t i = 0; i < heapSize; ++i)
         {
             const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
             classes[i] = *(labelBD.getBlockPtr());
             const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
         }
-
         if (voteWeights == voteUniform)
         {
             for (size_t i = 0; i < heapSize; ++i)
@@ -519,11 +496,9 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         else
         {
             DAAL_ASSERT(voteWeights == voteDistance);
-
             const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFpType>::get();
 
             bool isContainZero = false;
-
             for (size_t i = 0; i < heapSize; ++i)
             {
                 if (heap[i].distance <= epsilon)
@@ -532,7 +507,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
                     break;
                 }
             }
-
             if (isContainZero)
             {
                 for (size_t i = 0; i < heapSize; ++i)
@@ -551,7 +525,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
                 }
             }
         }
-
         algorithmFpType maxWeightClass = 0;
         algorithmFpType maxWeight      = 0;
         for (size_t i = 0; i < nClasses; ++i)
@@ -563,7 +536,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             }
         }
         *predictedClass = maxWeightClass;
-
         service_free<algorithmFpType, cpu>(classes);
         service_free<algorithmFpType, cpu>(classWeights);
         classes = nullptr;
