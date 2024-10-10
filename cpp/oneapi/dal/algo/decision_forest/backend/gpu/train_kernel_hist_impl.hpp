@@ -21,6 +21,7 @@
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/decision_forest/train_types.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng_cpu.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_engine_collection.hpp"
 
 #include "oneapi/dal/algo/decision_forest/backend/gpu/train_misc_structs.hpp"
@@ -50,7 +51,7 @@ class train_kernel_hist_impl {
     using model_manager_t = train_model_manager<Float, Index, Task>;
     using train_context_t = train_context<Float, Index, Task>;
     using imp_data_t = impurity_data<Float, Index, Task>;
-    using rng_engine_t = pr::engine<pr::engine_list::mcg59>;
+    using rng_engine_t = pr::oneapi_engine<pr::engine_list::mcg59>;
     using rng_engine_list_t = std::vector<rng_engine_t>;
     using msg = dal::detail::error_messages;
     using comm_t = bk::communicator<spmd::device_memory_access::usm>;

@@ -16,58 +16,40 @@
 
 #pragma once
 
-#include <oneapi/mkl.hpp>
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 #include <daal/include/algorithms/engines/mcg59/mcg59.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
-
+#include <oneapi/mkl.hpp>
 namespace mkl = oneapi::mkl;
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-namespace engine {
-namespace v1 {
+enum class engine_list { mt2203, mcg59, mt19937 };
 
-/// Tag-type that denotes the mt2203 engine.
-struct mt2203 {};
-
-/// Tag-type that denotes the mcg59 engine.
-struct mcg59 {};
-
-/// Tag-type that denotes the mt19937 engine.
-struct mt19937 {};
-
-/// Alias tag-type for the default engine (mt2203).
-using by_default = mt2203;
-
-} // namespace v1
-} // namespace engine
-
-// Helper to map engine types to corresponding oneAPI MKL engine types
-template <typename EngineType>
-struct select_onedal_engine;
+template <engine_list EngineType>
+struct oneapi_engine_type;
 
 template <>
-struct select_onedal_engine<engine::v1::mt2203> {
+struct oneapi_engine_type<engine_list::mt2203> {
     using type = oneapi::mkl::rng::mt2203;
 };
 
 template <>
-struct select_onedal_engine<engine::v1::mcg59> {
+struct oneapi_engine_type<engine_list::mcg59> {
     using type = oneapi::mkl::rng::mcg59;
 };
 
 template <>
-struct select_onedal_engine<engine::v1::mt19937> {
+struct oneapi_engine_type<engine_list::mt19937> {
     using type = oneapi::mkl::rng::mt19937;
 };
 
-template <typename EngineType = engine::v1::by_default>
+template <engine_list EngineType = engine_list::mt2203>
 class oneapi_engine {
 public:
-    using onedal_engine_t = typename select_onedal_engine<EngineType>::type;
+    using onedal_engine_t = typename oneapi_engine_type<EngineType>::type;
 
     explicit oneapi_engine(sycl::queue& queue, std::int64_t seed = 777)
             : q(queue),
@@ -99,8 +81,7 @@ public:
     }
 
     void skip_ahead_gpu(size_t nSkip) {
-        if constexpr (std::is_same_v<EngineType, engine::v1::mt2203>) {
-            // GPU-specific code for mt2203
+        if constexpr (EngineType == engine_list::mt2203) {
         }
         else {
             skip_ahead(onedal_engine_, nSkip);
@@ -109,29 +90,25 @@ public:
 
 private:
     daal::algorithms::engines::EnginePtr initialize_daal_engine(std::int64_t seed) {
-        if constexpr (std::is_same_v<EngineType, engine::v1::mt2203>) {
-            return daal::algorithms::engines::mt2203::Batch<>::create(seed);
-        }
-        else if constexpr (std::is_same_v<EngineType, engine::v1::mcg59>) {
-            return daal::algorithms::engines::mcg59::Batch<>::create(seed);
-        }
-        else if constexpr (std::is_same_v<EngineType, engine::v1::mt19937>) {
-            return daal::algorithms::engines::mt19937::Batch<>::create(seed);
-        }
-        else {
-            throw std::invalid_argument("Unsupported engine type. Supported types: mt2203, mcg59, mt19937");
+        switch (EngineType) {
+            case engine_list::mt2203:
+                return daal::algorithms::engines::mt2203::Batch<>::create(seed);
+            case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
+            case engine_list::mt19937:
+                return daal::algorithms::engines::mt19937::Batch<>::create(seed);
+            default: throw std::invalid_argument("Unsupported engine type");
         }
     }
 
     onedal_engine_t initialize_oneapi_engine(sycl::queue& queue, std::int64_t seed) {
-        if constexpr (std::is_same_v<EngineType, engine::v1::mt2203>) {
-            return onedal_engine_t(queue, seed, 0);  // Aligns CPU and GPU results for mt2203
+        if constexpr (EngineType == engine_list::mt2203) {
+            return onedal_engine_t(queue, seed,
+                                   0); // Aligns CPU and GPU results for mt2203
         }
         else {
             return onedal_engine_t(queue, seed);
         }
     }
-
     sycl::queue q;
     daal::algorithms::engines::EnginePtr daal_engine_;
     onedal_engine_t onedal_engine_;
@@ -144,7 +121,7 @@ public:
     oneapi_rng() = default;
     ~oneapi_rng() = default;
 
-    template <typename EngineType>
+    template <engine_list EngineType>
     void uniform(sycl::queue& queue,
                  Size count,
                  Type* dst,
@@ -154,7 +131,7 @@ public:
                  bool distr_mode = false,
                  const event_vector& deps = {});
 
-    template <typename EngineType>
+    template <engine_list EngineType>
     void uniform_gpu(sycl::queue& queue,
                      Size count,
                      Type* dst,
@@ -163,34 +140,28 @@ public:
                      Type b,
                      const event_vector& deps = {});
 
-    template <typename EngineType>
-    void uniform_cpu(Size count, Type* dst, oneapi_engine<EngineType>& engine_, Type a, Type b) {
-        void* state = engine_.get_cpu_engine_state();
-        engine_.skip_ahead_cpu(count);
-        uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
-    }
-
-    template <typename EngineType>
+    template <engine_list EngineType>
+    void uniform_cpu(Size count, Type* dst, oneapi_engine<EngineType>& engine_, Type a, Type b);
+    template <engine_list EngineType>
     void uniform_without_replacement(sycl::queue& queue,
                                      Size count,
                                      Type* dst,
                                      oneapi_engine<EngineType>& engine_,
                                      Type a,
                                      Type b,
-                                     const event_vector& deps = {}) {
-    }
+                                     const event_vector& deps = {}) {}
 
-    template <typename EngineType>
+    template <engine_list EngineType>
     void uniform_without_replacement_gpu(sycl::queue& queue,
                                          Size count,
                                          Type* dst,
+                                         Type* buff,
                                          oneapi_engine<EngineType>& engine_,
                                          Type a,
                                          Type b,
-                                         const event_vector& deps = {}) {
-    }
+                                         const event_vector& deps = {});
 
-    template <typename EngineType>
+    template <engine_list EngineType>
     void uniform_without_replacement_cpu(Size count,
                                          Type* dst,
                                          Type* buffer,
@@ -199,10 +170,17 @@ public:
                                          Type b) {
         void* state = engine_.get_cpu_engine_state();
         engine_.skip_ahead_gpu(count);
-        uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count, dst, buffer, state, a, b);
+        uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
+                                                                     dst,
+                                                                     buffer,
+                                                                     state,
+                                                                     a,
+                                                                     b);
     }
 
-    template <typename EngineType, typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
+    template <engine_list EngineType,
+              typename T = Type,
+              typename = std::enable_if_t<std::is_integral_v<T>>>
     void shuffle(Size count, Type* dst, oneapi_engine<EngineType>& engine_) {
         Type idx[2];
 
@@ -215,20 +193,16 @@ public:
         }
     }
 
-    template <typename EngineType, typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle_gpu(Size count, Type* dst, oneapi_engine<EngineType>& engine_) {
-        Type idx[2];
+    template <engine_list EngineType>
+    void shuffle_gpu(sycl::queue& queue,
+                     Size count,
+                     Type* dst,
+                     oneapi_engine<EngineType>& engine_,
+                     const event_vector& deps);
 
-        void* state = engine_.get_cpu_engine_state();
-        engine_.skip_ahead_gpu(count);
-
-        for (Size i = 0; i < count; ++i) {
-            uniform_dispatcher::uniform_by_gpu<Type>(2, idx, engine_.get_gpu_engine(), 0, count);
-            std::swap(dst[idx[0]], dst[idx[1]]);
-        }
-    }
-
-    template <typename EngineType, typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
+    template <engine_list EngineType,
+              typename T = Type,
+              typename = std::enable_if_t<std::is_integral_v<T>>>
     void shuffle_cpu(Size count, Type* dst, oneapi_engine<EngineType>& engine_) {
         Type idx[2];
 

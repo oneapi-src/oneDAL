@@ -38,18 +38,18 @@ public:
               seed_(seed) {
         engines_.reserve(count_);
         for (Size i = 0; i < count_; ++i) {
-            engines_.push_back(engine<EngineType>(queue, seed_));
+            engines_.push_back(oneapi_engine<EngineType>(queue, seed_));
         }
     }
 
-    std::vector<engine<EngineType>> get_engines() const {
+    std::vector<oneapi_engine<EngineType>> get_engines() const {
         return engines_;
     }
 
 private:
     Size count_;
     std::int64_t seed_;
-    std::vector<engine<EngineType>> engines_;
+    std::vector<oneapi_engine<EngineType>> engines_;
 };
 
 #endif

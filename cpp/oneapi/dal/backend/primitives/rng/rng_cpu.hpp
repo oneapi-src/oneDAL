@@ -20,28 +20,15 @@
 #include <daal/include/algorithms/engines/mcg59/mcg59.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
 
 namespace oneapi::dal::backend::primitives {
 
-namespace engine {
-namespace v1 {
+enum class engine_list_cpu { mt2203, mcg59, mt19937 };
 
-/// Tag-type that denotes the mt2203 engine.
-struct mt2203 {};
-
-/// Tag-type that denotes the mcg59 engine.
-struct mcg59 {};
-
-/// Tag-type that denotes the mt19937 engine.
-struct mt19937 {};
-
-/// Alias tag-type for the default engine (mt2203).
-using by_default = mt2203;
-
-} // namespace v1
-} // namespace engine
-
-template <engine_list EngineType = engine::v1::by_default>
+template <engine_list_cpu EngineType = engine_list_cpu::mt2203>
 class daal_engine {
 public:
     explicit daal_engine(std::int64_t seed = 777)
@@ -62,13 +49,15 @@ public:
     auto& get_cpu_engine() {
         return daal_engine_;
     }
+
 private:
     daal::algorithms::engines::EnginePtr initialize_daal_engine(std::int64_t seed) {
         switch (EngineType) {
-            case engine_list::mt2203:
+            case engine_list_cpu::mt2203:
                 return daal::algorithms::engines::mt2203::Batch<>::create(seed);
-            case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
-            case engine_list::mt19937:
+            case engine_list_cpu::mcg59:
+                return daal::algorithms::engines::mcg59::Batch<>::create(seed);
+            case engine_list_cpu::mt19937:
                 return daal::algorithms::engines::mt19937::Batch<>::create(seed);
             default: throw std::invalid_argument("Unsupported engine type");
         }
@@ -84,20 +73,16 @@ public:
     daal_rng() = default;
     ~daal_rng() = default;
 
-    template <engine_list EngineType>
-    void uniform(Size count, Type* dst, daal_engine<EngineType>& engine_, Type a, Type b) {
-        void* state = engine_.get_cpu_engine_state();
+    void uniform(Size count, Type* dst, void* state, Type a, Type b) {
         uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 
-    template <engine_list EngineType>
     void uniform_without_replacement_cpu(Size count,
-                                     Type* dst,
-                                     Type* buffer,
-                                     daal_engine<EngineType>& engine_,
-                                     Type a,
-                                     Type b) {
-        void* state = engine_.get_cpu_engine_state();
+                                         Type* dst,
+                                         Type* buffer,
+                                         void* state,
+                                         Type a,
+                                         Type b) {
         uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
                                                                      dst,
                                                                      buffer,
@@ -106,11 +91,9 @@ public:
                                                                      b);
     }
 
-    template <engine_list EngineType, typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle(Size count, Type* dst, daal_engine<EngineType>& engine_) {
+    template <typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
+    void shuffle(Size count, Type* dst, void* state) {
         Type idx[2];
-
-        void* state = engine_.get_cpu_engine_state();
 
         for (Size i = 0; i < count; ++i) {
             uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
