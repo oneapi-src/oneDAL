@@ -76,10 +76,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: oneapi-src/oneDAL
-      - name: Set MKL_FPK_GPU_VERSION_LINE
-        shell: bash
-        run: |
-          echo "MKL_FPK_GPU_VERSION_LINE=2024.0.0" >> "$GITHUB_ENV"
       - name: Install DPC++
         shell: cmd
         run: |
