@@ -51,7 +51,7 @@ TEMPLATE_LIST_TEST_M(lr_batch_test, "LR common flow", "[lr][batch]", lr_types) {
 }
 
 TEMPLATE_LIST_TEST_M(lr_batch_test, "LR with non-PSD matrix", "[lr][batch-nonpsd]", lr_types) {
-    SKIP_IF(this->running_on_gpu());
+    SKIP_IF(this->non_psd_system_not_supported_on_device());
 
     this->generate(777);
     this->run_and_check_linear_indefinite();

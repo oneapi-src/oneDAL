@@ -89,10 +89,6 @@ public:
         return is_double && !this->get_policy().has_native_float64();
     }
 
-    bool running_on_gpu() {
-        return this->get_policy().is_gpu();
-    }
-
     table_id get_homogen_table_id() const {
         return table_id::homogen<Float>();
     }

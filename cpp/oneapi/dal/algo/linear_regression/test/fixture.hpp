@@ -65,6 +65,10 @@ public:
         return static_cast<Derived*>(this);
     }
 
+    bool non_psd_system_not_supported_on_device() {
+        return this->get_policy().is_gpu();
+    }
+
     table compute_responses(const table& beta, const table& bias, const table& data) const {
         const auto s_count = data.get_row_count();
 
