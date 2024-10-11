@@ -42,6 +42,12 @@ cc_library(
 
 cc_library(
     name = "mkl_dpc",
+    # TODO: add a mechanism to get attr from bazel command(it's not available for now)
+    linkopts = [
+        # Currently its hardcoded to 16 to get the best trade-off between linking speedup and resources used.
+        # If the number of processors on machine is below 16 it will be defaulted to `nproc`.
+        "-fsycl-max-parallel-link-jobs=16",
+    ],
     srcs = [
         "lib/libmkl_sycl.a",
     ],
