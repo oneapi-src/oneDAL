@@ -127,10 +127,6 @@ Examples
 
     - :cpp_example:`svm_two_class_model_builder.cpp <svm/svm_two_class_model_builder.cpp>`
 
-  .. tab:: Python*
-
-    - :daal4py_example:`svm_two_class_model_builder.py`
-
 Batch Processing
 ****************
 

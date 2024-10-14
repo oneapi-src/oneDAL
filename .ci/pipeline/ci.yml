@@ -30,7 +30,7 @@ variables:
   SYSROOT_OS: 'jammy'
   WIN_BASEKIT_VERSION: '2024.2.1.101'
   WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_$(WIN_BASEKIT_VERSION)_offline.exe'
-  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
+  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
 
 jobs:
 - job: 'FormatterChecks'
@@ -668,7 +668,7 @@ jobs:
   pool:
     vmImage: 'windows-2022'
   steps:
-  - script: .ci/scripts/install_windows.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+  - script: .ci/scripts/install_basekit.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: Install oneAPI Base Toolkit
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
@@ -676,17 +676,15 @@ jobs:
       pacman -S -y --noconfirm zip dos2unix tree
     displayName: 'pacman'
   - script: |
-      set PATH=C:\msys64\usr\bin;%PATH%
+      call %TEMP%\oneapi\setvars.bat --force
       bash .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      call C:\temp\oneapi\setvars.bat --force
-      set MKL_FPK_GPU_VERSION_LINE=2024.0.0
+      call %TEMP%\oneapi\setvars.bat --force
       .\.ci\scripts\build.bat daal vc avx2
     displayName: 'make daal'
   - script: |
-      call C:\temp\oneapi\setvars.bat --force
-      set MKL_FPK_GPU_VERSION_LINE=2024.0.0
+      call %TEMP%\oneapi\setvars.bat --force
       .\.ci\scripts\build.bat onedal_c vc avx2
     displayName: 'make onedal_c'
   - task: PublishPipelineArtifact@1
@@ -696,12 +694,12 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
-      call C:\temp\oneapi\setvars.bat --force
+      call %TEMP%\oneapi\setvars.bat --force
       .\.ci\scripts\test.bat daal\cpp lib msvs cmake
       .\.ci\scripts\test.bat daal\cpp dll msvs cmake
     displayName: 'daal/cpp examples'
   - script: |
-      call C:\temp\oneapi\setvars.bat --force
+      call %TEMP%\oneapi\setvars.bat --force
       .\.ci\scripts\test.bat oneapi\cpp lib msvs cmake
       .\.ci\scripts\test.bat oneapi\cpp dll msvs cmake
     displayName: 'oneapi/cpp examples'
