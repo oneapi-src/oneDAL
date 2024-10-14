@@ -85,6 +85,11 @@ For your convenience we also added [coding guidelines](http://oneapi-src.github.
 
 ## Custom Components
 
+### CPU Features Dispatching
+
+oneDAL provides multiarchitecture binaries that contain codes for multiple variants of CPU instruction set architectures. When run on a certain hardware type, oneDAL chooses the code path which is most suitable for this particular hardware to acheive better performance.
+Contributors should leverage [CPU Features Dispatching](http://oneapi-src.github.io/oneDAL/contribution/cpu_features.html) mechanism to implement the code of the algorithms that can perform well on various hardware types.
+
 ### Threading Layer
 
 In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form are called the [threading layer](http://oneapi-src.github.io/oneDAL/contribution/threading.html). Contributors should leverage the primitives from the layer to implement parallel algorithms.
