@@ -39,7 +39,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
-#include <iostream>
+
 namespace daal
 {
 namespace algorithms
@@ -352,26 +352,19 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
     size_t start, end;
 
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
-    // std::cout<<"here 4"<<std::endl;
+
     for (;;)
     {
-        // std::cout<<"here 5"<<std::endl;
         node = &nodes[cur.nodeIndex];
-        // std::cout<<"here 6"<<std::endl;
         if (node->dimension == __KDTREE_NULLDIMENSION)
         {
-            // std::cout<<"here 7"<<std::endl;
             start = node->leftIndex;
             end   = node->rightIndex;
-            // std::cout<<"here 8"<<std::endl;
             computeDistance<algorithmFpType, cpu>(start, end, distance, query, isHomogenSOA, data, xBD, soa_arrays);
-            // std::cout<<"here 9"<<std::endl;
             for (i = start; i < end; ++i)
             {
-                // std::cout<<"here 10"<<std::endl;
                 if (distance[i - start] <= radius)
                 {
-                    // std::cout<<"here 11"<<std::endl;
                     curNeighbor.distance = distance[i - start];
                     curNeighbor.index    = i;
                     if (heap.size() < k)
@@ -385,20 +378,17 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                     }
                     else
                     {
-                        // std::cout<<"here 13"<<std::endl;
                         if (heap.getMax()->distance > curNeighbor.distance)
                         {
                             heap.replaceMax(curNeighbor);
                             radius = heap.getMax()->distance;
                         }
                     }
-                    // std::cout<<"here 14"<<std::endl;
                 }
             }
 
             if (!stack.empty())
             {
-                // std::cout<<"here 15"<<std::endl;
                 cur = stack.pop();
                 DAAL_PREFETCH_READ_T0(node);
             }
@@ -406,28 +396,21 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             {
                 break;
             }
-            // std::cout<<"here 16"<<std::endl;
         }
         else
         {
-            // std::cout<<"here 17"<<std::endl;
             algorithmFpType val        = query[node->dimension];
             const algorithmFpType diff = val - node->cutPoint;
-            // std::cout<<"here 18"<<std::endl;
             if (cur.minDistance <= radius)
             {
-                // std::cout<<"here 19"<<std::endl;
                 cur.nodeIndex    = (diff < 0) ? node->leftIndex : node->rightIndex;
                 toPush.nodeIndex = (diff < 0) ? node->rightIndex : node->leftIndex;
                 val -= node->cutPoint;
                 toPush.minDistance = cur.minDistance + val * val;
-                // std::cout<<"here 20"<<std::endl;
                 stack.push(toPush);
-                // std::cout<<"here 21"<<std::endl;
             }
             else if (!stack.empty())
             {
-                // std::cout<<"here 22"<<std::endl;
                 cur = stack.pop();
                 DAAL_PREFETCH_READ_T0(node);
             }
@@ -435,7 +418,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             {
                 break;
             }
-            // std::cout<<"here 3"<<std::endl;
         }
     }
 }
