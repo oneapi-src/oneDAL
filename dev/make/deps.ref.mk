@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2023 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,6 +30,19 @@ daaldep.math_backend.seq := $(OPENBLASDIR.libia)/libopenblas.$a
 
 daaldep.math_backend.incdir := $(OPENBLASDIR.include)
 daaldep.math_backend_oneapi.incdir := $(OPENBLASDIR.include)
+
+ifeq ($(RNG_OPENRNG), yes)
+	OPENRNGDIR:= $(if $(wildcard $(DIR)/__deps/openrng/*),$(DIR)/__deps/openrng,                            \
+					$(if $(wildcard $(OPENRNGROOT)/include/*),$(subst \,/,$(OPENRNGROOT)),                              \
+						$(error Can`t find OPENRNG libs in $(DIR)/__deps/openrng or OPENRNGROOT)))
+	OPENRNGDIR.include := $(OPENRNGDIR)/include
+	OPENRNGDIR.libia := $(OPENRNGDIR)/lib
+
+	daaldep.rng_backend.incdir := $(OPENRNGDIR.include)
+	daaldep.rng_backend.lib := $(OPENRNGDIR.libia)/libopenrng.$a
+
+	daaldep.math_backend.incdir += $(daaldep.rng_backend.incdir)
+endif
 
 daaldep.math_backend.ext := $(daaldep.math_backend.thr)
 daaldep.math_backend.sycl := $(daaldep.math_backend.thr)

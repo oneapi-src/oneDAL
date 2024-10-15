@@ -44,8 +44,8 @@ IF "%VS_VER%"=="2017_build_tools" (
         @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
         echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
     ) ELSE (
-          @call "C:\temp\oneapi\setvars-vcvarsall.bat" %VS_VER%
-          echo "C:\temp\oneapi\setvars-vcvarsall.bat" %VS_VER%
+          @call "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+          echo "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
     )
 )
 

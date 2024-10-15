@@ -28,6 +28,7 @@ define set_daal_rt_deps
           -lpthread $$(daaldep.lnx32e.rt.$$(COMPILER)) \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnx32e.rt.seq := -lpthread $$(daaldep.lnx32e.rt.$$(COMPILER)) \
+	  	  $$(if $$(RNG_OPENRNG), $$(daaldep.rng_backend.lib)) \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnx32e.rt.dpc := -lpthread -lOpenCL \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
