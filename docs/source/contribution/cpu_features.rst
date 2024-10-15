@@ -44,8 +44,8 @@ Computational Tasks
 
 An algorithm might have various tasks to compute. The most common options are:
 
-- `Classification https://oneapi-src.github.io/oneDAL/onedal/glossary.html#term-Classification`_,
-- `Regression https://oneapi-src.github.io/oneDAL/onedal/glossary.html#term-Regression`.
+- `Classification <https://oneapi-src.github.io/oneDAL/onedal/glossary.html#term-Classification>`_,
+- `Regression <https://oneapi-src.github.io/oneDAL/onedal/glossary.html#term-Regression>`_.
 
 Computational Stages
 --------------------
@@ -123,4 +123,6 @@ can be:
 | |    |-- abc_regression_train_impl.i
 | |    |-- abc_regression_train_kernel.h
 
-The names of the files stay the same in this case, just the folders layout differs.
+The names of the files stay the same in this case, just the folder layout differs.
+
+
