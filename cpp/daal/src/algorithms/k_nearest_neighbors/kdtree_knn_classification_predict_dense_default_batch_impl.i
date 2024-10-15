@@ -209,7 +209,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
     bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
-    services::Environment::getInstance()->setNumberOfThreads(1);
+
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
         DAAL_CHECK_MALLOC_THR(local);
@@ -274,7 +274,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     status = safeStat.detach();
     if (!status) return status;
-    services::Environment::getInstance()->setNumberOfThreads(nThreads);
+
     localTLS.reduce([&](Local * ptr) -> void {
         if (ptr)
         {
@@ -341,17 +341,14 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
 {
     heap.reset();
     stack.reset();
-    std::cout << "here1" << std::endl;
     GlobalNeighbors<algorithmFpType, cpu> curNeighbor;
     size_t i;
     SearchNode<algorithmFpType> cur, toPush;
     const KDTreeNode * const nodes = static_cast<const KDTreeNode *>(kdTreeTable.getArray());
-    std::cout << "here 2" << std::endl;
     const KDTreeNode * node;
     cur.nodeIndex   = rootTreeNodeIndex;
     cur.minDistance = 0;
-    std::cout << "here 3" << std::endl;
-    alignas(256) algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];
+    algorithmFpType distance[__KDTREE_LEAF_BUCKET_SIZE + 1];
     size_t start, end;
 
     data_management::BlockDescriptor<algorithmFpType> xBD[2];
@@ -379,7 +376,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
                     curNeighbor.index    = i;
                     if (heap.size() < k)
                     {
-                        std::cout << "here 12" << std::endl;
                         heap.push(curNeighbor, k);
 
                         if (heap.size() == k)
