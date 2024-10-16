@@ -40,6 +40,10 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
 
+#if defined(DAAL_INTEL_CPP_COMPILER)
+    #include <immintrin.h>
+#endif
+
 namespace daal
 {
 namespace algorithms
@@ -208,7 +212,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
-    bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
+    bool isHomogenSOA = false;
 
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
@@ -217,59 +221,62 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         const size_t first = iBlock * rowsPerBlock;
         const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
-        const algorithmFpType radius = MaxVal::get();
-        data_management::BlockDescriptor<algorithmFpType> xBD;
-        const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
-        const algorithmFpType * const dx = xBD.getBlockPtr();
-
-        data_management::BlockDescriptor<int> indicesBD;
-        data_management::BlockDescriptor<algorithmFpType> distancesBD;
-        if (indices)
+        if (first < last)
         {
-            DAAL_CHECK_STATUS_THR(indices->getBlockOfRows(first, last - first, writeOnly, indicesBD));
-        }
-        if (distances)
-        {
-            DAAL_CHECK_STATUS_THR(distances->getBlockOfRows(first, last - first, writeOnly, distancesBD));
-        }
+            const algorithmFpType radius = MaxVal::get();
+            data_management::BlockDescriptor<algorithmFpType> xBD;
+            const_cast<NumericTable &>(*x).getBlockOfRows(first, last - first, readOnly, xBD);
+            const algorithmFpType * const dx = xBD.getBlockPtr();
 
-        if (labels)
-        {
-            const size_t yColumnCount = y->getNumberOfColumns();
-            data_management::BlockDescriptor<algorithmFpType> yBD;
-            y->getBlockOfRows(first, last - first, writeOnly, yBD);
-            auto * const dy = yBD.getBlockPtr();
-
-            for (size_t i = 0; i < last - first; ++i)
+            data_management::BlockDescriptor<int> indicesBD;
+            data_management::BlockDescriptor<algorithmFpType> distancesBD;
+            if (indices)
             {
-                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
-                                     soa_arrays);
-                DAAL_CHECK_STATUS_THR(
-                    predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                DAAL_CHECK_STATUS_THR(indices->getBlockOfRows(first, last - first, writeOnly, indicesBD));
             }
-            y->releaseBlockOfRows(yBD);
-        }
-        else
-        {
-            for (size_t i = 0; i < last - first; ++i)
+            if (distances)
             {
-                findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data, isHomogenSOA,
-                                     soa_arrays);
-                DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                DAAL_CHECK_STATUS_THR(distances->getBlockOfRows(first, last - first, writeOnly, distancesBD));
             }
-        }
 
-        if (indices)
-        {
-            DAAL_CHECK_STATUS_THR(indices->releaseBlockOfRows(indicesBD));
-        }
+            if (labels)
+            {
+                const size_t yColumnCount = y->getNumberOfColumns();
+                data_management::BlockDescriptor<algorithmFpType> yBD;
+                y->getBlockOfRows(first, last - first, writeOnly, yBD);
+                auto * const dy = yBD.getBlockPtr();
 
-        if (distances)
-        {
-            DAAL_CHECK_STATUS_THR(distances->releaseBlockOfRows(distancesBD));
-        }
+                for (size_t i = 0; i < last - first; ++i)
+                {
+                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
+                                         isHomogenSOA, soa_arrays);
+                    DAAL_CHECK_STATUS_THR(
+                        predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                }
+                y->releaseBlockOfRows(yBD);
+            }
+            else
+            {
+                for (size_t i = 0; i < last - first; ++i)
+                {
+                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
+                                         isHomogenSOA, soa_arrays);
+                    DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                }
+            }
 
-        const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
+            if (indices)
+            {
+                DAAL_CHECK_STATUS_THR(indices->releaseBlockOfRows(indicesBD));
+            }
+
+            if (distances)
+            {
+                DAAL_CHECK_STATUS_THR(distances->releaseBlockOfRows(distancesBD));
+            }
+
+            const_cast<NumericTable &>(*x).releaseBlockOfRows(xBD);
+        }
     });
 
     status = safeStat.detach();
@@ -291,45 +298,52 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
                                       const NumericTable & data, data_management::BlockDescriptor<algorithmFpType> xBD[2],
                                       services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays)
 {
+    // Initialize the distance array to zero for the range [start, end)
     for (size_t i = start; i < end; ++i)
     {
         distance[i - start] = 0;
     }
 
-    size_t curBDIdx  = 0;
-    size_t nextBDIdx = 1;
+    size_t curBDIdx  = 0; // Current block descriptor index
+    size_t nextBDIdx = 1; // Next block descriptor index
 
-    const size_t xColumnCount = data.getNumberOfColumns();
+    const size_t xColumnCount = data.getNumberOfColumns(); // Total number of columns in the data
 
-    const algorithmFpType * nx = nullptr;
-    const algorithmFpType * dx = getNtData(isHomogenSOA, 0, start, end - start, data, xBD[curBDIdx], soa_arrays);
+    const algorithmFpType * dx =
+        getNtData(isHomogenSOA, 0, start, end - start, data, xBD[curBDIdx], soa_arrays); // Retrieve data for the first column
 
-    size_t j;
-    for (j = 1; j < xColumnCount; ++j)
+    // Iterate over each column to compute squared distances
+    for (size_t j = 1; j < xColumnCount; ++j)
     {
-        nx = getNtData(isHomogenSOA, j, start, end - start, data, xBD[nextBDIdx], soa_arrays);
+        const algorithmFpType * nx =
+            getNtData(isHomogenSOA, j, start, end - start, data, xBD[nextBDIdx], soa_arrays); // Retrieve data for the next column
 
+        // Prefetch the next column data to optimize memory access
         DAAL_PREFETCH_READ_T0(nx);
-        DAAL_PREFETCH_READ_T0(nx + 16);
+        DAAL_PREFETCH_READ_T0(nx + 16); // Adjust prefetch based on expected access patterns
 
+        // Compute distance contributions from the current column
         for (size_t i = 0; i < end - start; ++i)
         {
             distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
         }
 
+        // Release the current block of data to avoid memory leaks
         releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
 
+        // Swap block descriptors and pointers for the next iteration
         services::internal::swap<cpu, size_t>(curBDIdx, nextBDIdx);
         services::internal::swap<cpu, const algorithmFpType *>(dx, nx);
     }
-    {
-        for (size_t i = 0; i < end - start; ++i)
-        {
-            distance[i] += (query[j - 1] - dx[i]) * (query[j - 1] - dx[i]);
-        }
 
-        releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
+    // Handle the last column after the loop
+    for (size_t i = 0; i < end - start; ++i)
+    {
+        distance[i] += (query[xColumnCount - 1] - dx[i]) * (query[xColumnCount - 1] - dx[i]);
     }
+
+    // Release the final block of data
+    releaseNtData<algorithmFpType, cpu>(isHomogenSOA, data, xBD[curBDIdx]);
 }
 
 template <typename algorithmFpType, CpuType cpu>
