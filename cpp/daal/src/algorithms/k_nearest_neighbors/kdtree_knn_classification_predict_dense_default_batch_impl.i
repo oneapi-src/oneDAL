@@ -243,7 +243,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             {
                 const size_t yColumnCount = y->getNumberOfColumns();
                 data_management::BlockDescriptor<algorithmFpType> yBD;
-                y->getBlockOfRows(first, last - first, writeOnly, yBD);
+                DAAL_CHECK_STATUS_THR(y->getBlockOfRows(first, last - first, writeOnly, yBD));
                 auto * const dy = yBD.getBlockPtr();
 
                 for (size_t i = 0; i < last - first; ++i)
@@ -253,7 +253,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                     DAAL_CHECK_STATUS_THR(
                         predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
-                y->releaseBlockOfRows(yBD);
+                DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
             }
             else
             {
@@ -442,55 +442,55 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     VoteWeights voteWeights, const NumericTable * modelIndices, data_management::BlockDescriptor<int> & indices,
     data_management::BlockDescriptor<algorithmFpType> & distances, size_t index, const size_t nClasses)
 {
-    // typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
+    typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
 
-    // const size_t heapSize = heap.size();
-    // if (heapSize < 1) return services::Status();
+    const size_t heapSize = heap.size();
+    if (heapSize < 1) return services::Status();
+    SafeStatus safeStat;
+    if (indices.getNumberOfRows() != 0)
+    {
+        DAAL_ASSERT(modelIndices);
 
-    // if (indices.getNumberOfRows() != 0)
-    // {
-    //     DAAL_ASSERT(modelIndices);
+        services::Status s;
+        data_management::BlockDescriptor<int> modelIndicesBD;
 
-    //     services::Status s;
-    //     data_management::BlockDescriptor<int> modelIndicesBD;
+        const auto nIndices = indices.getNumberOfColumns();
+        DAAL_ASSERT(heapSize <= nIndices);
 
-    //     const auto nIndices = indices.getNumberOfColumns();
-    //     DAAL_ASSERT(heapSize <= nIndices);
+        int * const indicesPtr = indices.getBlockPtr() + index * nIndices;
 
-    //     int * const indicesPtr = indices.getBlockPtr() + index * nIndices;
+        for (size_t i = 0; i < heapSize; ++i)
+        {
+            s |= const_cast<NumericTable *>(modelIndices)->getBlockOfRows(heap[i].index, 1, readOnly, modelIndicesBD);
+            DAAL_ASSERT(s.ok());
 
-    //     for (size_t i = 0; i < heapSize; ++i)
-    //     {
-    //         s |= const_cast<NumericTable *>(modelIndices)->getBlockOfRows(heap[i].index, 1, readOnly, modelIndicesBD);
-    //         DAAL_ASSERT(s.ok());
+            indicesPtr[i] = *(modelIndicesBD.getBlockPtr());
 
-    //         indicesPtr[i] = *(modelIndicesBD.getBlockPtr());
+            s |= const_cast<NumericTable *>(modelIndices)->releaseBlockOfRows(modelIndicesBD);
+            DAAL_ASSERT(s.ok());
+        }
+    }
 
-    //         s |= const_cast<NumericTable *>(modelIndices)->releaseBlockOfRows(modelIndicesBD);
-    //         DAAL_ASSERT(s.ok());
-    //     }
-    // }
+    if (distances.getNumberOfRows() != 0)
+    {
+        services::Status s;
 
-    // if (distances.getNumberOfRows() != 0)
-    // {
-    //     services::Status s;
+        const auto nDistances = distances.getNumberOfColumns();
+        DAAL_ASSERT(heapSize <= nDistances);
 
-    //     const auto nDistances = distances.getNumberOfColumns();
-    //     DAAL_ASSERT(heapSize <= nDistances);
+        algorithmFpType * const distancesPtr = distances.getBlockPtr() + index * nDistances;
+        for (size_t i = 0; i < heapSize; ++i)
+        {
+            distancesPtr[i] = heap[i].distance;
+        }
 
-    //     algorithmFpType * const distancesPtr = distances.getBlockPtr() + index * nDistances;
-    //     for (size_t i = 0; i < heapSize; ++i)
-    //     {
-    //         distancesPtr[i] = heap[i].distance;
-    //     }
+        Math::xvSqrt(heapSize, distancesPtr, distancesPtr);
 
-    //     Math::xvSqrt(heapSize, distancesPtr, distancesPtr);
-
-    //     for (size_t i = heapSize; i < nDistances; ++i)
-    //     {
-    //         distancesPtr[i] = -1;
-    //     }
-    // }
+        for (size_t i = heapSize; i < nDistances; ++i)
+        {
+            distancesPtr[i] = -1;
+        }
+    }
 
     // if (labels)
     // {
@@ -509,9 +509,9 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
     //     for (size_t i = 0; i < heapSize; ++i)
     //     {
-    //         const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
-    //         classes[i] = *(labelBD.getBlockPtr());
-    //         const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
+    //         // const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
+    //         // classes[i] = *(labelBD.getBlockPtr());
+    //         // const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
     //     }
 
     //     if (voteWeights == voteUniform)
@@ -571,7 +571,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
 
     //     service_free<algorithmFpType, cpu>(classes);
     //     service_free<algorithmFpType, cpu>(classWeights);
-    //     classes = nullptr;
     // }
 
     return services::Status();
