@@ -58,4 +58,5 @@
    :hidden:
    :caption: Custom Components
 
+   contribution/cpu_features.rst
    contribution/threading.rst
