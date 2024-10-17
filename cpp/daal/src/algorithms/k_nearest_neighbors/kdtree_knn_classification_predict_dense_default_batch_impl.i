@@ -212,7 +212,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const auto blockCount     = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
     services::internal::TArrayScalable<algorithmFpType *, cpu> soa_arrays;
-    bool isHomogenSOA = false;
+    bool isHomogenSOA = checkHomogenSOA<algorithmFpType, cpu>(data, soa_arrays);
 
     daal::threader_for(blockCount, blockCount, [&](int iBlock) {
         Local * const local = localTLS.local();
@@ -221,7 +221,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
         const size_t first = iBlock * rowsPerBlock;
         const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
-        if (false)
+        if (local)
         {
             const algorithmFpType radius = MaxVal::get();
             data_management::BlockDescriptor<algorithmFpType> xBD;
@@ -492,86 +492,87 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         }
     }
 
-    // if (labels)
-    // {
-    //     DAAL_ASSERT(predictedClass);
+    if (labels)
+    {
+        DAAL_ASSERT(predictedClass);
 
-    //     data_management::BlockDescriptor<algorithmFpType> labelBD;
-    //     algorithmFpType * classes      = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize));
-    //     algorithmFpType * classWeights = static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(nClasses));
-    //     DAAL_CHECK_MALLOC(classWeights);
-    //     DAAL_CHECK_MALLOC(classes);
+        data_management::BlockDescriptor<algorithmFpType> labelBD;
+        algorithmFpType * classes =
+            static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(heapSize * sizeof(algorithmFpType)));
+        DAAL_CHECK_MALLOC(classes)
+        algorithmFpType * classWeights =
+            static_cast<algorithmFpType *>(daal::services::internal::service_malloc<algorithmFpType, cpu>(nClasses * sizeof(algorithmFpType)));
+        DAAL_CHECK_MALLOC(classWeights)
 
-    //     for (size_t i = 0; i < nClasses; ++i)
-    //     {
-    //         classWeights[i] = 0;
-    //     }
+        for (size_t i = 0; i < nClasses; ++i)
+        {
+            classWeights[i] = 0;
+        }
 
-    //     for (size_t i = 0; i < heapSize; ++i)
-    //     {
-    //         // const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
-    //         // classes[i] = *(labelBD.getBlockPtr());
-    //         // const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
-    //     }
+        for (size_t i = 0; i < heapSize; ++i)
+        {
+            const_cast<NumericTable *>(labels)->getBlockOfColumnValues(0, heap[i].index, 1, readOnly, labelBD);
+            classes[i] = *(labelBD.getBlockPtr());
+            const_cast<NumericTable *>(labels)->releaseBlockOfColumnValues(labelBD);
+        }
 
-    //     if (voteWeights == voteUniform)
-    //     {
-    //         for (size_t i = 0; i < heapSize; ++i)
-    //         {
-    //             classWeights[(size_t)(classes[i])] += 1;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         DAAL_ASSERT(voteWeights == voteDistance);
+        if (voteWeights == voteUniform)
+        {
+            for (size_t i = 0; i < heapSize; ++i)
+            {
+                classWeights[(size_t)(classes[i])] += 1;
+            }
+        }
+        else
+        {
+            DAAL_ASSERT(voteWeights == voteDistance);
 
-    //         const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFpType>::get();
+            const algorithmFpType epsilon = daal::services::internal::EpsilonVal<algorithmFpType>::get();
 
-    //         bool isContainZero = false;
+            bool isContainZero = false;
 
-    //         for (size_t i = 0; i < heapSize; ++i)
-    //         {
-    //             if (heap[i].distance <= epsilon)
-    //             {
-    //                 isContainZero = true;
-    //                 break;
-    //             }
-    //         }
+            for (size_t i = 0; i < heapSize; ++i)
+            {
+                if (heap[i].distance <= epsilon)
+                {
+                    isContainZero = true;
+                    break;
+                }
+            }
 
-    //         if (isContainZero)
-    //         {
-    //             for (size_t i = 0; i < heapSize; ++i)
-    //             {
-    //                 if (heap[i].distance <= epsilon)
-    //                 {
-    //                     classWeights[(size_t)(classes[i])] += 1;
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         {
-    //             for (size_t i = 0; i < heapSize; ++i)
-    //             {
-    //                 classWeights[(size_t)(classes[i])] += Math::sSqrt(1 / heap[i].distance);
-    //             }
-    //         }
-    //     }
+            if (isContainZero)
+            {
+                for (size_t i = 0; i < heapSize; ++i)
+                {
+                    if (heap[i].distance <= epsilon)
+                    {
+                        classWeights[(size_t)(classes[i])] += 1;
+                    }
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < heapSize; ++i)
+                {
+                    classWeights[(size_t)(classes[i])] += Math::sSqrt(1 / heap[i].distance);
+                }
+            }
+        }
 
-    //     algorithmFpType maxWeightClass = 0;
-    //     algorithmFpType maxWeight      = 0;
-    //     for (size_t i = 0; i < nClasses; ++i)
-    //     {
-    //         if (classWeights[i] > maxWeight)
-    //         {
-    //             maxWeight      = classWeights[i];
-    //             maxWeightClass = i;
-    //         }
-    //     }
-    //     *predictedClass = maxWeightClass;
-
-    //     service_free<algorithmFpType, cpu>(classes);
-    //     service_free<algorithmFpType, cpu>(classWeights);
-    // }
+        algorithmFpType maxWeightClass = 0;
+        algorithmFpType maxWeight      = 0;
+        for (size_t i = 0; i < nClasses; ++i)
+        {
+            if (classWeights[i] > maxWeight)
+            {
+                maxWeight      = classWeights[i];
+                maxWeightClass = i;
+            }
+        }
+        *predictedClass = maxWeightClass;
+        daal_free(classes);
+        daal_free(classWeights);
+    }
 
     return services::Status();
 }
