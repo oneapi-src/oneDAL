@@ -248,8 +248,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
                 for (size_t i = 0; i < last - first; ++i)
                 {
-                    // findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                    //                      isHomogenSOA, soa_arrays);
+                    DAAL_CHECK_STATUS_THR(findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable,
+                                                               rootTreeNodeIndex, data, isHomogenSOA, soa_arrays));
                     DAAL_CHECK_STATUS_THR(
                         predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
@@ -259,8 +259,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             {
                 for (size_t i = 0; i < last - first; ++i)
                 {
-                    // findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                    //                      isHomogenSOA, soa_arrays);
+                    DAAL_CHECK_STATUS_THR(findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable,
+                                                               rootTreeNodeIndex, data, isHomogenSOA, soa_arrays));
                     DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
             }
@@ -347,7 +347,7 @@ DAAL_FORCEINLINE void computeDistance(size_t start, size_t end, algorithmFpType 
 }
 
 template <typename algorithmFpType, CpuType cpu>
-void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
+services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
     const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
     kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
     const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
@@ -432,6 +432,7 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             }
         }
     }
+    return services::Status();
 }
 
 template <typename algorithmFpType, CpuType cpu>
