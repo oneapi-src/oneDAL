@@ -56,14 +56,11 @@ jobs:
         run: |
           source /opt/intel/oneapi/compiler/latest/env/vars.sh
           .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal
-      - name: Compress build
-        run: |
-          tar -cvzf __release_lnx.tar.gz __release_lnx
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
           name: __release_lnx
-          path: ./__release_lnx.tar.gz
+          path: ./__release_lnx
 
   build_win:
     name: oneDAL Windows nightly build
@@ -115,16 +112,11 @@ jobs:
           # delete the symlink, and make a new symlink using the last foldername (%%~nxH) in a relative fashion
           for /D %%s in (.\oneapi\*) do for /f "tokens=2 delims=[]" %%H in ('dir /al %%s\ ^| findstr /i /c:"latest"') do rmdir %%s\latest & mklink /D %%s\latest .\%%~nxH
           tar -cvzf oneapi.tar.gz .\oneapi
-      - name: Compress build
-        shell: cmd
-        run: |
-          ren __release_win_vc __release_win
-          tar -cvzf __release_win.tar.gz __release_win
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
           name: __release_win
-          path: .\__release_win.tar.gz
+          path: .\__release_win
       - name: Archive Intel BaseKit
         uses: actions/upload-artifact@v4
         with:
