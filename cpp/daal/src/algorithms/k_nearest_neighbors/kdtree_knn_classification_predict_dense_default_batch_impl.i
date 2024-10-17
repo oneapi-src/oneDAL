@@ -375,31 +375,31 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             start = node->leftIndex;
             end   = node->rightIndex;
             computeDistance<algorithmFpType, cpu>(start, end, distance, query, isHomogenSOA, data, xBD, soa_arrays);
-            for (i = start; i < end; ++i)
-            {
-                if (distance[i - start] <= radius)
-                {
-                    curNeighbor.distance = distance[i - start];
-                    curNeighbor.index    = i;
-                    if (heap.size() < k)
-                    {
-                        heap.push(curNeighbor, k);
+            // for (i = start; i < end; ++i)
+            // {
+            //     if (distance[i - start] <= radius)
+            //     {
+            //         curNeighbor.distance = distance[i - start];
+            //         curNeighbor.index    = i;
+            //         if (heap.size() < k)
+            //         {
+            //             heap.push(curNeighbor, k);
 
-                        if (heap.size() == k)
-                        {
-                            radius = heap.getMax()->distance;
-                        }
-                    }
-                    else
-                    {
-                        if (heap.getMax()->distance > curNeighbor.distance)
-                        {
-                            heap.replaceMax(curNeighbor);
-                            radius = heap.getMax()->distance;
-                        }
-                    }
-                }
-            }
+            //             if (heap.size() == k)
+            //             {
+            //                 radius = heap.getMax()->distance;
+            //             }
+            //         }
+            //         else
+            //         {
+            //             if (heap.getMax()->distance > curNeighbor.distance)
+            //             {
+            //                 heap.replaceMax(curNeighbor);
+            //                 radius = heap.getMax()->distance;
+            //             }
+            //         }
+            //     }
+            // }
 
             if (!stack.empty())
             {
