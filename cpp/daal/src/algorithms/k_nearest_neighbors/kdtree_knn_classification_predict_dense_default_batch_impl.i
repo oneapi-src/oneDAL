@@ -250,8 +250,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
                                          isHomogenSOA, soa_arrays);
-                    DAAL_CHECK_STATUS_THR(
-                        predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                    // DAAL_CHECK_STATUS_THR(
+                    //     predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
                 DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
             }
@@ -261,7 +261,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
                 {
                     findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
                                          isHomogenSOA, soa_arrays);
-                    DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                    //DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
             }
 
