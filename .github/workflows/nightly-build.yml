@@ -115,7 +115,7 @@ jobs:
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
-          name: __release_win
+          name: __release_win_vc
           path: .\__release_win
       - name: Archive Intel BaseKit
         uses: actions/upload-artifact@v4
