@@ -248,10 +248,10 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
                 for (size_t i = 0; i < last - first; ++i)
                 {
-                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                                         isHomogenSOA, soa_arrays);
-                    // DAAL_CHECK_STATUS_THR(
-                    //     predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                    // findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
+                    //                      isHomogenSOA, soa_arrays);
+                    DAAL_CHECK_STATUS_THR(
+                        predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
                 DAAL_CHECK_STATUS_THR(y->releaseBlockOfRows(yBD));
             }
@@ -259,9 +259,9 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             {
                 for (size_t i = 0; i < last - first; ++i)
                 {
-                    findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
-                                         isHomogenSOA, soa_arrays);
-                    //DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
+                    // findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable, rootTreeNodeIndex, data,
+                    //                      isHomogenSOA, soa_arrays);
+                    DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
             }
 
@@ -404,7 +404,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             if (!stack.empty())
             {
                 cur = stack.pop();
-                DAAL_PREFETCH_READ_T0(node);
             }
             else
             {
@@ -426,7 +425,6 @@ void KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNea
             else if (!stack.empty())
             {
                 cur = stack.pop();
-                DAAL_PREFETCH_READ_T0(node);
             }
             else
             {
