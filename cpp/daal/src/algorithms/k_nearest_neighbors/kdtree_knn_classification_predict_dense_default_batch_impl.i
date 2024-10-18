@@ -153,6 +153,27 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     const Model * const model       = static_cast<const Model *>(m);
     const KDTreeTable & kdTreeTable = *(model->impl()->getKDTreeTable());
     const KDTreeNode * const nodes = static_cast<const KDTreeNode *>(kdTreeTable.getArray());
+    const size_t xRowCount    = x->getNumberOfRows();
+
+
+
+    const algorithmFpType base        = 2.0;
+    const algorithmFpType baseInPower = Math::sPowx(base, Math::sCeil(Math::sLog(base * xRowCount - 1) / Math::sLog(base)));
+    DAAL_ASSERT(baseInPower > 0)
+    const size_t maxKDTreeNodeCount = ((size_t)baseInPower * __KDTREE_MAX_NODE_COUNT_MULTIPLICATION_FACTOR) / __KDTREE_LEAF_BUCKET_SIZE + 1;
+    for(int index = 0; index < maxKDTreeNodeCount; index++){
+        const KDTreeNode& node = nodes[index]; 
+
+
+        std::cout << "Node Index: " << index
+                  << ", Dimension: " << node.dimension
+                  << ", Cut Point: " << node.cutPoint
+                  << ", Left Index: " << node.leftIndex
+                  << ", Right Index: " << node.rightIndex << std::endl;
+    }
+
+
+
     const auto rootTreeNodeIndex    = model->impl()->getRootNodeIndex();
     const NumericTable & data       = *(model->impl()->getData());
     const NumericTable * labels     = nullptr;
@@ -170,8 +191,8 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     }
     const size_t heapSize = (iSize / 16 + 1) * 16;
 
-    const size_t xRowCount        = x->getNumberOfRows();
-    const algorithmFpType base    = 2.0;
+    // const size_t xRowCount        = x->getNumberOfRows();
+    // const algorithmFpType base    = 2.0;
     const size_t expectedMaxDepth = (Math::xsLog(xRowCount) / Math::xsLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
     const size_t stackSize        = Math::xsPowx(base, Math::xsCeil(Math::xsLog(expectedMaxDepth) / Math::xsLog(base)));
     struct Local
@@ -371,37 +392,36 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     for (;;)
     {
         node = &nodes[cur.nodeIndex];
-        if (node->dimension == __KDTREE_NULLDIMENSION)
+        if (node->dimension >1000)
         {
-            std::cout<<"here __KDTREE_NULLDIMENSION"<<std::endl;
             start = node->leftIndex;
             end   = node->rightIndex;
             computeDistance<algorithmFpType, cpu>(start, end, distance, query, isHomogenSOA, data, xBD, soa_arrays);
-            // for (i = start; i < end; ++i)
-            // {
-            //     if (distance[i - start] <= radius)
-            //     {
-            //         curNeighbor.distance = distance[i - start];
-            //         curNeighbor.index    = i;
-            //         if (heap.size() < k)
-            //         {
-            //             heap.push(curNeighbor, k);
+            for (i = start; i < end; ++i)
+            {
+                if (distance[i - start] <= radius)
+                {
+                    curNeighbor.distance = distance[i - start];
+                    curNeighbor.index    = i;
+                    if (heap.size() < k)
+                    {
+                        heap.push(curNeighbor, k);
 
-            //             if (heap.size() == k)
-            //             {
-            //                 radius = heap.getMax()->distance;
-            //             }
-            //         }
-            //         else
-            //         {
-            //             if (heap.getMax()->distance > curNeighbor.distance)
-            //             {
-            //                 heap.replaceMax(curNeighbor);
-            //                 radius = heap.getMax()->distance;
-            //             }
-            //         }
-            //     }
-            // }
+                        if (heap.size() == k)
+                        {
+                            radius = heap.getMax()->distance;
+                        }
+                    }
+                    else
+                    {
+                        if (heap.getMax()->distance > curNeighbor.distance)
+                        {
+                            heap.replaceMax(curNeighbor);
+                            radius = heap.getMax()->distance;
+                        }
+                    }
+                }
+            }
 
             if (!stack.empty())
             {
@@ -415,7 +435,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         }
         else
         {
-            std::cout<<"here else __KDTREE_NULLDIMENSION"<<std::endl;
             algorithmFpType val        = query[node->dimension];
             const algorithmFpType diff = val - node->cutPoint;
             if (false)
