@@ -397,7 +397,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             start = node->leftIndex;
             end   = node->rightIndex;
             computeDistance<algorithmFpType, cpu>(start, end, distance, query, isHomogenSOA, data, xBD, soa_arrays);
-            for (i = start; i < end; ++i)
+            for (i = start; i < end; i++)
             {
                 if (distance[i - start] <= radius)
                 {
@@ -437,7 +437,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         {
             algorithmFpType val        = query[node->dimension];
             const algorithmFpType diff = val - node->cutPoint;
-            if (false)
+            if (cur.minDistance <= radius)
             {
                 cur.nodeIndex    = (diff < 0) ? node->leftIndex : node->rightIndex;
                 toPush.nodeIndex = (diff < 0) ? node->rightIndex : node->leftIndex;
