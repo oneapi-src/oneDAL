@@ -23,10 +23,11 @@ For each algorithm oneDAL provides several code paths for x86-64-compatibe instr
 set architectures.
 
 Following architectures are currently supported:
-- Streaming SIMD Extensions 2 (SSE2)
-- Streaming SIMD Extensions 4.2 (SSE4.2)
-- Advanced Vector Extensions 2 (AVX2)
-- Advanced Vector Extensions 512 (AVX-512)
+
+- Intel |reg| Streaming SIMD Extensions 2 (Intel |reg| SSE2)
+- Intel |reg| Streaming SIMD Extensions 4.2 (Intel |reg| SSE4.2)
+- Intel |reg| Advanced Vector Extensions 2 (Intel |reg| AVX2)
+- Intel |reg| Advanced Vector Extensions 512 (Intel |reg| AVX-512)
 
 The particular code path is chosen at runtime based on the underlying hardware characteristics.
 
@@ -35,9 +36,9 @@ This chapter describes how the code is organized to support this variety of inst
 Algorithm Implementation Options
 ********************************
 
-Besides the instruction sets architecture, an algorithm in oneDAL might have various implementation
-options. The description of those options is provided below for better understanding of the oneDAL
-code structure and conventions.
+In addition to the instruction set architectures, an algorithm in oneDAL may have various
+implementation options. Below is a description of these options to help you better understand
+the oneDAL code structure and conventions.
 
 Computational Tasks
 -------------------
@@ -86,43 +87,128 @@ Consider it provides:
 
 Then the `cpp/daal/src/algorithms/abc` folder should contain at least the following files:
 
-| cpp/daal/src/algorithms/abc
-| |-- abc_classification_predict_method1_batch_fpt_cpu.cpp
-| |-- abc_classification_predict_impl.i
-| |-- abc_classification_predict_kernel.h
-| |-- abc_classification_train_method1_batch_fpt_cpu.cpp
-| |-- abc_classification_train_method2_batch_fpt_cpu.cpp
-| |-- abc_classification_train_impl.i
-| |-- abc_classification_train_kernel.h
-| |-- abc_regression_predict_method1_batch_fpt_cpu.cpp
-| |-- abc_regression_predict_impl.i
-| |-- abc_regression_predict_kernel.h
-| |-- abc_regression_train_method1_batch_fpt_cpu.cpp
-| |-- abc_regression_train_method2_batch_fpt_cpu.cpp
-| |-- abc_regression_train_impl.i
-| |-- abc_regression_train_kernel.h
+::
+
+  cpp/daal/src/algorithms/abc/
+    |-- abc_classification_predict_method1_batch_fpt_cpu.cpp
+    |-- abc_classification_predict_method1_impl.i
+    |-- abc_classification_predict_kernel.h
+    |-- abc_classification_train_method1_batch_fpt_cpu.cpp
+    |-- abc_classification_train_method2_batch_fpt_cpu.cpp
+    |-- abc_classification_train_method1_impl.i
+    |-- abc_classification_train_method2_impl.i
+    |-- abc_classification_train_kernel.h
+    |-- abc_regression_predict_method1_batch_fpt_cpu.cpp
+    |-- abc_regression_predict_method1_batch_fpt_cpu.cpp
+    |-- abc_regression_predict_method1_impl.i
+    |-- abc_regression_predict_kernel.h
+    |-- abc_regression_train_method1_batch_fpt_cpu.cpp
+    |-- abc_regression_train_method2_batch_fpt_cpu.cpp
+    |-- abc_regression_train_method1_impl.i
+    |-- abc_regression_train_method2_impl.i
+    |-- abc_regression_train_kernel.h
 
 Alternative variant of the folder structure to avoid storing too much files within a single folder
 can be:
 
-| cpp/daal/src/algorithms/abc
-| |-- classification
-| |    |-- abc_classification_predict_method1_batch_fpt_cpu.cpp
-| |    |-- abc_classification_predict_impl.i
-| |    |-- abc_classification_predict_kernel.h
-| |    |-- abc_classification_train_method1_batch_fpt_cpu.cpp
-| |    |-- abc_classification_train_method2_batch_fpt_cpu.cpp
-| |    |-- abc_classification_train_impl.i
-| |    |-- abc_classification_train_kernel.h
-| |-- regression
-| |    |-- abc_regression_predict_method1_batch_fpt_cpu.cpp
-| |    |-- abc_regression_predict_impl.i
-| |    |-- abc_regression_predict_kernel.h
-| |    |-- abc_regression_train_method1_batch_fpt_cpu.cpp
-| |    |-- abc_regression_train_method2_batch_fpt_cpu.cpp
-| |    |-- abc_regression_train_impl.i
-| |    |-- abc_regression_train_kernel.h
+::
+
+  cpp/daal/src/algorithms/abc/
+    |-- classification/
+    |     |-- abc_classification_predict_method1_batch_fpt_cpu.cpp
+    |     |-- abc_classification_predict_method1_impl.i
+    |     |-- abc_classification_predict_kernel.h
+    |     |-- abc_classification_train_method1_batch_fpt_cpu.cpp
+    |     |-- abc_classification_train_method2_batch_fpt_cpu.cpp
+    |     |-- abc_classification_train_method1_impl.i
+    |     |-- abc_classification_train_method2_impl.i
+    |     |-- abc_classification_train_kernel.h
+    |-- regression/
+          |-- abc_regression_predict_method1_batch_fpt_cpu.cpp
+          |-- abc_regression_predict_method1_impl.i
+          |-- abc_regression_predict_kernel.h
+          |-- abc_regression_train_method1_batch_fpt_cpu.cpp
+          |-- abc_regression_train_method2_batch_fpt_cpu.cpp
+          |-- abc_regression_train_method1_impl.i
+          |-- abc_regression_train_method2_impl.i
+          |-- abc_regression_train_kernel.h
+
 
 The names of the files stay the same in this case, just the folder layout differs.
 
+Further the purpose and contents of each file are to be described on the example of classification
+training task. For other types of the tasks the structure of the code is similar.
 
+\*_kernel.h
+-----------
+
+Those files contain the definitions of one or several template classes that define member functions that
+do the actual computations. Here is a variant of the ``Abc`` training algorithm kernel definition in the file
+`abc_classification_train_kernel.h`:
+
+.. include:: ../includes/cpu_features/abc-classification-train-kernel.rst
+
+Typical template parameters are:
+
+- ``algorithmFPType``  Data type to use in intermediate computations for the algorithm,
+                       ``float`` or ``double``.
+- ``method`` Computational methods of the algorithm. ``method1`` or ``method2`` in the case of ``Abc``.
+- ``cpu`` Version of the cpu-specific implementation of the algorithm, ``daal::CpuType``.
+
+Implementations for different methods are usually defined usind partial class templates specialization.
+
+\*_impl.i
+---------
+
+Those files contain the implementations of the computational functions defined in `*_kernel.h` files.
+Here is a variant of ``method1`` imlementation for ``Abc`` training algorithm that does not contain any
+instruction set specific code. The implementation is located in the file `abc_classification_train_method1_impl.i`:
+
+.. include:: ../includes/cpu_features/abc-classification-train-method1-impl.rst
+
+Although the implementation of the ``method1`` does not contain any instruction set specific code, it is
+expected that the developers leverage SIMD related macros available in oneDAL.
+For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and others pragmas defined in
+`service_defines.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/services/service_defines.h>`_.
+This will guide the compiler to generate more efficient code for the target architecture.
+
+Consider that the implementation of the ``method2`` for the same algorithm will be different and will contain
+AVX-512-specific code located in ``cpuSpecificCode`` function.
+Then the implementation of the ``method2`` in the file `abc_classification_train_method2_impl.i` will look like:
+
+.. include:: ../includes/cpu_features/abc-classification-train-method2-impl.rst
+
+CPU-specific code needs to be placed under compiler-specific and CPU-specific defines because it usually
+contains intrinsics that cannot be compiled on other architectures.
+
+\*_fpt_cpu.cpp
+--------------
+
+Those files contain the instantiations of the template classes defined in `*_kernel.h` files.
+The instatiation of the ``Abc`` training algorithm kernel for ``method1`` is located in the file
+`abc_classification_train_method1_batch_fpt_cpu.cpp`:
+
+.. include:: ../includes/cpu_features/abc-classification-train-method1-fpt-cpu.rst
+
+`_fpt_cpu.cpp` files are not compiled directly into object files. First, multiple copies of those files
+are made raplacing the ``fpt`` and ``cpu`` parts of the file name as well as the corresponding ``DAAL_FPTYPE`` and
+``DAAL_CPU`` macros with the actual data type and CPU type values. Then the resulting files are compiled
+with appropriate CPU-specific optimization compiler options.
+
+The values for ``fpt`` file name part replacement are:
+- ``flt`` for ``float`` data type, and
+- ``dbl`` for ``double`` data type.
+
+The values for ``DAAL_FPTYPE`` macro replacement are ``float`` and ``double`` respectively.
+
+The values for ``cpu`` file name part replacement are:
+- ``nrh`` for Intel |reg| SSE2 architecture, which stands for Northwood,
+- ``neh`` for Intel |reg| SSE4.2 architecture, which stands for Nehalem,
+- ``hsw`` for Intel |reg| AVX2 architecture, which stands for Haswell,
+- ``skx`` for Intel |reg| AVX-512 architecture, which stands for Skylake-X.
+
+The values for ``DAAL_CPU`` macro replacement are:
+- ``sse2`` for Intel |reg| SSE2 architecture,
+- ``sse42`` for Intel |reg| SSE4.2 architecture,
+- ``avx2`` for Intel |reg| AVX2 architecture,
+- ``avx512`` for Intel |reg| AVX-512 architecture.
