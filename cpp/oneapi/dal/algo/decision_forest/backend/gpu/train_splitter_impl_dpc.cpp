@@ -536,7 +536,23 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::best_split(
     const Index bin_block =
         compute_bin_block_size<hist_type_t, Index, Float, Task>(queue, hist_prop_count, bin_count);
 
-    const Index local_size = bk::device_max_wg_size(queue);
+    const Index local_size_initial = bk::device_max_wg_size(queue);
+    Index local_size = local_size_initial;
+    const auto max_int_limit = std::numeric_limits<int>::max();
+
+    if (node_count * ftr_count > 0 && node_count * ftr_count <= max_int_limit) {
+        while (node_count * ftr_count * local_size > max_int_limit) {
+            local_size /= 2;
+        }
+    } else {
+        std::cerr << "Error: node_count * ftr_count exceeds int limit" << std::endl;
+    }
+
+    std::cout << "node count = " << node_count << std::endl;
+    std::cout << "ftr_count = " << ftr_count << std::endl;
+    std::cout << "local_size = " << local_size << std::endl;
+    std::cout << "total range size = " << node_count * ftr_count * local_size << std::endl;
+
     const auto nd_range =
         bk::make_multiple_nd_range_3d({ node_count, ftr_count, local_size }, { 1, 1, local_size });
 
