@@ -69,7 +69,7 @@ public:
 protected:
     services::Status findNearestNeighbors(const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
                                           kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k,
-                                          algorithmFpType radius, const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex,
+                                          algorithmFpType radius, const KDTreeNode * nodes, size_t rootTreeNodeIndex,
                                           const NumericTable & data, const bool isHomogenSOA,
                                           services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays);
 

@@ -39,6 +39,7 @@
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_classification_model_impl.h"
 #include "src/algorithms/k_nearest_neighbors/kdtree_knn_impl.i"
 #include "src/algorithms/k_nearest_neighbors/knn_heap.h"
+#include <iostream>
 
 #if defined(DAAL_INTEL_CPP_COMPILER)
     #include <immintrin.h>
@@ -151,6 +152,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     const Model * const model       = static_cast<const Model *>(m);
     const KDTreeTable & kdTreeTable = *(model->impl()->getKDTreeTable());
+    const KDTreeNode * const nodes = static_cast<const KDTreeNode *>(kdTreeTable.getArray());
     const auto rootTreeNodeIndex    = model->impl()->getRootNodeIndex();
     const NumericTable & data       = *(model->impl()->getData());
     const NumericTable * labels     = nullptr;
@@ -248,7 +250,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
                 for (size_t i = 0; i < last - first; ++i)
                 {
-                    DAAL_CHECK_STATUS_THR(findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable,
+                    DAAL_CHECK_STATUS_THR(findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, nodes,
                                                                rootTreeNodeIndex, data, isHomogenSOA, soa_arrays));
                     DAAL_CHECK_STATUS_THR(
                         predict(&dy[i * yColumnCount], local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
@@ -259,7 +261,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
             {
                 for (size_t i = 0; i < last - first; ++i)
                 {
-                    DAAL_CHECK_STATUS_THR(findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, kdTreeTable,
+                    DAAL_CHECK_STATUS_THR(findNearestNeighbors(&dx[i * xColumnCount], local->heap, local->stack, k, radius, nodes,
                                                                rootTreeNodeIndex, data, isHomogenSOA, soa_arrays));
                     DAAL_CHECK_STATUS_THR(predict(nullptr, local->heap, labels, k, voteWeights, modelIndices, indicesBD, distancesBD, i, nClasses));
                 }
@@ -350,7 +352,7 @@ template <typename algorithmFpType, CpuType cpu>
 services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::findNearestNeighbors(
     const algorithmFpType * query, Heap<GlobalNeighbors<algorithmFpType, cpu>, cpu> & heap,
     kdtree_knn_classification::internal::Stack<SearchNode<algorithmFpType>, cpu> & stack, size_t k, algorithmFpType radius,
-    const KDTreeTable & kdTreeTable, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
+    const KDTreeNode * nodes, size_t rootTreeNodeIndex, const NumericTable & data, const bool isHomogenSOA,
     services::internal::TArrayScalable<algorithmFpType *, cpu> & soa_arrays)
 {
     heap.reset();
@@ -358,7 +360,6 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
     GlobalNeighbors<algorithmFpType, cpu> curNeighbor;
     size_t i;
     SearchNode<algorithmFpType> cur, toPush;
-    const KDTreeNode * const nodes = static_cast<const KDTreeNode *>(kdTreeTable.getArray());
     const KDTreeNode * node;
     cur.nodeIndex   = rootTreeNodeIndex;
     cur.minDistance = 0;
@@ -372,6 +373,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         node = &nodes[cur.nodeIndex];
         if (node->dimension == __KDTREE_NULLDIMENSION)
         {
+            std::cout<<"here __KDTREE_NULLDIMENSION"<<std::endl;
             start = node->leftIndex;
             end   = node->rightIndex;
             computeDistance<algorithmFpType, cpu>(start, end, distance, query, isHomogenSOA, data, xBD, soa_arrays);
@@ -404,6 +406,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             if (!stack.empty())
             {
                 cur = stack.pop();
+                //DAAL_PREFETCH_READ_T0(nodes[cur.nodeIndex]);
             }
             else
             {
@@ -412,9 +415,10 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
         }
         else
         {
+            std::cout<<"here else __KDTREE_NULLDIMENSION"<<std::endl;
             algorithmFpType val        = query[node->dimension];
             const algorithmFpType diff = val - node->cutPoint;
-            if (cur.minDistance <= radius)
+            if (false)
             {
                 cur.nodeIndex    = (diff < 0) ? node->leftIndex : node->rightIndex;
                 toPush.nodeIndex = (diff < 0) ? node->rightIndex : node->leftIndex;
@@ -425,6 +429,7 @@ services::Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, c
             else if (!stack.empty())
             {
                 cur = stack.pop();
+                //DAAL_PREFETCH_READ_T0(nodes[cur.nodeIndex]);
             }
             else
             {
