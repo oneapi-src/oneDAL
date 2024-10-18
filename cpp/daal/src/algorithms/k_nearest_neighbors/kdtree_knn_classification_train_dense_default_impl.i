@@ -315,8 +315,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
         const_cast<NumericTable &>(x).getBlockOfColumnValues(j, 0, xRowCount, readOnly, columnBD);
         const algorithmFpType * const dx = columnBD.getBlockPtr();
-
-        daal::tls<BBox *> bboxTLS([=, &status]() -> BBox * {
+        SafeStatus safeStat;
+        daal::tls<BBox *> bboxTLS([&]() -> BBox * {
             BBox * const ptr = service_scalable_calloc<BBox, cpu>(1);
             if (ptr)
             {
@@ -325,50 +325,51 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             }
             else
             {
-                status.add(services::ErrorMemoryAllocationFailed);
+                safeStat.add(services::ErrorMemoryAllocationFailed);
             }
             return ptr;
         });
 
         DAAL_CHECK_STATUS_OK((status.ok()), status);
 
-        daal::threader_for(blockCount, blockCount, [=, &bboxTLS](int iBlock) {
+        daal::threader_for(blockCount, blockCount, [=, &bboxTLS, &safeStat](int iBlock) {
             BBox * const bboxLocal = bboxTLS.local();
-            if (bboxLocal)
+            DAAL_CHECK_MALLOC_THR(bboxLocal);
+            const size_t first = iBlock * rowsPerBlock;
+            const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
+
+            if (first < last)
             {
-                const size_t first = iBlock * rowsPerBlock;
-                const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
-
-                if (first < last)
+                BBox b;
+                size_t i = first;
+                b.upper  = dx[indexes[i]];
+                b.lower  = dx[indexes[i]];
+                PRAGMA_IVDEP
+                for (++i; i < last; ++i)
                 {
-                    BBox b;
-                    size_t i = first;
-                    b.upper  = dx[indexes[i]];
-                    b.lower  = dx[indexes[i]];
-                    PRAGMA_IVDEP
-                    for (++i; i < last; ++i)
+                    if (b.lower > dx[indexes[i]])
                     {
-                        if (b.lower > dx[indexes[i]])
-                        {
-                            b.lower = dx[indexes[i]];
-                        }
-                        if (b.upper < dx[indexes[i]])
-                        {
-                            b.upper = dx[indexes[i]];
-                        }
+                        b.lower = dx[indexes[i]];
                     }
+                    if (b.upper < dx[indexes[i]])
+                    {
+                        b.upper = dx[indexes[i]];
+                    }
+                }
 
-                    if (bboxLocal->upper < b.upper)
-                    {
-                        bboxLocal->upper = b.upper;
-                    }
-                    if (bboxLocal->lower > b.lower)
-                    {
-                        bboxLocal->lower = b.lower;
-                    }
+                if (bboxLocal->upper < b.upper)
+                {
+                    bboxLocal->upper = b.upper;
+                }
+                if (bboxLocal->lower > b.lower)
+                {
+                    bboxLocal->lower = b.lower;
                 }
             }
         });
+
+        status = safeStat.detach();
+        if (!status) return status;
 
         bboxTLS.reduce([=](BBox * v) -> void {
             if (v)

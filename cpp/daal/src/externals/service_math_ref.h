@@ -58,21 +58,40 @@ struct RefMath<double, cpu>
 
     static double sPowx(double in, double in1) { return pow(in, in1); }
 
+    static double xsPowx(double in, double in1) { return pow(in, in1); }
+
     static double sCeil(double in) { return ceil(in); }
+
+    static double xsCeil(double in) { return ceil(in); }
 
     // Not implemented
     static double sErfInv(double in) { return std::numeric_limits<double>::quiet_NaN(); }
 
+    // Not implemented
+    static double xsErfInv(double in) { return std::numeric_limits<double>::quiet_NaN(); }
+
     static double sErf(double in) { return erf(in); }
 
+    static double xsErf(double in) { return erf(in); }
+
     static double sLog(double in) { return log(in); }
+
+    static double xsLog(double in) { return log(in); }
 
     // Not implemented
     static double sCdfNormInv(double in) { return std::numeric_limits<double>::quiet_NaN(); }
 
+    // Not implemented
+    static double xsCdfNormInv(double in) { return std::numeric_limits<double>::quiet_NaN(); }
+
     static void vPowx(SizeType n, const double * in, double in1, double * out)
     {
 #pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
+    }
+
+    static void xvPowx(SizeType n, const double * in, double in1, double * out)
+    {
         for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
     }
 
@@ -82,8 +101,19 @@ struct RefMath<double, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
     }
 
+    static void xvCeil(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
+    }
+
     // Not implemented
     static void vErfInv(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<double>::quiet_NaN();
+    }
+
+    // Not implemented
+    static void xvErfInv(SizeType n, const double * in, double * out)
     {
         for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<double>::quiet_NaN();
     }
@@ -94,9 +124,19 @@ struct RefMath<double, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
     }
 
+    static void xvErf(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
+    }
+
     static void vExp(SizeType n, const double * in, double * out)
     {
 #pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
+    }
+
+    static void xvExp(SizeType n, const double * in, double * out)
+    {
         for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
     }
 
@@ -111,9 +151,19 @@ struct RefMath<double, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
     }
 
+    static void xvTanh(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
+    }
+
     static void vSqrt(SizeType n, const double * in, double * out)
     {
 #pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
+    }
+
+    static void xvSqrt(SizeType n, const double * in, double * out)
+    {
         for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
     }
 
@@ -123,14 +173,30 @@ struct RefMath<double, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
     }
 
+    static void xvLog(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
+    }
+
     static void vLog1p(SizeType n, const double * in, double * out)
     {
 #pragma omp simd
         for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
     }
 
+    static void xvLog1p(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
+    }
+
     // Not implemented
     static void vCdfNormInv(SizeType n, const double * in, double * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<double>::quiet_NaN();
+    }
+
+    // Not implemented
+    static void xvCdfNormInv(SizeType n, const double * in, double * out)
     {
         for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<double>::quiet_NaN();
     }
@@ -155,21 +221,39 @@ struct RefMath<float, cpu>
 
     static float sPowx(float in, float in1) { return pow(in, in1); }
 
+    static float xsPowx(float in, float in1) { return pow(in, in1); }
+
     static float sCeil(float in) { return ceil(in); }
+
+    static float xsCeil(float in) { return ceil(in); }
 
     // Not implemented
     static float sErfInv(float in) { return std::numeric_limits<float>::quiet_NaN(); }
 
+    // Not implemented
+    static float xsErfInv(float in) { return std::numeric_limits<float>::quiet_NaN(); }
+
     static float sErf(float in) { return erf(in); }
 
+    static float xsErf(float in) { return erf(in); }
+
     static float sLog(float in) { return log(in); }
+
+    static float xsLog(float in) { return log(in); }
 
     // Not implemented
     static float sCdfNormInv(float in) { return std::numeric_limits<float>::quiet_NaN(); }
 
+    static float xsCdfNormInv(float in) { return std::numeric_limits<float>::quiet_NaN(); }
+
     static void vPowx(SizeType n, const float * in, float in1, float * out)
     {
 #pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
+    }
+
+    static void xvPowx(SizeType n, const float * in, float in1, float * out)
+    {
         for (SizeType i = 0; i < n; ++i) out[i] = pow(in[i], in1);
     }
 
@@ -179,8 +263,19 @@ struct RefMath<float, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
     }
 
+    static void xvCeil(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = ceil(in[i]);
+    }
+
     // Not implemented
     static void vErfInv(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<float>::quiet_NaN();
+    }
+
+    // Not implemented
+    static void xvErfInv(SizeType n, const float * in, float * out)
     {
         for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<float>::quiet_NaN();
     }
@@ -191,9 +286,19 @@ struct RefMath<float, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
     }
 
+    static void xvErf(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = erf(in[i]);
+    }
+
     static void vExp(SizeType n, const float * in, float * out)
     {
 #pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
+    }
+
+    static void xvExp(SizeType n, const float * in, float * out)
+    {
         for (SizeType i = 0; i < n; ++i) out[i] = exp(in[i]);
     }
 
@@ -208,9 +313,19 @@ struct RefMath<float, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
     }
 
+    static void xvTanh(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = tanh(in[i]);
+    }
+
     static void vSqrt(SizeType n, const float * in, float * out)
     {
 #pragma omp simd
+        for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
+    }
+
+    static void xvSqrt(SizeType n, const float * in, float * out)
+    {
         for (SizeType i = 0; i < n; ++i) out[i] = sqrt(in[i]);
     }
 
@@ -220,14 +335,29 @@ struct RefMath<float, cpu>
         for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
     }
 
+    static void xvLog(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = log(in[i]);
+    }
+
     static void vLog1p(SizeType n, const float * in, float * out)
     {
 #pragma omp simd
         for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
     }
 
+    static void xvLog1p(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = log1p(in[i]);
+    }
+
     // Not implemented
     static void vCdfNormInv(SizeType n, const float * in, float * out)
+    {
+        for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<float>::quiet_NaN();
+    }
+    // Not implemented
+    static void xvCdfNormInv(SizeType n, const float * in, float * out)
     {
         for (SizeType i = 0; i < n; ++i) out[i] = std::numeric_limits<float>::quiet_NaN();
     }
