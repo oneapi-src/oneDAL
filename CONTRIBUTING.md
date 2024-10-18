@@ -87,7 +87,7 @@ For your convenience we also added [coding guidelines](http://oneapi-src.github.
 
 ### CPU Features Dispatching
 
-oneDAL provides multiarchitecture binaries that contain codes for multiple variants of CPU instruction set architectures. When run on a certain hardware type, oneDAL chooses the code path which is most suitable for this particular hardware to acheive better performance.
+oneDAL provides multiarchitecture binaries that contain codes for multiple variants of CPU instruction set architectures. When run on a certain hardware type, oneDAL chooses the code path which is most suitable for this particular hardware to achieve better performance.
 Contributors should leverage [CPU Features Dispatching](http://oneapi-src.github.io/oneDAL/contribution/cpu_features.html) mechanism to implement the code of the algorithms that can perform well on various hardware types.
 
 ### Threading Layer
