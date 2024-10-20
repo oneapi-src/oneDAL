@@ -72,23 +72,19 @@ mkl_repo(
     name = "mkl",
     root_env_var = "MKLROOT",
     urls = [
-        # TODO: when the issue with binutils will be solved, replace 2023.0 to 2024.2
-        "https://files.pythonhosted.org/packages/76/8c/2e6fb6186fa9335a0feb7845e001e18c22627a06ae68650e5a84ca2b536d/mkl_static-2023.0.0-py2.py3-none-manylinux1_x86_64.whl",
-        #"https://files.pythonhosted.org/packages/c1/44/42ea3ad7bbaa65acb54c977961118d7b24ea687e7c3d64aba0a019cbfa19/mkl_static-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
-        "https://files.pythonhosted.org/packages/80/e4/93ddfd475420f1c24d96f3bba1f87ec31a1eea847884c4ccb243cb336a61/mkl_include-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
-        "https://files.pythonhosted.org/packages/c9/3a/8797ef320a04e0b939a07365f09ce11f5484150bd3600c6400391c5c36e9/mkl_devel_dpcpp-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/05/8e/b413b09994f4a25329e08aec241abb8c4e6c835b17c4bcd47b2da69a808b/mkl_static-2024.2.2-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/a0/c8/490f8712ccc5b216ea83706436c076f9ad0ffb7bbf21dcbdb710791ce368/mkl_include-2024.2.2-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/3e/37/13b9bfbaa6fd3fcea08cc42bc587c3754e1951fefa9dd2b7e0cad3ec0837/mkl_devel_dpcpp-2024.2.2-py2.py3-none-manylinux1_x86_64.whl",
     ],
     sha256s = [
-        "49d16f315f6803b1046a4796686af766ad487f9f6d98ea76b6cdb2ebd5b559f9",
-        #"8c2a6c6a144c5619f1df75fd550b32730f3e0632b55a15a42a95516e142ccf47",
-        "63ed16ece64d9420e9fe1d5e1b55e0680632b61ad1c0e5f207b17f85233fcc09",
-        "b80099209aef1b147b8f1c1621a47078fba2c17b2faee131939ea4d32da2c35c",
+        "908586f768f312fba3b3ce0dda9b8bf086c5246d0e4d1f48ef80fa7eb60764ec",
+        "124298b6806bc57ad3998c521699fb410a29812b35dc0e383fe8a4745cc29f11",
+        "8fcec40a8b03a2f17b95c65e9e65ca3e72fb32cf39a3c66d0c922954e2396bde",
     ],
     strip_prefixes = [
-        "mkl_static-2023.0.0.data/data",
-        #"mkl_static-2024.2.0.data/data",
-        "mkl_include-2024.2.0.data/data",
-        "mkl_devel_dpcpp-2024.2.0.data/data",
+        "mkl_static-2024.2.2.data/data",
+        "mkl_include-2024.2.2.data/data",
+        "mkl_devel_dpcpp-2024.2.2.data/data",
     ],
 )
 
