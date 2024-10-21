@@ -51,8 +51,8 @@ An algorithm might have various tasks to compute. The most common options are:
 Computational Stages
 --------------------
 
-An algorithm might have ``training`` and ``inference`` computaion stages aimed
-to train a model on the input dataset and compute the inference results respectively.
+An algorithm might have ``training`` and ``inference`` computation stages aimed
+at training a model on the input dataset and computing the inference results, respectively.
 
 Computational Methods
 ---------------------
@@ -73,12 +73,12 @@ chapter for details.
 Folders and Files
 *****************
 
-Consider you are working on some algorithm ``Abc`` in oneDAL.
+Suppose that you are working on some algorithm ``Abc`` in oneDAL.
 
 The part of the implementation of this algorithms that is running on CPU should be located in
 `cpp/daal/src/algorithms/abc` folder.
 
-Consider it provides:
+Suppose that it provides:
 
 - ``classification`` and ``regression`` learning tasks;
 - ``training`` and ``inference`` stages;
@@ -108,8 +108,8 @@ Then the `cpp/daal/src/algorithms/abc` folder should contain at least the follow
     |-- abc_regression_train_method2_impl.i
     |-- abc_regression_train_kernel.h
 
-Alternative variant of the folder structure to avoid storing too much files within a single folder
-can be:
+Alternative variant of the folder structure to avoid storing too many files within a single folder
+could be:
 
 ::
 
@@ -191,7 +191,7 @@ The instatiation of the ``Abc`` training algorithm kernel for ``method1`` is loc
 .. include:: ../includes/cpu_features/abc-classification-train-method1-fpt-cpu.rst
 
 `_fpt_cpu.cpp` files are not compiled directly into object files. First, multiple copies of those files
-are made raplacing the ``fpt`` and ``cpu`` parts of the file name as well as the corresponding ``DAAL_FPTYPE`` and
+are made replacing the ``fpt`` and ``cpu`` parts of the file name as well as the corresponding ``DAAL_FPTYPE`` and
 ``DAAL_CPU`` macros with the actual data type and CPU type values. Then the resulting files are compiled
 with appropriate CPU-specific optimization compiler options.
 
