@@ -160,6 +160,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
+    auto oldThreads = services::Environment::getInstance()->getNumberOfThreads();
+    services::Environment::getInstance()->setNumberOfThreads(1);
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
@@ -167,7 +169,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     {
         DAAL_CHECK_STATUS(status, rearrangePoints(*y, indexes));
     }
-
+    services::Environment::getInstance()->setNumberOfThreads(oldThreads);
     daal_free(bboxQ);
     bboxQ = nullptr;
     return status;
