@@ -191,15 +191,15 @@ The instatiation of the ``Abc`` training algorithm kernel for ``method1`` is loc
 .. include:: ../includes/cpu_features/abc-classification-train-method1-fpt-cpu.rst
 
 `_fpt_cpu.cpp` files are not compiled directly into object files. First, multiple copies of those files
-are made replacing the ``fpt`` and ``cpu`` parts of the file name as well as the corresponding ``DAAL_FPTYPE`` and
-``DAAL_CPU`` macros with the actual data type and CPU type values. Then the resulting files are compiled
-with appropriate CPU-specific optimization compiler options.
+are made replacing the ``fpt``, which stands for 'floating point type', and ``cpu`` parts of the file name
+as well as the corresponding ``DAAL_FPTYPE`` and ``DAAL_CPU`` macros with the actual data type and CPU type values.
+Then the resulting files are compiled with appropriate CPU-specific optimization compiler options.
 
 The values for ``fpt`` file name part replacement are:
 - ``flt`` for ``float`` data type, and
 - ``dbl`` for ``double`` data type.
 
-The values for ``DAAL_FPTYPE`` macro replacement are ``float`` and ``double`` respectively.
+The values for ``DAAL_FPTYPE`` macro replacement are ``float`` and ``double``, respectively.
 
 The values for ``cpu`` file name part replacement are:
 - ``nrh`` for Intel |reg| SSE2 architecture, which stands for Northwood,
