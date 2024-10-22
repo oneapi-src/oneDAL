@@ -32,6 +32,12 @@ variables:
   WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_$(WIN_BASEKIT_VERSION)_offline.exe'
   WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
 
+resources:
+  repositories:
+    - repository: scikit-learn-intelex
+      type: github
+      name: intel/scikit-learn-intelex
+
 jobs:
 - job: 'FormatterChecks'
   pool:
@@ -579,7 +585,6 @@ jobs:
     displayName: 'bazel-cache-limit'
 
 - job: LinuxSklearnex
-  dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_gnu'
@@ -590,7 +595,8 @@ jobs:
   strategy:
     matrix:
       Python311:
-        python.version: '3.11'
+        PYTHON_VERSION: '3.11'
+        SKLEARN_VERSION: '1.5'
   steps:
   - task: DownloadPipelineArtifact@2
     inputs:
@@ -602,63 +608,14 @@ jobs:
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - script: |
-      conda update -y -q conda
-      conda create -q -y -n CB -c conda-forge python=$(python.version) tbb mpich
-    displayName: 'Conda create'
-  - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git sklearnex
+      git clone https://github.com/intel/scikit-learn-intelex.git .
+      ls -lha
     displayName: Clone sklearnex
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      pip install -r sklearnex/dependencies-dev
-      pip install -r sklearnex/requirements-test.txt
-    displayName: Create python environment
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      export DALROOT=$(Pipeline.Workspace)/daal/latest
-      source ${DALROOT}/env/vars.sh
-      export PREFIX=${CONDA_PREFIX}
-      cd sklearnex
-      export PYTHON=python
-      ./conda-recipe/build.sh
-    displayName: sklearnex build
+  - template: build-and-test-lnx.yml@scikit-learn-intelex
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) sklearnex build'
-      targetPath: '$(Build.Repository.LocalPath)/sklearnex'
-    displayName: 'Upload sklearnex build artifacts'
-    continueOnError: true
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      ./sklearnex/conda-recipe/run_test.sh
-    timeoutInMinutes: 20
-    displayName: sklearnex test
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      ret_code=0
-      python -m sklearnex sklearnex/tests/run_examples.py
-      ret_code=$(($ret_code + $?))
-      exit $ret_code
-    displayName: sklearnex examples
-  - script: |
-      source /usr/share/miniconda/etc/profile.d/conda.sh
-      conda activate CB
-      source $(Pipeline.Workspace)/daal/latest/env/vars.sh
-      $(Pipeline.Workspace)/s/.ci/scripts/conformance_test.sh --build-dir $(Pipeline.Workspace) --conda-dir $HOME/miniconda --oneapi-dir /opt/intel/oneapi
-    timeoutInMinutes: 15
-    displayName: Conformance tests
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) conformance tests report'
-      targetPath: '$(Pipeline.Workspace)/s/.ci/scripts/conformance-scripts/'
-    displayName: 'Upload conformance tests artifacts'
-    continueOnError: true
+      targetPath: '$(Build.Repository.LocalPath)/build'
 
 - job: 'WindowsMakeVC'
   timeoutInMinutes: 0
