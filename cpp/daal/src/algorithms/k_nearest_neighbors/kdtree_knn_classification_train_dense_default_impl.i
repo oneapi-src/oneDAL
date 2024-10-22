@@ -160,8 +160,12 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
+    auto oldThreads = services::Environment::getInstance()->getNumberOfThreads();
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
+    // We have an issue with threading version of `buildSecondPartOfKDTree`
+    services::Environment::getInstance()->setNumberOfThreads(1);
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
+    services::Environment::getInstance()->setNumberOfThreads(oldThreads);
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
     if (y)
     {
@@ -183,10 +187,10 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     typedef daal::internal::MathInst<algorithmFpType, cpu> Math;
     typedef BoundingBox<algorithmFpType> BBox;
 
-    const auto maxThreads      = threader_get_threads_number();
     const algorithmFpType base = 2.0;
+    // The queue size was incorrectly set
     const size_t queueSize =
-        2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD * maxThreads) / Math::sLog(base)));
+        2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD) / Math::sLog(base)));
     const size_t firstPartLeafNodeCount = queueSize / 2;
     q.init(queueSize);
     const size_t xColumnCount = x.getNumberOfColumns();
