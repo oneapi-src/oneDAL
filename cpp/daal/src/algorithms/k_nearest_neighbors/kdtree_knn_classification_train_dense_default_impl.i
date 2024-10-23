@@ -162,7 +162,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     BBox * bboxQ    = nullptr;
     auto oldThreads = services::Environment::getInstance()->getNumberOfThreads();
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
-    // We have an issue with threading version of `buildSecondPartOfKDTree`
+    // Temporary workaround for threading issues in `buildSecondPartOfKDTree()`
+    // Fix to be provided in https://github.com/oneapi-src/oneDAL/pull/2925
     services::Environment::getInstance()->setNumberOfThreads(1);
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     services::Environment::getInstance()->setNumberOfThreads(oldThreads);
