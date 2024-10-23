@@ -31,11 +31,11 @@ CORE.SERV.COMPILER.icx = generic
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icx = icx -m64 \
-                     -Werror -Wreturn-type -qopenmp-simd
+                     -Werror -Wreturn-type -qopenmp-simd $(if $(filter yes,$(GCOV_ENABLED)),-coverage,)
 
 COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD -Qopenmp-simd, -MDd) -nologo -WX -Wno-deprecated-declarations
 
-link.dynamic.lnx.icx = icx -m64 -no-intel-lib
+link.dynamic.lnx.icx = icx -m64 -no-intel-lib $(if $(filter yes,$(GCOV_ENABLED)),-coverage,)
 
 pedantic.opts.lnx.icx = -pedantic \
                         -Wall \
