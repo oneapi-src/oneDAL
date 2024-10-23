@@ -159,7 +159,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t * const indexes = static_cast<data_management::HomogenNumericTable<size_t> *>(r->impl()->getIndices().get())->getArray();
 
     Queue<BuildNode, cpu> q;
-    BBox * bboxQ = nullptr;
+    BBox * bboxQ    = nullptr;
     auto oldThreads = services::Environment::getInstance()->getNumberOfThreads();
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
     // We have an issue with threading version of `buildSecondPartOfKDTree`
@@ -189,8 +189,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
     const algorithmFpType base = 2.0;
     // The queue size was incorrectly set
-    const size_t queueSize =
-        2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD) / Math::sLog(base)));
+    const size_t queueSize = 2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD) / Math::sLog(base)));
     const size_t firstPartLeafNodeCount = queueSize / 2;
     q.init(queueSize);
     const size_t xColumnCount = x.getNumberOfColumns();
