@@ -1054,7 +1054,7 @@ $(CORE.incdirs): _release_c_h
 define .release.dd
 $3: $2
 $2: $1 ; $(value mkdir)
-	@if [ ! -f $2 ] || ! cmp -s $1 $2; then $(value cpy); fi
+	@if [ ! -f $2 ] || [ $1 -nt $2 ]; then $(value cpy); fi
 	$(if $(filter %library_version_info.h,$2),+$(daalmake) -f makefile update_headers_version)
 	$(if $(USECPUS.out.defs.filter),$(if $(filter %daal_kernel_defines.h,$2),$(USECPUS.out.defs.filter) $2; rm -rf $(subst .h,.h.bak,$2)))
 endef
