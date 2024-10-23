@@ -155,7 +155,7 @@ Typical template parameters are:
 - ``method`` Computational methods of the algorithm. ``method1`` or ``method2`` in the case of ``Abc``.
 - ``cpu`` Version of the cpu-specific implementation of the algorithm, ``daal::CpuType``.
 
-Implementations for different methods are usually defined usind partial class templates specialization.
+Implementations for different methods are usually defined using partial class templates specialization.
 
 \*_impl.i
 ---------
@@ -173,7 +173,12 @@ For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED
 This will guide the compiler to generate more efficient code for the target architecture.
 
 Consider that the implementation of the ``method2`` for the same algorithm will be different and will contain
-AVX-512-specific code located in ``cpuSpecificCode`` function.
+AVX-512-specific code located in ``cpuSpecificCode`` function. Note that all the compiler-specific code should
+be placed under compiler-specific defines. For example, the Intel |reg| oneAPI DPC++/C++ Compiler specific code
+should be placed under ``DAAL_INTEL_CPP_COMPILER`` define. All the CPU-specific code should be placed under
+CPU-specific defines. For example, the AVX-512 specific code should be placed under
+``__CPUID__(DAAL_CPU) == __avx512__``.
+
 Then the implementation of the ``method2`` in the file `abc_classification_train_method2_impl.i` will look like:
 
 .. include:: ../includes/cpu_features/abc-classification-train-method2-impl.rst
@@ -208,7 +213,7 @@ The values for ``cpu`` file name part replacement are:
 - ``skx`` for Intel |reg| AVX-512 architecture, which stands for Skylake-X.
 
 The values for ``DAAL_CPU`` macro replacement are:
-- ``sse2`` for Intel |reg| SSE2 architecture,
-- ``sse42`` for Intel |reg| SSE4.2 architecture,
-- ``avx2`` for Intel |reg| AVX2 architecture,
-- ``avx512`` for Intel |reg| AVX-512 architecture.
+- ``__sse2__`` for Intel |reg| SSE2 architecture,
+- ``__sse42__`` for Intel |reg| SSE4.2 architecture,
+- ``__avx2__`` for Intel |reg| AVX2 architecture,
+- ``__avx512__`` for Intel |reg| AVX-512 architecture.
