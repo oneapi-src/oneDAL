@@ -189,7 +189,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     typedef BoundingBox<algorithmFpType> BBox;
 
     const algorithmFpType base = 2.0;
-    // The queue size was incorrectly set
+    // The queue size is not impacted by number of threads.
+    // All operations with the queue are done not in the threader_for primitives.
     const size_t queueSize = 2 * Math::sPowx(base, Math::sCeil(Math::sLog(__KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD) / Math::sLog(base)));
     const size_t firstPartLeafNodeCount = queueSize / 2;
     q.init(queueSize);
