@@ -24,10 +24,10 @@ set architectures.
 
 Following architectures are currently supported:
 
-- Intel |reg| Streaming SIMD Extensions 2 (Intel |reg| SSE2)
-- Intel |reg| Streaming SIMD Extensions 4.2 (Intel |reg| SSE4.2)
-- Intel |reg| Advanced Vector Extensions 2 (Intel |reg| AVX2)
-- Intel |reg| Advanced Vector Extensions 512 (Intel |reg| AVX-512)
+- Intel\ |reg| Streaming SIMD Extensions 2 (Intel\ |reg| SSE2)
+- Intel\ |reg| Streaming SIMD Extensions 4.2 (Intel\ |reg| SSE4.2)
+- Intel\ |reg| Advanced Vector Extensions 2 (Intel\ |reg| AVX2)
+- Intel\ |reg| Advanced Vector Extensions 512 (Intel\ |reg| AVX-512)
 
 The particular code path is chosen at runtime based on the underlying hardware characteristics.
 
@@ -83,7 +83,7 @@ Suppose that it provides:
 - ``classification`` and ``regression`` learning tasks;
 - ``training`` and ``inference`` stages;
 - ``method1`` and ``method2`` for the ``training`` stage and only ``method1`` for ``inference`` stage;
-- only batch computational mode.
+- only ``batch`` computational mode.
 
 Then the `cpp/daal/src/algorithms/abc` folder should contain at least the following files:
 
@@ -133,7 +133,6 @@ could be:
           |-- abc_regression_train_method2_impl.i
           |-- abc_regression_train_kernel.h
 
-
 The names of the files stay the same in this case, just the folder layout differs.
 
 Further the purpose and contents of each file are to be described on the example of classification
@@ -174,7 +173,7 @@ This will guide the compiler to generate more efficient code for the target arch
 
 Consider that the implementation of the ``method2`` for the same algorithm will be different and will contain
 AVX-512-specific code located in ``cpuSpecificCode`` function. Note that all the compiler-specific code should
-be placed under compiler-specific defines. For example, the Intel |reg| oneAPI DPC++/C++ Compiler specific code
+be placed under compiler-specific defines. For example, the Intel\ |reg| oneAPI DPC++/C++ Compiler specific code
 should be placed under ``DAAL_INTEL_CPP_COMPILER`` define. All the CPU-specific code should be placed under
 CPU-specific defines. For example, the AVX-512 specific code should be placed under
 ``__CPUID__(DAAL_CPU) == __avx512__``.
@@ -182,9 +181,6 @@ CPU-specific defines. For example, the AVX-512 specific code should be placed un
 Then the implementation of the ``method2`` in the file `abc_classification_train_method2_impl.i` will look like:
 
 .. include:: ../includes/cpu_features/abc-classification-train-method2-impl.rst
-
-CPU-specific code needs to be placed under compiler-specific and CPU-specific defines because it usually
-contains intrinsics that cannot be compiled on other architectures.
 
 \*_fpt_cpu.cpp
 --------------
@@ -201,19 +197,22 @@ as well as the corresponding ``DAAL_FPTYPE`` and ``DAAL_CPU`` macros with the ac
 Then the resulting files are compiled with appropriate CPU-specific optimization compiler options.
 
 The values for ``fpt`` file name part replacement are:
+
 - ``flt`` for ``float`` data type, and
 - ``dbl`` for ``double`` data type.
 
 The values for ``DAAL_FPTYPE`` macro replacement are ``float`` and ``double``, respectively.
 
 The values for ``cpu`` file name part replacement are:
-- ``nrh`` for Intel |reg| SSE2 architecture, which stands for Northwood,
-- ``neh`` for Intel |reg| SSE4.2 architecture, which stands for Nehalem,
-- ``hsw`` for Intel |reg| AVX2 architecture, which stands for Haswell,
-- ``skx`` for Intel |reg| AVX-512 architecture, which stands for Skylake-X.
+
+- ``nrh`` for Intel\ |reg| SSE2 architecture, which stands for Northwood,
+- ``neh`` for Intel\ |reg| SSE4.2 architecture, which stands for Nehalem,
+- ``hsw`` for Intel\ |reg| AVX2 architecture, which stands for Haswell,
+- ``skx`` for Intel\ |reg| AVX-512 architecture, which stands for Skylake-X.
 
 The values for ``DAAL_CPU`` macro replacement are:
-- ``__sse2__`` for Intel |reg| SSE2 architecture,
-- ``__sse42__`` for Intel |reg| SSE4.2 architecture,
-- ``__avx2__`` for Intel |reg| AVX2 architecture,
-- ``__avx512__`` for Intel |reg| AVX-512 architecture.
+
+- ``__sse2__`` for Intel\ |reg| SSE2 architecture,
+- ``__sse42__`` for Intel\ |reg| SSE4.2 architecture,
+- ``__avx2__`` for Intel\ |reg| AVX2 architecture,
+- ``__avx512__`` for Intel\ |reg| AVX-512 architecture.
