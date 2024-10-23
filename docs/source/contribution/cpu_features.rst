@@ -19,15 +19,15 @@
 CPU Features Dispatching
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-For each algorithm oneDAL provides several code paths for x86-64-compatibe instruction
+For each algorithm |short_name| provides several code paths for x86-64-compatibe instruction
 set architectures.
 
 Following architectures are currently supported:
 
-- Intel\ |reg| Streaming SIMD Extensions 2 (Intel\ |reg| SSE2)
-- Intel\ |reg| Streaming SIMD Extensions 4.2 (Intel\ |reg| SSE4.2)
-- Intel\ |reg| Advanced Vector Extensions 2 (Intel\ |reg| AVX2)
-- Intel\ |reg| Advanced Vector Extensions 512 (Intel\ |reg| AVX-512)
+- Intel\ |reg|\  Streaming SIMD Extensions 2 (Intel\ |reg|\  SSE2)
+- Intel\ |reg|\  Streaming SIMD Extensions 4.2 (Intel\ |reg|\  SSE4.2)
+- Intel\ |reg|\  Advanced Vector Extensions 2 (Intel\ |reg|\  AVX2)
+- Intel\ |reg|\  Advanced Vector Extensions 512 (Intel\ |reg|\  AVX-512)
 
 The particular code path is chosen at runtime based on the underlying hardware characteristics.
 
@@ -36,9 +36,9 @@ This chapter describes how the code is organized to support this variety of inst
 Algorithm Implementation Options
 ********************************
 
-In addition to the instruction set architectures, an algorithm in oneDAL may have various
+In addition to the instruction set architectures, an algorithm in |short_name| may have various
 implementation options. Below is a description of these options to help you better understand
-the oneDAL code structure and conventions.
+the |short_name| code structure and conventions.
 
 Computational Tasks
 -------------------
@@ -66,14 +66,14 @@ methods for algorithm training and inference.
 Computational Modes
 -------------------
 
-oneDAL can provide several computaional modes for an algorithm.
+|short_name| can provide several computaional modes for an algorithm.
 See `Computaional Modes <https://oneapi-src.github.io/oneDAL/onedal/programming-model/computational-modes.html>`_
 chapter for details.
 
 Folders and Files
 *****************
 
-Suppose that you are working on some algorithm ``Abc`` in oneDAL.
+Suppose that you are working on some algorithm ``Abc`` in |short_name|.
 
 The part of the implementation of this algorithms that is running on CPU should be located in
 `cpp/daal/src/algorithms/abc` folder.
@@ -166,14 +166,14 @@ instruction set specific code. The implementation is located in the file `abc_cl
 .. include:: ../includes/cpu_features/abc-classification-train-method1-impl.rst
 
 Although the implementation of the ``method1`` does not contain any instruction set specific code, it is
-expected that the developers leverage SIMD related macros available in oneDAL.
+expected that the developers leverage SIMD related macros available in |short_name|.
 For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and others pragmas defined in
 `service_defines.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/services/service_defines.h>`_.
 This will guide the compiler to generate more efficient code for the target architecture.
 
 Consider that the implementation of the ``method2`` for the same algorithm will be different and will contain
 AVX-512-specific code located in ``cpuSpecificCode`` function. Note that all the compiler-specific code should
-be placed under compiler-specific defines. For example, the Intel\ |reg| oneAPI DPC++/C++ Compiler specific code
+be placed under compiler-specific defines. For example, the Intel\ |reg|\  oneAPI DPC++/C++ Compiler specific code
 should be placed under ``DAAL_INTEL_CPP_COMPILER`` define. All the CPU-specific code should be placed under
 CPU-specific defines. For example, the AVX-512 specific code should be placed under
 ``__CPUID__(DAAL_CPU) == __avx512__``.
@@ -205,14 +205,14 @@ The values for ``DAAL_FPTYPE`` macro replacement are ``float`` and ``double``, r
 
 The values for ``cpu`` file name part replacement are:
 
-- ``nrh`` for Intel\ |reg| SSE2 architecture, which stands for Northwood,
-- ``neh`` for Intel\ |reg| SSE4.2 architecture, which stands for Nehalem,
-- ``hsw`` for Intel\ |reg| AVX2 architecture, which stands for Haswell,
-- ``skx`` for Intel\ |reg| AVX-512 architecture, which stands for Skylake-X.
+- ``nrh`` for Intel\ |reg|\  SSE2 architecture, which stands for Northwood,
+- ``neh`` for Intel\ |reg|\  SSE4.2 architecture, which stands for Nehalem,
+- ``hsw`` for Intel\ |reg|\  AVX2 architecture, which stands for Haswell,
+- ``skx`` for Intel\ |reg|\  AVX-512 architecture, which stands for Skylake-X.
 
 The values for ``DAAL_CPU`` macro replacement are:
 
-- ``__sse2__`` for Intel\ |reg| SSE2 architecture,
-- ``__sse42__`` for Intel\ |reg| SSE4.2 architecture,
-- ``__avx2__`` for Intel\ |reg| AVX2 architecture,
-- ``__avx512__`` for Intel\ |reg| AVX-512 architecture.
+- ``__sse2__`` for Intel\ |reg|\  SSE2 architecture,
+- ``__sse42__`` for Intel\ |reg|\  SSE4.2 architecture,
+- ``__avx2__`` for Intel\ |reg|\  AVX2 architecture,
+- ``__avx512__`` for Intel\ |reg|\  AVX-512 architecture.
