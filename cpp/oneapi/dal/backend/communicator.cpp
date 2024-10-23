@@ -96,6 +96,10 @@ public:
 
     void barrier() override {}
 
+    request_t* is_init(bool init) override {
+        return nullptr;
+    }
+
     request_t* bcast(byte_t* send_buf,
                      std::int64_t count,
                      const data_type& dtype,
