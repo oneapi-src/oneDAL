@@ -34,7 +34,7 @@ variables:
 
 resources:
   repositories:
-    - repository: scikit-learn-intelex
+    - repository: sklearnex
       type: github
       name: intel/scikit-learn-intelex
 
@@ -611,7 +611,7 @@ jobs:
       git clone https://github.com/intel/scikit-learn-intelex.git .
       ls -lha
     displayName: Clone sklearnex
-  - template: build-and-test-lnx.yml@scikit-learn-intelex
+  - template: build-and-test-lnx.yml@sklearnex
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) sklearnex build'
