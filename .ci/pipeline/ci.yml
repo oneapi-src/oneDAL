@@ -36,7 +36,7 @@ resources:
   repositories:
     - repository: sklearnex
       type: git
-      name: daal/daal4py
+      name: daal4py/scikit-learn-intelex
 
 jobs:
 - job: 'FormatterChecks'
