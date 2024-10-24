@@ -96,9 +96,7 @@ public:
 
     void barrier() override {}
 
-    request_t* is_init(bool init) override {
-        return nullptr;
-    }
+    void is_init(int * flag) override {}
 
     request_t* bcast(byte_t* send_buf,
                      std::int64_t count,
@@ -170,6 +168,8 @@ public:
     }
 
     void barrier() override {}
+
+    void is_init(int * flag) override {}
 
     request_t* bcast(byte_t* send_buf,
                      std::int64_t count,
