@@ -35,7 +35,7 @@ variables:
 resources:
   repositories:
     - repository: sklearnex
-      type: github
+      type: git
       name: intel/scikit-learn-intelex
 
 jobs:
