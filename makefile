@@ -441,6 +441,7 @@ CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
 containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
 notcontaining = $(foreach v,$2,$(if $(findstring $1,$v),,$v))
 cpy = cp -fp "$<" "$@"
+pycpy = python -c "import os;import shutil;import sys;(not os.path.exists(sys.argv[2]) or os.path.getmtime(sys.argv[1]) > os.path.getmtime(sys.argv[2])) and shutil.copy2(sys.argv[1], sys.argv[2])" "$<" "$@"
 
 CORE.tmpdir_a := $(WORKDIR)/core_static
 CORE.tmpdir_y := $(WORKDIR)/core_dynamic
@@ -1053,7 +1054,7 @@ $(CORE.incdirs): _release_c_h
 
 define .release.dd
 $3: $2
-$2: $1 ; $(value mkdir)$(value cpy)
+$2: $1 ; $(value mkdir)$(value pycpy)
 	$(if $(filter %library_version_info.h,$2),+$(daalmake) -f makefile update_headers_version)
 	$(if $(USECPUS.out.defs.filter),$(if $(filter %daal_kernel_defines.h,$2),$(USECPUS.out.defs.filter) $2; rm -rf $(subst .h,.h.bak,$2)))
 endef
