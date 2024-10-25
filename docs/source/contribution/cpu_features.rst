@@ -175,16 +175,16 @@ instruction set specific code. The implementation is located in the file `abc_cl
 
 Although the implementation of the ``method1`` does not contain any instruction set specific code, it is
 expected that the developers leverage SIMD related macros available in |short_name|.
-For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and others pragmas defined in
+For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and other pragmas defined in
 `service_defines.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/services/service_defines.h>`_.
 This will guide the compiler to generate more efficient code for the target architecture.
 
 Consider that the implementation of the ``method2`` for the same algorithm will be different and will contain
-AVX-512-specific code located in ``cpuSpecificCode`` function. Note that all the compiler-specific code should
-be placed under compiler-specific defines. For example, the Intel\ |reg|\  oneAPI DPC++/C++ Compiler specific code
-should be placed under ``DAAL_INTEL_CPP_COMPILER`` define. All the CPU-specific code should be placed under
-CPU-specific defines. For example, the AVX-512 specific code should be placed under
-``__CPUID__(DAAL_CPU) == __avx512__``.
+AVX-512-specific code located in ``cpuSpecificCode`` function. Note that all the compiler-specific code
+should be gated by values of compiler-specific defines.
+For example, the Intel\ |reg|\  oneAPI DPC++/C++ Compiler specific code should be gated the existence of the
+``DAAL_INTEL_CPP_COMPILER`` define. All the CPU-specific code should be gated on the value of CPU-specific define.
+For example, the AVX-512 specific code should be gated on the value ``__CPUID__(DAAL_CPU) == __avx512__``.
 
 Then the implementation of the ``method2`` in the file `abc_classification_train_method2_impl.i` will look like:
 
@@ -203,7 +203,7 @@ The instantiation of the ``Abc`` training algorithm kernel for ``method1`` is lo
 `_fpt_cpu.cpp` files are not compiled directly into object files. First, multiple copies of those files
 are made replacing the ``fpt``, which stands for 'floating point type', and ``cpu`` parts of the file name
 as well as the corresponding ``DAAL_FPTYPE`` and ``DAAL_CPU`` macros with the actual data type and CPU type values.
-Then the resulting files are compiled with appropriate CPU-specific optimization compiler options.
+Then the resulting files are compiled with appropriate CPU-specific compiler optimization options.
 
 The values for ``fpt`` file name part replacement are:
 

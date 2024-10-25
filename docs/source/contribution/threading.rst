@@ -20,9 +20,7 @@ Threading Layer
 ^^^^^^^^^^^^^^^
 
 |short_name| uses Intel\ |reg|\  oneAPI Threading Building Blocks (Intel\ |reg|\  oneTBB) to do parallel
-computations on CPU.
-
-But oneTBB is not used in the code of |short_name| algorithms directly. The algorithms rather
+computations on CPU. oneTBB is not used in the code of |short_name| algorithms directly. The algorithms rather
 use custom primitives that either wrap oneTBB functionality or are in-house developed.
 Those primitives form |short_name|'s threading layer.
 
