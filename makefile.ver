@@ -5,7 +5,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#	 http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,12 +14,12 @@
 # limitations under the License.
 #===============================================================================
 
-MAJOR   =	   2025
-MINOR   =	   1
-UPDATE  =	   0
-BUILD   =	   $(shell date +'%Y%m%d')
-STATUS  =	   P
-BUILDREV ?=	 work
+MAJOR   =       2025
+MINOR   =       1
+UPDATE  =       0
+BUILD   =       $(shell date +'%Y%m%d')
+STATUS  =       P
+BUILDREV ?=     work
 
 MAJORBINARY = 3
 MINORBINARY = 0
@@ -33,9 +33,9 @@ VERSION_DATA_FILE = $(WORKDIR)/daal_version_gen.h
 
 # content of version data file to be included in product
 define DAAL_VERSION_DATA
-// DO NOT EDIT: file is auto-generated on build time
 // DO NOT PUT THIS FILE TO VERSIONING: file is auto-generated on build time
 // Product version is specified in `makefile.ver` file
+// Product version is specified in src/makefile.ver file
 #define MAJORVERSION $(MAJOR)
 #define MINORVERSION $(MINOR)
 #define UPDATEVERSION $(UPDATE)
