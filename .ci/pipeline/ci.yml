@@ -606,7 +606,7 @@ jobs:
     displayName: 'System info'
   - script: |
       conda update -y -q conda
-      conda create -q -y -n CB -c conda-forge python=$(python.version) tbb mpich
+      conda create -q -y -n CB -c conda-forge python=$(python.version) mpich
     displayName: 'Conda create'
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git sklearnex
@@ -616,6 +616,7 @@ jobs:
       conda activate CB
       pip install -r sklearnex/dependencies-dev
       pip install -r sklearnex/requirements-test.txt
+      pip install tbb==2022.*
     displayName: Create python environment
   - script: |
       source /usr/share/miniconda/etc/profile.d/conda.sh
