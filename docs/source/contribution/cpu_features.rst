@@ -230,7 +230,7 @@ Build System Configuration
 **************************
 
 This chapter describes which parts of the build system need to be modified to add new architectural
-extensions to the build system or to remove an outdated one.
+extension or to remove an outdated one.
 
 Makefile
 --------
@@ -238,7 +238,7 @@ Makefile
 The most important definitions and functions for CPU features dispatching are located in the files
 |32e_make|_ for x86-64 architecture, |riscv_make|_ for RISC-V 64-bit architecture, and |arm_make|_
 for ARM architecture.
-Those files are included into operating system related files.
+Those files are included into operating system related makefiles.
 For example, the |32e_make| file is included into ``lnx32e.mk`` file:
 
 ::
@@ -256,7 +256,7 @@ Where ``$(PLAT)`` is the platform name, for example, ``lnx32e``, ``win32e``, ``l
 To add a new architectural extension into |32e_make| file, ``CPUs`` and ``CPUs.files`` lists need to be updated.
 The functions like ``set_uarch_options_for_compiler`` and others should also be updated accordingly.
 
-The compiler options for the new architectural extension should be added to the respective file in
+The compiler options for the new architectural extension should be added to the respective file in the
 `compiler_definitions <https://github.com/oneapi-src/oneDAL/tree/main/dev/make/compiler_definitions>`_ folder.
 
 For example, `gnu.32e.mk <https://github.com/oneapi-src/oneDAL/blob/main/dev/make/compiler_definitions/gnu.32e.mk>`_
