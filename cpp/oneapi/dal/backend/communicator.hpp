@@ -92,9 +92,9 @@ public:
         public_comm_.barrier();
     }
 
-    void is_init(int * flag) const {
-        public_comm_.is_init(flag);
-    }
+    // void is_init(int * flag) const {
+    //     public_comm_.is_init(flag);
+    // }
 
     template <typename... Args>
     communicator_event bcast(Args&&... args) const {
