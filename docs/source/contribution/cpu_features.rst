@@ -14,29 +14,35 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
+.. |32e_make| replace:: 32e.mk
+.. _32e_make: https://github.com/oneapi-src/oneDAL/blob/main/dev/make/function_definitions/32e.mk
+.. |riscv_make| replace:: riscv64.mk
+.. _riscv_make: https://github.com/oneapi-src/oneDAL/blob/main/dev/make/function_definitions/riscv64.mk
+.. |arm_make| replace:: arm.mk
+.. _arm_make: https://github.com/oneapi-src/oneDAL/blob/main/dev/make/function_definitions/arm.mk
+
 .. highlight:: cpp
 
 CPU Features Dispatching
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-For each algorithm |short_name| provides several code paths for x86-64-compatibe instruction
-set architectures.
+For each algorithm |short_name| provides several code paths for x86-64-compatible architectural extensions.
 
-Following architectures are currently supported:
+Following extensions are currently supported:
 
 - Intel\ |reg|\  Streaming SIMD Extensions 2 (Intel\ |reg|\  SSE2)
 - Intel\ |reg|\  Streaming SIMD Extensions 4.2 (Intel\ |reg|\  SSE4.2)
 - Intel\ |reg|\  Advanced Vector Extensions 2 (Intel\ |reg|\  AVX2)
 - Intel\ |reg|\  Advanced Vector Extensions 512 (Intel\ |reg|\  AVX-512)
 
-The particular code path is chosen at runtime based on the underlying hardware characteristics.
+The particular code path is chosen at runtime based on underlying hardware properties.
 
-This chapter describes how the code is organized to support this variety of instruction sets.
+This chapter describes how the code is organized to support this variety of extensions.
 
 Algorithm Implementation Options
 ********************************
 
-In addition to the instruction set architectures, an algorithm in |short_name| may have various
+In addition to the architectural extensions, an algorithm in |short_name| may have various
 implementation options. Below is a description of these options to help you better understand
 the |short_name| code structure and conventions.
 
@@ -66,8 +72,8 @@ methods for algorithm training and inference.
 Computational Modes
 -------------------
 
-|short_name| can provide several computaional modes for an algorithm.
-See `Computaional Modes <https://oneapi-src.github.io/oneDAL/onedal/programming-model/computational-modes.html>`_
+|short_name| can provide several computational modes for an algorithm.
+See `Computational Modes <https://oneapi-src.github.io/oneDAL/onedal/programming-model/computational-modes.html>`_
 chapter for details.
 
 Folders and Files
@@ -141,7 +147,8 @@ training task. For other types of the tasks the structure of the code is similar
 \*_kernel.h
 -----------
 
-Those files contain the definitions of one or several template classes that define member functions that
+In the directory structure of the ``Abc`` algorithm, there are files with a `_kernel.h` suffix.
+These files contain the definitions of one or several template classes that define member functions that
 do the actual computations. Here is a variant of the ``Abc`` training algorithm kernel definition in the file
 `abc_classification_train_kernel.h`:
 
@@ -159,8 +166,9 @@ Implementations for different methods are usually defined using partial class te
 \*_impl.i
 ---------
 
-Those files contain the implementations of the computational functions defined in `*_kernel.h` files.
-Here is a variant of ``method1`` imlementation for ``Abc`` training algorithm that does not contain any
+In the directory structure of the ``Abc`` algorithm, there are files with a `_impl.i` suffix.
+These files contain the implementations of the computational functions defined in the files with a `_kernel.h` suffix.
+Here is a variant of ``method1`` implementation for ``Abc`` training algorithm that does not contain any
 instruction set specific code. The implementation is located in the file `abc_classification_train_method1_impl.i`:
 
 .. include:: ../includes/cpu_features/abc-classification-train-method1-impl.rst
@@ -185,8 +193,9 @@ Then the implementation of the ``method2`` in the file `abc_classification_train
 \*_fpt_cpu.cpp
 --------------
 
-Those files contain the instantiations of the template classes defined in `*_kernel.h` files.
-The instatiation of the ``Abc`` training algorithm kernel for ``method1`` is located in the file
+In the directory structure of the ``Abc`` algorithm, there are files with a `_fpt_cpu.cpp` suffix.
+These files contain the instantiations of the template classes defined in the files with a `_kernel.h` suffix.
+The instantiation of the ``Abc`` training algorithm kernel for ``method1`` is located in the file
 `abc_classification_train_method1_batch_fpt_cpu.cpp`:
 
 .. include:: ../includes/cpu_features/abc-classification-train-method1-fpt-cpu.rst
@@ -216,3 +225,65 @@ The values for ``DAAL_CPU`` macro replacement are:
 - ``__sse42__`` for Intel\ |reg|\  SSE4.2 architecture,
 - ``__avx2__`` for Intel\ |reg|\  AVX2 architecture,
 - ``__avx512__`` for Intel\ |reg|\  AVX-512 architecture.
+
+Build System Configuration
+**************************
+
+This chapter describes which parts of the build system need to be modified to add new architectural
+extensions to the build system or to remove an outdated one.
+
+Makefile
+--------
+
+The most important definitions and functions for CPU features dispatching are located in the files
+|32e_make|_ for x86-64 architecture, |riscv_make|_ for RISC-V 64-bit architecture, and |arm_make|_
+for ARM architecture.
+Those files are included into operating system related files.
+For example, the |32e_make| file is included into ``lnx32e.mk`` file:
+
+::
+
+  include dev/make/function_definitions/32e.mk
+
+And ``lnx32e.mk`` and similar files are included into the main Makefile:
+
+::
+
+  include dev/make/function_definitions/$(PLAT).mk
+
+Where ``$(PLAT)`` is the platform name, for example, ``lnx32e``, ``win32e``, ``lnxriscv64``, etc.
+
+To add a new architectural extension into |32e_make| file, ``CPUs`` and ``CPUs.files`` lists need to be updated.
+The functions like ``set_uarch_options_for_compiler`` and others should also be updated accordingly.
+
+The compiler options for the new architectural extension should be added to the respective file in
+`compiler_definitions <https://github.com/oneapi-src/oneDAL/tree/main/dev/make/compiler_definitions>`_ folder.
+
+For example, `gnu.32e.mk <https://github.com/oneapi-src/oneDAL/blob/main/dev/make/compiler_definitions/gnu.32e.mk>`_
+file contains the compiler options for the GNU compiler for x86-64 architecture in the form
+``option_name.compiler_name``:
+
+::
+
+  p4_OPT.gnu   = $(-Q)march=nocona
+  mc3_OPT.gnu  = $(-Q)march=corei7
+  avx2_OPT.gnu = $(-Q)march=haswell
+  skx_OPT.gnu  = $(-Q)march=skylake
+
+Bazel
+-----
+
+For now, Bazel build is supported only for Linux x86-64 platform
+It provides ``cpu`` `option <https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel#bazel-options>`_
+that allows to specify the list of target architectural extensions.
+
+To add a new architectural extension into Bazel configuration, following steps should be done:
+
+- Add the new extension to the list of allowed values in the ``_ISA_EXTENSIONS`` variable in the
+  `config.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/config/config.bzl>`_ file;
+- Update the ``get_cpu_flags`` function in the
+  `flags.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/flags.bzl>`_
+  file to provide the compiler flags for the new extension;
+- Update the ``cpu_defines`` dictionaries in
+  `dal.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/dal.bzl>`_ and
+  `daal.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/daal.bzl>`_ files accordingly.
