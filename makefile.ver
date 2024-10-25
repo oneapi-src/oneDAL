@@ -35,7 +35,6 @@ VERSION_DATA_FILE = $(WORKDIR)/daal_version_gen.h
 define DAAL_VERSION_DATA
 // DO NOT PUT THIS FILE TO VERSIONING: file is auto-generated on build time
 // Product version is specified in `makefile.ver` file
-// Product version is specified in src/makefile.ver file
 #define MAJORVERSION $(MAJOR)
 #define MINORVERSION $(MINOR)
 #define UPDATEVERSION $(UPDATE)
