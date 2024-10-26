@@ -247,13 +247,13 @@ template <typename algorithmFPType, CpuType cpu>
 class DataHelperCSR
 {
 public:
-    typedef BlockHelperCSR<algorithmFPType, cpu, CSRNumericTableIface> BlockHelperType;
+    typedef BlockHelperCSR<algorithmFPType, cpu, CSRNumericTable> BlockHelperType;
 
     DataHelperCSR(NumericTable * ntData)
-        : dim(ntData->getNumberOfColumns()), nRows(ntData->getNumberOfRows()), _nt(ntData), _csr(dynamic_cast<CSRNumericTableIface *>(ntData))
+        : dim(ntData->getNumberOfColumns()), nRows(ntData->getNumberOfRows()), _nt(ntData), _csr(dynamic_cast<CSRNumericTable *>(ntData))
     {}
     NumericTable * nt() const { return _nt; }
-    CSRNumericTableIface * ntIface() const { return _csr; }
+    CSRNumericTable * ntIface() const { return _csr; }
 
     Status updateMinDistInBlock(algorithmFPType * const minDistAccTrials, size_t nBlock, size_t iBlock, size_t nTrials, size_t iBestTrial,
                                 const algorithmFPType * aWeights, const algorithmFPType * const pLastAddedCenter, algorithmFPType * const aMinDist)
@@ -261,11 +261,13 @@ public:
         const size_t iStartRow      = iBlock * _nRowsInBlock;                                                  //start row
         const size_t nRowsToProcess = (iBlock == nBlock - 1) ? nRows - iBlock * _nRowsInBlock : _nRowsInBlock; //rows to process
 
-        ReadRowsCSR<algorithmFPType, cpu> ntDataBD(_csr, iStartRow, nRowsToProcess);
-        DAAL_CHECK_BLOCK_STATUS(ntDataBD);
-        const algorithmFPType * const pData = ntDataBD.values();
-        const size_t * const colIdx         = ntDataBD.cols();
-        const size_t * const rowIdx         = ntDataBD.rows();
+        // TODO: Better to use ReadRowsCSR, but there is a bug related to static library linking.
+        // Fixme when ReadRowsCSR will be fixed.
+        daal::data_management::CSRBlockDescriptor<algorithmFPType> block;
+        _csr->getSparseBlock(iStartRow, nRowsToProcess, daal::data_management::readOnly, block);
+        const auto pData  = block.getBlockValuesPtr();
+        const auto colIdx = block.getBlockColumnIndicesPtr();
+        const auto rowIdx = block.getBlockRowIndicesPtr();
 
         algorithmFPType * const pDistSqBest   = &aMinDist[iBestTrial * nRows + iStartRow];
         const algorithmFPType * const weights = aWeights ? &aWeights[iStartRow] : nullptr;
@@ -282,23 +284,36 @@ public:
         minDistAccTrials[iBestTrial * nBlock + iBlock] =
             updateMinDistForITrials(pDistSqBest, iBestTrial, nRowsToProcess, pData, colIdx, rowIdx, pLastAddedCenter, weights, pDistSqBest);
 
-        return Status();
+        return _csr->releaseSparseBlock(block);
     }
 
+    // For each data point from the provided data block, calculate squared distance
+    // from current trial center to the rows in the block and update min distance
     algorithmFPType updateMinDistForITrials(algorithmFPType * const pDistSq, size_t iTrials, size_t nRowsToProcess,
                                             const algorithmFPType * const pData, const size_t * const colIdx, const size_t * const rowIdx,
                                             const algorithmFPType * const pLastAddedCenter, const algorithmFPType * const aWeights,
                                             const algorithmFPType * const pDistSqBest)
     {
-        algorithmFPType sumOfDist2 = algorithmFPType(0);
-        size_t csrCursor           = 0u;
+        algorithmFPType sumOfDist2            = algorithmFPType(0);
+        size_t csrCursor                      = 0u;
+        algorithmFPType pLastAddedCenterSumSq = algorithmFPType(0.);
+        // Calculate sum of squares of the last added center
+        for (size_t iCol = 0u; iCol < dim; iCol++)
+        {
+            pLastAddedCenterSumSq += pLastAddedCenter[iCol] * pLastAddedCenter[iCol];
+        }
+
         for (size_t iRow = 0u; iRow < nRowsToProcess; iRow++)
         {
-            algorithmFPType dist2 = algorithmFPType(0);
+            algorithmFPType dist2 = pLastAddedCenterSumSq;
             const size_t nValues  = rowIdx[iRow + 1] - rowIdx[iRow];
+
+            // Add sum of squares of the current row to the sum of squares of the last added center
+            // Subtract 2 * product of non-zero element of current row and the element at the same index in the lastAddedCenter
+            // This gives squared distance between last added center and current row using x^2 + y^2 - 2xy
             for (size_t i = 0u; i < nValues; i++, csrCursor++)
             {
-                dist2 += (pData[csrCursor] - pLastAddedCenter[colIdx[csrCursor] - 1]) * (pData[csrCursor] - pLastAddedCenter[colIdx[csrCursor] - 1]);
+                dist2 += pData[csrCursor] * pData[csrCursor] - 2 * pData[csrCursor] * pLastAddedCenter[colIdx[csrCursor] - 1];
             }
             if (aWeights)
             {
@@ -316,19 +331,25 @@ public:
     //of the data in this row
     algorithmFPType copyOneRowCalcSumSq(size_t iRow, algorithmFPType * pDst) const
     {
-        ReadRowsCSR<algorithmFPType, cpu> ntDataBD(_csr, iRow, 1);
-        const algorithmFPType * pData = ntDataBD.values();
-        const size_t * colIdx         = ntDataBD.cols();
-        const size_t * rowIdx         = ntDataBD.rows();
+        // TODO: Better to use ReadRowsCSR, but there is a bug related to static library linking.
+        // Fixme when ReadRowsCSR will be fixed.
+        daal::data_management::CSRBlockDescriptor<algorithmFPType> block;
+        _csr->getSparseBlock(iRow, 1, daal::data_management::readOnly, block);
+        const auto pData  = block.getBlockValuesPtr();
+        const auto colIdx = block.getBlockColumnIndicesPtr();
+        const auto rowIdx = block.getBlockRowIndicesPtr();
 
         daal::services::internal::service_memset<algorithmFPType, cpu>(pDst, algorithmFPType(0.), dim);
         algorithmFPType res(0.);
         const size_t nValues = rowIdx[1] - rowIdx[0];
-        for (size_t i = 0; i < nValues; ++i, ++pData, ++colIdx)
+        for (size_t i = 0; i < nValues; ++i)
         {
-            res += (*pData) * (*pData);
-            pDst[(*colIdx) - 1] = *pData;
+            const auto val = pData[i];
+            res += val * val;
+            const auto colIndex = colIdx[i];
+            pDst[colIndex - 1]  = val;
         }
+        _csr->releaseSparseBlock(block);
         return res;
     }
 
@@ -338,7 +359,7 @@ public:
 
 protected:
     NumericTable * _nt;
-    CSRNumericTableIface * _csr;
+    CSRNumericTable * _csr;
 };
 
 //Base task class for kmeans++ and kmeans||
@@ -546,6 +567,7 @@ Status TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::run()
         //copy it to the result
         status |= this->copyPoints(&clusters[iCluster * this->_data.dim], &this->_lastAddedCenter[this->_trialBest * this->_data.dim], 1u);
     }
+
     return status;
 }
 
@@ -906,9 +928,9 @@ Status TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::getCandidates(Ho
                 s |= this->copyPoints(candidatesBD.get() + _nCandidates * this->_data.dim, this->_lastAddedCenter.get(), nNewCandidates);
                 const size_t iFirstNewCandidate = _nCandidates;
                 _nCandidates += nNewCandidates;
-                bDone = ((iRound + 1 >= _R) && (_nCandidates > this->_nClusters));
                 DAAL_CHECK_STATUS(s, this->updateMinDist(iFirstNewCandidate, nNewCandidates));
             }
+            bDone = ((iRound + 1 >= _R) && (_nCandidates > this->_nClusters));
         }
     }
     if (_nCandidates < maxNumberOfCandidates) pCandidates->resize(_nCandidates);

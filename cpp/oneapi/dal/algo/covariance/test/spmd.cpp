@@ -31,6 +31,7 @@ public:
     using float_t = typename base_t::float_t;
     using input_t = typename base_t::input_t;
     using result_t = typename base_t::result_t;
+    using descriptor_t = typename base_t::descriptor_t;
 
     void set_rank_count(std::int64_t rank_count) {
         rank_count_ = rank_count;
@@ -64,16 +65,13 @@ public:
     }
 
     void spmd_general_checks(const te::dataframe& data_fr,
-                             cov::result_option_id compute_mode,
-                             const te::table_id& data_table_id) {
-        CAPTURE(static_cast<std::uint64_t>(compute_mode));
+                             const te::table_id& data_table_id,
+                             descriptor_t cov_desc) {
         const table data = data_fr.get_table(this->get_policy(), data_table_id);
 
-        const auto cov_desc = base_t::get_descriptor(compute_mode);
+        const auto compute_result = this->compute_override(cov_desc, data);
 
-        const auto compute_result = this->compute(cov_desc, data);
-
-        base_t::check_compute_result(data, compute_result);
+        base_t::check_compute_result(cov_desc, data, compute_result);
     }
 
 private:
@@ -89,34 +87,42 @@ TEMPLATE_LIST_TEST_M(covariance_spmd_test,
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 10, 10 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 20, 20 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 1000, 100 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 2000, 20 }.fill_normal(0, 1, 7777),
-                           te::dataframe_builder{ 2500, 20 }.fill_normal(-30, 30, 7777));
-    this->set_rank_count(GENERATE(2, 4));
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
 
-    cov::result_option_id mode_mean = result_options::means;
-    cov::result_option_id mode_cov = result_options::cov_matrix;
-    cov::result_option_id mode_cor = result_options::cor_matrix;
-    cov::result_option_id mode_cov_mean = result_options::cov_matrix | result_options::means;
-    cov::result_option_id mode_cov_cor = result_options::cov_matrix | result_options::cor_matrix;
-    cov::result_option_id mode_cor_mean = result_options::cor_matrix | result_options::means;
-    cov::result_option_id res_all =
-        result_options::cov_matrix | result_options::cor_matrix | result_options::means;
+    const int rank_count = GENERATE(2, 4);
+    INFO("rank_count=" << rank_count);
+    this->set_rank_count(rank_count);
 
-    const cov::result_option_id compute_mode = GENERATE_COPY(mode_mean,
-                                                             mode_cor,
-                                                             mode_cov,
-                                                             mode_cor_mean,
-                                                             mode_cov_mean,
-                                                             mode_cov_cor,
-                                                             res_all);
+    const bool assume_centered = GENERATE(true, false);
+    INFO("assume_centered=" << assume_centered);
+    const bool bias = GENERATE(true, false);
+    INFO("bias=" << bias);
+    const cov::result_option_id result_option =
+        GENERATE(covariance::result_options::means,
+                 covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix,
+                 covariance::result_options::cor_matrix | covariance::result_options::cov_matrix |
+                     covariance::result_options::means);
+    INFO("result_option=" << result_option);
 
-    const auto data_table_id = this->get_homogen_table_id();
+    auto cov_desc = covariance::descriptor<Float, Method, covariance::task::compute>()
+                        .set_result_options(result_option)
+                        .set_assume_centered(assume_centered)
+                        .set_bias(bias);
 
-    this->spmd_general_checks(data, compute_mode, data_table_id);
+    const te::dataframe input =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 100, 100 }.fill_normal(0, 1, 7777),
+                           te::dataframe_builder{ 10000, 200 }.fill_uniform(-30, 30, 7777));
+
+    INFO("num_rows=" << input.get_row_count());
+    INFO("num_columns=" << input.get_column_count());
+
+    // Homogen floating point type is the same as algorithm's floating point type
+    const auto input_data_table_id = this->get_homogen_table_id();
+
+    this->spmd_general_checks(input, input_data_table_id, cov_desc);
 }
 
 } // namespace oneapi::dal::covariance::test

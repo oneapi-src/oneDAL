@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +17,9 @@
 
 #pragma once
 
+#if defined(TARGET_X86_64)
 #include <immintrin.h>
+#endif
 
 #include <daal/src/services/service_defines.h>
 
@@ -68,6 +71,7 @@ ONEDAL_FORCEINLINE std::int32_t _popcnt32_redef(const std::int32_t& x) {
     {}
 #endif
 
+#if defined(TARGET_X86_64)
 template <>
 struct intersection_local_tc<dal::backend::cpu_dispatch_avx512> {
     ONEDAL_FORCEINLINE std::int64_t operator()(const std::int32_t* neigh_u,
@@ -419,5 +423,6 @@ struct intersection_local_tc<dal::backend::cpu_dispatch_avx512> {
         return total;
     }
 };
+#endif
 
 } // namespace oneapi::dal::preview::triangle_counting::backend

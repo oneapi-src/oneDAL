@@ -31,7 +31,7 @@ namespace v1 {
 /// :capterm:`classification problem <classification>`.
 struct classification {};
 
-/// Alias tag-type for regression task.
+/// Alias tag-type for classification task
 using by_default = classification;
 } // namespace v1
 
@@ -42,13 +42,17 @@ using v1::by_default;
 
 namespace method {
 namespace v1 {
-/// Tag-type that denotes :ref:`dense batch <dense_batch>` computational method.
+/// Tag-type that denotes :ref:`dense_batch <logreg_t_math_dense_batch>` computational method.
 struct dense_batch {};
+/// Tag-type that denotes :ref:`sparse <logreg_t_math_sparse>` computational method.
+struct sparse {};
 
+/// Alias tag-type for the dense_batch method
 using by_default = dense_batch;
 } // namespace v1
 
 using v1::dense_batch;
+using v1::sparse;
 using v1::by_default;
 
 } // namespace method
@@ -67,6 +71,7 @@ namespace detail {
 ONEDAL_EXPORT result_option_id get_intercept_id();
 ONEDAL_EXPORT result_option_id get_coefficients_id();
 ONEDAL_EXPORT result_option_id get_iterations_count_id();
+ONEDAL_EXPORT result_option_id get_inner_iterations_count_id();
 
 } // namespace detail
 
@@ -80,7 +85,11 @@ const inline result_option_id intercept = detail::get_intercept_id();
 /// Return the coefficients to use in logistic regression
 const inline result_option_id coefficients = detail::get_coefficients_id();
 
+/// Return the number of iterations made by optimizer
 const inline result_option_id iterations_count = detail::get_iterations_count_id();
+
+/// Return the number of subiterations made by optimizer. Only available for newton-cg optimizer
+const inline result_option_id inner_iterations_count = detail::get_inner_iterations_count_id();
 
 } // namespace result_options
 
@@ -99,7 +108,8 @@ template <typename Float>
 constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
 
 template <typename Method>
-constexpr bool is_valid_method_v = dal::detail::is_one_of_v<Method, method::dense_batch>;
+constexpr bool is_valid_method_v =
+    dal::detail::is_one_of_v<Method, method::dense_batch, method::sparse>;
 
 template <typename Task>
 constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task, task::classification>;
@@ -162,11 +172,11 @@ namespace v1 {
 ///                     intermediate computations. Can be :expr:`float` or
 ///                     :expr:`double`.
 /// @tparam Method      Tag-type that specifies an implementation of algorithm. Can
-///                     be :expr:`method::dense_batch`.
+///                     be :expr:`method::dense_batch` or :expr:`method::sparse`.
 /// @tparam Task        Tag-type that specifies type of the problem to solve. Can
 ///                     be :expr:`task::classification`.
-/// @tparam Optimizer   Tag-type that specifies type of the optimizer used by algorithm.
-///                     Can be :expr:`optimizer::newton_cg`.
+/// @tparam Optimizer   The descriptor of the optimizer used for minimization. Can
+///                     be :expr:`newton_cg::descriptor`
 template <typename Float = float,
           typename Method = method::by_default,
           typename Task = task::by_default,
@@ -186,12 +196,14 @@ public:
     using optimizer_t = Optimizer;
 
     /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    /// and :literal:`C`
     explicit descriptor(bool compute_intercept = true, double C = 1.0)
             : base_t(compute_intercept,
                      C,
                      std::make_shared<detail::optimizer<optimizer_t>>(optimizer_t{})) {}
 
-    /// Creates a new instance of the class with the given :literal:`compute_intercept`
+    /// Creates a new instance of the class with the given :literal:`compute_intercept`,
+    /// :literal:`C` and :literal:`optimizer`
     explicit descriptor(bool compute_intercept, double C, const optimizer_t& optimizer)
             : base_t(compute_intercept,
                      C,

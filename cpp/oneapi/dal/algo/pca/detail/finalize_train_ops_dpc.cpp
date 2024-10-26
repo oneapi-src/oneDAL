@@ -29,14 +29,16 @@ struct finalize_train_ops_dispatcher<Policy, Float, Method, Task> {
                                   const partial_train_result<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher< //
             KERNEL_SINGLE_NODE_CPU(backend::finalize_train_kernel_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(backend::finalize_train_kernel_gpu<Float, Method, Task>)>;
+            KERNEL_UNIVERSAL_SPMD_GPU(backend::finalize_train_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t()(policy, desc, input);
     }
 };
 
-#define INSTANTIATE(F, M, T)      \
-    template struct ONEDAL_EXPORT \
-        finalize_train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                                       \
+    template struct ONEDAL_EXPORT                                                  \
+        finalize_train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>; \
+    template struct ONEDAL_EXPORT                                                  \
+        finalize_train_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::cov, task::dim_reduction)
 INSTANTIATE(double, method::cov, task::dim_reduction)

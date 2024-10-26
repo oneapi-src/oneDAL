@@ -252,7 +252,7 @@ public:
         const auto infer_result = this->infer(desc, model, x_test);
         check_infer_shapes(desc, data, infer_result);
 
-        INFO("check if infer accuracy is expected")
+        INFO("check if infer accuracy is expected");
         for (auto ch : checker_list) {
             CAPTURE(desc.get_features_per_node());
             CAPTURE(desc.get_max_tree_depth());
@@ -287,14 +287,14 @@ public:
                             const df::train_result<Task>& result) {
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
 
-        INFO("check if model shape is expected")
+        INFO("check if model shape is expected");
         REQUIRE(result.get_model().get_tree_count() == desc.get_tree_count());
         if constexpr (is_cls) {
             REQUIRE(result.get_model().get_class_count() == desc.get_class_count());
         }
 
         if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-            INFO("check if oob error shape is expected")
+            INFO("check if oob error shape is expected");
             REQUIRE(result.get_oob_err().has_data());
             REQUIRE(result.get_oob_err().get_row_count() == 1);
             REQUIRE(result.get_oob_err().get_column_count() == 1);
@@ -302,14 +302,14 @@ public:
 
         if (check_mask_flag(desc.get_error_metric_mode(),
                             error_metric_mode::out_of_bag_error_per_observation)) {
-            INFO("check if oob error per observation shape is expected")
+            INFO("check if oob error per observation shape is expected");
             REQUIRE(result.get_oob_err_per_observation().has_data());
             REQUIRE(result.get_oob_err_per_observation().get_row_count() == data.get_row_count());
             REQUIRE(result.get_oob_err_per_observation().get_column_count() == 1);
         }
 
         if (variable_importance_mode::none != desc.get_variable_importance_mode()) {
-            INFO("check if variable improtance shape is expected")
+            INFO("check if variable improtance shape is expected");
             REQUIRE(result.get_var_importance().has_data());
             REQUIRE(result.get_var_importance().get_row_count() == 1);
             REQUIRE(result.get_var_importance().get_column_count() == data.get_column_count() - 1);
@@ -322,21 +322,21 @@ public:
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
         if constexpr (is_cls) {
             if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_responses)) {
-                INFO("check if infer responses shape is expected")
+                INFO("check if infer responses shape is expected");
                 REQUIRE(result.get_responses().has_data());
                 REQUIRE(result.get_responses().get_row_count() == data.get_row_count());
                 REQUIRE(result.get_responses().get_column_count() == 1);
             }
 
             if (check_mask_flag(desc.get_infer_mode(), infer_mode::class_probabilities)) {
-                INFO("check if infer probabilities shape is expected")
+                INFO("check if infer probabilities shape is expected");
                 REQUIRE(result.get_probabilities().has_data());
                 REQUIRE(result.get_probabilities().get_row_count() == data.get_row_count());
                 REQUIRE(result.get_probabilities().get_column_count() == desc.get_class_count());
             }
         }
         else {
-            INFO("check if infer responses shape is expected")
+            INFO("check if infer responses shape is expected");
             REQUIRE(result.get_responses().has_data());
             REQUIRE(result.get_responses().get_row_count() == data.get_row_count());
             REQUIRE(result.get_responses().get_column_count() == 1);
@@ -349,7 +349,7 @@ public:
                                                const te::table_id& data_table_id,
                                                double accuracy_threshold) {
         if (variable_importance_mode::none != desc.get_variable_importance_mode()) {
-            INFO("check if match of variable importance vs required one is expected")
+            INFO("check if match of variable importance vs required one is expected");
             const auto required_var_imp = var_imp_data.get_table(data_table_id);
             std::int64_t row_ind = 0;
             switch (desc.get_variable_importance_mode()) {
@@ -377,7 +377,7 @@ public:
                                         double required_oob_error,
                                         double accuracy_threshold) {
         if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
-            INFO("check if match of oob error vs required one is expected")
+            INFO("check if match of oob error vs required one is expected");
             const auto oob_err_val =
                 dal::row_accessor<const double>(train_result.get_oob_err()).pull();
             if (required_oob_error > 0.0) {
@@ -393,7 +393,7 @@ public:
         double accuracy_threshold) {
         if (check_mask_flag(desc.get_error_metric_mode(),
                             error_metric_mode::out_of_bag_error_per_observation)) {
-            INFO("check if match of oob error vs cumulative oob error per observation is expected")
+            INFO("check if match of oob error vs cumulative oob error per observation is expected");
             const auto oob_err_val =
                 dal::row_accessor<const double>(train_result.get_oob_err()).pull();
             const auto oob_err_per_obs_arr =

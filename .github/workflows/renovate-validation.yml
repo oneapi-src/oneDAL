@@ -3,16 +3,23 @@ name: renovate-validation
 on:
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/renovate-validation.yml
       - .github/renovate.json
   push:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/renovate-validation.yml
       - .github/renovate.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -20,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - name: Validate
-        uses: suzuki-shunsuke/github-action-renovate-config-validator@v0.1.3
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@v1.1.0
         with:
           config_file_path: .github/renovate.json

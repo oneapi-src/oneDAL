@@ -11,6 +11,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:common",
         "@onedal//cpp/oneapi/dal/backend/primitives:blas",
         "@onedal//cpp/oneapi/dal/backend/primitives/optimizers",
+        "@onedal//cpp/oneapi/dal/backend/primitives:sparse_blas",
     ],
 )
 
@@ -19,6 +20,9 @@ dal_test_suite(
     framework = "catch2",
     compile_as = [ "dpc++" ],
     private = True,
+    hdrs = glob([
+        "test/*.hpp",
+    ]),
     srcs = glob([
         "test/*_dpc.cpp",
     ], exclude=[

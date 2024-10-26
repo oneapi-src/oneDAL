@@ -22,7 +22,6 @@
 
    data-analytics-pipeline.rst
    system-requirements.rst
-   legal.rst
 
 .. toctree::
    :caption: Get Started
@@ -53,3 +52,10 @@
    :caption: Contributing Guide
 
    contribution/coding_guide.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Custom Components
+
+   contribution/threading.rst

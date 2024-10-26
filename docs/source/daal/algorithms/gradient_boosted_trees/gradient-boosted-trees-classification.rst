@@ -108,7 +108,7 @@ Examples
 
   .. tab:: Python*
 
-    - :daal4py_example:`gbt_cls_traversed_model_builder.py`
+    - :daal4py_example:`gradient_boosted_classification_traverse.py`
 
 Batch Processing
 ****************
@@ -196,5 +196,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`gradient_boosted_classification_batch.py`
-    - :daal4py_example:`gradient_boosted_classification_traverse_batch.py`
+    - :daal4py_example:`gradient_boosted_classification.py`
+    - :daal4py_example:`gradient_boosted_classification_traverse.py`

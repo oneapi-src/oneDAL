@@ -88,7 +88,7 @@ public:
         const std::int64_t max_iteration_count = 100;
         const float_t accuracy_threshold = 0.0;
 
-        INFO("create descriptor")
+        INFO("create descriptor");
         const auto kmeans_desc =
             this->get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
@@ -96,7 +96,7 @@ public:
         const auto train_results =
             this->train_via_spmd_threads(rank_count_, kmeans_desc, data, initial_centroids);
 
-        INFO("check if all results bitwise equal on all ranks") {
+        SECTION("check if all results bitwise equal on all ranks") {
             ONEDAL_ASSERT(train_results.size() > 0);
             const auto front_centroids = train_results.front().get_model().get_centroids();
             const auto front_iteration_count = train_results.front().get_iteration_count();
@@ -106,16 +106,16 @@ public:
                 // We do not check responses as they are expected
                 // to be different on each ranks
 
-                INFO("check centroids") {
+                SECTION("check centroids") {
                     const auto centroids = result.get_model().get_centroids();
                     te::check_if_tables_equal<float_t>(centroids, front_centroids);
                 }
 
-                INFO("check iterations") {
+                SECTION("check iterations") {
                     REQUIRE(result.get_iteration_count() == front_iteration_count);
                 }
 
-                INFO("check objective function") {
+                SECTION("check objective function") {
                     REQUIRE(result.get_objective_function_value() == front_objective);
                 }
             }
@@ -134,6 +134,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
     // removed once it's supported for CPU. The same for the rest of tests cases.
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(2, 4));
     this->check_if_results_same_on_all_ranks();
@@ -145,6 +146,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 2));
     this->check_empty_clusters();
@@ -156,6 +158,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 2));
     this->check_on_smoke_data();
@@ -167,6 +170,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 2, 4, 8));
     this->check_on_gold_data();
@@ -178,6 +182,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(GENERATE(1, 8));
     this->check_on_large_data_with_one_cluster();
@@ -189,6 +194,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(10);
     const std::int64_t iters = 3;
@@ -213,6 +219,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(10);
     const std::int64_t iters = 10;
@@ -237,6 +244,7 @@ TEMPLATE_LIST_TEST_M(kmeans_spmd_test,
                      kmeans_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(this->is_sparse_method());
 
     this->set_rank_count(10);
     const std::int64_t iters = 2;

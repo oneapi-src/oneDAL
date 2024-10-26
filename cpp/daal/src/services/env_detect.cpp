@@ -1,6 +1,7 @@
 /* file: env_detect.cpp */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,6 +31,14 @@
 
 #include "src/services/service_topo.h"
 #include "src/threading/service_thread_pinner.h"
+
+#if defined(TARGET_X86_64)
+    #define DAAL_HOST_CPUID daal::services::Environment::avx512
+#elif defined(TARGET_ARM)
+    #define DAAL_HOST_CPUID daal::services::Environment::sve
+#elif defined(TARGET_RISCV64)
+    #define DAAL_HOST_CPUID daal::services::Environment::rv64
+#endif
 
 static daal::services::Environment::LibraryThreadingType daal_thr_set = (daal::services::Environment::LibraryThreadingType)-1;
 static bool isInit                                                    = false;
@@ -80,7 +89,8 @@ DAAL_EXPORT int daal::services::Environment::enableInstructionsSet(int enable)
 DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 {
     initNumberOfThreads();
-    int host_cpuid = __daal_serv_cpu_detect(daal::services::Environment::avx512);
+
+    int host_cpuid = __daal_serv_cpu_detect(DAAL_HOST_CPUID);
 
     if (!_env.cpuid_init_flag)
     {
@@ -90,7 +100,7 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
 
             if (cpuid > host_cpuid)
             {
-                _cpu_detect(daal::services::Environment::avx512);
+                _cpu_detect(DAAL_HOST_CPUID);
             }
             else
             {
@@ -115,11 +125,10 @@ DAAL_EXPORT void daal::services::Environment::setDynamicLibraryThreadingTypeOnWi
     initNumberOfThreads();
 }
 
-DAAL_EXPORT daal::services::Environment::Environment() : _globalControl {}
+DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _globalControl {}
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
-    this->setDefaultExecutionContext(internal::CpuExecutionContext());
 }
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
@@ -127,7 +136,14 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-
+        // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
+        // destruction of the calling thread.
+        // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
+        // instance, it blocks the calling thread until the completion of all worker
+        // threads that were implicitly created by the library.
+#if defined(TARGET_X86_64)
+    daal::setSchedulerHandle(&_schedulerHandle);
+#endif
     /* if HT enabled - set _numThreads to physical cores num */
     if (daal::internal::ServiceInst::serv_get_ht())
     {
@@ -146,7 +162,6 @@ DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 DAAL_EXPORT daal::services::Environment::~Environment()
 {
     daal::services::daal_free_buffers();
-    _daal_tbb_task_scheduler_free(_globalControl);
 }
 
 void daal::services::Environment::_cpu_detect(int enable)
@@ -161,6 +176,9 @@ void daal::services::Environment::_cpu_detect(int enable)
 DAAL_EXPORT void daal::services::Environment::setNumberOfThreads(const size_t numThreads)
 {
     isInit = true;
+#if defined(TARGET_X86_64)
+    daal::setSchedulerHandle(&_schedulerHandle);
+#endif
     daal::setNumberOfThreads(numThreads, &_globalControl);
 }
 

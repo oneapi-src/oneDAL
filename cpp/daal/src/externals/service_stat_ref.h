@@ -1,6 +1,7 @@
 /* file: service_stat_ref.h */
 /*******************************************************************************
 * Copyright 2023 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,8 +25,10 @@
 #ifndef __SERVICE_STAT_REF_H__
 #define __SERVICE_STAT_REF_H__
 
-typedef void (*func_type)(DAAL_INT, DAAL_INT, DAAL_INT, void *);
+#include "src/externals/service_memory.h"
+#include "src/externals/service_blas_ref.h"
 
+typedef void (*func_type)(DAAL_INT, DAAL_INT, DAAL_INT, void *);
 extern "C"
 {
 #define __DAAL_VSL_SS_MATRIX_STORAGE_COLS           0x00020000
@@ -70,81 +73,6 @@ extern "C"
 
 #define __DAAL_VSL_SS_ERROR_BAD_QUANT_ORDER       -4022
 #define __DAAL_VSL_SS_ERROR_INDICES_NOT_SUPPORTED -4085
-
-    typedef void (*threadfuncfor)(DAAL_INT, DAAL_INT, void *, func_type);
-    typedef void (*threadfuncforordered)(DAAL_INT, DAAL_INT, void *, func_type);
-    typedef void (*threadfuncsection)(DAAL_INT, void *, func_type);
-    typedef void (*threadfuncordered)(DAAL_INT, DAAL_INT, DAAL_INT, void *, func_type);
-    typedef DAAL_INT (*threadgetlimit)(void);
-
-    struct ThreadingFuncs
-    {
-        threadfuncfor funcfor;
-        threadfuncfor funcforordered;
-        threadfuncsection funcsection;
-        threadfuncordered funcordered;
-        threadgetlimit getlimit;
-    };
-
-    static void _daal_mkl_threader_for_sequential(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
-    {
-        DAAL_INT i;
-
-        for (i = 0; i < n; i++)
-        {
-            func(i, 0, 1, a);
-        }
-    }
-
-    static void _daal_mkl_threader_for_ordered_sequential(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
-    {
-        DAAL_INT i;
-
-        for (i = 0; i < n; i++)
-        {
-            func(i, 0, 1, a);
-        }
-    }
-
-    static void _daal_mkl_threader_sections_sequential(DAAL_INT threads_request, void * a, func_type func)
-    {
-        func(0, 0, 1, a);
-    }
-
-    static void _daal_mkl_threader_ordered_sequential(DAAL_INT i, DAAL_INT th_idx, DAAL_INT th_num, void * a, func_type func)
-    {
-        func(i, th_idx, th_num, a);
-    }
-
-    static DAAL_INT _daal_mkl_threader_get_max_threads_sequential()
-    {
-        return 1;
-    }
-
-    static void _daal_mkl_threader_for(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
-    {
-        //fpk_vsl_serv_threader_for(n, threads_request, a, func);
-    }
-
-    static void _daal_mkl_threader_for_ordered(DAAL_INT n, DAAL_INT threads_request, void * a, func_type func)
-    {
-        //fpk_vsl_serv_threader_for_ordered(n, threads_request, a, func);
-    }
-
-    static void _daal_mkl_threader_sections(DAAL_INT threads_request, void * a, func_type func)
-    {
-        //fpk_vsl_serv_threader_sections(threads_request, a, func);
-    }
-
-    static void _daal_mkl_threader_ordered(DAAL_INT i, DAAL_INT th_idx, DAAL_INT th_num, void * a, func_type func)
-    {
-        //not used. To be implemented if needed.
-    }
-
-    static DAAL_INT _daal_mkl_threader_get_max_threads()
-    {
-        return 1;
-    }
 }
 
 namespace daal
@@ -172,6 +100,62 @@ struct RefStatistics<double, cpu>
                    __int64 method)
     {
         int errcode = 0;
+        daal::internal::ref::OpenBlas<double, cpu> blasInst;
+        const double accWtOld  = *nPreviousObservations;
+        const double accWt     = *nPreviousObservations + nVectors;
+        constexpr DAAL_INT one = 1;
+        if (accWtOld != 0)
+        {
+            double * const sumOld = daal::services::internal::service_malloc<double, cpu>(nFeatures, sizeof(double));
+            DAAL_CHECK_MALLOC(sumOld);
+            for (DAAL_INT i = 0; i < nFeatures; ++i)
+            {
+                sumOld[i] = sum[i];
+            }
+            // S_old S_old^t/accWtOld
+            const double alpha    = 1.0 / accWtOld;
+            const double beta     = 1.0;
+            constexpr char transa = 'N';
+            constexpr char transb = 'N';
+            blasInst.xgemm(&transa, &transb, &nFeatures, &nFeatures, &one, &alpha, sumOld, &nFeatures, sumOld, &one, &beta, crossProduct, &nFeatures);
+            daal::services::daal_free(sumOld);
+        }
+        for (DAAL_INT i = 0; i < nVectors; ++i)
+        {
+            for (DAAL_INT j = 0; j < nFeatures; ++j) // if accWtOld = 0, overwrite sum
+            {
+                if (accWtOld != 0)
+                {
+                    sum[j] += data[i * nFeatures + j];
+                }
+                else
+                {
+                    if (i == 0)
+                        sum[j] = data[i * nFeatures + j]; //overwrite the current sum
+                    else
+                        sum[j] += data[i * nFeatures + j];
+                }
+            }
+        }
+
+        // -S S^t/accWt
+        {
+            const double alpha    = -1.0 / accWt;
+            const double beta     = accWtOld != 0 ? 1.0 : 0.0;
+            constexpr char transa = 'N';
+            constexpr char transb = 'N';
+            blasInst.xgemm(&transa, &transb, &nFeatures, &nFeatures, &one, &alpha, sum, &nFeatures, sum, &one, &beta, crossProduct, &nFeatures);
+        }
+
+        // X X^t
+        {
+            constexpr double alpha = 1.0;
+            constexpr double beta  = 1.0;
+            constexpr char transa  = 'N';
+            constexpr char transb  = 'T';
+            blasInst.xgemm(&transa, &transb, &nFeatures, &nFeatures, &nVectors, &alpha, data, &nFeatures, data, &nFeatures, &beta, crossProduct,
+                           &nFeatures);
+        }
 
         return errcode;
     }
@@ -194,8 +178,37 @@ struct RefStatistics<double, cpu>
 
     static int x2c_mom(const double * data, const __int64 nFeatures, const __int64 nVectors, double * variance, const __int64 method)
     {
-        int errcode = 0;
-
+        // E(x-\mu)^2 = E(x^2) - \mu^2
+        int errcode  = 0;
+        double * sum = (double *)daal::services::internal::service_calloc<double, cpu>(nFeatures, sizeof(double));
+        DAAL_CHECK_MALLOC(sum);
+        daal::services::internal::service_memset<double, cpu>(variance, double(0), nFeatures);
+        DAAL_INT feature_ptr, vec_ptr;
+        double wtInv      = (double)1 / nVectors;
+        double wtInvMinus = (double)1 / (nVectors - 1);
+        double pt         = 0;
+        for (vec_ptr = 0; vec_ptr < nVectors; ++vec_ptr)
+        {
+#pragma omp simd
+            for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+            {
+                pt = data[vec_ptr * nFeatures + feature_ptr];
+                sum[feature_ptr] += pt;
+                variance[feature_ptr] += (pt * pt); // 2RSum
+            }
+        }
+        double sumSqDivN; // S^2/n = n*\mu^2
+#pragma omp simd
+        for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+        {
+            sumSqDivN = sum[feature_ptr];
+            sumSqDivN *= sumSqDivN;
+            sumSqDivN *= wtInv;
+            variance[feature_ptr] -= sumSqDivN; // (2RSum-S^2/n)
+            variance[feature_ptr] *= wtInvMinus;
+        }
+        daal::services::internal::service_free<double, cpu>(sum);
+        sum = NULL;
         return errcode;
     }
 
@@ -254,6 +267,62 @@ struct RefStatistics<float, cpu>
                    __int64 method)
     {
         int errcode = 0;
+        daal::internal::ref::OpenBlas<float, cpu> blasInst;
+        const float accWtOld   = *nPreviousObservations;
+        const float accWt      = *nPreviousObservations + nVectors;
+        constexpr DAAL_INT one = 1;
+        if (accWtOld != 0)
+        {
+            float * const sumOld = daal::services::internal::service_malloc<float, cpu>(nFeatures, sizeof(float));
+            DAAL_CHECK_MALLOC(sumOld);
+            for (DAAL_INT i = 0; i < nFeatures; ++i)
+            {
+                sumOld[i] = sum[i];
+            }
+            // S_old S_old^t/accWtOld
+            const float alpha     = 1.0 / accWtOld;
+            const float beta      = 1.0;
+            constexpr char transa = 'N';
+            constexpr char transb = 'N';
+            blasInst.xgemm(&transa, &transb, &nFeatures, &nFeatures, &one, &alpha, sumOld, &nFeatures, sumOld, &one, &beta, crossProduct, &nFeatures);
+            daal::services::daal_free(sumOld);
+        }
+        for (DAAL_INT i = 0; i < nVectors; ++i)
+        {
+            for (DAAL_INT j = 0; j < nFeatures; ++j) // if accWtOld = 0, overwrite sum
+            {
+                if (accWtOld != 0)
+                {
+                    sum[j] += data[i * nFeatures + j];
+                }
+                else
+                {
+                    if (i == 0)
+                        sum[j] = data[i * nFeatures + j]; //overwrite the current sum
+                    else
+                        sum[j] += data[i * nFeatures + j];
+                }
+            }
+        }
+
+        // -S S^t/accWt
+        {
+            const float alpha     = -1.0 / accWt;
+            const float beta      = accWtOld != 0 ? 1.0 : 0.0;
+            constexpr char transa = 'N';
+            constexpr char transb = 'N';
+            blasInst.xgemm(&transa, &transb, &nFeatures, &nFeatures, &one, &alpha, sum, &nFeatures, sum, &one, &beta, crossProduct, &nFeatures);
+        }
+
+        // X X^t
+        {
+            constexpr float alpha = 1.0;
+            constexpr float beta  = 1.0;
+            constexpr char transa = 'N';
+            constexpr char transb = 'T';
+            blasInst.xgemm(&transa, &transb, &nFeatures, &nFeatures, &nVectors, &alpha, data, &nFeatures, data, &nFeatures, &beta, crossProduct,
+                           &nFeatures);
+        }
 
         return errcode;
     }
@@ -276,8 +345,37 @@ struct RefStatistics<float, cpu>
 
     static int x2c_mom(const float * data, const __int64 nFeatures, const __int64 nVectors, float * variance, const __int64 method)
     {
+        // E(x-\mu)^2 = E(x^2) - \mu^2
         int errcode = 0;
-
+        float * sum = (float *)daal::services::internal::service_calloc<float, cpu>(nFeatures, sizeof(float));
+        DAAL_CHECK_MALLOC(sum);
+        daal::services::internal::service_memset<float, cpu>(variance, float(0), nFeatures);
+        DAAL_INT feature_ptr, vec_ptr;
+        float wtInv      = (float)1 / nVectors;
+        float wtInvMinus = (float)1 / (nVectors - 1);
+        float pt         = 0;
+        for (vec_ptr = 0; vec_ptr < nVectors; ++vec_ptr)
+        {
+#pragma omp simd
+            for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+            {
+                pt = data[vec_ptr * nFeatures + feature_ptr];
+                sum[feature_ptr] += pt;
+                variance[feature_ptr] += (pt * pt); // 2RSum
+            }
+        }
+        float sumSqDivN; // S^2/n = n*\mu^2
+#pragma omp simd
+        for (feature_ptr = 0; feature_ptr < nFeatures; ++feature_ptr)
+        {
+            sumSqDivN = sum[feature_ptr];
+            sumSqDivN *= sumSqDivN;
+            sumSqDivN *= wtInv;
+            variance[feature_ptr] -= sumSqDivN; // (2RSum-S^2/n)
+            variance[feature_ptr] *= wtInvMinus;
+        }
+        daal::services::internal::service_free<float, cpu>(sum);
+        sum = NULL;
         return errcode;
     }
 

@@ -55,7 +55,12 @@ void run(sycl::queue &q) {
     std::cout << "Responses:\n" << result_train.get_responses() << std::endl;
     std::cout << "Centroids:\n" << result_train.get_model().get_centroids() << std::endl;
 
-    const auto result_test = dal::infer(q, kmeans_desc, result_train.get_model(), x_test);
+    const auto kmeans_desc_infer = dal::kmeans::descriptor<>()
+                                       .set_cluster_count(20)
+                                       .set_max_iteration_count(5)
+                                       .set_accuracy_threshold(0.001);
+
+    const auto result_test = dal::infer(q, kmeans_desc_infer, result_train.get_model(), x_test);
 
     std::cout << "Infer result:\n" << result_test.get_responses() << std::endl;
 

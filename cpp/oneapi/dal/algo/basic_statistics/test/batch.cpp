@@ -41,8 +41,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
                            te::dataframe_builder{ 500, 250 }.fill_normal(0, 1, 7777),
                            te::dataframe_builder{ 6000, 20 }.fill_normal(-30, 30, 7777),
                            te::dataframe_builder{ 6000, 530 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 10000, 200 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 1000000, 20 }.fill_normal(-0.5, 0.5, 7777));
+                           te::dataframe_builder{ 10000, 20 }.fill_normal(-0.5, 0.5, 7777));
 
     std::shared_ptr<te::dataframe> weights;
     const bool use_weights = GENERATE(0, 1);
@@ -61,6 +60,26 @@ TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
     const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
 
     this->general_checks(data, weights, compute_mode);
+}
+
+TEMPLATE_LIST_TEST_M(basic_statistics_batch_test,
+                     "basic_statistics common CSR flow",
+                     "[basic_statistics][integration][batch]",
+                     basic_statistics_sparse_types) {
+    SKIP_IF(this->not_float64_friendly());
+    const auto data = GENERATE_COPY(te::csr_table_builder(5, 5),
+                                    te::csr_table_builder(7, 10),
+                                    te::csr_table_builder(100, 100),
+                                    te::csr_table_builder(1000, 1000),
+                                    te::csr_table_builder(15000, 1000));
+    SKIP_IF(this->not_cpu_friendly(data));
+    const bs::result_option_id res_min_max = result_options::min | result_options::max;
+    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+    const bs::result_option_id res_all =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
+    const bs::result_option_id compute_mode = GENERATE_COPY(res_min_max, res_mean_varc, res_all);
+
+    this->csr_general_checks(data, compute_mode);
 }
 
 } // namespace oneapi::dal::basic_statistics::test

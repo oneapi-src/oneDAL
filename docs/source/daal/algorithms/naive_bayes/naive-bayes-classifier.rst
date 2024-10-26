@@ -104,7 +104,7 @@ Examples
 
       Batch Processing:
 
-      - :daal4py_example:`naive_bayes_batch.py`
+      - :daal4py_example:`naive_bayes.py`
 
       Online Processing:
 

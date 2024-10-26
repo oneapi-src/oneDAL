@@ -34,11 +34,23 @@ echo CPUCOUNT=%CPUCOUNT%
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
 
-echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
+echo "%VISUALSTUDIOVERSION% HERE"
+
+IF "%VS_VER%"=="2017_build_tools" (
+    @call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    echo "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+) ELSE (
+    IF "%VS_VER%"=="2019_build_tools" (
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+        echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    ) ELSE (
+          @call "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+          echo "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+    )
+)
 
 echo call __release_win_vc\daal\latest\env\vars.bat
-call __release_win_vc\daal\latest\env\vars.bat
+call __release_win_vc\daal\latest\env\vars.bat || set errorcode=1
 
 echo set LIB=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
 set LIB=%~dp0..\..\__release_win_vc\tbb\latest\lib\intel64\vc_mt;%LIB%
@@ -69,9 +81,9 @@ if "%build_system%"=="cmake" (
 
     set results_dir=_cmake_results\intel_intel64_%cmake_link_mode_short%\Release
     echo cmake -B Build -S . -DONEDAL_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
-    cmake -B Build -S . -DONEDAL_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR%
+    cmake -B Build -S . -DONEDAL_LINK=%cmake_link_mode% -DTBB_DIR=%TBB_DIR% || set errorcode=1
     set solution_name=%examples:\=_%
-    msbuild.exe "Build\!solution_name!_examples.sln" /p:Configuration=Release
+    msbuild.exe "Build\!solution_name!_examples.sln" /p:Configuration=Release || set errorcode=1
 
     for /f "delims=." %%F in ('dir /B !results_dir!\*.exe 2^> nul') do (
         set example=%%F
@@ -100,3 +112,4 @@ if "%build_system%"=="cmake" (
     if "%examples%"=="daal\cpp" nmake %linking% compiler=%compiler%
     if "%examples%"=="oneapi\cpp" nmake %linking% compiler=%compiler%
 )
+EXIT /B %errorcode%

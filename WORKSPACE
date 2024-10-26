@@ -1,14 +1,6 @@
 workspace(name = "onedal")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-http_archive(
-  name = "bazel_skylib",
-  urls = [
-    "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
-    "https://github.com/bazelbuild/bazel-skylib/releases/download/1.5.0/bazel-skylib-1.5.0.tar.gz",
-  ],
-  sha256 = "cd55a062e763b9349921f0f5db8c3933288dc8ba4f76dd9416aac68acee3cb94",
-)
 
 load("@onedal//dev/bazel/config:config.bzl", "declare_onedal_config")
 declare_onedal_config(
@@ -28,21 +20,6 @@ declare_onedal_extra_toolchain(
 load("@onedal//dev/bazel/deps:opencl.bzl", "opencl_repo")
 opencl_repo(
     name = "opencl",
-)
-
-load("@onedal//dev/bazel/deps:micromkl.bzl", "micromkl_repo", "micromkl_dpc_repo")
-micromkl_repo(
-    name = "micromkl",
-    root_env_var = "MKLFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklfpk_lnx_20221214.tgz",
-    sha256 = "34001657cfe7127ff0de9d6bf0cb4d9fc4d0be1037e5615f8c899c7193a8be8b",
-)
-
-micromkl_dpc_repo(
-    name = "micromkl_dpc",
-    root_env_var = "MKLGPUFPKROOT",
-    url = "https://github.com/oneapi-src/oneDAL/releases/download/Dependencies/mklgpufpk_lnx_20221214.tgz",
-    sha256 = "1bd9e3ef850d95d1ee00e0f04943c8ed2490175fca6a7b331cab91a124ab301e",
 )
 
 load("@onedal//dev/bazel/deps:openblas.bzl", "openblas_repo")
@@ -95,16 +72,23 @@ mkl_repo(
     name = "mkl",
     root_env_var = "MKLROOT",
     urls = [
+        # TODO: when the issue with binutils will be solved, replace 2023.0 to 2024.2
         "https://files.pythonhosted.org/packages/76/8c/2e6fb6186fa9335a0feb7845e001e18c22627a06ae68650e5a84ca2b536d/mkl_static-2023.0.0-py2.py3-none-manylinux1_x86_64.whl",
-        "https://files.pythonhosted.org/packages/cf/d1/ea2d769006337d968a89337dd1c3eb09c528f9ac629e8ab99324e1122f03/mkl_include-2023.0.0-py2.py3-none-manylinux1_x86_64.whl",
+        #"https://files.pythonhosted.org/packages/c1/44/42ea3ad7bbaa65acb54c977961118d7b24ea687e7c3d64aba0a019cbfa19/mkl_static-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/80/e4/93ddfd475420f1c24d96f3bba1f87ec31a1eea847884c4ccb243cb336a61/mkl_include-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/c9/3a/8797ef320a04e0b939a07365f09ce11f5484150bd3600c6400391c5c36e9/mkl_devel_dpcpp-2024.2.0-py2.py3-none-manylinux1_x86_64.whl",
     ],
     sha256s = [
         "49d16f315f6803b1046a4796686af766ad487f9f6d98ea76b6cdb2ebd5b559f9",
-        "14b0958dff799378975d83fbd00ce756645aa36b9f924bdfdb0fb031f72b734d",
+        #"8c2a6c6a144c5619f1df75fd550b32730f3e0632b55a15a42a95516e142ccf47",
+        "63ed16ece64d9420e9fe1d5e1b55e0680632b61ad1c0e5f207b17f85233fcc09",
+        "b80099209aef1b147b8f1c1621a47078fba2c17b2faee131939ea4d32da2c35c",
     ],
     strip_prefixes = [
         "mkl_static-2023.0.0.data/data",
-        "mkl_include-2023.0.0.data/data",
+        #"mkl_static-2024.2.0.data/data",
+        "mkl_include-2024.2.0.data/data",
+        "mkl_devel_dpcpp-2024.2.0.data/data",
     ],
 )
 
@@ -116,15 +100,15 @@ onedal_repo(
 
 http_archive(
     name = "catch2",
-    url = "https://github.com/catchorg/Catch2/archive/v2.13.10.tar.gz",
-    sha256 = "d54a712b7b1d7708bc7a819a8e6e47b2fde9536f487b89ccbca295072a7d9943",
-    strip_prefix = "Catch2-2.13.10",
+    url = "https://github.com/catchorg/Catch2/archive/v3.6.0.tar.gz",
+    sha256 = "485932259a75c7c6b72d4b874242c489ea5155d17efa345eb8cc72159f49f356",
+    strip_prefix = "Catch2-3.6.0",
 )
 
 http_archive(
     name = "fmt",
-    url = "https://github.com/fmtlib/fmt/archive/10.1.1.tar.gz",
-    sha256 = "78b8c0a72b1c35e4443a7e308df52498252d1cefc2b08c9a97bc9ee6cfe61f8b",
-    strip_prefix = "fmt-10.1.1",
+    url = "https://github.com/fmtlib/fmt/archive/11.0.2.tar.gz",
+    sha256 = "6cb1e6d37bdcb756dbbe59be438790db409cdb4868c66e888d5df9f13f7c027f",
+    strip_prefix = "fmt-11.0.2",
     build_file = "@onedal//dev/bazel/deps:fmt.tpl.BUILD",
 )

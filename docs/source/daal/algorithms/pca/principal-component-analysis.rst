@@ -112,7 +112,7 @@ Examples
 
       Batch Processing:
 
-      - :ref:`cpp_pca_dense_batch.cpp`
+      - :ref:`cpp_pca_cor_dense_batch.cpp`
 
    .. tab:: C++ (CPU)
 
@@ -138,7 +138,7 @@ Examples
 
       Batch Processing:
 
-      - :daal4py_example:`pca_batch.py`
+      - :daal4py_example:`pca.py`
 
       Distributed Processing:
 

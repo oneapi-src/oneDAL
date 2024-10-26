@@ -71,18 +71,18 @@ public:
         auto buffer2 = buffer.get_slice(n_, 2 * n_);
         auto buffer3 = buffer.get_slice(2 * n_, 3 * n_);
 
-        cg_solve(this->get_queue(),
-                 mul_operator,
-                 b,
-                 x0,
-                 buffer1,
-                 buffer2,
-                 buffer3,
-                 float_t(1e-6),
-                 float_t(1e-5),
-                 n_,
-                 {})
-            .wait_and_throw();
+        auto [cg_event, inner_iter] = cg_solve(this->get_queue(),
+                                               mul_operator,
+                                               b,
+                                               x0,
+                                               buffer1,
+                                               buffer2,
+                                               buffer3,
+                                               float_t(1e-6),
+                                               float_t(1e-5),
+                                               n_,
+                                               {});
+        cg_event.wait_and_throw();
         auto answer_host = x0.to_host(this->get_queue());
 
         float_t r_norm = 0;
@@ -108,14 +108,13 @@ private:
     ndarray<float_t, 1> b_host_;
 };
 
-TEMPLATE_TEST_M(cg_solver_test, "test with stable matrix - double", "[cg-solver][gpu]", double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->gen_input();
-    this->test_cg_solver();
-}
+using cg_solver_types = COMBINE_TYPES((float, double));
 
-TEMPLATE_TEST_M(cg_solver_test, "test with stable matrix - float", "[cg-solver][gpu]", float) {
+TEMPLATE_LIST_TEST_M(cg_solver_test,
+                     "test with stable matrix",
+                     "[cg-solver][gpu]",
+                     cg_solver_types) {
+    SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_input();
     this->test_cg_solver();

@@ -21,11 +21,11 @@
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/cluster_updater.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
+#include "oneapi/dal/algo/kmeans/detail/train_init_centroids.hpp"
 #include "oneapi/dal/exceptions.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -36,15 +36,10 @@ namespace oneapi::dal::kmeans::backend {
 using dal::backend::context_gpu;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 
-namespace daal_kmeans_init = daal::algorithms::kmeans::init;
 namespace interop = dal::backend::interop;
 namespace pr = dal::backend::primitives;
 namespace de = dal::detail;
 namespace bk = dal::backend;
-
-template <typename Float, daal::CpuType Cpu>
-using daal_kmeans_init_plus_plus_dense_kernel_t =
-    daal_kmeans_init::internal::KMeansInitKernel<daal_kmeans_init::plusPlusDense, Float, Cpu>;
 
 template <typename Float>
 static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_gpu& ctx,
@@ -60,31 +55,9 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
     daal::data_management::NumericTablePtr daal_initial_centroids;
 
     if (!input.get_initial_centroids().has_data()) {
-        // We use CPU algorithm for initialization, so input data
-        // may be copied to DAAL homogen table
-        const auto daal_data = interop::copy_to_daal_homogen_table<Float>(data);
-        daal_kmeans_init::Parameter par(dal::detail::integral_cast<std::size_t>(cluster_count));
-
-        const std::size_t init_len_input = 1;
-        daal::data_management::NumericTable* init_input[init_len_input] = { daal_data.get() };
-
         daal_initial_centroids =
-            interop::allocate_daal_homogen_table<Float>(cluster_count, column_count);
-        const std::size_t init_len_output = 1;
-        daal::data_management::NumericTable* init_output[init_len_output] = {
-            daal_initial_centroids.get()
-        };
-
-        const dal::backend::context_cpu cpu_ctx;
-        interop::status_to_exception(
-            interop::call_daal_kernel<Float, daal_kmeans_init_plus_plus_dense_kernel_t>(
-                cpu_ctx,
-                init_len_input,
-                init_input,
-                init_len_output,
-                init_output,
-                &par,
-                *(par.engine)));
+            oneapi::dal::kmeans::detail::daal_generate_centroids<Float, method::lloyd_dense>(params,
+                                                                                             data);
         daal::data_management::BlockDescriptor<Float> block;
         daal_initial_centroids->getBlockOfRows(0,
                                                cluster_count,
@@ -103,18 +76,20 @@ static pr::ndarray<Float, 2> get_initial_centroids(const dal::backend::context_g
 template <typename Float>
 struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
     train_result<task::clustering> operator()(const dal::backend::context_gpu& ctx,
-                                              const descriptor_t& params,
+                                              const descriptor_t& desc,
                                               const train_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
         auto& comm = ctx.get_communicator();
-
         const auto data = input.get_data();
+        ONEDAL_ASSERT(data.get_kind() != dal::csr_table::kind());
         const std::int64_t row_count = data.get_row_count();
         const std::int64_t column_count = data.get_column_count();
-        const std::int64_t cluster_count = params.get_cluster_count();
-        const std::int64_t max_iteration_count = params.get_max_iteration_count();
-        const double accuracy_threshold = params.get_accuracy_threshold();
+        const std::int64_t cluster_count = desc.get_cluster_count();
+        const std::int64_t max_iteration_count = desc.get_max_iteration_count();
+        const double accuracy_threshold = desc.get_accuracy_threshold();
         dal::detail::check_mul_overflow(cluster_count, column_count);
+
+        auto result = train_result<task::clustering>{};
 
         auto data_ptr =
             row_accessor<const Float>(data).pull(queue, { 0, -1 }, sycl::usm::alloc::device);
@@ -126,7 +101,7 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
         // inconsistent results between single-rank and distributed runs. To fix
         // this issue the correct distributed implementation of K-Means++ should be
         // called underneath.
-        auto arr_initial = get_initial_centroids<Float>(ctx, params, input);
+        auto arr_initial = get_initial_centroids<Float>(ctx, desc, input);
 
         std::int64_t block_size_in_rows =
             std::min(row_count,
@@ -219,15 +194,16 @@ struct train_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             ONEDAL_PROFILER_TASK(allreduce_final_objective);
             comm.allreduce(final_objective_function).wait();
         }
+        result.set_objective_function_value(final_objective_function);
 
-        model<task::clustering> model;
-        model.set_centroids(
-            dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count));
-        return train_result<task::clustering>()
-            .set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1))
-            .set_iteration_count(iter)
-            .set_objective_function_value(final_objective_function)
-            .set_model(model);
+        result.set_responses(dal::homogen_table::wrap(arr_responses.flatten(queue), row_count, 1));
+
+        result.set_iteration_count(iter);
+
+        result.set_model(model<task::clustering>().set_centroids(
+            dal::homogen_table::wrap(arr_centroids.flatten(queue), cluster_count, column_count)));
+
+        return result;
     }
 };
 

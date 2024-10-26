@@ -38,7 +38,7 @@ struct train_ops_dispatcher<Policy, Float, Method, Task> {
                                              const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(parameters::train_parameters_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(parameters::train_parameters_gpu<Float, Method, Task>)>;
+            KERNEL_UNIVERSAL_SPMD_GPU(parameters::train_parameters_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, input);
     }
 
@@ -56,16 +56,22 @@ private:
                                const train_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::train_kernel_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
+            KERNEL_UNIVERSAL_SPMD_GPU(backend::train_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, desc, params, input);
     }
 };
 
-#define INSTANTIATE(F, M, T) \
-    template struct ONEDAL_EXPORT train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                              \
+    template struct ONEDAL_EXPORT                                         \
+        train_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>; \
+    template struct ONEDAL_EXPORT                                         \
+        train_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::dense_batch, task::classification)
 INSTANTIATE(double, method::dense_batch, task::classification)
+
+INSTANTIATE(float, method::sparse, task::classification)
+INSTANTIATE(double, method::sparse, task::classification)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression::detail

@@ -62,7 +62,7 @@ public:
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
      */
-    int getSerializationTag() const DAAL_C11_OVERRIDE { return 0; }
+    DAAL_EXPORT int getSerializationTag() const DAAL_C11_OVERRIDE { return 0; }
 
 protected:
     template <typename Archive, bool onDeserialize>

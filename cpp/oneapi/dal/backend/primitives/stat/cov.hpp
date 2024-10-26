@@ -44,12 +44,15 @@ sycl::event means(sycl::queue& queue,
 /// @param[in]  queue The queue
 /// @param[in]  row_count  The number of rows
 /// @param[in]  sums  The [p] sums computed along each column of the data
+/// @param[in]  bias If true biased covariance estimated by maximum likelihood method computed
 /// @param[out] cov  The [p x p] covariance matrix
 template <typename Float>
 sycl::event covariance(sycl::queue& q,
                        std::int64_t row_count,
                        const ndview<Float, 1>& sums,
                        ndview<Float, 2>& cov,
+                       bool bias,
+                       bool assume_centered,
                        const event_vector& deps = {});
 
 /// Compute variances
@@ -81,7 +84,6 @@ sycl::event correlation(sycl::queue& q,
                         std::int64_t row_count,
                         const ndview<Float, 1>& sums,
                         ndview<Float, 2>& corr,
-                        ndview<Float, 1>& tmp,
                         const event_vector& deps = {});
 
 /// Computes correlation matrix from covariance matrix
@@ -94,12 +96,13 @@ sycl::event correlation(sycl::queue& q,
 /// @param[out] cov   The [p x p] covariance matrix
 /// @param[out] corr  The [p x p] correlation matrix
 /// @param[out] tmp   The [p] temporary buffer
+/// @param[in]  bias  Determines if provided covariance estimation biased
 template <typename Float>
 sycl::event correlation_from_covariance(sycl::queue& q,
                                         std::int64_t row_count,
                                         const ndview<Float, 2>& cov,
                                         ndview<Float, 2>& corr,
-                                        ndview<Float, 1>& tmp,
+                                        bool bias,
                                         const event_vector& deps = {});
 
 #endif

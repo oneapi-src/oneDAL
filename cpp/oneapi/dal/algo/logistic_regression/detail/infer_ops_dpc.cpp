@@ -29,16 +29,22 @@ struct infer_ops_dispatcher<Policy, Float, Method, Task> {
                                   const infer_input<Task>& input) const {
         using kernel_dispatcher_t = dal::backend::kernel_dispatcher<
             KERNEL_SINGLE_NODE_CPU(backend::infer_kernel_cpu<Float, Method, Task>),
-            KERNEL_SINGLE_NODE_GPU(backend::infer_kernel_gpu<Float, Method, Task>)>;
+            KERNEL_UNIVERSAL_SPMD_GPU(backend::infer_kernel_gpu<Float, Method, Task>)>;
         return kernel_dispatcher_t{}(ctx, params, input);
     }
 };
 
-#define INSTANTIATE(F, M, T) \
-    template struct ONEDAL_EXPORT infer_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>;
+#define INSTANTIATE(F, M, T)                                              \
+    template struct ONEDAL_EXPORT                                         \
+        infer_ops_dispatcher<dal::detail::data_parallel_policy, F, M, T>; \
+    template struct ONEDAL_EXPORT                                         \
+        infer_ops_dispatcher<dal::detail::spmd_data_parallel_policy, F, M, T>;
 
 INSTANTIATE(float, method::dense_batch, task::classification)
 INSTANTIATE(double, method::dense_batch, task::classification)
+
+INSTANTIATE(float, method::sparse, task::classification)
+INSTANTIATE(double, method::sparse, task::classification)
 
 } // namespace v1
 } // namespace oneapi::dal::logistic_regression::detail

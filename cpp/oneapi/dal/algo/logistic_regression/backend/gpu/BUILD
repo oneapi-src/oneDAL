@@ -13,6 +13,7 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:lapack",
         "@onedal//cpp/oneapi/dal/backend/primitives:objective_function",
         "@onedal//cpp/oneapi/dal/backend/primitives:optimizers",
+        "@onedal//cpp/oneapi/dal/backend/primitives:sparse_blas",
         "@onedal//cpp/oneapi/dal/algo/logistic_regression:core",
     ],
 )

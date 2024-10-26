@@ -16,7 +16,6 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-set(CMAKE_BUILD_TYPE Release)
 set(ONEDAL_USE_DPCPP no)
 set(ONEDAL_INTERFACE yes)
 
@@ -48,6 +47,8 @@ if(REF_BACKEND)
         "source/pca/*"
 )
 endif()
+
+include("target_excludes.cmake")
 
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")

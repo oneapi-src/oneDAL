@@ -27,9 +27,11 @@ namespace oneapi::dal::kmeans::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class kmeans_badarg_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count = 8;
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t element_count = row_count * column_count;
@@ -106,8 +108,10 @@ private:
     };
 };
 
+using kmeans_types = COMBINE_TYPES((float, double), (kmeans::method::lloyd_dense));
+
 #define KMEANS_BADARG_TEST(name) \
-    TEMPLATE_TEST_M(kmeans_badarg_test, name, "[kmeans][badarg]", method::lloyd_dense)
+    TEMPLATE_LIST_TEST_M(kmeans_badarg_test, name, "[kmeans][badarg]", kmeans_types)
 
 KMEANS_BADARG_TEST("accepts positive cluster_count") {
     REQUIRE_NOTHROW(this->get_descriptor().set_cluster_count(1));
@@ -185,6 +189,36 @@ KMEANS_BADARG_TEST("throws if infer data is empty") {
         train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
 
     REQUIRE_THROWS_AS(infer(kmeans_desc, model, homogen_table{}), domain_error);
+}
+
+KMEANS_BADARG_TEST(
+    "throws if objective function value is requested but not set in result options") {
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->cluster_count);
+
+    const auto result =
+        train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
+
+    const auto kmeans_desc_infer = this->get_descriptor().set_cluster_count(this->cluster_count);
+
+    const auto model = infer(kmeans_desc_infer, result, this->get_train_data());
+    REQUIRE_NOTHROW(model.get_responses());
+    REQUIRE_THROWS_AS(model.get_objective_function_value(), domain_error);
+}
+
+KMEANS_BADARG_TEST("throws if objective function value is set in result options but not returned") {
+    const auto kmeans_desc = this->get_descriptor().set_cluster_count(this->cluster_count);
+
+    const auto result =
+        train(kmeans_desc, this->get_train_data(), this->get_initial_centroids()).get_model();
+
+    const auto kmeans_desc_infer =
+        this->get_descriptor()
+            .set_cluster_count(this->cluster_count)
+            .set_result_options(kmeans::result_options::compute_exact_objective_function);
+
+    const auto model = infer(kmeans_desc_infer, result, this->get_train_data());
+    REQUIRE_NOTHROW(model.get_responses());
+    REQUIRE_NOTHROW(model.get_objective_function_value());
 }
 
 } // namespace oneapi::dal::kmeans::test

@@ -17,6 +17,7 @@
 #include "oneapi/dal/backend/primitives/optimizers/line_search.hpp"
 #include "oneapi/dal/backend/primitives/optimizers/common.hpp"
 #include "oneapi/dal/backend/primitives/element_wise.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -30,6 +31,7 @@ Float backtracking(sycl::queue queue,
                    Float c1,
                    bool x0_initialized,
                    const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(armijo_backtracking, queue);
     using dal::backend::operator+;
     event_vector precompute = {};
     if (!x0_initialized) {
@@ -40,13 +42,17 @@ Float backtracking(sycl::queue queue,
     Float df0 = 0;
     dot_product(queue, grad_f0, direction, result.get_mutable_data(), &df0, deps + precompute)
         .wait_and_throw();
-    std::int64_t iter_num = 0;
     Float cur_val = 0;
-    while ((iter_num == 0 || cur_val > f0 + c1 * alpha * df0) && iter_num < 100) {
-        if (iter_num > 0) {
+    constexpr Float eps = std::numeric_limits<Float>::epsilon();
+    bool is_first_iter = true;
+    while ((is_first_iter || cur_val > f0 + c1 * alpha * df0) && alpha > eps) {
+        // TODO check that conditions are the same across diferent devices
+        if (!is_first_iter) {
             alpha /= 2;
         }
-        iter_num++;
+        else {
+            is_first_iter = false;
+        }
         const auto update_x_kernel = [=](const Float x_val, const Float dir_val) -> Float {
             return x_val + alpha * dir_val;
         };

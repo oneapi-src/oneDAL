@@ -1,6 +1,7 @@
 /* file: daal_defines.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,6 +28,18 @@
 /** \file daal_defines.h */
 
 #include <cstddef> // for size_t
+
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+    #define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+    #define TARGET_ARM
+#endif
+
+#if defined(__riscv) && (__riscv_xlen == 64)
+    #define TARGET_RISCV64
+#endif
 
 #if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
     #define DAAL_INTEL_CPP_COMPILER
@@ -64,6 +77,10 @@
 
 #if !defined(DAAL_INT)
     #if defined(_WIN64) || defined(__x86_64__)
+        #define DAAL_INT __int64
+    #elif defined(TARGET_ARM)
+        #define DAAL_INT __int64
+    #elif defined(TARGET_RISCV64)
         #define DAAL_INT __int64
     #else
         #define DAAL_INT __int32
@@ -105,18 +122,6 @@
 
 #if defined(DAAL_CPU_TOPO_DISABLED)
     #define DAAL_THREAD_PINNING_DISABLED
-#endif
-
-#ifdef DAAL_SYCL_INTERFACE
-    #include <sycl/sycl.hpp>
-    #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191001))
-        #define DAAL_SYCL_INTERFACE_USM
-    #endif
-    #if (defined(__SYCL_COMPILER_VERSION) && (__SYCL_COMPILER_VERSION >= 20191024))
-        #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-    #elif (defined(COMPUTECPP_VERSION_MAJOR) && (COMPUTECPP_VERSION_MAJOR >= 1) && (COMPUTECPP_VERSION_MINOR >= 1) && (COMPUTECPP_VERSION_PATCH >= 6))
-        #define DAAL_SYCL_INTERFACE_REVERSED_RANGE
-    #endif
 #endif
 
 #if !(defined(__linux__) || defined(_WIN64))

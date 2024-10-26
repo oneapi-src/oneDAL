@@ -1,6 +1,6 @@
 {
   "extends": [
-    "config:base",
+    "config:recommended",
     ":preserveSemverRanges"
   ],
   "pip_requirements": {
@@ -10,10 +10,24 @@
   },
   "packageRules": [
     {
-    "groupName": "Doc packages",
-    "matchUpdateTypes": ["patch", "minor"],
-    "schedule": ["before 2am on the first day of the month"],
-    "matchFileNames": ["docs/requirements.txt"]
+      "groupName": "Doc packages",
+      "matchUpdateTypes": ["patch", "minor"],
+      "schedule": ["before 2am on the first day of the month"],
+      "matchFileNames": ["docs/requirements.txt"]
+    },
+    {
+      "groupName": "Dockerfile",
+      "schedule": ["before 2am on the first day of the month"],
+      "matchFileNames": ["**/*.Dockerfile"]
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^\\.ci\\/env\\/editorconfig-checker\\.sh$"],
+      "matchStrings": ["VERSION=(?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "editorconfig-checker/editorconfig-checker",
+      "datasourceTemplate": "github-releases"
     }
   ]
 }

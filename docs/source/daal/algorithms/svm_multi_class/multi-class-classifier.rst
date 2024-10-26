@@ -108,7 +108,7 @@ Examples
 
   .. tab:: Python*
 
-    :daal4py_example:`svm_multi_class_model_builder.py`
+    :daal4py_example:`svm_multiclass.py`
 
 Batch Processing
 ****************
@@ -255,4 +255,4 @@ Examples
 
     Batch Processing:
 
-    -  :daal4py_example:`svm_multiclass_batch.py`
+    -  :daal4py_example:`svm_multiclass.py`

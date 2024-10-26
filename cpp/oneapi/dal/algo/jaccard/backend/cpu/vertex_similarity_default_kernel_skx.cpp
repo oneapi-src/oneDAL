@@ -1,5 +1,6 @@
 /*******************************************************************************
 * Copyright 2020 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +15,9 @@
 * limitations under the License.
 *******************************************************************************/
 
+#if defined(TARGET_X86_64)
 #include <immintrin.h>
+#endif
 
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel.hpp"
 #include "oneapi/dal/algo/jaccard/backend/cpu/vertex_similarity_default_kernel_avx512.hpp"
@@ -27,6 +30,7 @@
 
 namespace oneapi::dal::preview::jaccard::backend {
 
+#if defined(TARGET_X86_64)
 template vertex_similarity_result<task::all_vertex_pairs> jaccard_avx512<
     dal::backend::cpu_dispatch_avx512>(const detail::descriptor_base<task::all_vertex_pairs>& desc,
                                        const dal::preview::detail::topology<std::int32_t>& t,
@@ -39,5 +43,6 @@ vertex_similarity_result<task::all_vertex_pairs> jaccard<dal::backend::cpu_dispa
     void* result_ptr) {
     return jaccard_avx512<dal::backend::cpu_dispatch_avx512>(desc, t, result_ptr);
 }
+#endif
 
 } // namespace oneapi::dal::preview::jaccard::backend

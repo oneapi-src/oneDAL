@@ -1,6 +1,7 @@
 /* file: algorithm_container_base_common.h */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,10 +25,10 @@
 #ifndef __ALGORITHM_CONTAINER_BASE_COMMON_H__
 #define __ALGORITHM_CONTAINER_BASE_COMMON_H__
 
+#include "services/daal_defines.h"
+
 #include "algorithms/algorithm_container_base.h"
 #include "services/error_handling.h"
-#include "services/internal/gpu_support_checker.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {
@@ -53,8 +54,15 @@ namespace interface1
  * \tparam avx2Container        Implementation for Intel(R) Advanced Vector Extensions 2 (Intel(R) AVX2)
  * \tparam avx512Container      Implementation for Intel(R) Xeon(R) processors based on Intel AVX-512
  */
+
+#if defined(TARGET_X86_64)
 template <ComputeMode mode, typename sse2Container DAAL_KERNEL_SSE42_ONLY(typename sse42Container) DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
                                 DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
+#elif defined(TARGET_ARM)
+template <ComputeMode mode, typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
+#elif defined(TARGET_RISCV64)
+template <ComputeMode mode, typename RV64Container DAAL_KERNEL_RV64_ONLY(typename rv64Container)>
+#endif
 class DAAL_EXPORT AlgorithmDispatchContainer : public AlgorithmContainerImpl<mode>
 {
 public:
@@ -68,9 +76,6 @@ public:
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {
-        services::internal::sycl::ExecutionContextIface & context = services::internal::getDefaultContext();
-        services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();
-        if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
         _cntr->setArguments(this->_in, this->_pres, this->_par, this->_hpar);
         return _cntr->compute();
     }
@@ -99,10 +104,18 @@ private:
     AlgorithmDispatchContainer & operator=(const AlgorithmDispatchContainer &);
 };
 
-#define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                  \
-    algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(ContainerTemplate, __VA_ARGS__) \
-                                                     DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__)                                   \
+#if defined(TARGET_X86_64)
+    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...)                                                                                \
+        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sse2> DAAL_KERNEL_SSE42_CONTAINER(                              \
+                                                         ContainerTemplate, __VA_ARGS__) DAAL_KERNEL_AVX2_CONTAINER(ContainerTemplate, __VA_ARGS__) \
                                                          DAAL_KERNEL_AVX512_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#elif defined(TARGET_ARM)
+    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
+        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#elif defined(TARGET_RISCV64)
+    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
+        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, rv64> DAAL_KERNEL_RV64_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#endif
 
 /** @} */
 } // namespace interface1

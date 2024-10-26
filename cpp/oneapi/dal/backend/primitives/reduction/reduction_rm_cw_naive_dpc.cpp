@@ -39,8 +39,8 @@ public:
 
     void operator()(sycl::nd_item<2> it) const {
         // Common for whole WG
-        const auto loc_idx = it.get_global_id(1);
         const auto col_idx = it.get_global_id(0);
+        const auto loc_idx = it.get_global_id(1);
         const auto range = it.get_global_range(1);
         // Exclusive for EU
         Float acc = (override_init_ || (loc_idx != 0)) ? //
@@ -156,6 +156,9 @@ INSTANTIATE_FLOAT(max, square)
 INSTANTIATE_FLOAT(sum, identity)
 INSTANTIATE_FLOAT(sum, abs)
 INSTANTIATE_FLOAT(sum, square)
+
+INSTANTIATE_FLOAT(logical_or, isinfornan)
+INSTANTIATE_FLOAT(logical_or, isinf)
 
 #undef INSTANTIATE_FLOAT
 

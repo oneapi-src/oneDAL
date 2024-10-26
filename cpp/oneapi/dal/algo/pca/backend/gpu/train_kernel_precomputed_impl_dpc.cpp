@@ -15,16 +15,19 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_precomputed_impl.hpp"
+#include "oneapi/dal/algo/pca/backend/gpu/misc.hpp"
+
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/detail/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
+#include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+
+#include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
 #include "oneapi/dal/backend/primitives/stat.hpp"
 #include "oneapi/dal/backend/primitives/blas.hpp"
-#include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
@@ -36,46 +39,11 @@ namespace pr = dal::backend::primitives;
 using alloc = sycl::usm::alloc;
 
 using bk::context_gpu;
-using model_t = model<task::dim_reduction>;
+
 using task_t = task::dim_reduction;
 using input_t = train_input<task_t>;
 using result_t = train_result<task_t>;
 using descriptor_t = detail::descriptor_base<task_t>;
-
-template <typename Float>
-auto compute_variances(sycl::queue& q,
-                       const pr::ndview<Float, 2>& cov,
-                       const bk::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_vars, q);
-    ONEDAL_ASSERT(cov.has_data());
-    ONEDAL_ASSERT(cov.get_dimension(0) > 0);
-    ONEDAL_ASSERT(cov.get_dimension(0) == cov.get_dimension(1), "Covariance matrix must be square");
-
-    auto column_count = cov.get_dimension(0);
-    auto vars = pr::ndarray<Float, 1>::empty(q, { column_count }, alloc::device);
-    auto vars_event = pr::variances(q, cov, vars, deps);
-    return std::make_tuple(vars, vars_event);
-}
-
-template <typename Float>
-auto compute_eigenvectors_on_host(sycl::queue& q,
-                                  pr::ndarray<Float, 2>&& corr,
-                                  std::int64_t component_count,
-                                  const dal::backend::event_vector& deps = {}) {
-    ONEDAL_PROFILER_TASK(compute_eigenvectors_on_host);
-    ONEDAL_ASSERT(corr.get_dimension(0) == corr.get_dimension(1),
-                  "Correlation matrix must be square");
-    ONEDAL_ASSERT(corr.get_dimension(0) > 0);
-    const std::int64_t column_count = corr.get_dimension(0);
-
-    auto eigvecs = pr::ndarray<Float, 2>::empty({ component_count, column_count });
-    auto eigvals = pr::ndarray<Float, 1>::empty(component_count);
-
-    auto host_corr = corr.to_host(q, deps);
-    pr::sym_eigvals_descending(host_corr, component_count, eigvecs, eigvals);
-
-    return std::make_tuple(eigvecs, eigvals);
-}
 
 template <typename Float>
 result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& desc,
@@ -97,19 +65,25 @@ result_t train_kernel_precomputed_impl<Float>::operator()(const descriptor_t& de
     }
     if (desc.get_result_options().test(result_options::eigenvectors |
                                        result_options::eigenvalues)) {
-        auto [eigvecs, eigvals] =
-            compute_eigenvectors_on_host(q_, std::move(data_nd), component_count);
+        auto [eigvals, syevd_event] = syevd_computation(q_, data_nd, {});
+
+        auto flipped_eigvals_host = flip_eigenvalues(q_, eigvals, component_count, { syevd_event });
+
+        auto flipped_eigenvectors_host =
+            flip_eigenvectors(q_, data_nd, component_count, { syevd_event });
         if (desc.get_result_options().test(result_options::eigenvalues)) {
-            result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+            result.set_eigenvalues(
+                homogen_table::wrap(flipped_eigvals_host.flatten(), 1, component_count));
         }
 
         if (desc.get_deterministic()) {
-            sign_flip(eigvecs);
+            sign_flip(flipped_eigenvectors_host);
         }
         if (desc.get_result_options().test(result_options::eigenvectors)) {
-            const auto model = model_t{}.set_eigenvectors(
-                homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
-            result.set_model(model);
+            result.set_eigenvectors(
+                homogen_table::wrap(flipped_eigenvectors_host.flatten(),
+                                    flipped_eigenvectors_host.get_dimension(0),
+                                    flipped_eigenvectors_host.get_dimension(1)));
         }
     }
 

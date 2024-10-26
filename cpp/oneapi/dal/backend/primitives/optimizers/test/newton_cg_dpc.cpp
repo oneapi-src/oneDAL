@@ -25,7 +25,7 @@
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 #include <math.h>
 
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/objective_function.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -90,8 +90,13 @@ public:
             logloss_function<float_t>(this->get_queue(), data, y_gpu, 3.0, true, bsz);
         auto [solution_, fill_e] =
             ndarray<float_t, 1>::zeros(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::device);
-        auto [opt_event, num_iter] =
-            newton_cg(this->get_queue(), logloss_func, solution_, float_t(1e-8), 100, { fill_e });
+        auto [opt_event, num_iter, inner_iter] = newton_cg(this->get_queue(),
+                                                           logloss_func,
+                                                           solution_,
+                                                           float_t(1e-8),
+                                                           100l,
+                                                           200l,
+                                                           { fill_e });
         opt_event.wait_and_throw();
         auto solution_host = solution_.to_host(this->get_queue());
 
@@ -195,8 +200,8 @@ public:
             ndarray<float_t, 1>::zeros(this->get_queue(), { n_ }, sycl::usm::alloc::device);
 
         float_t conv_tol = sizeof(float_t) == 4 ? 1e-7 : 1e-14;
-        auto [opt_event, num_iter] =
-            newton_cg(this->get_queue(), *func_, x, conv_tol, 100, { x_event });
+        auto [opt_event, num_iter, inner_iter] =
+            newton_cg(this->get_queue(), *func_, x, conv_tol, 100, 200l, { x_event });
         opt_event.wait_and_throw();
         auto x_host = x.to_host(this->get_queue());
         float_t tol = sizeof(float_t) == 4 ? 1e-4 : 1e-7;
@@ -214,38 +219,22 @@ private:
     ndarray<float_t, 1> b_;
 };
 
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with stable matrix - float",
-                "[newton-cg][gpu]",
-                float) {
-    SKIP_IF(this->get_policy().is_cpu());
-    this->gen_and_test_quadratic_function();
-    this->test_newton_cg();
-}
+using newton_cg_types = COMBINE_TYPES((float, double));
 
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with stable matrix - double",
-                "[newton-cg][gpu]",
-                double) {
+TEMPLATE_LIST_TEST_M(newton_cg_test,
+                     "test newton-cg with stable matrix",
+                     "[newton-cg][gpu]",
+                     newton_cg_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_and_test_quadratic_function();
     this->test_newton_cg();
 }
 
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with logloss function - double",
-                "[newton-cg][gpu]",
-                double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->gen_and_test_logistic_loss();
-}
-
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with logloss function - float",
-                "[newton-cg][gpu]",
-                float) {
+TEMPLATE_LIST_TEST_M(newton_cg_test,
+                     "test newton-cg with logloss function",
+                     "[newton-cg][gpu]",
+                     newton_cg_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_and_test_logistic_loss();

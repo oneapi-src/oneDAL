@@ -26,17 +26,14 @@ namespace oneapi::dal::pca::test {
 
 namespace te = dal::test::engine;
 
-template <typename Method>
+template <typename TestType>
 class pca_overflow_test : public te::algo_fixture {
 public:
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
     static constexpr std::int64_t row_count = 8;
     static constexpr std::int64_t column_count = 2;
     static constexpr std::int64_t invalid_component_count = 0x7FFFFFFFFFFFFFFF;
-
-    bool not_available_on_device() {
-        constexpr bool is_svd = std::is_same_v<Method, pca::method::svd>;
-        return get_policy().is_gpu() && is_svd;
-    }
 
     auto get_descriptor_with_invalid_component_count() const {
         return pca::descriptor<float, Method, pca::task::dim_reduction>{}.set_component_count(
@@ -57,12 +54,12 @@ public:
     }
 }; // namespace oneapi::dal::pca::test
 
+using pca_types = COMBINE_TYPES((float, double), (pca::method::cov, pca::method::svd));
+
 #define PCA_OVERFLOW_TEST(name) \
-    TEMPLATE_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca::method::svd)
+    TEMPLATE_LIST_TEST_M(pca_overflow_test, name, "[pca][overflow]", pca_types)
 
 PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
-    SKIP_IF(this->not_available_on_device());
-
     const auto pca_desc = this->get_descriptor_with_invalid_component_count();
     const auto train_data = this->get_train_data_with_invalid_column_count();
 
@@ -70,8 +67,6 @@ PCA_OVERFLOW_TEST("train throws if component count leads to overflow") {
 }
 
 PCA_OVERFLOW_TEST("infer throws if component count leads to overflow") {
-    SKIP_IF(this->not_available_on_device());
-
     const auto pca_desc = this->get_descriptor_with_invalid_component_count();
     const auto model = this->get_model_with_invalid_component_count();
     const auto infer_data = this->get_infer_data();

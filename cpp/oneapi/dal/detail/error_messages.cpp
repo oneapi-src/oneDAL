@@ -180,6 +180,8 @@ MSG(input_model_centroids_cc_neq_input_data_cc,
     "Input model centroids column count is not equal to input data column count")
 MSG(input_model_centroids_rc_neq_desc_cluster_count,
     "Input model centroids row count is not equal to descriptor cluster count")
+MSG(kmeans_init_csr_methods_are_not_implemented_for_gpu,
+    "K-Means init methods for CSR data are not implemented for GPU")
 MSG(kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu,
     "K-Means init++ parallel dense method is not implemented for GPU")
 MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu,
@@ -310,6 +312,8 @@ MSG(l1_coef_neq_zero,
     "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
 MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
     "LogisticRegression is not implemented for CPU")
+MSG(log_reg_sparse_method_is_not_implemented_for_cpu,
+    "LogisticRegression does not have sparsity support for CPU")
 MSG(unknown_optimizer, "Custom optimizers are not supported, use on of provided by the library")
 
 /* Decision Forest */
@@ -325,6 +329,7 @@ MSG(decision_forest_train_hist_method_is_not_implemented_for_cpu,
     "Decision forest train hist method is not implemented for CPU")
 MSG(input_model_is_not_initialized, "Input model is not initialized")
 MSG(not_enough_memory_to_build_one_tree, "There isn't enough memory to build one tree")
+MSG(not_enough_local_memory_for_hist, "There is not enough local memory to build one histogram")
 MSG(invalid_number_of_trees, "Invalid number of trees")
 MSG(invalid_number_of_min_observations_in_leaf_node,
     "Invalid number of min observations in leaf node")

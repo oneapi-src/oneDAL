@@ -93,6 +93,13 @@ sycl::event scatter_host2device(sycl::queue& q,
                                 std::int64_t dst_stride_in_bytes,
                                 std::int64_t block_size_in_bytes,
                                 const event_vector& deps = {});
+sycl::event scatter_host2device_blocking(sycl::queue& q,
+                                         void* dst_device,
+                                         const void* src_host,
+                                         std::int64_t block_count,
+                                         std::int64_t dst_stride_in_bytes,
+                                         std::int64_t block_size_in_bytes,
+                                         const event_vector& deps = {});
 #endif
 
 } // namespace oneapi::dal::backend
