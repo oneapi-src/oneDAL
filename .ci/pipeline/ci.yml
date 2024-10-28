@@ -600,6 +600,7 @@ jobs:
         PYTHON_VERSION: '3.11'
         SKLEARN_VERSION: '1.5'
   steps:
+  - checkout: sklearnex
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
@@ -609,10 +610,6 @@ jobs:
   - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
-  - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git .
-      ls -lha
-    displayName: Clone sklearnex
   - template: .ci/pipeline/build-and-test-lnx.yml@sklearnex
   - task: PublishPipelineArtifact@1
     inputs:
