@@ -604,9 +604,9 @@ jobs:
         SKLEARN_VERSION: '1.5'
   steps:
   - checkout: self
-    path: oneDAL
+    path: $(Pipeline.Workspace)/oneDAL
   - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git ${pwd}
+      git clone https://github.com/intel/scikit-learn-intelex.git .
       ls -lha
       pwd
     displayName: Clone sklearnex
@@ -619,6 +619,7 @@ jobs:
       .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
+      ls -lha
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - template: .ci/pipeline/build-and-test-lnx.yml@sklearnex
