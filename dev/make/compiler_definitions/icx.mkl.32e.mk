@@ -26,7 +26,7 @@ CORE.SERV.COMPILER.icx = generic
 
 
 -Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
--DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug -O0 -fasm-blocks
+-DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug -fasm-blocks
 
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
