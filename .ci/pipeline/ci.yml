@@ -602,14 +602,20 @@ jobs:
   steps:
   - checkout: none
   - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git .
+      git clone https://github.com/intel/scikit-learn-intelex.git ${pwd}
       ls -lha
+      pwd
     displayName: Clone sklearnex
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
-  - script: .ci/env/apt.sh dev-base
+  - script: |
+      pwd
+      ls -lha
+      ls -lha .ci/
+      ls -lha .ci/env/
+      .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
       .ci/scripts/describe_system.sh
