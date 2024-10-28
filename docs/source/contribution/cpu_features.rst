@@ -141,6 +141,13 @@ could be:
 
 The names of the files stay the same in this case, just the folder layout differs.
 
+The folders of the algorithms that are already implemented can contain additional files.
+For example, files with ``container.h``, ``dispatcher.cpp`` suffixes, etc.
+These files are used in the Data Analytics Acceleration Library (DAAL) interface implementation.
+That interface is still available to users, but it is not recommended for use in new code.
+The files related to the DAAL interface are not described here as they are not part of the CPU features
+dispatching mechanism.
+
 Further the purpose and contents of each file are to be described on the example of classification
 training task. For other types of the tasks the structure of the code is similar.
 
