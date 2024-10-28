@@ -29,9 +29,9 @@ CORE.SERV.COMPILER.icc = generic
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
 COMPILER.lnx.icc  = $(if $(COVFILE),cov01 -1; covc --no-banner -i )icc -qopenmp-simd \
-                    -Werror -Wreturn-type -diag-disable=10441
+                    -Werror -fno-system-debug -Wreturn-type -diag-disable=10441
 COMPILER.lnx.icc += $(if $(COVFILE), $(-Q)m64)
-COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -WX -Qopenmp-simd -Qdiag-disable:10441
+COMPILER.win.icc = icl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none) -nologo -fno-system-debug -WX -Qopenmp-simd -Qdiag-disable:10441
 COMPILER.mac.icc = icc -stdlib=libc++ -mmacosx-version-min=10.15 \
 				   -Werror -Wreturn-type -diag-disable=10441
 

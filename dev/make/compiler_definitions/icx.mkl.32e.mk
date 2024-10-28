@@ -26,7 +26,7 @@ CORE.SERV.COMPILER.icx = generic
 
 
 -Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
--DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g)
+-DEBC.icx = $(if $(OS_is_win),-debug:all -Z7 -fno-system-debug -O0 -fasm-blocks,-g -fno-system-debug -O0 -fasm-blocks)
 
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
@@ -35,7 +35,7 @@ COMPILER.lnx.icx = icx -m64 \
 
 COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD -Qopenmp-simd, -MDd) -nologo -WX -Wno-deprecated-declarations
 
-link.dynamic.lnx.icx = icx -m64 -no-intel-lib
+link.dynamic.lnx.icx = icx -m64 -fno-system-debug -no-intel-lib
 
 pedantic.opts.icx = -pedantic \
                       -Wall \
