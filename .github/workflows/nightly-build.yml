@@ -76,44 +76,54 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            call .\.ci\scripts\install_windows.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }}
+            call .\.ci\scripts\install_basekit.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
+      - name: Prepare Intel OpenCL CPU runtime
+        run: |
+          # Store the unpacked runtime to centralize and reduce external downloads
+          & .ci/scripts/collect_opencl_rt.ps1
       - name: System Info
         shell: cmd
         run: |
           set PATH=C:\msys64\usr\bin;%PATH%
           pip install cpufeature
-          call C:\temp\oneapi\setvars.bat
+          call .\oneapi\setvars.bat
           bash .ci/scripts/describe_system.sh
       - name: Make daal
         shell: cmd
         run: |
-          call C:\temp\oneapi\setvars.bat
-          set MKL_FPK_GPU_VERSION_LINE=2024.0.0
+          call .\oneapi\setvars.bat
           call .\.ci\scripts\build.bat daal vc avx2
       - name: Make onedal
         shell: cmd
         run: |
-          call C:\temp\oneapi\setvars.bat
-          set MKL_FPK_GPU_VERSION_LINE=2024.0.0
+          call .\oneapi\setvars.bat
           call .\.ci\scripts\build.bat onedal_c vc avx2
       - name: Make oneapi_dpc
         shell: cmd
         run: |
-          call C:\temp\oneapi\setvars.bat
-          set MKL_FPK_GPU_VERSION_LINE=2024.0.0
-          call C:\temp\oneapi\compiler\latest\bin\sycl-ls.exe
+          call .\oneapi\setvars.bat
+          call .\oneapi\compiler\latest\bin\sycl-ls.exe
           call .\.ci\scripts\build.bat onedal_dpc vc avx2
+      - name: Compress Intel BaseKit
+        shell: cmd
+        run: |
+          # change absolute symlinks to relative symlinks for reuse (fix issue in Intel BaseKit)
+          # iterate through all dirs in basekit (%%s), use dir to find the symlink target for symlinks named 'latest' (%%H)
+          # delete the symlink, and make a new symlink using the last foldername (%%~nxH) in a relative fashion
+          for /D %%s in (.\oneapi\*) do for /f "tokens=2 delims=[]" %%H in ('dir /al %%s\ ^| findstr /i /c:"latest"') do rmdir %%s\latest & mklink /D %%s\latest .\%%~nxH
+          tar -cvzf oneapi.tar.gz .\oneapi
       - name: Archive build
         uses: actions/upload-artifact@v4
         with:
           name: __release_win
           path: .\__release_win_vc
-      - name: Compress DPC++
-        shell: cmd
-        run: |
-          tar -cvzf icx.zip C:\temp\oneapi
-      - name: Archive DPC++
+      - name: Archive Intel BaseKit
         uses: actions/upload-artifact@v4
         with:
-          name: icx_compiler
-          path: .\icx.zip
+          name: intel_oneapi_basekit
+          path: .\oneapi.tar.gz
+      - name: Archive Intel OpenCL CPU runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencl_rt_installer
+          path: .\opencl_rt.msi

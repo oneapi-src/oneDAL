@@ -44,6 +44,13 @@ MSVC_RUNTIME_VERSIONs = release debug
 MSVC_RUNTIME_VERSION ?= release
 $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
+MAKE_PID := $(shell echo $$PPID)
+JOB_FLAG := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
+MAKE_JOBS := $(subst -j,,$(JOB_FLAG))
+MAKE_JOBS := $(if $(filter $(MAKE_JOBS),$(shell seq 1 999)),$(MAKE_JOBS),$(shell nproc))
+
+SYCL_LINK_PRL := $(MAKE_JOBS)
+
 COMPILER_is_$(COMPILER)            := yes
 COMPILER_is_cross                  := $(if $(filter $(PLAT),$(IDENTIFIED_PLAT)),no,yes)
 OS_is_$(_OS)                       := yes
@@ -214,7 +221,9 @@ TBBDIR.include := $(if $(TBBDIR.2),$(TBBDIR.2)/include/tbb $(TBBDIR.2)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+OLD_TBB_LAYOUT := $(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)),yes,no)
+
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/vc_mt),$(TBBDIR.libia.prefix)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/vc14),$(TBBDIR.libia.prefix)/vc14)))
 else
   TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
@@ -222,7 +231,7 @@ endif
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
 TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12$(dtbb).dll)))
 
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
   TBBDIR.libia.lnx.gcc1 := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/*),$(TBBDIR.libia.prefix)))
 else
@@ -232,7 +241,7 @@ endif
 
 TBBDIR.libia.lnx.gcc2  := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH))))))
 TBBDIR.libia.lnx.gcc22 := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc2),$(wildcard $(TBBDIR.libia.lnx.gcc2)/libtbb.so)))
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix) not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
 else
   TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8 not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
@@ -245,7 +254,7 @@ TBBDIR.libia.mac := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang22),$(TBBDIR.
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))bin/vc_mt/*),$(TBBDIR.soia.prefix)bin/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))bin/vc14/*),$(TBBDIR.soia.prefix)bin/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)bin/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
 else
   TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc14/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
@@ -255,7 +264,7 @@ TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.mac))
 TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 
 RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
   RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/bin/vc_mt,$(RELEASEDIR.tbb.libia))
 else
@@ -273,6 +282,23 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
 
 
 #============================= Math backend folders =====================================
+
+ifeq ($(BACKEND_CONFIG), ref)
+    ifeq ($(RNG_BACKEND), openrng)
+        RNG_OPENRNG := yes
+    endif
+    ifndef RNG_BACKEND
+        RNG_BACKEND := ref
+    endif
+    $(if $(filter $(RNG_BACKEND),ref openrng),,$(error unknown rng backend $(RNG_BACKEND)))
+endif
+
+ifeq ($(BACKEND_CONFIG), mkl)
+    ifndef RNG_BACKEND
+        RNG_BACKEND := mkl
+    endif
+    $(if $(filter $(RNG_BACKEND),mkl),,$(error mkl backend does not support the rng backend $(RNG_BACKEND)))
+endif
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
