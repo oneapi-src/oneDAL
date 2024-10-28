@@ -601,7 +601,7 @@ jobs:
         SKLEARN_VERSION: '1.5'
   steps:
   - checkout: self
-    path: ./oneDAL
+    path: oneDAL
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git ${pwd}
       ls -lha
