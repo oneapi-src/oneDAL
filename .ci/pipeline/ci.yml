@@ -35,8 +35,9 @@ variables:
 resources:
   repositories:
     - repository: sklearnex
-      type: git
-      name: daal4py/scikit-learn-intelex
+      type: github
+      name: intel/scikit-learn-intelex
+      endpoint: intel-daal-connection
 
 jobs:
 - job: 'FormatterChecks'
