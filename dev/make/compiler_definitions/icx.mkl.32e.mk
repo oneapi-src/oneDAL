@@ -26,7 +26,7 @@ CORE.SERV.COMPILER.icx = generic
 
 
 -Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
--DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug -fasm-blocks
+-DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug
 
 -Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
@@ -37,18 +37,18 @@ COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD -Qopenmp-simd, -MDd) -nolo
 
 link.dynamic.lnx.icx = icx -m64 -no-intel-lib
 
-pedantic.opts.icx = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wwritable-strings \
-                      -Wno-unused-parameter
+pedantic.opts.icx_lnx = -pedantic \
+                        -Wall \
+                        -Wextra \
+                        -Wwritable-strings \
+                        -Wno-unused-parameter
 
 pedantic.opts.icx_win = -Wall \
-                      -Wextra \
-                      -Wwritable-strings \
-                      -Wno-unused-parameter
+                        -Wextra \
+                        -Wwritable-strings \
+                        -Wno-unused-parameter
 
-pedantic.opts.lnx.icx = $(pedantic.opts.icx)
+pedantic.opts.lnx.icx = $(pedantic.opts.icx_lnx)
 pedantic.opts.win.icx = $(pedantic.opts.icx_win)
 
 p4_OPT.icx   = -march=nocona

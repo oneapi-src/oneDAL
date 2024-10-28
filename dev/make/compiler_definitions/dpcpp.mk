@@ -26,7 +26,7 @@ CMPLRDIRSUFF.dpcpp = _dpcpp
 CORE.SERV.COMPILER.dpcpp = generic
 
 -Zl.dpcpp = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
--DEBC.dpcpp = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug -fasm-blocks
+-DEBC.dpcpp = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug
 
 COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
@@ -43,9 +43,9 @@ pedantic.opts.dpcpp_lnx = -pedantic \
                           -Wno-unused-parameter
 
 pedantic.opts.dpcpp_win = -Wall \
-                      -Wextra \
-                      -Wwritable-strings \
-                      -Wno-unused-parameter
+                          -Wextra \
+                          -Wwritable-strings \
+                          -Wno-unused-parameter
 
 pedantic.opts.lnx.dpcpp = $(pedantic.opts.dpcpp_lnx)
 pedantic.opts.win.dpcpp = $(pedantic.opts.dpcpp_win)
