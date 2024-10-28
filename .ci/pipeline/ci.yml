@@ -612,7 +612,7 @@ jobs:
       git clone https://github.com/intel/scikit-learn-intelex.git .
       ls -lha
     displayName: Clone sklearnex
-  - template: build-and-test-lnx.yml@sklearnex
+  - template: .ci/pipeline/build-and-test-lnx.yml@sklearnex
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) sklearnex build'
