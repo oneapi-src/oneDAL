@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "oneapi/dal/backend/memory.hpp"
-
+#include <iostream>
 namespace oneapi::dal::detail::v1 {
 
 void* malloc(const data_parallel_policy& policy, std::size_t size, const sycl::usm::alloc& alloc) {
@@ -56,6 +56,7 @@ void memcpy_host2usm(const data_parallel_policy& policy,
                      const void* src_host,
                      std::int64_t size) {
     auto& queue = policy.get_queue();
+    std::cout<<"failed 20"<<std::endl;
     backend::memcpy_host2usm(queue,
                              (byte_t*)dest_usm,
                              (byte_t*)src_host,

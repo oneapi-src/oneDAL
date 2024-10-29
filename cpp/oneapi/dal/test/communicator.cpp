@@ -20,7 +20,7 @@
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
 #include "oneapi/dal/test/engine/thread_communicator.hpp"
-
+#include <iostream>
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test {
@@ -73,6 +73,7 @@ public:
     template <typename T>
     array<T> to_device(const array<T>& src) {
         auto dst = array<T>::empty(this->get_queue(), src.get_count(), sycl::usm::alloc::device);
+        std::cout<<"failed 66"<<std::endl;
         dal::detail::memcpy_host2usm(this->get_queue(),
                                      dst.get_mutable_data(),
                                      src.get_data(),

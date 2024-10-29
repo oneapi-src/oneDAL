@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/backend/transfer.hpp"
 #include <algorithm>
-
+#include <iostream>
 namespace oneapi::dal::backend {
 namespace bk = dal::backend;
 template <typename Float>
@@ -97,7 +97,7 @@ sycl::event scatter_host2device(sycl::queue& q,
 
     const auto gathered_device_unique =
         make_unique_usm_device(q, block_count * block_size_in_bytes);
-
+    std::cout<<"failed 4"<<std::endl;
     auto copy_event = memcpy_host2usm(q,
                                       gathered_device_unique.get(),
                                       src_host,
@@ -151,7 +151,7 @@ sycl::event scatter_host2device_blocking(sycl::queue& q,
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, block_count, block_size_in_bytes);
     const auto gathered_device_unique =
         make_unique_usm_device(q, block_count * block_size_in_bytes);
-
+    std::cout<<"failed 5"<<std::endl;
     auto copy_event = memcpy_host2usm(q,
                                       gathered_device_unique.get(),
                                       src_host,

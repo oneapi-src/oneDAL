@@ -30,7 +30,7 @@
 #include "oneapi/dal/io/csv/backend/gpu/read_kernel.hpp"
 #include "oneapi/dal/table/common.hpp"
 #include "oneapi/dal/table/detail/table_builder.hpp"
-
+#include <iostream>
 namespace oneapi::dal::csv::backend {
 
 namespace interop = dal::backend::interop;
@@ -68,6 +68,7 @@ struct read_kernel_gpu<table, Float> {
         Float* data = block.getBlockPtr();
 
         auto arr = array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
+        std::cout<<"failed 31"<<std::endl;
         dal::detail::memcpy_host2usm(queue,
                                      arr.get_mutable_data(),
                                      data,

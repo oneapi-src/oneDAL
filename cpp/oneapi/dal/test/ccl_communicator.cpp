@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/test/engine/ccl_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-
+#include <iostream>
 #ifdef ONEDAL_DATA_PARALLEL
 
 namespace oneapi::dal::test {
@@ -156,6 +156,7 @@ private:
     array<T> copy_to_device(const T* data, std::int64_t count) {
         if (count > 0) {
             auto x = array<T>::empty(get_queue(), count, sycl::usm::alloc::device);
+            std::cout<<"failed 61"<<std::endl;
             dal::detail::memcpy_host2usm(get_queue(),
                                          x.get_mutable_data(),
                                          data,

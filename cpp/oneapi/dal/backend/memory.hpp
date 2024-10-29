@@ -17,6 +17,8 @@
 #pragma once
 
 #include "oneapi/dal/backend/common.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
+#include <iostream>
 
 namespace oneapi::dal::backend {
 
@@ -220,12 +222,9 @@ inline sycl::event memcpy_host2usm(sycl::queue& queue,
                                    std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    auto tmp_usm_host = make_unique_usm_host(queue, size);
-    memcpy(tmp_usm_host.get(), src_host, size);
-    memcpy(queue, dest_usm, tmp_usm_host.get(), size, deps).wait_and_throw();
+    ONEDAL_PROFILER_TASK(memcpy_host2usm, queue);
+    std::cout<<"memcpy_host2usm"<<std::endl;
+    queue.memcpy(dest_usm, src_host, size, deps).wait_and_throw();
     return {};
 }
 
@@ -235,12 +234,9 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
                                    std::size_t size,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, src_usm));
-
-    // TODO: Remove additional copy to host usm memory once
-    //       bug in `copy` with the host memory is fixed
-    auto tmp_usm_host = make_unique_usm_host(queue, size);
-    memcpy(queue, tmp_usm_host.get(), src_usm, size, deps).wait_and_throw();
-    memcpy(dest_host, tmp_usm_host.get(), size);
+    std::cout<<"memcpy_usm2host"<<std::endl;
+    ONEDAL_PROFILER_TASK(memcpy_usm2host, queue);
+    queue.memcpy(dest_host, src_usm, size, deps).wait_and_throw();
     return {};
 }
 
@@ -291,6 +287,7 @@ inline sycl::event copy_host2usm(sycl::queue& queue,
     ONEDAL_ASSERT(count > 0);
     const std::size_t n = detail::integral_cast<std::size_t>(count);
     ONEDAL_ASSERT_MUL_OVERFLOW(std::size_t, sizeof(T), n);
+    std::cout<<"failed 3"<<std::endl;
     return memcpy_host2usm(queue, dest_usm, src_host, sizeof(T) * n, deps);
 }
 
@@ -386,9 +383,11 @@ inline sycl::event copy_all2all(sycl::queue& queue,
         event = memcpy(queue, dest, src, sizeof(T) * n, deps);
     }
     else if (src_device_friendly) {
+        std::cout<<"failed 1"<<std::endl;
         event = memcpy_usm2host(queue, dest, src, sizeof(T) * n, deps);
     }
     else if (dst_device_friendly) {
+        std::cout<<"failed 2"<<std::endl;
         event = memcpy_host2usm(queue, dest, src, sizeof(T) * n, deps);
     }
     else {

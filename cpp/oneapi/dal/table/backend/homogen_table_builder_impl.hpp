@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/table/backend/homogen_table_impl.hpp"
 #include "oneapi/dal/backend/memory.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend {
 
 class homogen_table_builder_impl
@@ -86,6 +86,7 @@ public:
         __ONEDAL_IF_QUEUE__(data_.get_queue(), {
             auto this_q = data_.get_queue().value();
             ONEDAL_ASSERT(is_known_usm(data_));
+            std::cout<<"failed 50"<<std::endl;
             detail::memcpy_host2usm(this_q, data_.get_mutable_data(), data, data_.get_size());
         });
 

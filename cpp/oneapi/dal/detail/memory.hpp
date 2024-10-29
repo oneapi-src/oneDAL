@@ -21,7 +21,7 @@
 #include "oneapi/dal/detail/memory_impl_dpc.hpp"
 #include "oneapi/dal/detail/memory_impl_host.hpp"
 #include "oneapi/dal/common.hpp"
-
+#include <iostream>
 namespace oneapi::dal::detail {
 namespace v1 {
 
@@ -67,8 +67,11 @@ inline void memcpy(const DstPolicy& dst_policy,
         memcpy(src_policy, dst, src, size);
     else if constexpr (!is_dst_usm && is_src_usm)
         memcpy_usm2host(src_policy, dst, src, size);
-    else if constexpr (is_dst_usm && !is_src_usm)
+    else if constexpr (is_dst_usm && !is_src_usm){
+        std::cout<<"failed 30"<<std::endl;
         memcpy_host2usm(dst_policy, dst, src, size);
+    
+    }
     else
 #endif // ONEDAL_DATA_PARALLEL
         memcpy(dst_policy, dst, src, size);

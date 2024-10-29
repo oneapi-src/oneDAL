@@ -16,7 +16,7 @@
 
 #include "oneapi/dal/test/engine/mpi_global.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-
+#include <iostream>
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::test {
@@ -173,6 +173,7 @@ private:
     template <typename T>
     array<T> copy_to_device(const T* data, std::int64_t count) {
         auto x = array<T>::empty(get_queue(), count, sycl::usm::alloc::device);
+        std::cout<<"failed 101"<<std::endl;
         dal::detail::memcpy_host2usm(get_queue(), x.get_mutable_data(), data, sizeof(T) * count);
         return x;
     }

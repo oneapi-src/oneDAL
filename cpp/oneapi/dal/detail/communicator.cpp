@@ -18,7 +18,7 @@
 #include "oneapi/dal/detail/communicator.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/array.hpp"
-
+#include <iostream>
 namespace spmd = oneapi::dal::preview::spmd;
 
 namespace oneapi::dal::detail::v1 {
@@ -69,6 +69,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::bcast(sycl::queue& q,
         wait_request(bcast(send_buff_host.get_mutable_data(), count, dtype, root));
 
         if (get_rank() != root) {
+            std::cout<<"failed 6"<<std::endl;
             memcpy_host2usm(q, send_buf, send_buff_host.get_mutable_data(), size);
         }
     }
@@ -150,6 +151,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::allgatherv(
             const std::int64_t dst_offset = check_mul_overflow(dtype_size, displs_host[i]);
             const std::int64_t copy_size = check_mul_overflow(dtype_size, recv_counts_host[i]);
             if (copy_size > 0) {
+                std::cout<<"failed 10"<<std::endl;
                 memcpy_host2usm(q,
                                 recv_buf + dst_offset,
                                 recv_buf_host_ptr + src_offset,
@@ -202,6 +204,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::allreduce(
                                count,
                                dtype,
                                op));
+        std::cout<<"failed 11"<<std::endl;
         memcpy_host2usm(q, recv_buf, recv_buf_host.get_data(), byte_count);
     }
 
@@ -264,7 +267,7 @@ spmd::request_iface* spmd_communicator_via_host_impl::sendrecv_replace(
                                       dtype,
                                       destination_rank,
                                       source_rank));
-
+        std::cout<<"failed 12"<<std::endl;
         memcpy_host2usm(q, buf, buff_host.get_mutable_data(), size);
     }
 

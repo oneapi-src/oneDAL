@@ -51,7 +51,21 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     ONEDAL_ASSERT(input.get_data().has_data());
 
     const auto data = input.get_data();
+    // //const auto data = input.get_data();
 
+    // const std::int64_t row_count = 500000;
+    // ONEDAL_ASSERT(row_count > 0);
+    // auto rows_count_global = row_count;
+    // const std::int64_t column_count = 960;
+    // ONEDAL_ASSERT(column_count > 0);
+
+    // auto bias = desc.get_bias();
+    // auto assume_centered = desc.get_assume_centered();
+
+    // auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
+    // array<Float> arr_responses = array<Float>::empty(500000 * 960);
+    // auto table_input = dal::homogen_table::wrap(arr_responses, 500000, 960);
+    // const auto data_nd = pr::table2ndarray<Float>(q_, table_input, alloc::device);
     const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(row_count > 0);
     auto rows_count_global = row_count;
