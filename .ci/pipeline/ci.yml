@@ -603,22 +603,25 @@ jobs:
         PYTHON_VERSION: '3.11'
         SKLEARN_VERSION: '1.5'
   steps:
-  - checkout: self
-    path: oneDAL
   - script: |
       git clone https://github.com/intel/scikit-learn-intelex.git .
       ls -lha
       pwd
     displayName: Clone sklearnex
+  - checkout: self
+    path: oneDAL
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
   - script: |
+      ls -lha
+      pwd
       cd oneDAL
       .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
+      pwd
       ls -lha
       .ci/scripts/describe_system.sh
     displayName: 'System info'
