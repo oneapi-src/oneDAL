@@ -61,6 +61,11 @@ jobs:
         with:
           name: __release_lnx
           path: ./__release_lnx
+      - name: Archive oneAPI env script
+        uses: actions/upload-artifact@v4
+        with:
+          name: apt.sh
+          path: ./.ci/env/apt.sh
 
   build_win:
     name: oneDAL Windows nightly build
