@@ -610,6 +610,7 @@ jobs:
     displayName: Clone sklearnex
   - checkout: self
     path: oneDAL
+    workspaceRepo: false
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
