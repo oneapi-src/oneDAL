@@ -46,15 +46,15 @@ jobs:
         run: .ci/env/apt.sh mkl
       - name: System Info
         run: |
-          source /opt/intel/oneapi/compiler/latest/env/vars.sh
+          source /opt/intel/oneapi/setvars.sh
           .ci/scripts/describe_system.sh
       - name: Make daal
         run: |
-          source /opt/intel/oneapi/compiler/latest/env/vars.sh
+          source /opt/intel/oneapi/setvars.sh
           .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal
       - name: Make onedal
         run: |
-          source /opt/intel/oneapi/compiler/latest/env/vars.sh
+          source /opt/intel/oneapi/setvars.sh
           .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal
       - name: Archive build
         uses: actions/upload-artifact@v4
