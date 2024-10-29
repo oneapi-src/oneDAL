@@ -226,7 +226,15 @@ sycl::event update_centroids(sycl::queue& q,
     const auto col_ind_ptr = column_indices.get_data();
     const auto counters_ptr = counters.get_data();
 
+#ifdef DEBUG_PRINT
+    std::cout << " ====== In update_centroids : 0" << std::endl;
+#endif
+
     const auto num_clusters = centroids.get_dimension(0);
+
+#ifdef DEBUG_PRINT
+    std::cout << " ====== num_clusters = " << num_clusters << std::endl;
+#endif
 
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, num_clusters, column_count);
     const auto centroids_elem_count = num_clusters * column_count;
@@ -234,7 +242,10 @@ sycl::event update_centroids(sycl::queue& q,
     const auto centroids_num_bytes = centroids_elem_count * sizeof(Float);
 
     auto clean_event = q.memset(centroids_ptr, 0, centroids_num_bytes, deps);
-
+#ifdef DEBUG_PRINT
+    clean_event.wait_and_throw();
+    std::cout << " ====== Memset: Ok " << std::endl;
+#endif
     const auto local_size = bk::device_max_sg_size(q);
     const size_t row_count_unsigned = static_cast<size_t>(row_count);
 
@@ -243,6 +254,13 @@ sycl::event update_centroids(sycl::queue& q,
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, local_size, sg_count);
     const std::int64_t global_size = sg_count * local_size;
     auto range = bk::make_multiple_nd_range_2d({ global_size, num_clusters }, { local_size, 1 });
+
+#ifdef DEBUG_PRINT
+    std::cout << " ====== row_count    = " << row_count << std::endl;
+    std::cout << " ====== local_size   = " << local_size << std::endl;
+    std::cout << " ====== sg_count     = " << sg_count << std::endl;
+    std::cout << " ====== global_size  = " << global_size << std::endl;
+#endif
 
     // Compute sum of data points belonging to each centroid
     auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
@@ -278,18 +296,7 @@ sycl::event update_centroids(sycl::queue& q,
                 // Copy the data point in sparse format into the local dense storage
                 for (auto idx = begin_idx; idx < end_idx; ++idx) {
                     const auto col_idx = col_ind_ptr[idx];
-                    local_sum_ptr[col_idx] = data_ptr[idx];
-                }
-            }
-
-            // reduction for loop
-            // compute partial sums of data points
-            for (size_t i = local_size / 2; i > 0; i >>= 1) {
-                it.barrier(sycl::access::fence_space::local_space);
-                if (local_id < i) {
-                    for (auto idx = 0; idx < column_count; ++idx) {
-                        local_sum_ptr[idx] += local_sum_ptr[i * column_count + idx];
-                    }
+                    bk::atomic_local_add(local_sum_ptr + col_idx, data_ptr[idx]);
                 }
             }
 
@@ -302,6 +309,11 @@ sycl::event update_centroids(sycl::queue& q,
             }
         });
     });
+
+#ifdef DEBUG_PRINT
+    centroids_sum_event.wait_and_throw();
+    std::cout << " ====== Centroids sum: Ok " << std::endl;
+#endif
 
     const auto finalize_range =
         bk::make_multiple_nd_range_2d({ num_clusters, local_size }, { 1, local_size });
@@ -324,6 +336,13 @@ sycl::event update_centroids(sycl::queue& q,
             }
         });
     });
+
+
+#ifdef DEBUG_PRINT
+    finalize_centroids.wait_and_throw();
+    std::cout << " ====== Finalize: Ok " << std::endl;
+#endif
+
     return finalize_centroids;
 }
 
