@@ -18,7 +18,7 @@
 Deprecation Notice
 ==================
 
-This page provides information about the deprecations of a specific Intel(R) oneAPI Data Analytics Library (oneDAL) functionality.
+This page provides information about the deprecations of a specific oneAPI Data Analytics Library (oneDAL) functionality.
 
 Java* Interfaces
 ****************
