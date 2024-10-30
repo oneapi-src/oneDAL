@@ -77,14 +77,14 @@ struct BinParams
     BinParams(size_t _maxBins, size_t _minBinSize, BinningStrategy _binningStrategy = BinningStrategy::quantiles)
         : maxBins(_maxBins), minBinSize(_minBinSize), binningStrategy(_binningStrategy)
     {}
-    BinParams(const BinParams & o) : binningStrategy(o.binningStrategy), maxBins(o.maxBins), minBinSize(o.minBinSize) {}
+    BinParams(const BinParams & o) : maxBins(o.maxBins), minBinSize(o.minBinSize), binningStrategy(o.binningStrategy) {}
 
-    /* Strategy to create bins for feature values. Default: quantiles */
-    BinningStrategy binningStrategy = BinningStrategy::quantiles;
     /* Maximum number of bins for indexed data. Default: 256 */
     size_t maxBins = 256;
     /* Minimum bin width (number of data points per bin). Default: 5*/
     size_t minBinSize = 5;
+    /* Strategy to create bins for feature values. Default: quantiles */
+    BinningStrategy binningStrategy = BinningStrategy::quantiles;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
