@@ -603,14 +603,14 @@ jobs:
         PYTHON_VERSION: '3.11'
         SKLEARN_VERSION: '1.5'
   steps:
+  - checkout: self
   - script: |
-      git clone https://github.com/intel/scikit-learn-intelex.git .
+      git remote add sklearnex https://github.com/intel/scikit-learn-intelex.git  
+      git fetch     
+      git checkout -t sklearnex/master -f
       ls -lha
       pwd
     displayName: Clone sklearnex
-  - checkout: oneapi-src/oneDAL
-    path: oneDAL
-    workspaceRepo: false
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
