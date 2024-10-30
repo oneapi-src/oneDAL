@@ -109,9 +109,7 @@ public:
     };
 
 public:
-    IndexedFeatures()
-        : _data(nullptr), _entries(nullptr), _sizeOfIndex(sizeof(IndexType)), _nRows(0), _nCols(0), _capacity(0), _maxNumIndices(0)
-    {}
+    IndexedFeatures() : _data(nullptr), _entries(nullptr), _sizeOfIndex(sizeof(IndexType)), _nRows(0), _nCols(0), _capacity(0), _maxNumIndices(0) {}
 
     ~IndexedFeatures();
 
