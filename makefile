@@ -116,25 +116,27 @@ AR_is_$(subst $(space),_,$(origin AR)) := yes
 
 OSList          := lnx win mac
 
-o      := $(if $(OS_is_win),obj,o)
-a      := $(if $(OS_is_win),lib,a)
-d      := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
-dtbb   := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),_debug,),)
-plib   := $(if $(OS_is_win),,lib)
-scr    := $(if $(OS_is_win),bat,sh)
-y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
--Fo    := $(if $(OS_is_win),-Fo,-o)
--Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
--cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
--fPIC  := $(if $(OS_is_win),,-fPIC)
+o           := $(if $(OS_is_win),obj,o)
+a           := $(if $(OS_is_win),lib,a)
+d           := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
+dtbb        := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),_debug,),)
+plib        := $(if $(OS_is_win),,lib)
+scr         := $(if $(OS_is_win),bat,sh)
+y           := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
+-Fo         := $(if $(OS_is_win),-Fo,-o)
+-Q          := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
+-cxx17      := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
+-fPIC       := $(if $(OS_is_win),,-fPIC)
 -DMKL_ILP64 := $(if $(filter mkl,$(BACKEND_CONFIG)),-DMKL_ILP64)
--Zl    := $(-Zl.$(COMPILER))
--DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
--DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
--EHsc  := $(if $(OS_is_win),-EHsc,)
--isystem := $(if $(OS_is_win),-I,-isystem)
--sGRP  = $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
--eGRP  = $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
+-Zl         := $(-Zl.$(COMPILER))
+-Zl_DPCPP   := $(-Zl.dpcpp)
+-DEBC       := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
+-DEBC_DPCPP := $(if $(REQDBG),$(-DEBC.dpcpp) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
+-DEBL       := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
+-EHsc       := $(if $(OS_is_win),-EHsc,)
+-isystem    := $(if $(OS_is_win),-I,-isystem)
+-sGRP       := $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
+-eGRP       := $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
 daalmake = make
 
 $(eval $(call set_uarch_options_for_compiler,$(COMPILER)))
@@ -670,7 +672,7 @@ $(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-DEBC) $(-E
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_a)))
 
 $(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
-$(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DMKL_ILP64) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
+$(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-Zl_DPCPP) $(-DMKL_ILP64) $(-DEBC_DPCPP) $(-EHsc) $(pedantic.opts.dpcpp) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DONEDAL_DATA_PARALLEL \
@@ -695,9 +697,11 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-DEBC) $(-E
 
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y)))
 
-# libonedal_dpc.so does not support debug mode.
+# Note: The libonedal_dpc.so library does not support debug mode.
+# When compiling with the debug flag $(-DEBC_DPCPP), linking with libonedal_dpc.so may cause indefinite linking times 
+# due to the extensive processing of debug information. For debugging, please use the static library version (libonedal_dpc.a).
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
-$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-EHsc) $(pedantic.opts.dpcpp) \
+$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-Zl_DPCPP) $(-DMKL_ILP64) $(-EHsc) $(pedantic.opts.dpcpp) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DONEDAL_DATA_PARALLEL \

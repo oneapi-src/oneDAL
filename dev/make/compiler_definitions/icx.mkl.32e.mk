@@ -37,19 +37,16 @@ COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD -Qopenmp-simd, -MDd) -nolo
 
 link.dynamic.lnx.icx = icx -m64 -no-intel-lib
 
-pedantic.opts.icx_lnx = -pedantic \
+pedantic.opts.lnx.icx = -pedantic \
                         -Wall \
                         -Wextra \
                         -Wwritable-strings \
                         -Wno-unused-parameter
 
-pedantic.opts.icx_win = -Wall \
+pedantic.opts.win.icx = -Wall \
                         -Wextra \
                         -Wwritable-strings \
                         -Wno-unused-parameter
-
-pedantic.opts.lnx.icx = $(pedantic.opts.icx_lnx)
-pedantic.opts.win.icx = $(pedantic.opts.icx_win)
 
 p4_OPT.icx   = -march=nocona
 mc3_OPT.icx  = -march=nehalem

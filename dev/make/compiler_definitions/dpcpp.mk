@@ -36,19 +36,16 @@ COMPILER.win.dpcpp = icx -fsycl $(if $(MSVC_RT_is_release),-MD, -MDd /debug:none
 link.dynamic.lnx.dpcpp = icpx -fsycl -m64 -fsycl-device-code-split=per_kernel -fsycl-max-parallel-link-jobs=$(SYCL_LINK_PRL)
 link.dynamic.win.dpcpp = icx -fsycl -m64 -fsycl-device-code-split=per_kernel -fsycl-max-parallel-link-jobs=$(SYCL_LINK_PRL)
 
-pedantic.opts.dpcpp_lnx = -pedantic \
+pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \
                           -Wextra \
                           -Wwritable-strings \
                           -Wno-unused-parameter
 
-pedantic.opts.dpcpp_win = -Wall \
+pedantic.opts.win.dpcpp = -Wall \
                           -Wextra \
                           -Wwritable-strings \
                           -Wno-unused-parameter
-
-pedantic.opts.lnx.dpcpp = $(pedantic.opts.dpcpp_lnx)
-pedantic.opts.win.dpcpp = $(pedantic.opts.dpcpp_win)
 
 p4_OPT.dpcpp   = -march=nocona
 mc3_OPT.dpcpp  = -march=nehalem
