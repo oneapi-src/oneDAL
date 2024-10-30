@@ -76,7 +76,7 @@ The PCA algorithm can be trained using either the covariance or the correlation 
 The choice of covariance matrix or correlation matrix is application-dependent.
 More specifically, if scaling of the features is important for a problem,
 which is often the case, using the correlation matrix to compute principal components is more appropriate.
-By default, oneDAL uses the correlation matrix to compute the principal components. It is possible
+By default, oneAPI Data Analytics Library (oneDAL) uses the correlation matrix to compute the principal components. It is possible
 to use the covariance matrix by passing "precomputed" as method and feeding a covariance matrix as input
 to the PCA algorithm. To compute the covariance matrix, the :ref:`Covariance <alg_covariance>` algorithm can be used.
 
