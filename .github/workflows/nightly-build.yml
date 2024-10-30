@@ -61,6 +61,11 @@ jobs:
         with:
           name: __release_lnx
           path: ./__release_lnx
+      - name: Archive oneDAL environment
+        uses: actions/upload-artifact@v4
+        with:
+          name: oneDAL_env
+          path: .ci/env
 
   build_win:
     name: oneDAL Windows nightly build
