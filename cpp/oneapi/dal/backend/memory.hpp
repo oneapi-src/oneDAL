@@ -177,6 +177,7 @@ inline unique_usm_ptr<void> make_unique_usm_shared(const sycl::queue& q, std::si
 }
 
 inline unique_usm_ptr<void> make_unique_usm_host(const sycl::queue& q, std::size_t size) {
+    ONEDAL_PROFILER_TASK(make_unique_usm_host);
     return unique_usm_ptr<void>{ malloc_host(q, size), usm_deleter<void>{ q } };
 }
 
@@ -199,6 +200,7 @@ inline unique_usm_ptr<T> make_unique_usm_shared(const sycl::queue& q, std::int64
 
 template <typename T>
 inline unique_usm_ptr<T> make_unique_usm_host(const sycl::queue& q, std::int64_t count) {
+    ONEDAL_PROFILER_TASK(make_unique_usm_host_with_template);
     return unique_usm_ptr<T>{ malloc_host<T>(q, count), usm_deleter<T>{ q } };
 }
 

@@ -17,6 +17,8 @@
 #include "oneapi/dal/backend/transfer.hpp"
 #include <algorithm>
 #include <iostream>
+#include "oneapi/dal/detail/profiler.hpp"
+
 namespace oneapi::dal::backend {
 namespace bk = dal::backend;
 template <typename Float>
@@ -86,6 +88,7 @@ sycl::event scatter_host2device(sycl::queue& q,
                                 std::int64_t dst_stride_in_bytes,
                                 std::int64_t block_size_in_bytes,
                                 const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(scatter_host2device, q);
     ONEDAL_ASSERT(dst_device);
     ONEDAL_ASSERT(src_host);
     ONEDAL_ASSERT(block_count > 0);

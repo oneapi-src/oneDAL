@@ -45,6 +45,7 @@ template <typename Type>
 inline ndarray<Type, 2, ndorder::c> table2ndarray_rm(sycl::queue& q,
                                                      const table& table,
                                                      sycl::usm::alloc alloc) {
+    std::cout<<"table2ndarray_rm branch"<<std::endl;
     constexpr auto order = ndorder::c;
     using arr_t = ndarray<Type, 2, order>;
     row_accessor<const Type> accessor{ table };
@@ -123,10 +124,12 @@ inline ndarray<Type, 2, order> table2ndarray(sycl::queue& q,
     ONEDAL_PROFILER_TASK(table2ndarray, q);
     [[maybe_unused]] const auto layout = table.get_data_layout();
     if constexpr (order == ndorder::c) {
+        std::cout<<"Row major"<<std::endl;
         ONEDAL_ASSERT(layout == decltype(layout)::row_major);
         return table2ndarray_rm<Type>(q, table, alloc);
     }
     else {
+        std::cout<<"Column major"<<std::endl;
         ONEDAL_ASSERT(layout == decltype(layout)::column_major);
         return table2ndarray_cm<Type>(q, table, alloc);
     }
