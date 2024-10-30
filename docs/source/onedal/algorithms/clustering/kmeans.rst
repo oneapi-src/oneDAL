@@ -52,7 +52,7 @@ Expression :math:`\|\cdot\|` denotes :math:`L_2` `norm
 
 .. note::
    In the general case, :math:`d` may be an arbitrary distance function. Current
-   version of the oneDAL spec defines only Euclidean distance case.
+   version of the Intel(R) oneAPI Data Analytics Library (oneDAL) specification defines only Euclidean distance case.
 
 
 .. _kmeans_t_math_lloyd:
