@@ -608,7 +608,7 @@ jobs:
       ls -lha
       pwd
     displayName: Clone sklearnex
-  - checkout: self
+  - checkout: oneapi-src/oneDAL
     path: oneDAL
     workspaceRepo: false
   - task: DownloadPipelineArtifact@2
