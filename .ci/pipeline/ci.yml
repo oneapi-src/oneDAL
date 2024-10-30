@@ -607,7 +607,7 @@ jobs:
   - script: |
       git remote add sklearnex https://github.com/intel/scikit-learn-intelex.git  
       git fetch     
-      git checkout -t sklearnex/master -f
+      git checkout -t sklearnex/main -f
       ls -lha
       pwd
     displayName: Clone sklearnex
