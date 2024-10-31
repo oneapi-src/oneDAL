@@ -81,8 +81,9 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            for /F "delims=" %a in ('findstr /r WINDOWS_BASEKIT_URL: .ci/pipeline/ci.yml') do set "temp=%a"
-            call .\.ci\scripts\install_basekit.bat %temp:WINDOWS_BASEKIT_URL: =% ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
+          set PATH=C:\msys64\usr\bin;%PATH%
+          for /f "delims=" %%i in ('grep -oP -m 1 "(?<=WINDOWS_BASEKIT_URL: ).*" .ci\pipeline\ci.yml') do set "baseurl=%%i"
+          call .ci\scripts\install_basekit.bat %baseurl:'="% ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
       - name: Prepare Intel OpenCL CPU runtime
         run: |
           # Store the unpacked runtime to centralize and reduce external downloads
