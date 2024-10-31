@@ -32,9 +32,18 @@ load("@onedal//dev/bazel/deps:tbb.bzl", "tbb_repo")
 tbb_repo(
     name = "tbb",
     root_env_var = "TBBROOT",
-    url = "https://github.com/oneapi-src/oneTBB/releases/download/v2021.7.0/oneapi-tbb-2021.7.0-lin.tgz",
-    sha256 = "3c2b3287c595e2bb833c025fcd271783963b7dfae8dc681440ea6afe5d550e6a",
-    strip_prefix = "oneapi-tbb-2021.7.0",
+    urls = [
+        "https://files.pythonhosted.org/packages/93/4b/2e29f4266be5a66f21fc2dadcde48f9acea86119d6fb1bb2d2a451222ff7/tbb-2022.0.0-py2.py3-none-manylinux_2_28_x86_64.whl",
+        "https://files.pythonhosted.org/packages/ff/8c/1eb1f856a7a328242d524f1bf64f2a212d46ce5651168e7c8bc7aeaf0f44/tbb_devel-2022.0.0-py2.py3-none-manylinux_2_28_x86_64.whl",
+    ],
+    sha256s = [
+        "15a15a4e3ea4c3f3198bdb3c55fac75c589e15ed2ad0bbb080900d355c5b017e",
+        "474e4ed1dce2efeea1d3652e295a97713df5d0ed854c937ee7d0464c38353c36",
+    ],
+    strip_prefixes = [
+        "tbb-2022.0.0.data/data",
+        "tbb_devel-2022.0.0.data/data",
+    ]
 )
 
 load("@onedal//dev/bazel/deps:mpi.bzl", "mpi_repo")
@@ -42,16 +51,16 @@ mpi_repo(
     name = "mpi",
     root_env_var = "MPIROOT",
     urls = [
-        "https://files.pythonhosted.org/packages/83/3c/c684b721f08f55fc1647d9bcb84e657a4b6217c078a209f2f7751b639957/impi_rt-2021.8.0-py2.py3-none-manylinux1_x86_64.whl",
-        "https://files.pythonhosted.org/packages/26/27/5b557da775ad23b20be85352e273dbdddd6ba2a531c6db21e3c9c02230f6/impi_devel-2021.8.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/0a/7c/0f4de62a3463e4ebcf232352b231427f3b34c6a0a1b102a94da3246cad76/impi_rt-2021.14.0-py2.py3-none-manylinux_2_28_x86_64.whl",
+        "https://files.pythonhosted.org/packages/10/9f/4ee3244c078b9e9e8f65ec51760e7a6e52988abba92a285ab8b0c4dbafff/impi_devel-2021.14.0-py2.py3-none-manylinux_2_28_x86_64.whl",
     ],
     sha256s = [
-        "c80f86a2a9ff9d4d1b81c1559e9b9180a8c72fb9902ea7d61b07e6d71ad33225",
-        "65dfc774e1e853a36c2c6286ea0b8dc33ea1f1f2a6fcd271b917195e11ddc98a",
+        "f06ac9eba3de9609fb257d714e3041f82334ccfe27a9bec0f90007d6381dd52e",
+        "6a6ec66719ac4884a40a0504f4f186f51ee4169bece5f4486c31138ed6bcc87d",
     ],
     strip_prefixes = [
-        "impi_rt-2021.8.0.data/data",
-        "impi_devel-2021.8.0.data/data",
+        "impi_rt-2021.14.0.data/data",
+        "impi_devel-2021.14.0.data/data",
     ]
 )
 
@@ -60,11 +69,14 @@ ccl_repo(
     name = "ccl",
     root_env_var = "CCL_ROOT",
     urls = [
-        "https://files.pythonhosted.org/packages/38/66/889fa7f40d4142194414efb3f79379ff2830e554d99eef49ac4d8e739245/oneccl_devel-2021.8.0-py2.py3-none-manylinux1_x86_64.whl",
+        "https://files.pythonhosted.org/packages/c4/34/84fcf891faabfcd88e1e054a9268cdbefac8c22ab37d7eea2d9a3bda0f52/oneccl_devel-2021.14.0-py2.py3-none-manylinux_2_28_x86_64.whl",
     ],
     sha256s = [
-        "58995b5dd38f92034be7c7c2da51f531b6df4ef36b09fb648757ae0a7832f802",
+        "580641c9d296b673d225ed3ca740b3356d7408a5c792de596a8836fde7d6c79e",
     ],
+    strip_prefixes = [
+        "oneccl_devel-2021.14.0.data/data",
+    ]
 )
 
 load("@onedal//dev/bazel/deps:mkl.bzl", "mkl_repo")
