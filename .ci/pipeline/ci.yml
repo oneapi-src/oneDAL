@@ -624,6 +624,7 @@ jobs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
   - script: |
+      chmod -R 755 .ci/env
       ls -lha
       pwd
       .ci/env/apt.sh dev-base
