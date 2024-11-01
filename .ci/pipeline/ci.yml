@@ -601,7 +601,7 @@ jobs:
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type: 'lnx32e'
-    DALROOT: '$(Pipeline.Workspace)/$(release.dir)'
+    DALROOT: '$(Pipeline.Workspace)/daal/latest'
     NO_DPC: 1
     NO_DIST: 1
   pool:
