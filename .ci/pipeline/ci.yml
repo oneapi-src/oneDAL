@@ -616,7 +616,7 @@ jobs:
   - script: |
       git clone https://github.com/icfaust/scikit-learn-intelex.git .
       git switch dev/azure_pipelines_without_dal-devel
-    displayName: Clone sklearnex
+    displayName: 'Clone sklearnex'
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: 'oneDAL environment'
@@ -632,9 +632,6 @@ jobs:
   - script: |
       .ci/env/apt.sh tbb
     displayName: 'tbb installation'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
   - template: .ci/pipeline/build-and-test-lnx.yml@sklearnex
   - task: PublishPipelineArtifact@1
     inputs:
