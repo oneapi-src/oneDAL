@@ -602,6 +602,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type: 'lnx32e'
     DALROOT: '$(Pipeline.Workspace)/daal/latest'
+    TBBROOT: '/opt/intel/onapi/tbb/latest/'
     NO_DPC: 1
     NO_DIST: 1
   pool:
@@ -611,32 +612,29 @@ jobs:
     matrix:
       Python311:
         PYTHON_VERSION: '3.11'
-        SKLEARN_VERSION: '1.0'
+        SKLEARN_VERSION: '1.5'
   steps:
   - checkout: none
   - script: |
       git clone https://github.com/icfaust/scikit-learn-intelex.git .
       git switch dev/azure_pipelines_without_dal-devel
-      ls -lha
-      pwd
+    displayName: Clone sklearnex
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: 'oneDAL environment'
       path: '$(Build.Repository.LocalPath)/.ci/env'
-    displayName: Clone sklearnex
   - task: DownloadPipelineArtifact@2
     inputs:
       artifact: '$(platform.type) build'
       path: $(Pipeline.Workspace)
   - script: |
       chmod -R 755 .ci/env
-      ls -lha
-      pwd
       .ci/env/apt.sh dev-base
     displayName: 'apt-get'
   - script: |
-      pwd
-      ls -lha
+      .ci/env/apt.sh tbb
+    displayName: 'tbb installation'
+  - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
   - template: .ci/pipeline/build-and-test-lnx.yml@sklearnex
