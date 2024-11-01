@@ -601,7 +601,7 @@ jobs:
     release.dir: '__release_lnx_gnu'
     platform.type: 'lnx32e'
     DALROOT: '$(Pipeline.Workspace)/daal/latest'
-    TBBROOT: '/opt/intel/onapi/tbb/latest'
+    TBBROOT: '/opt/intel/oneapi/tbb/latest'
     NO_DPC: 1
     NO_DIST: 1
   pool:
