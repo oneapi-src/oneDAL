@@ -603,7 +603,6 @@ jobs:
     DALROOT: '$(Pipeline.Workspace)/daal/latest'
     TBBROOT: '/opt/intel/oneapi/tbb/latest'
     NO_DPC: 1
-    NO_DIST: 1
   pool:
     vmImage: '$(VM_IMAGE)'
     maxParallel: 2
