@@ -20,7 +20,7 @@
 Required Software:
 * C/C++ Compiler
 * [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html) if building with SYCL support
-* Python version 3.9 or higher
+* Python
 * TBB library (repository contains script to download it)
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2](http://msys2.github.io) (Windows\* only)
