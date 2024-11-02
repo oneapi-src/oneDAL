@@ -628,9 +628,6 @@ jobs:
       path: $(Pipeline.Workspace)
   - script: |
       chmod -R 755 .ci/env
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get'
-  - script: |
       .ci/env/apt.sh tbb
     displayName: 'tbb installation'
   - template: .ci/pipeline/build-and-test-lnx.yml@sklearnex
