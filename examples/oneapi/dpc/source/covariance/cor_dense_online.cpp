@@ -28,11 +28,10 @@ namespace dal = oneapi::dal;
 
 void run(sycl::queue &q) {
     const auto input_file_name = get_data_path("covcormoments_dense.csv");
-    const std::int64_t nBlocks = 10;
+    const std::int64_t nBlocks = 1;
 
-    const auto input = dal::read<dal::table>(q, dal::csv::data_source{ input_file_name });
-    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(
-        dal::covariance::result_options::cor_matrix | dal::covariance::result_options::means);
+    const auto input = dal::read<dal::table>(dal::csv::data_source{ input_file_name });
+    const auto cov_desc = dal::covariance::descriptor{}.set_result_options(dal::covariance::result_options::means);
 
     dal::covariance::partial_compute_result<> partial_result;
 
@@ -43,7 +42,7 @@ void run(sycl::queue &q) {
     auto result = dal::finalize_compute(q, cov_desc, partial_result);
 
     std::cout << "Means:\n" << result.get_means() << std::endl;
-    std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
+    // std::cout << "Correlation:\n" << result.get_cor_matrix() << std::endl;
 }
 
 int main(int argc, char const *argv[]) {

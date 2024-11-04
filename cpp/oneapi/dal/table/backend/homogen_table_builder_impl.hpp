@@ -41,6 +41,7 @@ public:
     void reset(const array<byte_t>& data,
                std::int64_t row_count,
                std::int64_t column_count) override {
+        std::cout<<"here i am"<<std::endl;
         if (get_data_size(row_count, column_count, dtype_) != data.get_count()) {
             throw dal::range_error(dal::detail::error_messages::invalid_data_block_size());
         }

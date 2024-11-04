@@ -20,7 +20,7 @@
 #include "oneapi/dal/table/backend/common_kernels.hpp"
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/backend/serialization.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend {
 
 class homogen_table_impl : public detail::homogen_table_template<homogen_table_impl>,
@@ -54,6 +54,7 @@ public:
 
         detail::check_mul_overflow(element_count, dtype_size);
         if (data.get_count() != element_count * dtype_size) {
+            std::cout<<"here i am 2"<<std::endl;
             throw dal::domain_error(error_msg::invalid_data_block_size());
         }
         if (layout != data_layout::row_major && layout != data_layout::column_major) {

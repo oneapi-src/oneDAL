@@ -19,7 +19,7 @@
 #include "oneapi/dal/array.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/primitives/ndshape.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend::primitives {
 
 enum class ndorder {
@@ -457,6 +457,7 @@ inline sycl::event copy(sycl::queue& q,
                         ndview<T1, 2, ord1>& dst,
                         const ndview<T2, 2, ord2>& src,
                         const event_vector& deps = {}) {
+    std::cout<<"here copy 4"<<std::endl;
     ONEDAL_ASSERT(src.has_data());
     ONEDAL_ASSERT(dst.has_mutable_data());
     const ndshape<2> dst_shape = dst.get_shape();
@@ -494,6 +495,7 @@ inline sycl::event copy(sycl::queue& q,
                         ndview<T1, 1, ord1>& dst,
                         const ndview<T2, 1, ord2>& src,
                         const event_vector& deps = {}) {
+    std::cout<<"here copy 3"<<std::endl;
     auto dst_2d = dst.template reshape<2>({ 1l, dst.get_count() });
     auto src_2d = src.template reshape<2>({ 1l, src.get_count() });
 
@@ -896,7 +898,7 @@ ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_host(
     sycl::queue& q,
     const event_vector& deps) const {
     T* host_ptr = dal::detail::host_allocator<T>().allocate(this->get_count());
-    dal::backend::copy_usm2host(q, host_ptr, this->get_data(), this->get_count(), deps)
+    dal::backend::copy_usm2host<T>(q, host_ptr, this->get_data(), this->get_count(), deps)
         .wait_and_throw();
     return ndarray<T, axis_count, order>::wrap(
         host_ptr,
@@ -911,7 +913,7 @@ ndarray<T, axis_count, order> ndview<T, axis_count, order>::to_device(
     sycl::queue& q,
     const event_vector& deps) const {
     auto dev = ndarray<T, axis_count, order>::empty(q, this->get_shape(), sycl::usm::alloc::device);
-    dal::backend::copy_host2usm(q,
+    dal::backend::copy_host2usm<T>(q,
                                 dev.get_mutable_data(),
                                 this->get_data(),
                                 this->get_count(),
@@ -930,6 +932,7 @@ template <ndorder yorder,
 inline auto copy(sycl::queue& q,
                  const ndview<Type, 2, xorder>& src,
                  const event_vector& deps = {}) {
+    std::cout<<"here copy 2"<<std::endl;
     ONEDAL_ASSERT(src.has_data());
     const auto shape = src.get_shape();
     auto res_array = ndarray<Type, 2, yorder>::empty(q, shape, alloc);
@@ -941,6 +944,7 @@ template <typename Type, ndorder xorder, sycl::usm::alloc alloc = sycl::usm::all
 inline auto copy(sycl::queue& q,
                  const ndview<Type, 2, xorder>& src,
                  const event_vector& deps = {}) {
+    std::cout<<"here copy 1"<<std::endl;
     return copy<xorder, Type, xorder, alloc>(q, src, deps);
 }
 

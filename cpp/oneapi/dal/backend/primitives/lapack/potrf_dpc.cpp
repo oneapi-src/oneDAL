@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/profiler.hpp"
 
 #include "oneapi/dal/backend/primitives/lapack/solve.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend::primitives {
 
 namespace detail {
@@ -54,19 +54,27 @@ sycl::event potrf_factorization(sycl::queue& queue,
                                 array<Float>& scratchpad,
                                 const event_vector& deps) {
     ONEDAL_PROFILER_TASK(potrf_kernel, queue);
-
+    std::cout<<"here potrf_factorization 1"<<std::endl;
     ONEDAL_ASSERT(x.has_mutable_data());
     ONEDAL_ASSERT(scratchpad.has_mutable_data());
     const auto [ncount, nlda, nuplo] = get_potrf_params<uplo>(x);
-
+    std::cout<<"here potrf_factorization 2"<<std::endl;
     [[maybe_unused]] const auto scratchpad_real_count = scratchpad.get_count();
+    std::cout<<"here potrf_factorization 3"<<std::endl;
     [[maybe_unused]] const auto scratchpad_want_count = potrf_scratchpad_size<uplo>(queue, x);
     ONEDAL_ASSERT(scratchpad_real_count >= scratchpad_want_count);
-
+    std::cout<<"here potrf_factorization 4"<<std::endl;
     auto* x_ptr = x.get_mutable_data();
+    std::cout<<"here potrf_factorization 5"<<std::endl;
     const auto scount = scratchpad.get_count();
+    std::cout<<"here potrf_factorization 6"<<std::endl;
     auto* s_ptr = scratchpad.get_mutable_data();
-    return mkl::lapack::potrf(queue, nuplo, ncount, x_ptr, nlda, s_ptr, scount, deps);
+    std::cout<<"here potrf_factorization 7"<<std::endl;
+    //std::cout<<"nuplo ="<<nuplo<<std::endl;
+    std::cout<<"ncount ="<<ncount<<std::endl;
+    std::cout<<"nlda ="<<nlda<<std::endl;
+    std::cout<<"scount ="<<scount<<std::endl;
+    return mkl::lapack::potrf(queue, mkl::uplo::upper, ncount, x_ptr, nlda, s_ptr, scount, deps);
 }
 
 } // namespace detail

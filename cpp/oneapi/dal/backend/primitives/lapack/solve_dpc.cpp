@@ -17,7 +17,7 @@
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
-
+#include <iostream>
 namespace oneapi::dal::backend::primitives {
 
 template <bool beta, typename Float, ndorder xlayout, ndorder ylayout>
@@ -66,15 +66,20 @@ sycl::event solve_system(sycl::queue& queue,
                          ndview<Float, 2, ndorder::c>& final_xtx,
                          ndview<Float, 2, ndorder::c>& final_xty,
                          const event_vector& dependencies) {
+    queue.wait_and_throw();
     constexpr auto alloc = sycl::usm::alloc::device;
-
+    std::cout<<"here"<<std::endl;
     auto [nxty, xty_event] = copy<ndorder::c, Float, ylayout, alloc>(queue, xty, dependencies);
+    std::cout<<"here1"<<std::endl;
     auto [nxtx, xtx_event] = copy<ndorder::c, Float, xlayout, alloc>(queue, xtx, dependencies);
-
+    std::cout<<"here2321321312"<<std::endl;
     opt_array<Float> dummy{};
+    std::cout<<"here331231231231"<<std::endl;
+    xtx_event.wait_and_throw();
     auto potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
+    std::cout<<"here3"<<std::endl;
     auto potrs_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
-
+    std::cout<<"here4"<<std::endl;
     return beta_copy_transform<beta>(queue, nxty, final_xty, { potrs_event });
 }
 

@@ -21,7 +21,7 @@
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-
+#include <iostream>
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/primitives/reduction.hpp"
@@ -50,8 +50,7 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
                                                       const input_t& input) {
     ONEDAL_ASSERT(input.get_data().has_data());
 
-    const auto data = input.get_data();
-    // //const auto data = input.get_data();
+
 
     // const std::int64_t row_count = 500000;
     // ONEDAL_ASSERT(row_count > 0);
@@ -66,6 +65,9 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     // array<Float> arr_responses = array<Float>::empty(500000 * 960);
     // auto table_input = dal::homogen_table::wrap(arr_responses, 500000, 960);
     // const auto data_nd = pr::table2ndarray<Float>(q_, table_input, alloc::device);
+
+    //2nd block
+    const auto data = input.get_data();
     const std::int64_t row_count = data.get_row_count();
     ONEDAL_ASSERT(row_count > 0);
     auto rows_count_global = row_count;
@@ -78,32 +80,32 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
     auto result = compute_result<task_t>{}.set_result_options(desc.get_result_options());
 
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
-
+    //2ndblock end
     auto [sums, sums_event] = compute_sums(q_, data_nd, assume_centered, {});
-
+    std::cout<<"Cov1"<<std::endl;
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
         comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
     }
-
+    std::cout<<"Cov 2"<<std::endl;
     auto xtx = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-
+    std::cout<<"Cov 3"<<std::endl;
     sycl::event gemm_event;
     {
         ONEDAL_PROFILER_TASK(gemm, q_);
         gemm_event = gemm(q_, data_nd.t(), data_nd, xtx, Float(1.0), Float(0.0));
     }
-
+    std::cout<<"Cov 4"<<std::endl;
     {
         ONEDAL_PROFILER_TASK(allreduce_xtx, q_);
         comm_.allreduce(xtx.flatten(q_, { gemm_event }), spmd::reduce_op::sum).wait();
     }
-
+    std::cout<<"Cov 5"<<std::endl;
     {
         ONEDAL_PROFILER_TASK(allreduce_rows_count_global);
         comm_.allreduce(rows_count_global, spmd::reduce_op::sum).wait();
     }
-
+    std::cout<<"Cov 6"<<std::endl;
     if (desc.get_result_options().test(result_options::cov_matrix)) {
         auto [cov, cov_event] = compute_covariance(q_,
                                                    rows_count_global,
@@ -115,12 +117,14 @@ result_t compute_kernel_dense_impl<Float>::operator()(const descriptor_t& desc,
         result.set_cov_matrix(
             (homogen_table::wrap(cov.flatten(q_, { cov_event }), column_count, column_count)));
     }
+    std::cout<<"Cov 7"<<std::endl;
     if (desc.get_result_options().test(result_options::cor_matrix)) {
         auto [corr, corr_event] =
             compute_correlation(q_, rows_count_global, xtx, sums, { gemm_event });
         result.set_cor_matrix(
             (homogen_table::wrap(corr.flatten(q_, { corr_event }), column_count, column_count)));
     }
+    std::cout<<"Cov 8"<<std::endl;
     if (desc.get_result_options().test(result_options::means)) {
         if (!assume_centered) {
             auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });

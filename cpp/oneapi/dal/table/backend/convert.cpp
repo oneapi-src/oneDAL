@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/dispatcher.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
 #include "oneapi/dal/backend/interop/data_conversion.hpp"
-#include "oneapi/dal/detail/profiler.hpp"
 
 namespace oneapi::dal::backend {
 
@@ -31,7 +30,6 @@ static void convert_vector(const void* src,
                            std::int64_t src_stride,
                            std::int64_t dst_stride,
                            std::int64_t element_count) {
-    ONEDAL_PROFILER_TASK(convert_vector_1);
     if (src_stride == 1 && dst_stride == 1) {
         interop::daal_convert(src, dst, src_type, dst_type, element_count);
     }
@@ -56,7 +54,6 @@ void convert_vector(const detail::default_host_policy& policy,
                     data_type src_type,
                     data_type dst_type,
                     std::int64_t element_count) {
-    ONEDAL_PROFILER_TASK(convert_vector_2);
     convert_vector(src, dst, src_type, dst_type, 1, 1, element_count);
 }
 
@@ -68,7 +65,6 @@ void convert_vector(const detail::default_host_policy& policy,
                     std::int64_t src_stride,
                     std::int64_t dst_stride,
                     std::int64_t element_count) {
-    ONEDAL_PROFILER_TASK(convert_vector_3);
     if (src_stride == 1 && dst_stride == 1) {
         interop::daal_convert(src, dst, src_type, dst_type, element_count);
     }
@@ -232,15 +228,15 @@ sycl::event convert_vector_device2host(sycl::queue& q,
     // contigious array and then run host conversion function
 
     const std::int64_t element_size_in_bytes = dal::detail::get_data_type_size(src_type);
-    // const std::int64_t src_size_in_bytes =
-    //     dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
+    const std::int64_t src_size_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
     const std::int64_t src_stride_in_bytes =
         dal::detail::check_mul_overflow(element_size_in_bytes, src_stride);
 
-    // const auto tmp_host_unique = make_unique_usm_host(q, src_size_in_bytes);
+    const auto tmp_host_unique = make_unique_usm_host(q, src_size_in_bytes);
 
     auto gather_event = gather_device2host(q,
-                                           dst_host,
+                                           tmp_host_unique.get(),
                                            src_device,
                                            element_count,
                                            src_stride_in_bytes,
@@ -248,14 +244,14 @@ sycl::event convert_vector_device2host(sycl::queue& q,
                                            deps);
     gather_event.wait_and_throw();
 
-    // convert_vector(dal::detail::default_host_policy{},
-    //                tmp_host_unique.get(),
-    //                dst_host,
-    //                src_type,
-    //                dst_type,
-    //                1L,
-    //                dst_stride,
-    //                element_count);
+    convert_vector(dal::detail::default_host_policy{},
+                   tmp_host_unique.get(),
+                   dst_host,
+                   src_type,
+                   dst_type,
+                   1L,
+                   dst_stride,
+                   element_count);
 
     return sycl::event{};
 }
@@ -269,7 +265,6 @@ sycl::event convert_vector_host2device(sycl::queue& q,
                                        std::int64_t dst_stride,
                                        std::int64_t element_count,
                                        const std::vector<sycl::event>& deps) {
-    ONEDAL_PROFILER_TASK(convert_vector_host2device, q);
     ONEDAL_ASSERT(src_host);
     ONEDAL_ASSERT(dst_device);
     ONEDAL_ASSERT(src_stride > 0);
@@ -281,27 +276,27 @@ sycl::event convert_vector_host2device(sycl::queue& q,
     // in temporary contigious array and then scatter it from host to device
 
     const std::int64_t element_size_in_bytes = dal::detail::get_data_type_size(dst_type);
-    // const std::int64_t dst_size_in_bytes =
-    //     dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
+    const std::int64_t dst_size_in_bytes =
+        dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
     const std::int64_t dst_stride_in_bytes =
         dal::detail::check_mul_overflow(element_size_in_bytes, dst_stride);
 
-    // const auto tmp_host_unique = make_unique_usm_host(q, dst_size_in_bytes);
+    const auto tmp_host_unique = make_unique_usm_host(q, dst_size_in_bytes);
 
-    // convert_vector(dal::detail::default_host_policy{},
-    //                src_host,
-    //                tmp_host_unique.get(),
-    //                src_type,
-    //                dst_type,
-    //                src_stride,
-    //                1L,
-    //                element_count);
+    convert_vector(dal::detail::default_host_policy{},
+                   src_host,
+                   tmp_host_unique.get(),
+                   src_type,
+                   dst_type,
+                   src_stride,
+                   1L,
+                   element_count);
     const std::int64_t max_loop_range = std::numeric_limits<std::int32_t>::max();
     sycl::event scatter_event;
     if (element_count > max_loop_range) {
         scatter_event = scatter_host2device_blocking(q,
                                                      dst_device,
-                                                     src_host,
+                                                     tmp_host_unique.get(),
                                                      element_count,
                                                      dst_stride_in_bytes,
                                                      element_size_in_bytes,
@@ -310,7 +305,7 @@ sycl::event convert_vector_host2device(sycl::queue& q,
     else {
         scatter_event = scatter_host2device(q,
                                             dst_device,
-                                            src_host,
+                                            tmp_host_unique.get(),
                                             element_count,
                                             dst_stride_in_bytes,
                                             element_size_in_bytes,
