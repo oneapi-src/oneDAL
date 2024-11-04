@@ -51,6 +51,50 @@ csr_table copy_data_to_csr(const dal::array<Float>& data,
                            indexing);
 }
 
+template <typename Float = float>
+const dal::array<Float> copy_data_to_dense_array(const dal::array<Float>& data,
+                                                 const dal::array<std::int64_t>& column_indices,
+                                                 const dal::array<std::int64_t>& row_offsets,
+                                                 const sparse_indexing indexing,
+                                                 const std::int64_t column_count,
+                                                 const std::int64_t row_count) {
+    using Index = std::int64_t;
+    auto dense_data_host = dal::array<Float>::zeros(row_count * column_count);
+    auto dense_data_ptr = dense_data_host.get_mutable_data();
+
+    const auto data_ptr = data.get_data();
+    const auto col_ind_ptr = column_indices.get_data();
+    const auto row_offs_ptr = row_offsets.get_data();
+    const Index shift = bool(indexing == sparse_indexing::one_based);
+    for (Index row_idx = 0; row_idx < row_count; ++row_idx) {
+        const Index start = row_offs_ptr[row_idx] - shift;
+        const Index end = row_offs_ptr[row_idx + 1] - shift;
+        for (Index data_idx = start; data_idx < end; ++data_idx) {
+            auto col_idx = col_ind_ptr[data_idx] - shift;
+            dense_data_ptr[row_idx * column_count + col_idx] = data_ptr[data_idx];
+        }
+    }
+    return dense_data_host;
+}
+
+template <typename Float = float>
+homogen_table copy_data_to_dense(const dal::array<Float>& data,
+                                 const dal::array<std::int64_t>& column_indices,
+                                 const dal::array<std::int64_t>& row_offsets,
+                                 const sparse_indexing indexing,
+                                 const std::int64_t column_count,
+                                 const std::int64_t row_count) {
+    auto dense_data_host = copy_data_to_dense_array(data,
+                                                    column_indices,
+                                                    row_offsets,
+                                                    indexing,
+                                                    column_count,
+                                                    row_count);
+    return homogen_table::wrap(dense_data_host,
+                               row_count,
+                               column_count);
+}
+
 #ifdef ONEDAL_DATA_PARALLEL
 template <typename Float = float>
 csr_table copy_data_to_csr(sycl::queue& queue,
@@ -81,6 +125,28 @@ csr_table copy_data_to_csr(sycl::queue& queue,
                            column_count,
                            indexing);
 }
+
+template <typename Float = float>
+homogen_table copy_data_to_dense(sycl::queue& queue,
+                                 const dal::array<Float>& data,
+                                 const dal::array<std::int64_t>& column_indices,
+                                 const dal::array<std::int64_t>& row_offsets,
+                                 const sparse_indexing indexing,
+                                 const std::int64_t column_count,
+                                 const std::int64_t row_count) {
+    auto dense_data_host = copy_data_to_dense_array(data,
+                                                    column_indices,
+                                                    row_offsets,
+                                                    indexing,
+                                                    column_count,
+                                                    row_count);
+    const auto dense_data_device = dal::array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
+    auto data_event = queue.copy<Float>(dense_data_host.get_data(), dense_data_device.get_mutable_data(), row_count * column_count);
+    data_event.wait_and_throw();
+    return homogen_table::wrap(dense_data_host,
+                               row_count,
+                               column_count);
+}
 #endif // ONEDAL_DATA_PARALLEL
 
 /**
@@ -95,6 +161,10 @@ struct csr_table_builder {
     const dal::array<std::int64_t> column_indices_;
     const dal::array<std::int64_t> row_offsets_;
 
+private:
+    dal::array<Float> dense_data_;
+
+public:
     csr_table_builder(std::int64_t row_count,
                       std::int64_t column_count,
                       float nnz_fraction = 0.1,
@@ -189,9 +259,9 @@ struct csr_table_builder {
     }
 
     table build_dense_table() const {
-        const dal::array<Float> dense_data = dal::array<Float>::zeros(row_count_ * column_count_);
+        dense_data_ = dal::array<Float>::zeros(row_count_ * column_count_);
         std::int64_t indexing_shift = bool(indexing_ == sparse_indexing::one_based);
-        auto data_ptr = dense_data.get_mutable_data();
+        auto data_ptr = dense_data_.get_mutable_data();
         auto sparse_data_ptr = data_.get_data();
         auto row_offs_ptr = row_offsets_.get_data();
         auto col_indices_ptr = column_indices_.get_data();
@@ -203,7 +273,7 @@ struct csr_table_builder {
                     sparse_data_ptr[data_idx];
             }
         }
-        return homogen_table::wrap(dense_data, row_count_, column_count_);
+        return homogen_table::wrap(dense_data_, row_count_, column_count_);
     }
 };
 
@@ -300,8 +370,43 @@ struct csr_make_blobs {
                                 row_count_);
     }
 
+
+
+    table get_dense_data(host_test_policy& policy) const {
+        return copy_data_to_dense(data_,
+                                  column_indices_,
+                                  row_offsets_,
+                                  indexing_,
+                                  column_count_,
+                                  row_count_);
+    }
+
+#ifdef ONEDAL_DATA_PARALLEL
+    table get_data(device_test_policy& policy) const {
+        auto queue = policy.get_queue();
+        return copy_data_to_csr(queue,
+                                data_,
+                                column_indices_,
+                                row_offsets_,
+                                indexing_,
+                                column_count_,
+                                row_count_);
+    }
+
+    table get_dense_data(device_test_policy& policy) const {
+        auto queue = policy.get_queue();
+        return copy_data_to_dense(queue,
+                                  data_,
+                                  column_indices_,
+                                  row_offsets_,
+                                  indexing_,
+                                  column_count_,
+                                  row_count_);
+    }
+#endif
+
     table get_initial_centroids() const {
-        const auto result = dal::array<float>::empty(cluster_count_ * column_count_);
+        const auto result = dal::array<float>::zeros(cluster_count_ * column_count_);
         auto result_ptr = result.get_mutable_data();
 
         const Index shift = bool(indexing_ == sparse_indexing::one_based);
@@ -309,9 +414,6 @@ struct csr_make_blobs {
         const auto col_ind_ptr = column_indices_.get_data();
         const auto row_offs_ptr = row_offsets_.get_data();
         for (Index row_idx = 0; row_idx < cluster_count_; ++row_idx) {
-            for (Index col_id = 0; col_id < column_count_; ++col_id) {
-                result_ptr[row_idx * column_count_ + col_id] = 0;
-            }
             const auto start = row_offs_ptr[row_idx] - shift;
             const auto end = row_offs_ptr[row_idx + 1] - shift;
             for (Index data_idx = start; data_idx < end; ++data_idx) {
@@ -364,19 +466,6 @@ struct csr_make_blobs {
         }
         return homogen_table::wrap(response_ptr, row_count_, 1);
     }
-
-#ifdef ONEDAL_DATA_PARALLEL
-    table get_data(device_test_policy& policy) const {
-        auto queue = policy.get_queue();
-        return copy_data_to_csr(queue,
-                                data_,
-                                column_indices_,
-                                row_offsets_,
-                                indexing_,
-                                column_count_,
-                                row_count_);
-    }
-#endif // ONEDAL_DATA_PARALLEL
 };
 
 } //namespace oneapi::dal::test::engine

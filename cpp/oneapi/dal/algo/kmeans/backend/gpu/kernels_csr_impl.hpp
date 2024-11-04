@@ -198,8 +198,8 @@ Float calc_objective_function(sycl::queue& q,
 ///
 /// @param[in] q                The SYCL* queue object
 /// @param[in] values           A data part of csr table with :expr:`non_zero_count` dimensions
-/// @param[in] column_indices   An array of column indices in csr table :expr:`non_zero_count` dimensions
-/// @param[in] row_offsets      An arrat of row offsets in csr table with :expr:`(row_count + 1)` dimensions
+/// @param[in] column_indices   An array of zero-based column indices in csr table :expr:`non_zero_count` dimensions
+/// @param[in] row_offsets      An arrat of zero-based row offsets in csr table with :expr:`(row_count + 1)` dimensions
 /// @param[in] column_count     A number of columns in input dataset
 /// @param[in] responses        An array of cluster assignments with :expr:`row_count x 1` dimensions
 /// @param[out] centroids       An array of centroids with :expr:`cluster_count x column_count` dimensions
@@ -212,7 +212,7 @@ sycl::event update_centroids(sycl::queue& q,
                              const pr::ndview<Float, 1>& values,
                              const pr::ndview<std::int64_t, 1>& column_indices,
                              const pr::ndview<std::int64_t, 1>& row_offsets,
-                             const std::int64_t column_count,
+                             std::int64_t column_count,
                              const pr::ndarray<std::int32_t, 2>& responses,
                              pr::ndarray<Float, 2>& centroids,
                              const pr::ndarray<std::int32_t, 1>& counters,
@@ -224,17 +224,10 @@ sycl::event update_centroids(sycl::queue& q,
     const auto data_ptr = values.get_data();
     const auto row_ofs_ptr = row_offsets.get_data();
     const auto col_ind_ptr = column_indices.get_data();
-    const auto counters_ptr = counters.get_data();
+    const auto counts_ptr = counters.get_data();
 
-#ifdef DEBUG_PRINT
-    std::cout << " ====== In update_centroids : 0" << std::endl;
-#endif
-
+    const auto local_size = bk::device_max_wg_size(q);
     const auto num_clusters = centroids.get_dimension(0);
-
-#ifdef DEBUG_PRINT
-    std::cout << " ====== num_clusters = " << num_clusters << std::endl;
-#endif
 
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, num_clusters, column_count);
     const auto centroids_elem_count = num_clusters * column_count;
@@ -242,107 +235,79 @@ sycl::event update_centroids(sycl::queue& q,
     const auto centroids_num_bytes = centroids_elem_count * sizeof(Float);
 
     auto clean_event = q.memset(centroids_ptr, 0, centroids_num_bytes, deps);
-#ifdef DEBUG_PRINT
-    clean_event.wait_and_throw();
-    std::cout << " ====== Memset: Ok " << std::endl;
-#endif
-    const auto local_size = bk::device_max_sg_size(q);
-    const size_t row_count_unsigned = static_cast<size_t>(row_count);
 
-    const size_t sg_count = (row_count + local_size - 1) / local_size;
+    const auto row_block =
+        std::min<std::int32_t>(bk::device_max_wg_size(q) * 8, bk::down_pow2(row_count));
+    const auto col_block =
+        std::min<std::int32_t>(bk::device_max_wg_size(q), bk::down_pow2(column_count));
+    const auto range =
+        bk::make_multiple_nd_range_3d({ num_clusters, row_block, col_block }, { 1, 1, col_block });
 
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, local_size, sg_count);
-    const std::int64_t global_size = sg_count * local_size;
-    auto range = bk::make_multiple_nd_range_2d({ global_size, num_clusters }, { local_size, 1 });
-
-#ifdef DEBUG_PRINT
-    std::cout << " ====== row_count    = " << row_count << std::endl;
-    std::cout << " ====== local_size   = " << local_size << std::endl;
-    std::cout << " ====== sg_count     = " << sg_count << std::endl;
-    std::cout << " ====== global_size  = " << global_size << std::endl;
-#endif
-
-    // Compute sum of data points belonging to each centroid
+    // Compute sums of observations belonging to each cluster in dense format
     auto centroids_sum_event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(clean_event);
-        // Allocate storage for partial sums of data points at each worker in dense format
-        local_accessor_rw_t<Float> local_sums(local_size * column_count, cgh);
-        cgh.parallel_for(range, [=](sycl::nd_item<2> it) {
-            const auto global_row_id = it.get_global_id(0);
-            const auto global_centroid_id = it.get_global_id(1);
-
-            // Skip computations if global row index is out of range
-            if (global_row_id >= row_count_unsigned)
+        // Allocate storage for partial sums of observations at each worker in dense format
+        local_accessor_rw_t<Float> local_centroid(column_count, cgh);
+        cgh.parallel_for(range, [=](auto it) {
+            const auto cluster_id = it.get_global_id(0);
+            const auto row_shift = it.get_global_id(1);
+            const auto local_id = static_cast<std::int64_t>(it.get_local_id(2));
+            if (counts_ptr[cluster_id] == 0) {
+                // Skip computations for empty clusters
                 return;
-
-            const size_t centroid_id = resp_ptr[global_row_id];
-
-            const auto local_id = it.get_local_id(0);
-
-            Float* local_accessor_ptr =
-                local_sums.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
-            // Get pointer to this worker's local storage
-            Float* local_sum_ptr = local_accessor_ptr + local_id * column_count;
-
-            // Initialize local storage
-            for (auto idx = 0; idx < column_count; ++idx) {
-                local_sum_ptr[idx] = 0;
             }
+            // Get pointer to this worker's local storage
+            auto local_centroid_ptr =
+                local_centroid.template get_multi_ptr<sycl::access::decorated::yes>().get_raw();
 
-            if (global_centroid_id == centroid_id) {
-                // Do computations only in case the workitem corresponds to this data row's centroid id
-                const auto begin_idx = row_ofs_ptr[global_row_id];
-                const auto end_idx = row_ofs_ptr[global_row_id + 1];
-                // Copy the data point in sparse format into the local dense storage
-                for (auto idx = begin_idx; idx < end_idx; ++idx) {
-                    const auto col_idx = col_ind_ptr[idx];
-                    bk::atomic_local_add(local_sum_ptr + col_idx, data_ptr[idx]);
+            // Initialize the storage
+            for (std::int64_t col_idx = local_id; col_idx < column_count; col_idx += col_block) {
+                local_centroid_ptr[col_idx] = 0;
+            }
+            it.barrier();
+            for (std::int64_t row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
+                if (resp_ptr[row_idx] == static_cast<std::int32_t>(cluster_id)) {
+                    // Do computations only in case the workitem corresponds to this data row's centroid id
+                    const auto start = row_ofs_ptr[row_idx];
+                    const auto end = row_ofs_ptr[row_idx + 1];
+                    // Update local sums of observations with the data from the respective observation in sparse format
+                    for (auto idx = start + local_id; idx < end; idx += col_block) {
+                        const auto col_idx = col_ind_ptr[idx];
+                        const auto val = data_ptr[idx];
+                        bk::atomic_local_add(local_centroid_ptr + col_idx, val);
+                    }
                 }
             }
-
+            it.barrier();
+            // Update global sums of observations by adding up all the local sums
             if (local_id == 0) {
-                // update sums of data points for this centroid
-                for (auto idx = 0; idx < column_count; ++idx) {
-                    bk::atomic_global_add(centroids_ptr + global_centroid_id * column_count + idx,
-                                          local_sum_ptr[idx]);
+                for (std::int64_t col_idx = 0; col_idx < column_count; ++col_idx) {
+                    const auto pos = cluster_id * column_count + col_idx;
+                    bk::atomic_global_add(centroids_ptr + pos, local_centroid_ptr[col_idx]);
                 }
             }
         });
     });
 
-#ifdef DEBUG_PRINT
-    centroids_sum_event.wait_and_throw();
-    std::cout << " ====== Centroids sum: Ok " << std::endl;
-#endif
-
     const auto finalize_range =
         bk::make_multiple_nd_range_2d({ num_clusters, local_size }, { 1, local_size });
-    // Compute new centroids by dividing the sums computed on the previous step
-    // by the number of observations in the cluster
+
+    // Compute the array of centroids by dividing the respective sums of observations
+    //  by the number of observations in each centroid
     auto finalize_centroids = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(centroids_sum_event);
         cgh.parallel_for(finalize_range, [=](auto it) {
             const auto cluster_id = it.get_global_id(0);
             const auto local_id = it.get_local_id(1);
-            const auto cent_count = counters_ptr[cluster_id];
-
-            // Skip computations if the cluster is empty
+            const auto cent_count = counts_ptr[cluster_id];
             if (cent_count == 0) {
                 return;
             }
-
             for (std::int32_t col_idx = local_id; col_idx < column_count; col_idx += local_size) {
                 centroids_ptr[cluster_id * column_count + col_idx] /= cent_count;
             }
         });
     });
-
-
-#ifdef DEBUG_PRINT
-    finalize_centroids.wait_and_throw();
-    std::cout << " ====== Finalize: Ok " << std::endl;
-#endif
-
     return finalize_centroids;
 }
 

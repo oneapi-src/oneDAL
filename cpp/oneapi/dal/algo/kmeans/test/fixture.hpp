@@ -61,6 +61,16 @@ public:
             .set_accuracy_threshold(accuracy_threshold);
     }
 
+    kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t>
+    get_dense_descriptor(std::int64_t cluster_count,
+                                      std::int64_t max_iteration_count,
+                                      float_t accuracy_threshold) const {
+        return kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t>{}
+            .set_cluster_count(cluster_count)
+            .set_max_iteration_count(max_iteration_count)
+            .set_accuracy_threshold(accuracy_threshold);
+    }
+
     descriptor_t get_descriptor(std::int64_t cluster_count) const {
         return descriptor_t{ cluster_count };
     }
@@ -294,18 +304,23 @@ public:
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
 
+
     void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
                              std::int64_t max_iter_count,
                              float_t accuracy_threshold,
                              bool init_centroids) {
         const table data = input.get_data(this->get_policy());
+        const table dense_data = input.get_dense_data(this->get_policy());
+
         const auto cluster_count = input.cluster_count_;
         REQUIRE(data.get_kind() == csr_table::kind());
         auto desc = this->get_descriptor(cluster_count, max_iter_count, accuracy_threshold);
+        // auto dense_desc = this->get_dense_descriptor(cluster_count, max_iter_count, accuracy_threshold);
         INFO("KMeans sparse training");
         if (init_centroids) {
             const table initial_centroids = input.get_initial_centroids();
             const auto train_result = this->train(desc, data, initial_centroids);
+            // const auto train_result_dense = this->train(dense_desc, dense_data, initial_centroids);
             check_response_match(input.get_responses(), train_result.get_responses());
         }
         else {
