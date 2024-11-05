@@ -315,12 +315,10 @@ public:
         const auto cluster_count = input.cluster_count_;
         REQUIRE(data.get_kind() == csr_table::kind());
         auto desc = this->get_descriptor(cluster_count, max_iter_count, accuracy_threshold);
-        // auto dense_desc = this->get_dense_descriptor(cluster_count, max_iter_count, accuracy_threshold);
         INFO("KMeans sparse training");
         if (init_centroids) {
             const table initial_centroids = input.get_initial_centroids();
             const auto train_result = this->train(desc, data, initial_centroids);
-            // const auto train_result_dense = this->train(dense_desc, dense_data, initial_centroids);
             check_response_match(input.get_responses(), train_result.get_responses());
         }
         else {

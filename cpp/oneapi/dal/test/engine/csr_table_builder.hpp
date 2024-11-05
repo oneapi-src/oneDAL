@@ -161,10 +161,6 @@ struct csr_table_builder {
     const dal::array<std::int64_t> column_indices_;
     const dal::array<std::int64_t> row_offsets_;
 
-private:
-    dal::array<Float> dense_data_;
-
-public:
     csr_table_builder(std::int64_t row_count,
                       std::int64_t column_count,
                       float nnz_fraction = 0.1,
@@ -247,6 +243,17 @@ public:
                                 column_count_,
                                 row_count_);
     }
+
+    homogen_table build_dense_table(device_test_policy& policy) const {
+        auto queue = policy.get_queue();
+        return copy_data_to_dense(queue,
+                                  data_,
+                                  column_indices_,
+                                  row_offsets_,
+                                  indexing_,
+                                  column_count_,
+                                  row_count_);
+    }
 #endif // ONEDAL_DATA_PARALLEL
 
     csr_table build_csr_table(host_test_policy& policy) const {
@@ -258,22 +265,13 @@ public:
                                 row_count_);
     }
 
-    table build_dense_table() const {
-        dense_data_ = dal::array<Float>::zeros(row_count_ * column_count_);
-        std::int64_t indexing_shift = bool(indexing_ == sparse_indexing::one_based);
-        auto data_ptr = dense_data_.get_mutable_data();
-        auto sparse_data_ptr = data_.get_data();
-        auto row_offs_ptr = row_offsets_.get_data();
-        auto col_indices_ptr = column_indices_.get_data();
-        for (std::int32_t row_idx = 0; row_idx < row_count_; ++row_idx) {
-            for (std::int32_t data_idx = row_offs_ptr[row_idx] - indexing_shift;
-                 data_idx < row_offs_ptr[row_idx + 1] - indexing_shift;
-                 ++data_idx) {
-                data_ptr[row_idx * column_count_ + col_indices_ptr[data_idx] - indexing_shift] =
-                    sparse_data_ptr[data_idx];
-            }
-        }
-        return homogen_table::wrap(dense_data_, row_count_, column_count_);
+    homogen_table build_dense_table(host_test_policy& policy) const {
+        return copy_data_to_dense(data_,
+                                  column_indices_,
+                                  row_offsets_,
+                                  indexing_,
+                                  column_count_,
+                                  row_count_);
     }
 };
 

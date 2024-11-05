@@ -137,9 +137,12 @@ sycl::event assign_clusters(sycl::queue& q,
                             const event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(assign_clusters, q);
 
-    // Workaround. Sparce gemm cannot accept transposed dense inputs for now.
+    // Workaround. Sparse gemm cannot accept transposed dense inputs in oneMKL 2025.0.
+    // Error text:
+    // oneapi::mkl::sparse::gemm: unimplemented functionality: Only non-transpose
+    // operation is supported for dense matrix
     // TODO: Remove separate transpore and pass centroids.t() into gemm after updating
-    //       to MKL that supports transposed dense input matrix.
+    //       to oneMKL that supports transposed dense input matrix.
     auto centroids_transposed =
         pr::ndarray<Float, 2>::empty(q,
                                      { centroids.get_dimension(1), centroids.get_dimension(0) },
