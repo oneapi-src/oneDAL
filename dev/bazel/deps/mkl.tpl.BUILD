@@ -35,7 +35,7 @@ cc_library(
     ],
     deps = [
         ":headers",
-    ]
+    ],
     alwayslink = 1,
     linkstatic = 1,
 )
