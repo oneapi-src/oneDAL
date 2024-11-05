@@ -90,9 +90,7 @@ homogen_table copy_data_to_dense(const dal::array<Float>& data,
                                                     indexing,
                                                     column_count,
                                                     row_count);
-    return homogen_table::wrap(dense_data_host,
-                               row_count,
-                               column_count);
+    return homogen_table::wrap(dense_data_host, row_count, column_count);
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -140,12 +138,13 @@ homogen_table copy_data_to_dense(sycl::queue& queue,
                                                     indexing,
                                                     column_count,
                                                     row_count);
-    const auto dense_data_device = dal::array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
-    auto data_event = queue.copy<Float>(dense_data_host.get_data(), dense_data_device.get_mutable_data(), row_count * column_count);
+    const auto dense_data_device =
+        dal::array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
+    auto data_event = queue.copy<Float>(dense_data_host.get_data(),
+                                        dense_data_device.get_mutable_data(),
+                                        row_count * column_count);
     data_event.wait_and_throw();
-    return homogen_table::wrap(dense_data_host,
-                               row_count,
-                               column_count);
+    return homogen_table::wrap(dense_data_host, row_count, column_count);
 }
 #endif // ONEDAL_DATA_PARALLEL
 
@@ -367,8 +366,6 @@ struct csr_make_blobs {
                                 column_count_,
                                 row_count_);
     }
-
-
 
     table get_dense_data(host_test_policy& policy) const {
         return copy_data_to_dense(data_,

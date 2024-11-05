@@ -20,7 +20,6 @@
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/distance.hpp"
 
-
 // #define DEBUG_PRINT
 
 #ifdef DEBUG_PRINT

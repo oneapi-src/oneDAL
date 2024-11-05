@@ -61,10 +61,10 @@ public:
             .set_accuracy_threshold(accuracy_threshold);
     }
 
-    kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t>
-    get_dense_descriptor(std::int64_t cluster_count,
-                                      std::int64_t max_iteration_count,
-                                      float_t accuracy_threshold) const {
+    kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t> get_dense_descriptor(
+        std::int64_t cluster_count,
+        std::int64_t max_iteration_count,
+        float_t accuracy_threshold) const {
         return kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t>{}
             .set_cluster_count(cluster_count)
             .set_max_iteration_count(max_iteration_count)
@@ -303,7 +303,6 @@ public:
 
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
-
 
     void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
                              std::int64_t max_iter_count,
