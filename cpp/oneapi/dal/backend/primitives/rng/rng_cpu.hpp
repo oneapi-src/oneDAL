@@ -40,6 +40,23 @@ public:
         }
     }
 
+    explicit daal_engine(const daal::algorithms::engines::EnginePtr& eng) : daal_engine_(eng) {
+        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
+        if (!impl_) {
+            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
+        }
+    }
+
+    daal_engine& operator=(const daal::algorithms::engines::EnginePtr& eng) {
+        daal_engine_ = eng;
+        impl_ = dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(eng.get());
+        if (!impl_) {
+            throw domain_error(dal::detail::error_messages::rng_engine_is_not_supported());
+        }
+
+        return *this;
+    }
+
     virtual ~daal_engine() = default;
 
     void* get_cpu_engine_state() const {
