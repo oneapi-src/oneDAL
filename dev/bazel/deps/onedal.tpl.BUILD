@@ -72,6 +72,7 @@ cc_library(
     ],
     deps = [
         ":headers",
+        "@mkl//:mkl_dpc",
         ":parameters_static_dpc",
     ],
 )
@@ -139,6 +140,7 @@ cc_library(
     ],
     deps = [
         ":headers",
+        "@mkl//:mkl_dpc",
         ":parameters_dynamic_dpc",
     ],
 )
