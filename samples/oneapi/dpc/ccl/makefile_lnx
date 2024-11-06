@@ -82,18 +82,18 @@ endif
 MPI_PATH = $(I_MPI_ROOT)
 CCL_PATH = $(CCL_ROOT)
 MKL_PATH = $(MKL_ROOT)
+set(MKL_SYCL_LINK "static")
+set(MKL_LINK "static")
 
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc                              \
                    -lonedal_core                             \
                    -lonedal_thread                           \
-                   -lonedal_parameters_dpc                   \
-                   "$(MKL_PATH)"/libmkl_sycl.a
+                   -lonedal_parameters_dpc
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a            \
                    "$(DAAL_PATH)"/libonedal_core.a           \
                    "$(DAAL_PATH)"/libonedal_thread.a         \
-                   "$(MKL_PATH)"/libmkl_sycl.a           \
                    "$(DAAL_PATH)"/libonedal_parameters_dpc.a
 endif
 
@@ -106,6 +106,28 @@ else
     CCL_INCLUDE_PATH = $(CCL_PATH)/include/oneapi
 endif
 
+ifeq ($(RES_EXT),so)
+    LIBS := $(ONEDAL_LIBS) \
+        -lmkl_sycl \
+        -lmpicxx \
+        -lmpi \
+        -lccl \
+        -ltbb \
+        -ltbbmalloc \
+        -lpthread \
+        -lOpenCL \
+        -ldl
+else
+    LIBS := $(ONEDAL_LIBS) \
+        -lmpicxx \
+        -lmpi \
+        -lccl \
+        -ltbb \
+        -ltbbmalloc \
+        -lpthread \
+        -lOpenCL \
+        -ldl
+endif
 COPTS := -std=c++17 \
          -pedantic \
          -Wall \
@@ -116,16 +138,6 @@ COPTS := -std=c++17 \
          -I$(MPI_PATH)/include \
          -I$(CCL_INCLUDE_PATH) \
          -I"$(DALROOT)/include"
-
-LIBS := $(ONEDAL_LIBS) \
-        -lmpicxx \
-        -lmpi \
-        -lccl \
-        -ltbb \
-        -ltbbmalloc \
-        -lpthread \
-        -lOpenCL \
-        -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \
