@@ -68,7 +68,7 @@ Applications on Linux* OS
 
      .. code-block:: text
 
-        <install dir>/dal/latest/lib/libonedal_sycl.a
+        <install dir>/mkl/latest/lib/libmkl_sycl.a
 
 .. _app_on_win:
 
