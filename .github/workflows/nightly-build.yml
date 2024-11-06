@@ -19,6 +19,14 @@ name: Nightly-build
 on:
   schedule:
     - cron: '0 21 * * *'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/nightly-build.yml
+      - .ci/pipeline/ci.yml
+      - '.ci/env/**'
+      - '.ci/scripts/**'
   workflow_dispatch:
 
 permissions:
