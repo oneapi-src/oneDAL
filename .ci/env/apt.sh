@@ -31,11 +31,11 @@ function add_repo {
 }
 
 function install_dpcpp {
-    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp intel-oneapi-runtime-libs
+    sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2025.0 intel-oneapi-runtime-libs=2025.0.0-406
 }
 
 function install_mkl {
-    sudo apt-get install -y intel-oneapi-mkl-devel=2024.2.1-103
+    sudo apt-get install -y intel-oneapi-mkl-devel-2025.0 intel-oneapi-tbb-devel-2022.0
 }
 
 function install_clang-format {
