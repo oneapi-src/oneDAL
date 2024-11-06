@@ -74,19 +74,20 @@ else
 endif
 
 MPI_PATH = $(I_MPI_ROOT)
+MKL_PATH = $(MKL_ROOT)
 
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc                              \
                    -lonedal_core                             \
                    -lonedal_thread                           \
                    -lonedal_parameters_dpc                   \
-                   "$(DAAL_PATH)"/libonedal_sycl.a
+                   "$(MKL_PATH)"/libmkl_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a            \
                    "$(DAAL_PATH)"/libonedal_core.a           \
                    "$(DAAL_PATH)"/libonedal_thread.a         \
-                   "$(DAAL_PATH)"/libonedal_sycl.a           \
-                   "$(DAAL_PATH)"/libonedal_parameters_dpc.a
+                   "$(DAAL_PATH)"/libonedal_parameters_dpc.a \
+                   "$(MKL_PATH)"/libmkl_sycl.a
 endif
 
 COPTS := -std=c++17 \
