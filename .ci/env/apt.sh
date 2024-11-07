@@ -59,7 +59,8 @@ function install_qemu_emulation_apt {
 }
 
 function install_qemu_emulation_deb {
-    found_version=`wget -q http://ftp.debian.org/debian/pool/main/q/qemu/ -O - | grep -oP "(?<=\")$1_.*_amd64.deb(?=\")" | tail -1`
+    # get last version of qemu listed on debian, changes may need to occur to this with version 10 of qemu
+    found_version=$(wget -q http://ftp.debian.org/debian/pool/main/q/qemu/ -O - | grep -oP "(?<=\")$1_.*_amd64.deb(?=\")" | tail -1)
     wget http://ftp.debian.org/debian/pool/main/q/qemu/${found_version}
     sudo dpkg -i ${found_version}
     sudo systemctl restart systemd-binfmt.service
