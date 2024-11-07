@@ -163,6 +163,7 @@ jobs:
       export QEMU_CPU="max,sve-default-vector-length=256"
       export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=aarch64
+      export MATH_BACKEND=ref
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
     displayName: 'daal/cpp examples'
   - script: |
@@ -170,6 +171,7 @@ jobs:
       export QEMU_CPU="max,sve-default-vector-length=256"
       export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=aarch64
+      export MATH_BACKEND=ref
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
     displayName: 'oneapi/cpp examples'
   - task: PublishPipelineArtifact@1
@@ -251,6 +253,7 @@ jobs:
       export QEMU_CPU="max,sve-default-vector-length=256"
       export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=aarch64
+      export MATH_BACKEND=ref
       export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
     displayName: 'daal/cpp examples'
@@ -259,6 +262,7 @@ jobs:
       export QEMU_CPU="max,sve-default-vector-length=256"
       export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=aarch64
+      export MATH_BACKEND=ref
       export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
     displayName: 'oneapi/cpp examples'
@@ -343,6 +347,7 @@ jobs:
       export QEMU_CPU="max"
       export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=riscv64
+      export MATH_BACKEND=ref
       export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build-system cmake --platform lnxriscv64 --cross-compile --backend ref
     displayName: 'daal/cpp examples'
@@ -351,6 +356,7 @@ jobs:
       export QEMU_CPU="max"
       export TBBROOT=$(TBB_CACHE_DIR)
       export ARCH_ONEDAL=riscv64
+      export MATH_BACKEND=ref
       export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build-system cmake --platform lnxriscv64 --cross-compile --backend ref
     displayName: 'oneapi/cpp examples'
@@ -399,9 +405,11 @@ jobs:
     displayName: 'Upload build artifacts'
     continueOnError: true
   - script: |
+      export MATH_BACKEND=ref
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build-system cmake --backend ref
     displayName: 'daal/cpp examples'
   - script: |
+      export MATH_BACKEND=ref
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build-system cmake --backend ref
     displayName: 'oneapi/cpp examples'
   - task: PublishPipelineArtifact@1
