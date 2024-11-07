@@ -59,36 +59,10 @@ function install_qemu_emulation_apt {
 }
 
 function install_qemu_emulation_deb {
-    set +e
-
-    versions=(9.1.1 9.0.2 8.2.4)
-    suffixes=("" "~bpo12+1")
-    found_version=""
-    for version in ${versions[@]}; do
-        for suffix in ${suffixes[@]}; do
-            qemu_deb="$1_${version}+ds-2${suffix}_amd64.deb"
-            echo "Checking for http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}"
-            if wget -q --method=HEAD http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb} &> /dev/null;
-            then
-                echo "Found qemu version ${version}"
-                found_version=${qemu_deb}
-                break 2
-            fi
-        done
-    done
-
-    set -eo pipefail
-    if [[ -z "${found_version}" ]] ; then
-        # If nothing is found, error out and fail
-        echo "None of the requested qemu versions ${versions[*]} are available."
-        false
-    fi
-
+    found_version=`wget -q http://ftp.debian.org/debian/pool/main/q/qemu/ -O - | grep -oP "(?<=\")$1_.*_amd64.deb(?=\")" | tail -1`
     wget http://ftp.debian.org/debian/pool/main/q/qemu/${found_version}
     sudo dpkg -i ${found_version}
-
     sudo systemctl restart systemd-binfmt.service
-    set +eo pipefail
 }
 
 function install_llvm_version {
