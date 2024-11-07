@@ -30,7 +30,7 @@ on:
       - '.ci/scripts/**'
       - 'dev/make/**'
       - 'dev/make/compiler_definitions/**'
-      - 'dev/make/function_defintions/**'
+      - 'dev/make/function_definitions/**'
   workflow_dispatch:
 
 permissions:
