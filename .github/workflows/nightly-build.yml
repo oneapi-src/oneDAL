@@ -25,8 +25,12 @@ on:
     paths:
       - .github/workflows/nightly-build.yml
       - .ci/pipeline/ci.yml
+      - makefile
       - '.ci/env/**'
       - '.ci/scripts/**'
+      - 'dev/make/**'
+      - 'dev/make/compiler_definitions/**'
+      - 'dev/make/function_defintions/**'
   workflow_dispatch:
 
 permissions:
