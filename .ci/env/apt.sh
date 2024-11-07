@@ -66,7 +66,7 @@ function install_qemu_emulation_deb {
     found_version=""
     for version in ${versions[@]}; do
         for suffix in ${suffixes[@]}; do
-            qemu_deb="qemu-user-static_${version}+ds-2${suffix}_amd64.deb"
+            qemu_deb="$1_${version}+ds-2${suffix}_amd64.deb"
             echo "Checking for http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb}"
             if wget -q --method=HEAD http://ftp.debian.org/debian/pool/main/q/qemu/${qemu_deb} &> /dev/null;
             then
@@ -140,7 +140,9 @@ elif [ "${component}" == "qemu-apt" ]; then
     install_qemu_emulation_apt
 elif [ "${component}" == "qemu-deb" ]; then
     update
-    install_qemu_emulation_deb
+    install_qemu_emulation_deb qemu-user
+    install_qemu_emulation_deb qemu-user-binfmt
+    install_qemu_emulation_deb qemu-user-static
 elif [ "${component}" == "llvm-version" ] ; then
     update
     install_llvm_version "$2"
