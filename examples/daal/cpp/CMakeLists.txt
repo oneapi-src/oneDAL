@@ -53,6 +53,10 @@ if(REF_BACKEND)
             "source/decision_forest/df_cls_hist_dense_extratrees_batch.cpp"
             "source/decision_forest/df_reg_default_dense_batch.cpp"
             "source/decision_forest/df_reg_hist_dense_batch.cpp"
+            "source/decision_forest/df_cls_hist_dense_batch.cpp"
+            "source/decision_forest/df_cls_default_dense_batch.cpp"
+            "source/decision_forest/df_cls_traversed_model_builder.cpp"
+            "source/host_app/host_cancel_compute.cpp"
         )
     endif()
 endif()
