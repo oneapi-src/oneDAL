@@ -25,8 +25,8 @@ CMPLRDIRSUFF.dpcpp = _dpcpp
 
 CORE.SERV.COMPILER.dpcpp = generic
 
--Zl.dpcpp =
--DEBC.dpcpp = -g
+-Zl.dpcpp = $(if $(OS_is_win),-Zl -Q,-)no-intel-lib
+-DEBC.dpcpp = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug
 
 COMPILER.lnx.dpcpp = icpx -fsycl -m64 -stdlib=libstdc++ -fgnu-runtime -fwrapv \
                      -Werror -Wreturn-type -fsycl-device-code-split=per_kernel
@@ -39,6 +39,12 @@ link.dynamic.win.dpcpp = icx -fsycl -m64 -fsycl-device-code-split=per_kernel -fs
 pedantic.opts.lnx.dpcpp = -pedantic \
                           -Wall \
                           -Wextra \
+                          -Wwritable-strings \
+                          -Wno-unused-parameter
+
+pedantic.opts.win.dpcpp = -Wall \
+                          -Wextra \
+                          -Wwritable-strings \
                           -Wno-unused-parameter
 
 p4_OPT.dpcpp   = -march=nocona
