@@ -144,8 +144,12 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
             pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
-        auto data_squares_event =
-            compute_data_squares(queue, values, column_indices, row_offsets, arr_data_squares, { set_csr_data_event });
+        auto data_squares_event = compute_data_squares(queue,
+                                                       values,
+                                                       column_indices,
+                                                       row_offsets,
+                                                       arr_data_squares,
+                                                       { set_csr_data_event });
 
         auto distances = pr::ndarray<Float, 2>::empty(queue,
                                                       { row_count, cluster_count },
@@ -160,9 +164,8 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 
-        auto centroid_squares_event = kernels_fp<Float>::compute_squares(queue,
-                                                                         arr_centroids,
-                                                                         arr_centroid_squares);
+        auto centroid_squares_event =
+            kernels_fp<Float>::compute_squares(queue, arr_centroids, arr_centroid_squares);
         auto assign_event = assign_clusters(queue,
                                             row_count,
                                             data_handle,
