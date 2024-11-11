@@ -18,7 +18,7 @@
 Deprecation Notice
 ==================
 
-This page provides information about the deprecations of a specific oneDAL functionality.
+This page provides information about the deprecations of a specific oneAPI Data Analytics Library (oneDAL) functionality.
 
 Java* Interfaces
 ****************
@@ -29,17 +29,6 @@ Java* Interfaces
 
 **Alternatives:** Intel(R) Optimized Analytics Package* (OAP) project for the Spark* users.
 The project offers a comprehensive set of optimized libraries, including the OAP* MLlib* component. For more information, visit https://github.com/oap-project/oap-mllib.
-
-
-DAAL CPP SYCL Interfaces
-************************
-
-**Deprecation:** The `DAAL CPP SYCL Interfaces <https://github.com/oneapi-src/oneDAL/tree/main/examples/daal/cpp_sycl>`_ in the oneDAL library are deprecated. Starting with the 2024.0 release, oneDAL will not support the DAAL CPP SYCL Interfaces.
-
-**Reasons for deprecation:** Deprecating initial version of SYCL interfaces in favour of oneDAL SYCL interfaces. The ongoing efforts to optimize oneDAL resources and focus strongly on the most widely used features.
-
-**Alternatives:** `oneDAL SYCL interfaces <https://github.com/oneapi-src/oneDAL/tree/main/examples/oneapi/dpc>`_
-
 
 Compression Functionality
 *************************
