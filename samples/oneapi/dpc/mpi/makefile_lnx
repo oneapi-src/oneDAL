@@ -103,7 +103,6 @@ COPTS := -std=c++17 \
 
 ifeq ($(RES_EXT),so)
     LIBS := $(ONEDAL_LIBS) \
-            -lmkl_sycl \
             -lmpicxx \
             -lmpi \
             -ltbb \
@@ -113,6 +112,7 @@ ifeq ($(RES_EXT),so)
             -ldl
 else
     LIBS := $(ONEDAL_LIBS) \
+            -lmkl_sycl \
             -lmpicxx \
             -lmpi \
             -ltbb \

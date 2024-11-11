@@ -108,7 +108,6 @@ endif
 
 ifeq ($(RES_EXT),so)
     LIBS := $(ONEDAL_LIBS) \
-        -lmkl_sycl \
         -lmpicxx \
         -lmpi \
         -lccl \
@@ -119,6 +118,7 @@ ifeq ($(RES_EXT),so)
         -ldl
 else
     LIBS := $(ONEDAL_LIBS) \
+        -lmkl_sycl \
         -lmpicxx \
         -lmpi \
         -lccl \
