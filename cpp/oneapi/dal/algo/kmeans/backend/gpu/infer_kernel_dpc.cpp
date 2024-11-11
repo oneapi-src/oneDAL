@@ -131,14 +131,21 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<std::int64_t, 1>::wrap(arr_row.get_data(), arr_row.get_count());
 
         pr::sparse_matrix_handle data_handle(queue);
-        auto set_csr_data_event = pr::set_csr_data(queue, data_handle, data);
+        auto set_csr_data_event = pr::set_csr_data(queue,
+                                                   data_handle,
+                                                   row_count,
+                                                   column_count,
+                                                   sparse_indexing::zero_based,
+                                                   arr_val.get_data(),
+                                                   arr_col.get_data(),
+                                                   arr_row.get_data());
 
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
             pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
         auto data_squares_event =
-            compute_data_squares(queue, values, column_indices, row_offsets, arr_data_squares);
+            compute_data_squares(queue, values, column_indices, row_offsets, arr_data_squares, { set_csr_data_event });
 
         auto distances = pr::ndarray<Float, 2>::empty(queue,
                                                       { row_count, cluster_count },
@@ -149,13 +156,13 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
+
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 
         auto centroid_squares_event = kernels_fp<Float>::compute_squares(queue,
                                                                          arr_centroids,
-                                                                         arr_centroid_squares,
-                                                                         { data_squares_event });
+                                                                         arr_centroid_squares);
         auto assign_event = assign_clusters(queue,
                                             row_count,
                                             data_handle,
