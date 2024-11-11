@@ -74,19 +74,20 @@ else
 endif
 
 MPI_PATH = $(I_MPI_ROOT)
-MKL_PATH = $(MKL_ROOT)
-set(MKL_SYCL_LINK "static")
-set(MKL_LINK "static")
 
+# This file uses an outdated build system that is no longer supported.
+# Please use CMake for building, as dependencies for this file are not updated.
 ifeq ($(RES_EXT),so)
     ONEDAL_LIBS := -lonedal_dpc                              \
                    -lonedal_core                             \
                    -lonedal_thread                           \
-                   -lonedal_parameters_dpc
+                   -lonedal_parameters_dpc                   \
+                   "$(DAAL_PATH)"/libonedal_sycl.a
 else
     ONEDAL_LIBS := "$(DAAL_PATH)"/libonedal_dpc.a            \
                    "$(DAAL_PATH)"/libonedal_core.a           \
                    "$(DAAL_PATH)"/libonedal_thread.a         \
+                   "$(DAAL_PATH)"/libonedal_sycl.a           \
                    "$(DAAL_PATH)"/libonedal_parameters_dpc.a
 endif
 
@@ -101,26 +102,14 @@ COPTS := -std=c++17 \
          -I$(MPI_PATH)/include \
          -I"$(DALROOT)/include"
 
-ifeq ($(RES_EXT),so)
-    LIBS := $(ONEDAL_LIBS) \
-            -lmpicxx \
-            -lmpi \
-            -ltbb \
-            -ltbbmalloc \
-            -lpthread \
-            -lOpenCL \
-            -ldl
-else
-    LIBS := $(ONEDAL_LIBS) \
-            -lmkl_sycl \
-            -lmpicxx \
-            -lmpi \
-            -ltbb \
-            -ltbbmalloc \
-            -lpthread \
-            -lOpenCL \
-            -ldl
-endif
+LIBS := $(ONEDAL_LIBS) \
+        -lmpicxx \
+        -lmpi \
+        -ltbb \
+        -ltbbmalloc \
+        -lpthread \
+        -lOpenCL \
+        -ldl
 
 LOPTS := -L"$(DAAL_PATH)" \
          -L"$(TBB_PATH)" \

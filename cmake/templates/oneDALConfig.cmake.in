@@ -65,7 +65,7 @@ endif()
 
 if ("${REF_BACKEND}" STREQUAL "" OR "${REF_BACKEND}" STREQUAL "OFF")
     set(MATH_BACKEND "mkl")
-if ("${REF_BACKEND}" STREQUAL "ON")
+elseif ("${REF_BACKEND}" STREQUAL "ON")
     set(MATH_BACKEND "ref")
 elseif (NOT "${REF_BACKEND}" STREQUAL "OFF" AND NOT "${REF_BACKEND}" STREQUAL "ON")
     message(FATAL_ERROR "REF_BACKEND must be 'ON' or 'OFF'")
