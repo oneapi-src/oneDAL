@@ -23,13 +23,6 @@ set(ONEDAL_USE_CCL no)
 set(MPIEXEC_MAX_NUMPROCS "4" CACHE STRING "Number of processes")
 set(MPIEXEC_NUMPROCS_PER_NODE "4" CACHE STRING "Number of processes per node")
 
-set(CMAKE_C_COMPILER "mpiicx")
-if(WIN32)
-    set(CMAKE_CXX_COMPILER "mpiicx")
-elseif(UNIX)
-    set(CMAKE_CXX_COMPILER "mpiicpx")
-endif()
-
 # Add cmake scripts and modules to CMake search path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake/")
 include(setup_samples)
