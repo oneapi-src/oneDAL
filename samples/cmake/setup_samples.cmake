@@ -101,9 +101,9 @@ function(add_samples samples_paths)
         endif()
 
         if(UNIX AND NOT APPLE)
-            target_link_libraries(${sample} PRIVATE -Wl,--start-group ${oneDAL_IMPORTED_TARGETS} ${MPI_DEPENDENCIES} -Wl,--end-group)
+            target_link_libraries(${sample} PRIVATE -Wl,--start-group ${oneDAL_IMPORTED_TARGETS} ${MPI_DEPENDENCIES} MKL::MKL_SYCL -Wl,--end-group)
         else()
-            target_link_libraries(${sample} PRIVATE ${oneDAL_IMPORTED_TARGETS} ${MPI_DEPENDENCIES})
+            target_link_libraries(${sample} PRIVATE ${oneDAL_IMPORTED_TARGETS} ${MPI_DEPENDENCIES} MKL::MKL_SYCL)
         endif()
 
         target_compile_options(${sample} PRIVATE ${ONEDAL_CUSTOM_COMPILE_OPTIONS})
