@@ -111,7 +111,8 @@ sycl::event transpose(sycl::queue& q,
 /// @param[in] q                    The SYCL* queue object
 /// @param[in] row_count            Number of rows in the input dataset
 /// @param[in] data_handle          Handle that stores the information about input dataset in CSR layout
-/// @param[in] data_squares
+/// @param[in] data_squares         An array of data points squares with :expr:`row_count x 1` dimensions,
+///                                 value at i-th position is || x_i ||^2, where x_i is i-th data point
 /// @param[in] centroids            An array of centroids with :expr:`cluster_count x column_count` dimensions
 /// @param[in] centroids_squares    An array of centroids squares with :expr:`cluster_count x 1` dimensions,
 ///                                 value at i-th position is || c_i ||^2, where c_i is i-th centroid
@@ -296,7 +297,7 @@ sycl::event update_centroids(sycl::queue& q,
         bk::make_multiple_nd_range_2d({ num_clusters, local_size }, { 1, local_size });
 
     // Compute the array of centroids by dividing the respective sums of observations
-    //  by the number of observations in each centroid
+    // by the number of observations in each centroid
     auto finalize_centroids = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(centroids_sum_event);
         cgh.parallel_for(finalize_range, [=](auto it) {
