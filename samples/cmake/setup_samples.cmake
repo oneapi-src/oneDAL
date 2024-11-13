@@ -28,11 +28,11 @@ endfunction()
 # Define dependencies for MPI/CCL samples
 function(find_dependencies)
     if(ONEDAL_DISTRIBUTED STREQUAL "yes")
+        # This policy allows finding modules using _ROOT variables
+        cmake_policy(SET CMP0074 NEW)
         find_package(MPI REQUIRED)
         set(MPI_DEPENDENCIES MPI::MPI_C MPI::MPI_CXX PARENT_SCOPE)
         if(ONEDAL_USE_CCL STREQUAL "yes")
-            # This policy allows finding modules using _ROOT variables
-            cmake_policy(SET CMP0074 NEW)
             find_package(CCL REQUIRED)
             set(MPI_DEPENDENCIES MPI::MPI_C MPI::MPI_CXX ${CCL_LIBRARY} PARENT_SCOPE)
         endif()

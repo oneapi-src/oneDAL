@@ -28,6 +28,8 @@ endif()
 # ONEDAL_LINK: static | dynamic. Default is dynamic
 # ONEDAL_USE_DPCPP: yes | no. Default is yes
 # ONEDAL_INTERFACE: yes | no. Default is no
+
+# Internal variables:
 # ONEDAL_SET_TBB_MANUALLY: yes | no. Default is no
 # MKL_DEPENDENCY: yes | no. Default is no
 # MATH_BACKEND: mkl | ref. Default is mkl
