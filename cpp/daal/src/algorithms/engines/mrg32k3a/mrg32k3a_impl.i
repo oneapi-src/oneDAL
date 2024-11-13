@@ -1,4 +1,4 @@
-/* file: mt2203_kernel.h */
+/* file: mrg32k3a_impl.i */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
 *
@@ -15,19 +15,14 @@
 * limitations under the License.
 *******************************************************************************/
 
+/*
 //++
-//  Declaration of template function that calculate mt2203s.
+//  Implementation of mrg32k3a algorithm
 //--
+*/
 
-#ifndef __MT2203_KERNEL_H__
-#define __MT2203_KERNEL_H__
-
-#include "algorithms/engines/mt2203/mt2203.h"
-#include "src/algorithms/kernel.h"
-#include "data_management/data/numeric_table.h"
-
-using namespace daal::services;
-using namespace daal::data_management;
+#ifndef __mrg32k3a_IMPL_I__
+#define __mrg32k3a_IMPL_I__
 
 namespace daal
 {
@@ -35,22 +30,18 @@ namespace algorithms
 {
 namespace engines
 {
-namespace mt2203
+namespace mrg32k3a
 {
 namespace internal
 {
-/**
- *  \brief Kernel for mt2203 calculation
- */
 template <typename algorithmFPType, Method method, CpuType cpu>
-class Mt2203Kernel : public Kernel
+Status mrg32k3aKernel<algorithmFPType, method, cpu>::compute(NumericTable * resultTensor)
 {
-public:
-    Status compute(NumericTable * resultTable);
-};
+    return Status();
+}
 
 } // namespace internal
-} // namespace mt2203
+} // namespace mrg32k3a
 } // namespace engines
 } // namespace algorithms
 } // namespace daal

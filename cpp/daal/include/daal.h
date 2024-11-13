@@ -301,6 +301,8 @@
 #include "algorithms/engines/mt19937/mt19937_types.h"
 #include "algorithms/engines/mcg59/mcg59.h"
 #include "algorithms/engines/mcg59/mcg59_types.h"
+#include "algorithms/engines/mrg32k3a/mrg32k3a.h"
+#include "algorithms/engines/mrg32k3a/mrg32k3a_types.h"
 #include "algorithms/engines/engine_family.h"
 #include "algorithms/engines/mt2203/mt2203.h"
 #include "algorithms/engines/mt2203/mt2203_types.h"

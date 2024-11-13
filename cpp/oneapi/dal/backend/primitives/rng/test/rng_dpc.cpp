@@ -26,6 +26,7 @@ namespace te = dal::test::engine;
 
 class mt2203 {};
 class mcg59 {};
+class mrg32k3a {};
 class mt19937 {};
 
 template <typename engine_type>
@@ -39,6 +40,11 @@ struct engine_map<mt2203> {
 template <>
 struct engine_map<mcg59> {
     constexpr static auto value = engine_list::mcg59;
+};
+
+template <>
+struct engine_map<mrg32k3a> {
+    constexpr static auto value = engine_list::mrg32k3a;
 };
 
 template <>
@@ -133,7 +139,7 @@ public:
     }
 };
 
-using rng_types = COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59));
+using rng_types = COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59, mrg32k3a));
 
 TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
@@ -154,7 +160,7 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     this->check_results(arr_gpu, arr_host);
 }
 
-using rng_types_skip = COMBINE_TYPES((float), (mcg59));
+using rng_types_skip = COMBINE_TYPES((float), (mcg59, mrg32k3a));
 
 // TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip) {
 //     SKIP_IF(this->get_policy().is_cpu());
