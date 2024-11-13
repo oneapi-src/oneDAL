@@ -76,7 +76,11 @@ basic usage scenarios of |short_name| with DPCPP. Go to
 #. Set up the compiler environment for |dpcpp|.
    See |dpcpp_gsg|_ for details.
 
-#. Draft:For static applications and examples is necesasry to source oneMKL.
+#. Set up oneMKL environment in case of static linking:
+
+    .. code-block:: bash
+
+      source mkl/latest/env/vars.sh
 
 #. Build and run examples:
 

@@ -173,7 +173,7 @@ list(APPEND DAL_LIBS onedal_core${DAL_DEBUG_SUFFIX})
 
 set(THREADING_TYPE "parallel")
 set(DAL_THREAD_LIBRARY_NAME onedal_thread${DAL_DEBUG_SUFFIX})
- 
+
 if (ONEDAL_SET_TBB_MANUALLY STREQUAL "no")
     find_package(TBB REQUIRED tbb tbbmalloc)
     if (NOT TBB_IMPORTED_TARGETS)
