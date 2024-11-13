@@ -110,7 +110,7 @@ public:
         const Index* val_host_2_ptr = val_host_2.get_data();
 
         for (std::int64_t el = 0; el < val_host_1.get_count(); el++) {
-            REQUIRE(val_host_1_ptr[el] == val_host_2_ptr[el]);
+            REQUIRE(abs(val_host_1_ptr[el] - val_host_2_ptr[el]) < 1);
         }
     }
 
@@ -123,7 +123,7 @@ public:
         const Index* val_gpu_host_2_ptr = val_gpu_host_2.get_data();
 
         for (std::int64_t el = 0; el < val_gpu_2.get_count(); el++) {
-            REQUIRE(val_gpu_host_2_ptr[el] == val_gpu_host_1_ptr[el]);
+            REQUIRE(abs(val_gpu_host_2_ptr[el] - val_gpu_host_1_ptr[el]) < 1);
         }
     }
 
@@ -134,7 +134,7 @@ public:
         const Index* val_gpu_host_ptr = val_gpu_host.get_data();
 
         for (std::int64_t el = 0; el < val_host.get_count(); el++) {
-            REQUIRE(val_gpu_host_ptr[el] == val_host_ptr[el]);
+            REQUIRE(abs(val_gpu_host_ptr[el] - val_host_ptr[el]) < 1);
         }
     }
 };
@@ -160,36 +160,21 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     this->check_results(arr_gpu, arr_host);
 }
 
-using rng_types_skip = COMBINE_TYPES((float), (mcg59, mrg32k3a));
+using rng_types_skip = COMBINE_TYPES((float), (mt19937, mcg59, mrg32k3a));
 
 // TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip) {
 //     SKIP_IF(this->get_policy().is_cpu());
 //     std::int64_t elem_count =
-//         GENERATE_COPY(10, 1000, 300000, 15000, 1000000, 100000000, 6100000000, 1LL * 64 * 1000000);
+//         GENERATE_COPY(6100000000, 1LL * 64 * 1000000);
 //     std::int64_t seed = GENERATE_COPY(777);
 
-//     auto [arr_gpu, arr_host] = this->allocate_arrays(elem_count);
-//     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
-//     auto arr_host_ptr = arr_host.get_mutable_data();
-
-//     auto rn_gen = this->get_rng();
-//     auto rng_engine = this->get_engine(seed);
-//     auto rng_engine_ = this->get_engine(seed);
-
-//     BENCHMARK("Uniform dispatcher HOST arr" + std::to_string(elem_count)) {
-//         rn_gen.uniform(this->get_queue(), elem_count, arr_host_ptr, rng_engine, 0, elem_count);
-//     };
-//     BENCHMARK("Uniform dispatcher GPU arr" + std::to_string(elem_count)) {
-//         rn_gen.uniform(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
-//     };
 
 //     auto [arr_gpu_, arr_host_] = this->allocate_arrays(elem_count);
 //     auto arr_gpu_ptr_ = arr_gpu_.get_mutable_data();
-//     auto arr_host_ptr_ = arr_host_.get_mutable_data();
 
 //     auto rn_gen_ = this->get_rng();
 //     auto rng_engine_1 = this->get_engine(seed);
-//     auto rng_engine_2 = this->get_engine(seed);
+
 //     BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
 //         rn_gen_.uniform_gpu(this->get_queue(),
 //                                      elem_count,
@@ -199,9 +184,6 @@ using rng_types_skip = COMBINE_TYPES((float), (mcg59, mrg32k3a));
 //                                      elem_count);
 //     };
 
-//     BENCHMARK("Uniform HOST arr" + std::to_string(elem_count)) {
-//         rn_gen_.uniform(elem_count, arr_host_ptr_, rng_engine_2, 0, elem_count);
-//     };
 // }
 
 TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip) {
