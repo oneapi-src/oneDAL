@@ -28,6 +28,7 @@ class mt2203 {};
 class mcg59 {};
 class mrg32k3a {};
 class mt19937 {};
+class philox4x32x10 {};
 
 template <typename engine_type>
 struct engine_map {};
@@ -45,6 +46,11 @@ struct engine_map<mcg59> {
 template <>
 struct engine_map<mrg32k3a> {
     constexpr static auto value = engine_list::mrg32k3a;
+};
+
+template <>
+struct engine_map<philox4x32x10> {
+    constexpr static auto value = engine_list::philox4x32x10;
 };
 
 template <>
@@ -139,7 +145,7 @@ public:
     }
 };
 
-using rng_types = COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59, mrg32k3a));
+using rng_types = COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59, mrg32k3a, philox4x32x10));
 
 TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
@@ -160,7 +166,7 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     this->check_results(arr_gpu, arr_host);
 }
 
-using rng_types_skip = COMBINE_TYPES((float), (mt19937, mcg59, mrg32k3a));
+using rng_types_skip = COMBINE_TYPES((float), (mt19937, mcg59, mrg32k3a, philox4x32x10));
 
 // TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip) {
 //     SKIP_IF(this->get_policy().is_cpu());

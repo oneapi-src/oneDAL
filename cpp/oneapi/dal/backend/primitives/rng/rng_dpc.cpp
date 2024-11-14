@@ -95,15 +95,18 @@ void oneapi_rng<Type, Size>::shuffle_gpu(sycl::queue& queue,
 #define INSTANTIATE_FLOAT_(Size)                     \
     INSTANTIATE_(float, Size, engine_list::mt2203)   \
     INSTANTIATE_(float, Size, engine_list::mcg59)    \
-    INSTANTIATE_(float, Size, engine_list::mrg32k3a)    \
+    INSTANTIATE_(float, Size, engine_list::mrg32k3a) \
+    INSTANTIATE_(float, Size, engine_list::philox4x32x10) \
     INSTANTIATE_(float, Size, engine_list::mt19937)  \
     INSTANTIATE_(double, Size, engine_list::mt2203)  \
     INSTANTIATE_(double, Size, engine_list::mcg59)   \
     INSTANTIATE_(double, Size, engine_list::mrg32k3a)   \
+    INSTANTIATE_(double, Size, engine_list::philox4x32x10)   \
     INSTANTIATE_(double, Size, engine_list::mt19937) \
     INSTANTIATE_(int, Size, engine_list::mt2203)     \
     INSTANTIATE_(int, Size, engine_list::mcg59)      \
     INSTANTIATE_(int, Size, engine_list::mrg32k3a)      \
+    INSTANTIATE_(int, Size, engine_list::philox4x32x10)      \
     INSTANTIATE_(int, Size, engine_list::mt19937)
 
 INSTANTIATE_FLOAT_(std::int64_t);
@@ -121,14 +124,17 @@ INSTANTIATE_FLOAT_(std::int32_t);
     INSTANTIATE_CPU(float, Size, engine_list::mt2203)   \
     INSTANTIATE_CPU(float, Size, engine_list::mcg59)    \
     INSTANTIATE_CPU(float, Size, engine_list::mrg32k3a)    \
+    INSTANTIATE_CPU(float, Size, engine_list::philox4x32x10)    \
     INSTANTIATE_CPU(float, Size, engine_list::mt19937)  \
     INSTANTIATE_CPU(double, Size, engine_list::mt2203)  \
     INSTANTIATE_CPU(double, Size, engine_list::mcg59)   \
     INSTANTIATE_CPU(double, Size, engine_list::mrg32k3a)   \
+    INSTANTIATE_CPU(double, Size, engine_list::philox4x32x10)   \
     INSTANTIATE_CPU(double, Size, engine_list::mt19937) \
     INSTANTIATE_CPU(int, Size, engine_list::mt2203)     \
     INSTANTIATE_CPU(int, Size, engine_list::mcg59)      \
     INSTANTIATE_CPU(int, Size, engine_list::mrg32k3a)      \
+    INSTANTIATE_CPU(int, Size, engine_list::philox4x32x10)      \
     INSTANTIATE_CPU(int, Size, engine_list::mt19937)
 
 INSTANTIATE_FLOAT_CPU(std::int64_t);
@@ -149,14 +155,17 @@ INSTANTIATE_FLOAT_CPU(std::int32_t);
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(float, Size, engine_list::mt2203)   \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(float, Size, engine_list::mcg59)    \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(float, Size, engine_list::mrg32k3a) \
+    INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(float, Size, engine_list::philox4x32x10) \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(float, Size, engine_list::mt19937)  \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(double, Size, engine_list::mt2203)  \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(double, Size, engine_list::mcg59)   \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(double, Size, engine_list::mrg32k3a) \
+    INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(double, Size, engine_list::philox4x32x10) \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(double, Size, engine_list::mt19937) \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(int, Size, engine_list::mt2203)     \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(int, Size, engine_list::mcg59)      \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(int, Size, engine_list::mrg32k3a) \
+    INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(int, Size, engine_list::philox4x32x10) \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(int, Size, engine_list::mt19937)
 
 INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU_FLOAT(std::int64_t);
@@ -174,6 +183,7 @@ INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU_FLOAT(std::int32_t);
     INSTANTIATE_SHUFFLE(int, Size, engine_list::mt2203)   \
     INSTANTIATE_SHUFFLE(int, Size, engine_list::mcg59)    \
     INSTANTIATE_SHUFFLE(int, Size, engine_list::mrg32k3a) \
+    INSTANTIATE_SHUFFLE(int, Size, engine_list::philox4x32x10) \
     INSTANTIATE_SHUFFLE(int, Size, engine_list::mt19937)
 
 INSTANTIATE_SHUFFLE_FLOAT(std::int64_t);

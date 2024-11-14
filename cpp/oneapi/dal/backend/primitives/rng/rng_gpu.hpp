@@ -19,6 +19,7 @@
 #include <daal/include/algorithms/engines/mt2203/mt2203.h>
 #include <daal/include/algorithms/engines/mcg59/mcg59.h>
 #include <daal/include/algorithms/engines/mrg32k3a/mrg32k3a.h>
+#include <daal/include/algorithms/engines/philox4x32x10/philox4x32x10.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 #include <oneapi/mkl.hpp>
@@ -27,7 +28,7 @@ namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-enum class engine_list { mt2203, mcg59, mt19937, mrg32k3a};
+enum class engine_list { mt2203, mcg59, mt19937, mrg32k3a, philox4x32x10};
 
 template <engine_list EngineType>
 struct oneapi_engine_type;
@@ -50,6 +51,11 @@ struct oneapi_engine_type<engine_list::mt19937> {
 template <>
 struct oneapi_engine_type<engine_list::mrg32k3a> {
     using type = oneapi::mkl::rng::mrg32k3a;
+};
+
+template <>
+struct oneapi_engine_type<engine_list::philox4x32x10> {
+    using type = oneapi::mkl::rng::philox4x32x10;
 };
 
 template <engine_list EngineType = engine_list::mt2203>
@@ -101,6 +107,7 @@ private:
                 return daal::algorithms::engines::mt2203::Batch<>::create(seed);
             case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
             case engine_list::mrg32k3a: return daal::algorithms::engines::mrg32k3a::Batch<>::create(seed);
+            case engine_list::philox4x32x10: return daal::algorithms::engines::philox4x32x10::Batch<>::create(seed);
             case engine_list::mt19937:
                 return daal::algorithms::engines::mt19937::Batch<>::create(seed);
             default: throw std::invalid_argument("Unsupported engine type");

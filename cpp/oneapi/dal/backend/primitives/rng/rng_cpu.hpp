@@ -20,6 +20,7 @@
 #include <daal/include/algorithms/engines/mcg59/mcg59.h>
 #include <daal/include/algorithms/engines/mt19937/mt19937.h>
 #include <daal/include/algorithms/engines/mrg32k3a/mrg32k3a.h>
+#include <daal/include/algorithms/engines/philox4x32x10/philox4x32x10.h>
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 #include <stdexcept>
 #include <type_traits>
@@ -27,7 +28,7 @@
 #include "oneapi/dal/backend/primitives/rng/rng.hpp"
 namespace oneapi::dal::backend::primitives {
 
-enum class engine_list_cpu { mt2203, mcg59, mt19937, mrg32k3a };
+enum class engine_list_cpu { mt2203, mcg59, mt19937, mrg32k3a, philox4x32x10 };
 
 template <engine_list_cpu EngineType = engine_list_cpu::mt2203>
 class daal_engine {
@@ -77,6 +78,8 @@ private:
                 return daal::algorithms::engines::mcg59::Batch<>::create(seed);
             case engine_list_cpu::mrg32k3a:
                 return daal::algorithms::engines::mrg32k3a::Batch<>::create(seed);
+            case engine_list_cpu::philox4x32x10:
+                return daal::algorithms::engines::philox4x32x10::Batch<>::create(seed);
             case engine_list_cpu::mt19937:
                 return daal::algorithms::engines::mt19937::Batch<>::create(seed);
             default: throw std::invalid_argument("Unsupported engine type");
