@@ -211,15 +211,18 @@ Float diagonal_minimum(sycl::queue& queue,
                        const std::int64_t dim_matrix,
                        sycl::event& event_Matrix) {
     constexpr auto alloc = sycl::usm::alloc::device;
-    auto diag_min_holder = array<Float>::empty(queue, 1, alloc);
-    sycl::event diag_min_event = queue.submit([&](sycl::handler& h) {
-        auto min_reduction = sycl::reduction(diag_min_holder.get_mutable_data(), sycl::minimum<>());
-        h.depends_on(event_Matrix);
-        h.parallel_for(dim_matrix, min_reduction, [=](const auto& i, auto& min_obj) {
-            min_obj.combine(Matrix[i * (dim_matrix + 1)]);
-        });
-    });
-    return ndview<Float, 1>::wrap(diag_min_holder).at_device(queue, 0, { diag_min_event });
+    auto idx_min_holder = array<std::int64_t>::empty(queue, 1, alloc);
+    sycl::event diag_min_event = mkl::blas::column_major::iamin(
+        queue,
+        dim_matrix,
+        Matrix,
+        dim_matrix + 1,
+        idx_min_holder.get_mutable_data(),
+        mkl::index_base::zero,
+        { event_Matrix }
+    );
+    const std::int64_t idx_min = ndview<std::int64_t, 1>::wrap(idx_min_holder).at_device(queue, 0, { diag_min_event });
+    return ndview<Float, 1>::wrap(Matrix, dim_matrix * dim_matrix).at_device(queue, idx_min * (dim_matrix + 1), { event_Matrix });
 }
 
 template <mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
