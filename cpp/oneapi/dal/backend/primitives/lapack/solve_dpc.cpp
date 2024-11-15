@@ -212,15 +212,11 @@ Float diagonal_minimum(sycl::queue& queue,
                        sycl::event& event_Matrix) {
     constexpr auto alloc = sycl::usm::alloc::device;
     auto diag_min_holder = array<Float>::empty(queue, 1, alloc);
-    sycl::event diag_min_holder_init = queue.submit([&](sycl::handler& h) {
-        Float* diag_min_ptr = diag_min_holder.get_mutable_data();
-        h.parallel_for(1, [=](const auto& i) {
-            diag_min_ptr[i] = std::numeric_limits<Float>::infinity();
-        });
-    });
     sycl::event diag_min_event = queue.submit([&](sycl::handler& h) {
-        auto min_reduction = sycl::reduction(diag_min_holder.get_mutable_data(), sycl::minimum<>());
-        h.depends_on({ diag_min_holder_init, event_Matrix });
+        auto min_reduction = sycl::reduction(diag_min_holder.get_mutable_data(),
+                                             sycl::minimum<>(),
+                                             sycl::property::reduction::initialize_to_identity());
+        h.depends_on({ event_Matrix });
         h.parallel_for(dim_matrix, min_reduction, [=](const auto& i, auto& min_obj) {
             min_obj.combine(Matrix[i * (dim_matrix + 1)]);
         });
