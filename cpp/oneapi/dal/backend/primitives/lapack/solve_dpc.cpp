@@ -211,18 +211,21 @@ Float diagonal_minimum(sycl::queue& queue,
                        const std::int64_t dim_matrix,
                        sycl::event& event_Matrix) {
     constexpr auto alloc = sycl::usm::alloc::device;
-    auto idx_min_holder = array<std::int64_t>::empty(queue, 1, alloc);
-    sycl::event diag_min_event = mkl::blas::column_major::iamin(
-        queue,
-        dim_matrix,
-        Matrix,
-        dim_matrix + 1,
-        idx_min_holder.get_mutable_data(),
-        mkl::index_base::zero,
-        { event_Matrix }
-    );
-    const std::int64_t idx_min = ndview<std::int64_t, 1>::wrap(idx_min_holder).at_device(queue, 0, { diag_min_event });
-    return ndview<Float, 1>::wrap(Matrix, dim_matrix * dim_matrix).at_device(queue, idx_min * (dim_matrix + 1), { event_Matrix });
+    auto diag_min_holder = array<Float>::empty(queue, 1, alloc);
+    sycl::event diag_min_holder_init = queue.submit([&](sycl::handler& h) {
+        Float* diag_min_ptr = diag_min_holder.get_mutable_data();
+        h.parallel_for(1, [=](const auto& i) {
+            diag_min_ptr[i] = std::numeric_limits<Float>::infinity();
+        });
+    });
+    sycl::event diag_min_event = queue.submit([&](sycl::handler& h) {
+        auto min_reduction = sycl::reduction(diag_min_holder.get_mutable_data(), sycl::minimum<>());
+        h.depends_on({ diag_min_holder_init, event_Matrix });
+        h.parallel_for(dim_matrix, min_reduction, [=](const auto& i, auto& min_obj) {
+            min_obj.combine(Matrix[i * (dim_matrix + 1)]);
+        });
+    });
+    return ndview<Float, 1>::wrap(diag_min_holder).at_device(queue, 0, { diag_min_event });
 }
 
 template <mkl::uplo uplo, bool beta, typename Float, ndorder xlayout, ndorder ylayout>
@@ -245,10 +248,10 @@ sycl::event solve_system(sycl::queue& queue,
         sycl::event potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
         const Float diag_min = diagonal_minimum(queue, nxtx.get_data(), dim_xtx, potrf_event);
         if (diag_min <= 1e-6)
-            throw mkl::exception("");
+            throw mkl::lapack::computation_error("", "", 0);
         solution_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
     }
-    catch (mkl::exception& ex) {
+    catch (mkl::lapack::computation_error& ex) {
         const std::int64_t nrhs = nxty.get_dimension(0);
         /* Note: this templated version of 'copy' reuses the layout that was specified in the previous copy */
         sycl::event xtx_event_new = copy(queue, nxtx, xtx, dependencies);
