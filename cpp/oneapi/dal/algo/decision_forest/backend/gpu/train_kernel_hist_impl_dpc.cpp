@@ -401,7 +401,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
                 selected_row_global_ptr + ctx.selected_row_total_count_ * node_idx;
             rn_gen.uniform(ctx.selected_row_total_count_,
                            gen_row_idx_global_ptr,
-                           rng_engine_list[engine_offset + node_idx].get_cpu_engine_state(),
+                           rng_engine_list[engine_offset + node_idx],
                            0,
                            ctx.row_total_count_);
 
@@ -491,7 +491,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
                 ctx.selected_ftr_count_,
                 selected_features_host_ptr + node * ctx.selected_ftr_count_,
                 selected_features_host_ptr + (node + 1) * ctx.selected_ftr_count_,
-                rng_engine_list[tree_map_ptr[node]].get_cpu_engine_state(),
+                rng_engine_list[tree_map_ptr[node]],
                 0,
                 ctx.column_count_);
         }
@@ -539,7 +539,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_thresholds(
     for (Index node = 0; node < node_count; ++node) {
         rn_gen.uniform(ctx.selected_ftr_count_,
                        random_bins_host_ptr + node * ctx.selected_ftr_count_,
-                       rng_engine_list[tree_map_ptr[node]].get_cpu_engine_state(),
+                       rng_engine_list[tree_map_ptr[node]],
                        0.0f,
                        1.0f);
     }
@@ -1666,7 +1666,7 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
                 rn_gen.shuffle(
                     oob_row_count,
                     permutation_ptr,
-                    engine_arr[built_tree_count + tree_idx_in_block].get_cpu_engine_state());
+                    engine_arr[built_tree_count + tree_idx_in_block]);
                 const Float oob_err_perm = compute_oob_error_perm(ctx,
                                                                   model_manager,
                                                                   data_host,

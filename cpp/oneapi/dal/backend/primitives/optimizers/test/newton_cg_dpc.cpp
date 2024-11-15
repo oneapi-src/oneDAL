@@ -144,7 +144,7 @@ public:
         auto b_host = ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
         primitives::rng<float_t> rn_gen;
         primitives::engine eng(4014 + n_);
-        rn_gen.uniform(n_, solution_.get_mutable_data(), eng.get_cpu_engine_state(), -1.0, 1.0);
+        rn_gen.uniform(n_, solution_.get_mutable_data(), eng, -1.0, 1.0);
 
         create_stable_matrix(this->get_queue(), A_host, float_t(0.1), float_t(5.0));
 
@@ -164,7 +164,7 @@ public:
         auto buffer = ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
 
         for (std::int32_t test_num = 0; test_num < 5; ++test_num) {
-            rn_gen.uniform(n_, x_host.get_mutable_data(), eng.get_cpu_engine_state(), -1.0, 1.0);
+            rn_gen.uniform(n_, x_host.get_mutable_data(), eng, -1.0, 1.0);
             auto x_gpu = x_host.to_device(this->get_queue());
             auto compute_event_vec = func_->update_x(x_gpu, true, {});
             wait_or_pass(compute_event_vec).wait_and_throw();

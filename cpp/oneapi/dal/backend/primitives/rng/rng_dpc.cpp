@@ -27,7 +27,7 @@ template <engine_list EngineType>
 void oneapi_rng<Type, Size>::uniform_gpu(sycl::queue& queue,
                                          Size count,
                                          Type* dst,
-                                         oneapi_engine<EngineType>& engine_,
+                                         onedal_engine<EngineType>& engine_,
                                          Type a,
                                          Type b,
                                          const event_vector& deps) {
@@ -41,7 +41,7 @@ template <typename Type, typename Size>
 template <engine_list EngineType>
 void oneapi_rng<Type, Size>::uniform_cpu(Size count,
                                          Type* dst,
-                                         oneapi_engine<EngineType>& engine_,
+                                         onedal_engine<EngineType>& engine_,
                                          Type a,
                                          Type b) {
     void* state = engine_.get_cpu_engine_state();
@@ -55,7 +55,7 @@ void oneapi_rng<Type, Size>::uniform_without_replacement_gpu(sycl::queue& queue,
                                                              Size count,
                                                              Type* dst,
                                                              Type* buffer,
-                                                             oneapi_engine<EngineType>& engine_,
+                                                             onedal_engine<EngineType>& engine_,
                                                              Type a,
                                                              Type b,
                                                              const event_vector& deps) {
@@ -69,7 +69,7 @@ template <engine_list EngineType>
 void oneapi_rng<Type, Size>::shuffle_gpu(sycl::queue& queue,
                                          Size count,
                                          Type* dst,
-                                         oneapi_engine<EngineType>& engine_,
+                                         onedal_engine<EngineType>& engine_,
                                          const event_vector& deps) {
     Type idx[2];
 
@@ -87,7 +87,7 @@ void oneapi_rng<Type, Size>::shuffle_gpu(sycl::queue& queue,
         sycl::queue& queue,                                       \
         Size count_,                                              \
         F* dst,                                                   \
-        oneapi_engine<EngineType>& engine_,                       \
+        onedal_engine<EngineType>& engine_,                       \
         F a,                                                      \
         F b,                                                      \
         const event_vector& deps);
@@ -116,7 +116,7 @@ INSTANTIATE_FLOAT_(std::int32_t);
     template ONEDAL_EXPORT void oneapi_rng<F, Size>::uniform_cpu( \
         Size count_,                                              \
         F* dst,                                                   \
-        oneapi_engine<EngineType>& engine_,                       \
+        onedal_engine<EngineType>& engine_,                       \
         F a,                                                      \
         F b);
 
@@ -146,7 +146,7 @@ INSTANTIATE_FLOAT_CPU(std::int32_t);
         Size count_,                                                                  \
         F* dst,                                                                       \
         F* buff,                                                                      \
-        oneapi_engine<EngineType>& engine_,                                           \
+        onedal_engine<EngineType>& engine_,                                           \
         F a,                                                                          \
         F b,                                                                          \
         const event_vector& deps);
@@ -176,7 +176,7 @@ INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU_FLOAT(std::int32_t);
         sycl::queue& queue,                                       \
         Size count_,                                              \
         F* dst,                                                   \
-        oneapi_engine<EngineType>& engine_,                       \
+        onedal_engine<EngineType>& engine_,                       \
         const event_vector& deps);
 
 #define INSTANTIATE_SHUFFLE_FLOAT(Size)                   \

@@ -123,7 +123,7 @@ struct louvain_data {
     // Total link weight in the network
     value_type m;
 
-    daal_engine<engine_list_cpu::mt2203> eng;
+    daal_engine<engine_list::mt2203> eng;
     daal_rng<std::int32_t> rn_gen;
 
     const std::int64_t vertex_count;

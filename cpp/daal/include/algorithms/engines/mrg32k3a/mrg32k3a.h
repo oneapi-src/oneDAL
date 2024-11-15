@@ -17,7 +17,8 @@
 
 /*
 //++
-//  Implementation of the Mersenne Twister engine in the batch processing mode
+//  Implementation of the 32-bit combined multiple recursive generator with two components of order 3
+//  in the batch processing mode.
 //--
 */
 
