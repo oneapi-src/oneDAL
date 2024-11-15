@@ -35,7 +35,7 @@ if "%SCRIPT_PATH%"=="%DAAL%\env\" (
 ) else (
   set "DALROOT=%ONEAPI_ROOT%"
   set "INCLUDE=%ONEAPI_ROOT%\include\dal;%INCLUDE%"
-  set "CPATH=%ONEAPI_ROOT%\include;%CPATH%"
+  set "CPATH=%ONEAPI_ROOT%\include\dal;%CPATH%"
   goto :GoodArgs2024
 )
 
@@ -53,14 +53,15 @@ exit /b 0
 
 :GoodArgs
 set "DALROOT=%DAAL%"
-set "CPATH=%DAAL%\include;%CPATH%"
 if exist "%DAAL%\include\dal" (
   set "INCLUDE=%DAAL%\include\dal;%INCLUDE%"
+  set "CPATH=%DAAL%\include\dal;%CPATH%"
   set "LIB=%DAAL%\lib;%LIB%"
   set "CLASSPATH=%DAAL%\share\java\onedal.jar;%CLASSPATH%"
   set "PATH=%DAAL%\bin;%PATH%"
 ) else (
   set "INCLUDE=%DAAL%\include;%INCLUDE%"
+  set "CPATH=%DAAL%\include;%CPATH%"
   set "LIB=%DAAL%\lib\%DAAL_IA%;%LIB%"
   set "CLASSPATH=%DAAL%\lib\onedal.jar;%CLASSPATH%"
   if exist "%DAAL_UP_OLD%\redist" (
