@@ -91,17 +91,16 @@ sycl::event solve_spectral_decomposition(
 
     /* Decompose: A = Q * diag(l) * t(Q) */
     /* Note: for NRHS>1, this will overallocate in order to reuse the memory as buffer later on */
-    auto eigenvalues = array<Float>::empty(queue, dim_A * nrhs, alloc);
-    auto eigenvalues_view = ndview<Float, 1>::wrap(eigenvalues);
+    auto eigenvalues = ndarray<Float, 1>::empty(queue, dim_A * nrhs, alloc);
     sycl::event syevd_event =
-        syevd<mkl::job::vec, uplo, Float>(queue, dim_A, A, dim_A, eigenvalues_view, { event_A });
+        syevd<mkl::job::vec, uplo, Float>(queue, dim_A, A, dim_A, eigenvalues, { event_A });
     const Float eps = std::numeric_limits<Float>::epsilon();
 
     /* Discard too small singular values */
     std::int64_t num_discarded;
     {
         /* This is placed inside a block because the array created here is not used any further */
-        auto eigenvalues_cpu = eigenvalues_view.to_host(queue, { syevd_event });
+        auto eigenvalues_cpu = eigenvalues.to_host(queue, { syevd_event });
         const Float* eigenvalues_cpu_ptr = eigenvalues_cpu.get_data();
         const Float largest_ev = eigenvalues_cpu_ptr[dim_A - 1];
         if (largest_ev <= eps) {
