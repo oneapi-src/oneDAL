@@ -100,7 +100,10 @@ sycl::event solve_spectral_decomposition(
     std::int64_t num_discarded;
     {
         /* This is placed inside a block because the array created here is not used any further */
-        auto eigenvalues_cpu = eigenvalues.to_host(queue, { syevd_event });
+        /* Note: the array for 'eigenvalues' is allocated with size [dimA, nrhs],
+        but by this point, only 'dimA' elements will have been written to it. */
+        auto eigenvalues_cpu =
+            ndview<Float, 1>::wrap(eigenvalues.get_data(), dim_A).to_host(queue, { syevd_event });
         const Float* eigenvalues_cpu_ptr = eigenvalues_cpu.get_data();
         const Float largest_ev = eigenvalues_cpu_ptr[dim_A - 1];
         if (largest_ev <= eps) {
