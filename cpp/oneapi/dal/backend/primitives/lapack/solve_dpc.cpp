@@ -107,8 +107,7 @@ sycl::event solve_spectral_decomposition(
         const Float* eigenvalues_cpu_ptr = eigenvalues_cpu.get_data();
         const Float largest_ev = eigenvalues_cpu_ptr[dim_A - 1];
         if (largest_ev <= eps) {
-            throw std::runtime_error(
-                "Could not solve linear system. Problem has too small singular values.");
+            throw internal_error{ dal::detail::error_messages::too_small_singular_values() };
         }
         const Float component_threshold = eps * largest_ev;
         for (num_discarded = 0; num_discarded < dim_A - 1; num_discarded++) {
