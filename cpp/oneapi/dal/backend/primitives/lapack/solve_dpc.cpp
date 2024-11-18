@@ -16,9 +16,12 @@
 
 #include <limits>
 
+#include "oneapi/dal/backend/primitives/blas/gemm.hpp"
+#include "oneapi/dal/backend/primitives/blas/gemv.hpp"
 #include "oneapi/dal/backend/primitives/lapack.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/ndindexer.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 namespace oneapi::dal::backend::primitives {
 
@@ -141,67 +144,49 @@ sycl::event solve_spectral_decomposition(
     /* Now calculate the actual solution: Qis * Qis' * B */
     const std::int64_t eigenvectors_offset = num_discarded * dim_A;
     if (nrhs == 1) {
+        auto ev_mutable_vec_view = ndview<Float, 1>::wrap(ev_mutable, num_taken);
+        auto b_mutable_vec_view = ndview<Float, 1>::wrap(b.get_mutable_data(), dim_A);
         sycl::event gemv_right_event =
-            mkl::blas::column_major::gemv(queue,
-                                          mkl::transpose::trans,
-                                          dim_A,
-                                          num_taken,
-                                          Float(1),
-                                          Q_mutable + eigenvectors_offset,
-                                          dim_A,
-                                          b.get_data(),
-                                          1,
-                                          Float(0),
-                                          ev_mutable,
-                                          1,
-                                          { inv_sqrt_eigenvectors_event, event_b });
-        return mkl::blas::column_major::gemv(queue,
-                                             mkl::transpose::nontrans,
-                                             dim_A,
-                                             num_taken,
-                                             Float(1),
-                                             Q_mutable + eigenvectors_offset,
-                                             dim_A,
-                                             ev_mutable,
-                                             1,
-                                             Float(0),
-                                             b.get_mutable_data(),
-                                             1,
-                                             { gemv_right_event });
+            gemv(queue,
+                 ndview<Float, 2, ndorder::c>::wrap(Q_mutable + eigenvectors_offset,
+                                                    ndshape<2>(num_taken, dim_A)),
+                 b_mutable_vec_view,
+                 ev_mutable_vec_view,
+                 Float(1),
+                 Float(0),
+                 { inv_sqrt_eigenvectors_event, event_b });
+        return gemv(queue,
+                    ndview<Float, 2, ndorder::f>::wrap(Q_mutable + eigenvectors_offset,
+                                                       ndshape<2>(dim_A, num_taken)),
+                    ev_mutable_vec_view,
+                    b_mutable_vec_view,
+                    Float(1),
+                    Float(0),
+                    { gemv_right_event });
     }
 
     else {
+        auto ev_mutable_mat_view =
+            ndview<Float, 2, ndorder::c>::wrap(ev_mutable, ndshape<2>(nrhs, num_taken));
+        auto b_mutable_mat_view =
+            ndview<Float, 2, ndorder::c>::wrap(b.get_mutable_data(), ndshape<2>(nrhs, dim_A));
         sycl::event gemm_right_event =
-            mkl::blas::column_major::gemm(queue,
-                                          mkl::transpose::trans,
-                                          mkl::transpose::nontrans,
-                                          num_taken,
-                                          nrhs,
-                                          dim_A,
-                                          Float(1),
-                                          Q_mutable + eigenvectors_offset,
-                                          dim_A,
-                                          b.get_data(),
-                                          dim_A,
-                                          Float(0),
-                                          ev_mutable,
-                                          num_taken,
-                                          { inv_sqrt_eigenvectors_event, event_b });
-        return mkl::blas::column_major::gemm(queue,
-                                             mkl::transpose::nontrans,
-                                             mkl::transpose::nontrans,
-                                             dim_A,
-                                             nrhs,
-                                             num_taken,
-                                             Float(1),
-                                             Q_mutable + eigenvectors_offset,
-                                             dim_A,
-                                             ev_mutable,
-                                             num_taken,
-                                             Float(0),
-                                             b.get_mutable_data(),
-                                             dim_A,
-                                             { gemm_right_event });
+            gemm(queue,
+                 b_mutable_mat_view,
+                 ndview<Float, 2, ndorder::f>::wrap(Q_mutable + eigenvectors_offset,
+                                                    ndshape<2>(dim_A, num_taken)),
+                 ev_mutable_mat_view,
+                 Float(1),
+                 Float(0),
+                 { inv_sqrt_eigenvectors_event, event_b });
+        return gemm(queue,
+                    ev_mutable_mat_view,
+                    ndview<Float, 2, ndorder::c>::wrap(Q_mutable + eigenvectors_offset,
+                                                       ndshape<2>(num_taken, dim_A)),
+                    b_mutable_mat_view,
+                    Float(1),
+                    Float(0),
+                    { gemm_right_event });
     }
 }
 
