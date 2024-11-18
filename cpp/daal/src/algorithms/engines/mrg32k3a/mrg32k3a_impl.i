@@ -1,6 +1,7 @@
 /* file: mrg32k3a_impl.i */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +18,7 @@
 
 /*
 //++
-//  Implementation of mrg32k3a algorithm
+//  Implementation of mrg32k3a algorithm.
 //--
 */
 

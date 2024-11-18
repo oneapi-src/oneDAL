@@ -1,6 +1,7 @@
 /* file: mrg32k3a_types.h */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +18,8 @@
 
 /*
 //++
-//  Implementation of mrg32k3a engine.
+//  Implementation of the MRG32k3a engine: a 32-bit combined multiple recursive generator 
+//  with two components of order 3, optimized for batch processing.
 //--
 */
 

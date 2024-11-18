@@ -1,6 +1,7 @@
 /* file: philox4x32x10_kernel.h */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 *******************************************************************************/
 
 //++
-//  Declaration of template function that calculate philox4x32x10s.
+//  Declaration of a template function for generating values using the Philox4x32-10 engine.
 //--
 
 #ifndef __philox4x32x10_KERNEL_H__

@@ -115,7 +115,12 @@ public:
     int uniformWithoutReplacement(const SizeType n, DstType * r, void * state, const Type a, const Type b,
                                   const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
     {
-        Type * buffer = (Type *)daal_malloc(sizeof(Type) * n);
+        SizeType sequence_size = abs(b-a);
+        Type * buffer = (Type *)daal_malloc(sizeof(Type) * sequence_size);
+        for (SizeType i = 0; i < sequence_size; i++)
+        {
+            buffer[i]=i;
+        }
         int errorcode = uniformWithoutReplacement(n, r, buffer, state, a, b, method);
         daal_free(buffer);
         return errorcode;
@@ -126,19 +131,18 @@ public:
                                   const int method = __DAAL_RNG_METHOD_UNIFORM_STD)
     {
         int errorcode = 0;
+        SizeType sequence_size = abs(b-a);
+        DstType swapIdx;
         for (SizeType i = 0; i < n; i++)
         {
-            errorcode = uniform(1, buffer + i, state, a + i, b, method);
-            int value = buffer[i];
-
-            for (SizeType j = i; j > 0; j--)
-            {
-                if (value == buffer[j - 1])
-                {
-                    value = (DstType)(j - 1 + a);
-                }
-            }
-            r[i] = value;
+            errorcode = uniform(1, &swapIdx, state, i, n - 1, method);
+            auto tmp = buffer[i];
+            buffer[i] = buffer[swapIdx];
+            buffer[swapIdx] = tmp;
+        }
+        for (SizeType i = 0; i < n; i++)
+        {
+            r[i] = buffer[i];
         }
         return errorcode;
     }

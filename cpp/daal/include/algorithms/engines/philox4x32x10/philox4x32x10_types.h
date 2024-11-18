@@ -1,6 +1,7 @@
 /* file: philox4x32x10_types.h */
 /*******************************************************************************
-* Copyright 2014 Intel Corporation
+* Copyright 2024 Intel Corporation
+* Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +18,8 @@
 
 /*
 //++
-//  Implementation of philox4x32x10 engine.
+//  Implementation of the Philox4x32-10 engine: a counter-based pseudorandom number generator (PRNG) 
+//  that uses 4x32-bit keys and performs 10 rounds of mixing to produce high-quality randomness.
 //--
 */
 
