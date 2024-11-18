@@ -247,6 +247,7 @@ sycl::event solve_system(sycl::queue& queue,
     /// decomposition-based inversion, which is able to handle such problems.
     try {
         sycl::event potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
+        queue.wait_and_throw();
         const Float diag_min = diagonal_minimum(queue, nxtx.get_data(), dim_xtx, potrf_event);
         if (diag_min <= 1e-6)
             throw mkl::lapack::computation_error("", "", 0);
