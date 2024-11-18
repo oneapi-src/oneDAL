@@ -73,6 +73,16 @@ public:
         return rn_gen;
     }
 
+    auto get_daal_rng() const {
+        daal_rng<DataType> rn_gen;
+        return rn_gen;
+    }
+
+    auto get_daal_engine(std::int64_t seed) {
+        auto rng_engine = daal_engine<engine_qq>(seed);
+        return rng_engine;
+    }
+
     auto get_engine(std::int64_t seed) {
         auto rng_engine = onedal_engine<engine_qq>(this->get_queue(), seed);
         return rng_engine;
@@ -126,32 +136,32 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     this->check_results(arr_gpu, arr_host);
 }
 
-using rng_types_skip_ahead_support = COMBINE_TYPES((float), (mt19937, mcg59, mrg32k3a, philox4x32x10));
+using rng_types_skip_ahead_support = COMBINE_TYPES((float),
+                                                   (mt19937, mcg59, mrg32k3a, philox4x32x10));
 
 //Just for perf tests
-// TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip) {
-//     SKIP_IF(this->get_policy().is_cpu());
-//     std::int64_t elem_count =
-//         GENERATE_COPY(6100000000, 1LL * 64 * 1000000);
-//     std::int64_t seed = GENERATE_COPY(777);
+TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip_ahead_support) {
+    SKIP_IF(this->get_policy().is_cpu());
+    std::int64_t elem_count = GENERATE_COPY(10000);
+    std::int64_t seed = GENERATE_COPY(777);
 
+    auto arr_host = this->allocate_array_host(elem_count);
+    auto arr_host_ptr_ = arr_host.get_mutable_data();
 
-//     auto [arr_gpu_, arr_host_] = this->allocate_arrays(elem_count);
-//     auto arr_gpu_ptr_ = arr_gpu_.get_mutable_data();
+    auto arr_host_fake = this->allocate_array_host(1);
+    auto arr_host_ptr_fake = arr_host_fake.get_mutable_data();
+    auto rn_gen_ = this->get_daal_rng();
+    auto rng_engine_1 = this->get_daal_engine(seed);
 
-//     auto rn_gen_ = this->get_rng();
-//     auto rng_engine_1 = this->get_engine(seed);
-
-//     BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
-//         rn_gen_.uniform_gpu(this->get_queue(),
-//                                      elem_count,
-//                                      arr_gpu_ptr_,
-//                                      rng_engine_1,
-//                                      0,
-//                                      elem_count);
-//     };
-
-// }
+    BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
+        rn_gen_.uniform_without_replacement_cpu(elem_count,
+                                                arr_host_ptr_,
+                                                arr_host_ptr_fake,
+                                                rng_engine_1,
+                                                0,
+                                                elem_count);
+    };
+}
 
 TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahead_support) {
     SKIP_IF(this->get_policy().is_cpu());

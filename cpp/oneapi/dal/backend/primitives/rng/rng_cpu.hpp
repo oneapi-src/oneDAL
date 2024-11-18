@@ -68,8 +68,7 @@ private:
         switch (EngineType) {
             case engine_list::mt2203:
                 return daal::algorithms::engines::mt2203::Batch<>::create(seed);
-            case engine_list::mcg59:
-                return daal::algorithms::engines::mcg59::Batch<>::create(seed);
+            case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
             case engine_list::mrg32k3a:
                 return daal::algorithms::engines::mrg32k3a::Batch<>::create(seed);
             case engine_list::philox4x32x10:
@@ -112,7 +111,9 @@ public:
                                                                      b);
     }
 
-    template <engine_list EngineType, typename T = Type, typename = std::enable_if_t<std::is_integral_v<T>>>
+    template <engine_list EngineType,
+              typename T = Type,
+              typename = std::enable_if_t<std::is_integral_v<T>>>
     void shuffle(Size count, Type* dst, daal_engine<EngineType> daal_engine) {
         Type idx[2];
         auto state = daal_engine.get_cpu_engine_state();

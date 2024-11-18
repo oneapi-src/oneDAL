@@ -17,7 +17,7 @@
 *******************************************************************************/
 
 //++
-//  Implementation of the MRG32k3a engine: a 32-bit combined multiple recursive generator 
+//  Implementation of the MRG32k3a engine: a 32-bit combined multiple recursive generator
 //  with two components of order 3, optimized for batch processing.
 //--
 

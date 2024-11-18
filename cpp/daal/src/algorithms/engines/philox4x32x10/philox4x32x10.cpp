@@ -17,7 +17,7 @@
 *******************************************************************************/
 
 //++
-//  Implementation of the Philox4x32-10 engine: a counter-based pseudorandom number generator (PRNG) 
+//  Implementation of the Philox4x32-10 engine: a counter-based pseudorandom number generator (PRNG)
 //  that uses 4x32-bit keys and performs 10 rounds of mixing to produce high-quality randomness.
 //--
 

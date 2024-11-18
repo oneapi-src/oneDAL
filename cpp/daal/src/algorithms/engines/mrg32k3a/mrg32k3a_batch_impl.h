@@ -41,7 +41,8 @@ namespace mrg32k3a
 namespace internal
 {
 template <CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class BatchImpl : public algorithms::engines::mrg32k3a::interface1::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
+class BatchImpl : public algorithms::engines::mrg32k3a::interface1::Batch<algorithmFPType, method>,
+                  public algorithms::engines::internal::BatchBaseImpl
 {
 public:
     typedef algorithms::engines::mrg32k3a::interface1::Batch<algorithmFPType, method> super1;

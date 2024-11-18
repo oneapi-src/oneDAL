@@ -101,8 +101,10 @@ private:
             case engine_list::mt2203:
                 return daal::algorithms::engines::mt2203::Batch<>::create(seed);
             case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
-            case engine_list::mrg32k3a: return daal::algorithms::engines::mrg32k3a::Batch<>::create(seed);
-            case engine_list::philox4x32x10: return daal::algorithms::engines::philox4x32x10::Batch<>::create(seed);
+            case engine_list::mrg32k3a:
+                return daal::algorithms::engines::mrg32k3a::Batch<>::create(seed);
+            case engine_list::philox4x32x10:
+                return daal::algorithms::engines::philox4x32x10::Batch<>::create(seed);
             case engine_list::mt19937:
                 return daal::algorithms::engines::mt19937::Batch<>::create(seed);
             default: throw std::invalid_argument("Unsupported engine type");
@@ -111,8 +113,10 @@ private:
 
     onedal_engine_t initialize_onedal_engine(sycl::queue& queue, std::int64_t seed) {
         if constexpr (EngineType == engine_list::mt2203) {
-            return onedal_engine_t(queue, seed,
-                                   0); // Aligns CPU and GPU results for mt2203, impacts the performance.
+            return onedal_engine_t(
+                queue,
+                seed,
+                0); // Aligns CPU and GPU results for mt2203, impacts the performance.
         }
         else {
             return onedal_engine_t(queue, seed);
