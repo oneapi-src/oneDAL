@@ -19,7 +19,8 @@
 
 Required Software:
 * C/C++ Compiler
-* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html) if building with SYCL support
+* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html) and [oneMKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html) if building with SYCL support
+* BLAS and LAPACK libraries - both provided by oneMKL
 * Python version 3.9 or higher
 * TBB library (repository contains script to download it)
 * Microsoft Visual Studio\* (Windows\* only)
@@ -29,6 +30,10 @@ Required Software:
         pacman -S msys/make msys/dos2unix
 
 For details, see [System Requirements for oneDAL](https://www.intel.com/content/www/us/en/developer/articles/system-requirements/system-requirements-for-oneapi-data-analytics-library.html).
+
+Note: the Intel(R) oneAPI components listed here can be installed together through the oneAPI Base Toolkit bundle:
+
+https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html
 
 ## Docker Development Environment
 
@@ -44,7 +49,7 @@ is available as an alternative to the manual setup.
 
         set PATH=C:\msys64\usr\bin;%PATH%
 
-3. Set the environment variables for one of the supported C/C++ compilers. For example:
+3. Set the environment variables for one of the supported C/C++ compilers, such as [Intel(R)'s DPC compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html). For example:
 
     - **Microsoft Visual Studio\* 2022**:
 
@@ -66,19 +71,30 @@ is available as an alternative to the manual setup.
 
             call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
-4. Download and set an environment for micromkl libs:
+    Note: if the Intel compilers were installed as part of a bundle such as oneAPI Base Toolkit, it's also possible to set the environment variables at once for all oneAPI components used here (compilers, MKL, oneMKL, TBB) through the more general script that they provide - for Linux:
+
+            source /opt/intel/oneapi/setvars.sh
+
+4. Set up MKL:
+
+    _Note: if you used the general oneAPI setvars script from a Base Toolkit installation, this step will not be necessary as oneMKL will already have been set up._
+    
+    Download and install [Intel(R) oneMKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html).
+    Set the environment variables for for Intel(R) oneMKL. For example:
 
     - **Windows\***:
 
-            .\dev\download_micromkl.bat
+            call "C:\Program Files (x86)\Intel\oneAPI\mkl\latest\env\vars.bat" intel64
 
     - **Linux\***:
 
-            ./dev/download_micromkl.sh
+            source /opt/intel/oneapi/mkl/latest/env/vars.sh
 
-5. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
+5. Set up Intel(R) Threading Building Blocks (Intel(R) TBB):
 
-    Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
+    _Note: if you used the general oneAPI setvars script from a Base Toolkit installation, this step will not be necessary as oneTBB will already have been set up._
+
+    Download and install [Intel(R) TBB](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html).
     Set the environment variables for for Intel(R) TBB. For example:
 
     - oneTBB (Windows\*):
