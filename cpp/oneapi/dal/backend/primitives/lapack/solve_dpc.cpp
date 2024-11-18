@@ -64,48 +64,46 @@ inline sycl::event beta_copy_transform(sycl::queue& queue,
     });
 }
 
-/*
-This is an adaptation of the CPU version, which can be found in this file:
-cpp/daal/src/algorithms/service_kernel_math.h
-
-It solves a linear system A*x = b
-where 'b' might be a matrix (multiple RHS)
-
-It is intended as a fallback for solving linear regression, where these
-matrices are obtained as follows:
-    A = t(X)*X
-    b = t(X)*y
-
-It can handle systems that are not positive semi-definite, so it's used
-as a fallback when Cholesky fails or when it involves too small numbers
-(which tends to happen when floating point error results in a slightly
-positive matrix when it should have zero determinant in theory).
-*/
+/// This is an adaptation of the CPU version, which can be found in this file:
+/// cpp/daal/src/algorithms/service_kernel_math.h
+///
+/// It solves a linear system A*x = b
+/// where 'b' might be a matrix (multiple RHS)
+///
+/// It is intended as a fallback for solving linear regression, where these
+/// matrices are obtained as follows:
+///     A = t(X)*X
+///     b = t(X)*y
+///
+/// It can handle systems that are not positive semi-definite, so it's used
+/// as a fallback when Cholesky fails or when it involves too small numbers
+/// (which tends to happen when floating point error results in a slightly
+/// positive matrix when it should have zero determinant in theory).
 template <mkl::uplo uplo, typename Float>
 sycl::event solve_spectral_decomposition(
     sycl::queue& queue,
-    ndview<Float, 2>& A, // t(X)*X, LHS, gets overwritten, dim=[dim_A, dim_A] (symmetric)
+    ndview<Float, 2>& A, /// t(X)*X, LHS, gets overwritten, dim=[dim_A, dim_A] (symmetric)
     sycl::event& event_A,
     ndview<Float, 2>&
-        b, // t(X)*y, RHS, solution is outputted here, dim=[dim_A, nrhs] in colmajor order
+        b, /// t(X)*y, RHS, solution is outputted here, dim=[dim_A, nrhs] in colmajor order
     sycl::event& event_b,
     const std::int64_t dim_A,
     const std::int64_t nrhs) {
     constexpr auto alloc = sycl::usm::alloc::device;
 
-    /* Decompose: A = Q * diag(l) * t(Q) */
-    /* Note: for NRHS>1, this will overallocate in order to reuse the memory as buffer later on */
+    /// Decompose: A = Q * diag(l) * t(Q)
+    /// Note: for NRHS>1, this will overallocate in order to reuse the memory as buffer later on
     auto eigenvalues = ndarray<Float, 1>::empty(queue, dim_A * nrhs, alloc);
     sycl::event syevd_event =
         syevd<mkl::job::vec, uplo, Float>(queue, dim_A, A, dim_A, eigenvalues, { event_A });
     const Float eps = std::numeric_limits<Float>::epsilon();
 
-    /* Discard too small singular values */
+    /// Discard too small singular values
     std::int64_t num_discarded;
     {
-        /* This is placed inside a block because the array created here is not used any further */
-        /* Note: the array for 'eigenvalues' is allocated with size [dimA, nrhs],
-        but by this point, only 'dimA' elements will have been written to it. */
+        /// This is placed inside a block because the array created here is not used any further
+        /// Note: the array for 'eigenvalues' is allocated with size [dimA, nrhs],
+        /// but by this point, only 'dimA' elements will have been written to it.
         auto eigenvalues_cpu =
             ndview<Float, 1>::wrap(eigenvalues.get_data(), dim_A).to_host(queue, { syevd_event });
         const Float* eigenvalues_cpu_ptr = eigenvalues_cpu.get_data();
@@ -120,7 +118,7 @@ sycl::event solve_spectral_decomposition(
         }
     }
 
-    /* Create the square root of the inverse: Qis = Q * diag(1 / sqrt(l)) */
+    /// Create the square root of the inverse: Qis = Q * diag(1 / sqrt(l))
     std::int64_t num_taken = dim_A - num_discarded;
     auto ev_mutable = eigenvalues.get_mutable_data();
     sycl::event inv_sqrt_eigenvalues_event = queue.submit([&](sycl::handler& h) {
@@ -142,7 +140,7 @@ sycl::event solve_spectral_decomposition(
         });
     });
 
-    /* Now calculate the actual solution: Qis * Qis' * B */
+    /// Now calculate the actual solution: Qis * Qis' * B
     const std::int64_t eigenvectors_offset = num_discarded * dim_A;
     if (nrhs == 1) {
         auto ev_mutable_vec_view = ndview<Float, 1>::wrap(ev_mutable, num_taken);
@@ -191,7 +189,7 @@ sycl::event solve_spectral_decomposition(
     }
 }
 
-/* Returns the minimum value among entries in the diagonal of a square matrix */
+/// Returns the minimum value among entries in the diagonal of a square matrix
 template <typename Float>
 Float diagonal_minimum(sycl::queue& queue,
                        const Float* Matrix,
@@ -241,7 +239,7 @@ sycl::event solve_system(sycl::queue& queue,
     }
     catch (mkl::lapack::computation_error& ex) {
         const std::int64_t nrhs = nxty.get_dimension(0);
-        /* Note: this templated version of 'copy' reuses the layout that was specified in the previous copy */
+        /// Note: this templated version of 'copy' reuses the layout that was specified in the previous copy
         sycl::event xtx_event_new = copy(queue, nxtx, xtx, dependencies);
         sycl::event xty_event_new = copy(queue, nxty, xty, dependencies);
 
