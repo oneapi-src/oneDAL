@@ -124,7 +124,7 @@ sycl::event solve_spectral_decomposition(
         h.depends_on(syevd_event);
         h.parallel_for(num_taken, [=](const auto& i) {
             const std::size_t ix = i + num_discarded;
-            ev_mutable[ix] = sycl::sqrt(Float(1) / ev_mutable[ix]);
+            ev_mutable[ix] = sycl::rsqrt(ev_mutable[ix]);
         });
     });
 
