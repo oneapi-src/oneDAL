@@ -84,9 +84,10 @@ positive matrix when it should have zero determinant in theory).
 template <mkl::uplo uplo, typename Float>
 sycl::event solve_spectral_decomposition(
     sycl::queue& queue,
-    ndview<Float, 2>& A, // t(X)*X, LHS, gets overwritten
+    ndview<Float, 2>& A, // t(X)*X, LHS, gets overwritten, dim=[dim_A, dim_A] (symmetric)
     sycl::event& event_A,
-    ndview<Float, 2>& b, // t(X)*y, RHS, solution is outputted here
+    ndview<Float, 2>&
+        b, // t(X)*y, RHS, solution is outputted here, dim=[dim_A, nrhs] in colmajor order
     sycl::event& event_b,
     const std::int64_t dim_A,
     const std::int64_t nrhs) {
