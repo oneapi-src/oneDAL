@@ -20,7 +20,8 @@
    contain the root `toctree` directive.
 
 .. |spec| replace:: |short_name| specification
-.. _spec: https://spec.oneapi.com/versions/latest/elements/oneDAL/source/index.html
+.. _spec: https://oneapi-spec.uxlfoundation.org/specifications/oneapi/v1.3-rev-1/elements/onedal/source/#
+
 
 |full_name| (|short_name|)
 ------------------------------------------------------

@@ -19,20 +19,35 @@ name: Nightly-build
 on:
   schedule:
     - cron: '0 21 * * *'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/nightly-build.yml
+      - .ci/pipeline/ci.yml
+      - makefile
+      - '.ci/env/**'
+      - '.ci/scripts/**'
+      - 'dev/make/**'
+      - 'dev/make/compiler_definitions/**'
+      - 'dev/make/function_definitions/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
 env:
-  WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d91caaa0-7306-46ea-a519-79a0423e1903/w_BaseKit_p_2024.2.1.101_offline.exe'
   WINDOWS_ALL_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
 
 jobs:
   build_lnx:
     name: oneDAL Linux nightly build
     if: github.repository == 'oneapi-src/oneDAL'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
 
     steps:
@@ -61,6 +76,11 @@ jobs:
         with:
           name: __release_lnx
           path: ./__release_lnx
+      - name: Archive oneDAL environment
+        uses: actions/upload-artifact@v4
+        with:
+          name: oneDAL_env
+          path: .ci/env
 
   build_win:
     name: oneDAL Windows nightly build
@@ -76,7 +96,9 @@ jobs:
       - name: Install DPC++
         shell: cmd
         run: |
-            call .\.ci\scripts\install_basekit.bat ${{ env.WINDOWS_BASEKIT_URL }} ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
+          set PATH=C:\msys64\usr\bin;%PATH%
+          for /f "delims=" %%i in ('grep -oP -m 1 "(?<=WINDOWS_BASEKIT_URL: ).*" .ci\pipeline\ci.yml') do set "baseurl=%%i"
+          call .ci\scripts\install_basekit.bat %baseurl:'="% ${{ env.WINDOWS_ALL_COMPONENTS }} .\oneapi\
       - name: Prepare Intel OpenCL CPU runtime
         run: |
           # Store the unpacked runtime to centralize and reduce external downloads
