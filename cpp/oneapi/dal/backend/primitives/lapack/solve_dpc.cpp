@@ -241,6 +241,10 @@ sycl::event solve_system(sycl::queue& queue,
     sycl::event solution_event;
 
     opt_array<Float> dummy{};
+    /// Note: this is wrapped in a try-catch block in order to catch a potential exception
+    /// thrown by oneMKL when the Cholesky factorization ('potrs') fails due to the matrix
+    /// not being positive-definite. In such case, it will then fall back to spectral
+    /// decomposition-based inversion, which is able to handle such problems.
     try {
         sycl::event potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
         const Float diag_min = diagonal_minimum(queue, nxtx.get_data(), dim_xtx, potrf_event);
