@@ -17,7 +17,7 @@
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
-
+#include <iostream>
 #include "oneapi/dal/algo/decision_forest/backend/gpu/infer_kernel_impl.hpp"
 
 namespace oneapi::dal::decision_forest::backend {
@@ -44,9 +44,11 @@ void infer_kernel_impl<Float, Index, Task>::validate_input(const descriptor_t& d
     if (data.get_row_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_rows());
     }
+
     if (data.get_column_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_range_of_columns());
     }
+
     if (model.get_tree_count() > de::limits<Index>::max()) {
         throw domain_error(dal::detail::error_messages::invalid_number_of_trees());
     }
@@ -67,6 +69,7 @@ void infer_kernel_impl<Float, Index, Task>::init_params(infer_context_t& ctx,
         ctx.class_count = de::integral_cast<Index>(desc.get_class_count());
         ctx.voting_mode = desc.get_voting_mode();
     }
+
     ctx.row_count = de::integral_cast<Index>(data.get_row_count());
     ctx.column_count = de::integral_cast<Index>(data.get_column_count());
 
@@ -245,6 +248,7 @@ infer_kernel_impl<Float, Index, Task>::predict_by_tree_group(const infer_context
                                       { local_size, 1 });
 
     sycl::event last_event = zero_obs_response_event;
+
     for (Index proc_tree_count = 0; proc_tree_count < tree_count;
          proc_tree_count += ctx.tree_in_group_count) {
         last_event = queue_.submit([&](sycl::handler& cgh) {
@@ -347,6 +351,7 @@ infer_kernel_impl<Float, Index, Task>::reduce_tree_group_response(
         be::make_multiple_nd_range_1d({ ctx.max_group_count * local_size }, { local_size });
 
     sycl::event last_event = zero_response_event;
+
     last_event = queue_.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
         cgh.depends_on(last_event);
