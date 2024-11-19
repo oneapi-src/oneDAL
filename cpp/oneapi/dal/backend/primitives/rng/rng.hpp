@@ -146,8 +146,7 @@ public:
                      Type* dst,
                      onedal_engine<EngineType>& engine_,
                      const event_vector& deps = {});
-};
-
 #endif
+};
 
 }; // namespace oneapi::dal::backend::primitives

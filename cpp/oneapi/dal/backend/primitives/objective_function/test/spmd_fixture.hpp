@@ -100,7 +100,7 @@ public:
         std::int64_t num_checks = 5;
 
         std::vector<ndarray<float_t, 1>> vecs_host(num_checks), vecs_gpu(num_checks);
-        daal_rng<float_t> rn_gen;
+        rng<float_t> rn_gen;
         for (std::int64_t ij = 0; ij < num_checks; ++ij) {
             daal_engine eng(2007 + dim * num_checks + ij);
             vecs_host[ij] =
