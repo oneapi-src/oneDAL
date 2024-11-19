@@ -233,7 +233,13 @@ sycl::event solve_system(sycl::queue& queue,
         sycl::event potrf_event = potrf_factorization<uplo>(queue, nxtx, dummy, { xtx_event });
         queue.wait_and_throw();
         const Float diag_min = diagonal_minimum(queue, nxtx.get_data(), dim_xtx, potrf_event);
-        if (diag_min <= 1e-6)
+        /// Note: this threshold was chosen as a guess for when Cholesky factorization might
+        /// succeed despite the matrix in theory not being positive-definite, or succeed but
+        /// having too large numerical inaccuracies. In such cases, there should be too small
+        /// singular values that the fallback will discard, but there's no guaranteed match
+        /// between singular values and entries in the Cholesky diagonal. This is just a guess.
+        const Float threshold_diagonal_min = 1e-6f;
+        if (diag_min <= threshold_diagonal_min)
             throw mkl::lapack::computation_error("", "", 0);
         solution_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
     }
