@@ -83,45 +83,4 @@ private:
     daal::algorithms::engines::internal::BatchBaseImpl* impl_;
 };
 
-template <typename Type, typename Size = std::int64_t>
-class daal_rng {
-public:
-    daal_rng() = default;
-    ~daal_rng() = default;
-
-    template <engine_list EngineType>
-    void uniform(Size count, Type* dst, daal_engine<EngineType> daal_engine, Type a, Type b) {
-        auto state = daal_engine.get_cpu_engine_state();
-        uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
-    }
-
-    template <engine_list EngineType>
-    void uniform_without_replacement_cpu(Size count,
-                                         Type* dst,
-                                         Type* buffer,
-                                         daal_engine<EngineType> daal_engine,
-                                         Type a,
-                                         Type b) {
-        auto state = daal_engine.get_cpu_engine_state();
-        uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
-                                                                     dst,
-                                                                     buffer,
-                                                                     state,
-                                                                     a,
-                                                                     b);
-    }
-
-    template <engine_list EngineType,
-              typename T = Type,
-              typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle(Size count, Type* dst, daal_engine<EngineType> daal_engine) {
-        Type idx[2];
-        auto state = daal_engine.get_cpu_engine_state();
-        for (Size i = 0; i < count; ++i) {
-            uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
-            std::swap(dst[idx[0]], dst[idx[1]]);
-        }
-    }
-};
-
 } // namespace oneapi::dal::backend::primitives

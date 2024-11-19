@@ -95,6 +95,10 @@ public:
         }
     }
 
+    sycl::queue& get_queue() {
+        return q;
+    }
+
 private:
     daal::algorithms::engines::EnginePtr initialize_daal_engine(std::int64_t seed) {
         switch (EngineType) {
@@ -126,108 +130,6 @@ private:
     daal::algorithms::engines::EnginePtr daal_engine_;
     onedal_engine_t onedal_engine_;
     daal::algorithms::engines::internal::BatchBaseImpl* impl_;
-};
-
-template <typename Type, typename Size = std::int64_t>
-class oneapi_rng {
-public:
-    oneapi_rng() = default;
-    ~oneapi_rng() = default;
-
-    template <engine_list EngineType>
-    void uniform(sycl::queue& queue,
-                 Size count,
-                 Type* dst,
-                 onedal_engine<EngineType>& engine_,
-                 Type a,
-                 Type b,
-                 bool distr_mode = false,
-                 const event_vector& deps = {});
-
-    template <engine_list EngineType>
-    void uniform_gpu(sycl::queue& queue,
-                     Size count,
-                     Type* dst,
-                     onedal_engine<EngineType>& engine_,
-                     Type a,
-                     Type b,
-                     const event_vector& deps = {});
-
-    template <engine_list EngineType>
-    void uniform_cpu(Size count, Type* dst, onedal_engine<EngineType>& engine_, Type a, Type b);
-
-    template <engine_list EngineType>
-    void uniform_without_replacement(sycl::queue& queue,
-                                     Size count,
-                                     Type* dst,
-                                     onedal_engine<EngineType>& engine_,
-                                     Type a,
-                                     Type b,
-                                     const event_vector& deps = {}) {}
-
-    template <engine_list EngineType>
-    void uniform_without_replacement_gpu(sycl::queue& queue,
-                                         Size count,
-                                         Type* dst,
-                                         Type* buff,
-                                         onedal_engine<EngineType>& engine_,
-                                         Type a,
-                                         Type b,
-                                         const event_vector& deps = {});
-
-    template <engine_list EngineType>
-    void uniform_without_replacement_cpu(Size count,
-                                         Type* dst,
-                                         Type* buffer,
-                                         onedal_engine<EngineType>& engine_,
-                                         Type a,
-                                         Type b) {
-        void* state = engine_.get_cpu_engine_state();
-        engine_.skip_ahead_gpu(count);
-        uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
-                                                                     dst,
-                                                                     buffer,
-                                                                     state,
-                                                                     a,
-                                                                     b);
-    }
-
-    template <engine_list EngineType,
-              typename T = Type,
-              typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle(Size count, Type* dst, onedal_engine<EngineType>& engine_) {
-        Type idx[2];
-
-        void* state = engine_.get_cpu_engine_state();
-        engine_.skip_ahead_gpu(count);
-
-        for (Size i = 0; i < count; ++i) {
-            uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
-            std::swap(dst[idx[0]], dst[idx[1]]);
-        }
-    }
-
-    template <engine_list EngineType>
-    void shuffle_gpu(sycl::queue& queue,
-                     Size count,
-                     Type* dst,
-                     onedal_engine<EngineType>& engine_,
-                     const event_vector& deps);
-
-    template <engine_list EngineType,
-              typename T = Type,
-              typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle_cpu(Size count, Type* dst, onedal_engine<EngineType>& engine_) {
-        Type idx[2];
-
-        void* state = engine_.get_cpu_engine_state();
-        engine_.skip_ahead_gpu(count);
-
-        for (Size i = 0; i < count; ++i) {
-            uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
-            std::swap(dst[idx[0]], dst[idx[1]]);
-        }
-    }
 };
 
 #endif

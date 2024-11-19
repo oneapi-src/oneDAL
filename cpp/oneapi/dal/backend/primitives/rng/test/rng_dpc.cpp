@@ -69,12 +69,7 @@ public:
     static constexpr auto engine_qq = engine_v<EngineType>;
 
     auto get_rng() const {
-        oneapi_rng<DataType> rn_gen;
-        return rn_gen;
-    }
-
-    auto get_daal_rng() const {
-        daal_rng<DataType> rn_gen;
+        rng<DataType> rn_gen;
         return rn_gen;
     }
 
@@ -150,8 +145,8 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip_ahead_s
 
     auto arr_host_fake = this->allocate_array_host(1);
     auto arr_host_ptr_fake = arr_host_fake.get_mutable_data();
-    auto rn_gen_ = this->get_daal_rng();
-    auto rng_engine_1 = this->get_daal_engine(seed);
+    auto rn_gen_ = this->get_rng();
+    auto rng_engine_1 = this->get_engine(seed);
 
     BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
         rn_gen_.uniform_without_replacement_cpu(elem_count,
