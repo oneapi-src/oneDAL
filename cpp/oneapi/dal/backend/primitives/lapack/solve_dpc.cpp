@@ -238,12 +238,17 @@ sycl::event solve_system(sycl::queue& queue,
         /// having too large numerical inaccuracies. In such cases, there should be too small
         /// singular values that the fallback will discard, but there's no guaranteed match
         /// between singular values and entries in the Cholesky diagonal. This is just a guess.
-        const Float threshold_diagonal_min = 1e-6f;
+        const Float threshold_diagonal_min = 1e-6;
         if (diag_min <= threshold_diagonal_min)
-            throw mkl::lapack::computation_error("", "", 0);
+            goto fallback_solver;
         solution_event = potrs_solution<uplo>(queue, nxtx, nxty, dummy, { potrf_event, xty_event });
     }
     catch (mkl::lapack::computation_error& ex) {
+        goto fallback_solver;
+    }
+    /// Note: this block is structured so that it will only be entered into through a 'goto'
+    if (false) {
+    fallback_solver:
         const std::int64_t nrhs = nxty.get_dimension(0);
         /// Note: this templated version of 'copy' reuses the layout that was specified in the previous copy
         sycl::event xtx_event_new = copy(queue, nxtx, xtx, dependencies);
