@@ -19,10 +19,26 @@ name: Nightly-build
 on:
   schedule:
     - cron: '0 21 * * *'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/nightly-build.yml
+      - .ci/pipeline/ci.yml
+      - makefile
+      - '.ci/env/**'
+      - '.ci/scripts/**'
+      - 'dev/make/**'
+      - 'dev/make/compiler_definitions/**'
+      - 'dev/make/function_definitions/**'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
 
 env:
   WINDOWS_ALL_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
@@ -31,7 +47,7 @@ jobs:
   build_lnx:
     name: oneDAL Linux nightly build
     if: github.repository == 'oneapi-src/oneDAL'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
 
     steps:
