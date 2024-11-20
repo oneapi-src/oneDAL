@@ -86,7 +86,7 @@ sycl::event transpose(sycl::queue& q,
     Float* dst_ptr = dst.get_mutable_data();
     auto event = q.submit([&](sycl::handler& cgh) {
         cgh.depends_on(deps);
-        cgh.parallel_for(range, [=](auto item) {
+        cgh.parallel_for(range, [=](sycl::id<2> item) {
             auto i = item[0], j = item[1];
             dst_ptr[j * row_count + i] = src_ptr[i * col_count + j];
         });

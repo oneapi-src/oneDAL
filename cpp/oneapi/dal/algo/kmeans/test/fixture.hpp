@@ -304,7 +304,7 @@ public:
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
 
-    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
+    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs<float_t>& input,
                              std::int64_t max_iter_count,
                              float_t accuracy_threshold,
                              bool init_centroids) {

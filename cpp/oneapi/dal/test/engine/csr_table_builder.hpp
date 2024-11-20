@@ -140,10 +140,11 @@ homogen_table copy_data_to_dense(sycl::queue& queue,
                                                     row_count);
     const auto dense_data_device =
         dal::array<Float>::empty(queue, row_count * column_count, sycl::usm::alloc::device);
-    auto data_event = queue.copy<Float>(dense_data_host.get_data(),
-                                        dense_data_device.get_mutable_data(),
-                                        row_count * column_count);
-    data_event.wait_and_throw();
+    queue
+        .copy<Float>(dense_data_host.get_data(),
+                     dense_data_device.get_mutable_data(),
+                     row_count * column_count)
+        .wait_and_throw();
     return homogen_table::wrap(dense_data_host, row_count, column_count);
 }
 #endif // ONEDAL_DATA_PARALLEL
@@ -278,9 +279,8 @@ struct csr_table_builder {
 /// Dataset is looks like multidimensional blobs
 /// with fixed centroid and randomized points around centroid
 /// with radius :expr:`r=1.0`.
+template <typename Float = float>
 struct csr_make_blobs {
-    /// Floating type used for generation
-    using Float = float;
     /// Indexing type used for generation
     using Index = std::int64_t;
     /// Dataset paramters
@@ -378,8 +378,7 @@ struct csr_make_blobs {
 
 #ifdef ONEDAL_DATA_PARALLEL
     table get_data(device_test_policy& policy) const {
-        auto queue = policy.get_queue();
-        return copy_data_to_csr(queue,
+        return copy_data_to_csr(policy.get_queue(),
                                 data_,
                                 column_indices_,
                                 row_offsets_,
@@ -389,8 +388,7 @@ struct csr_make_blobs {
     }
 
     table get_dense_data(device_test_policy& policy) const {
-        auto queue = policy.get_queue();
-        return copy_data_to_dense(queue,
+        return copy_data_to_dense(policy.get_queue(),
                                   data_,
                                   column_indices_,
                                   row_offsets_,
@@ -401,7 +399,7 @@ struct csr_make_blobs {
 #endif
 
     table get_initial_centroids() const {
-        const auto result = dal::array<float>::zeros(cluster_count_ * column_count_);
+        const auto result = dal::array<Float>::zeros(cluster_count_ * column_count_);
         auto result_ptr = result.get_mutable_data();
 
         const Index shift = bool(indexing_ == sparse_indexing::one_based);
@@ -420,7 +418,7 @@ struct csr_make_blobs {
     }
 
     table get_result_centroids() const {
-        const auto result = dal::array<float>::empty(cluster_count_ * column_count_);
+        const auto result = dal::array<Float>::empty(cluster_count_ * column_count_);
         auto result_ptr = result.get_mutable_data();
         const auto cluster_counts = dal::array<std::int32_t>::empty(cluster_count_);
         auto counts_ptr = cluster_counts.get_mutable_data();
