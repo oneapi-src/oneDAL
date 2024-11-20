@@ -130,33 +130,20 @@ static void pull_row_major_impl(const Policy& policy,
 
         auto src_data = origin_data.get_data() + origin_offset * origin_dtype_size;
         auto dst_data = block_data.get_mutable_data();
+        const std::int64_t subblocks_count =
+            contiguous_block_requested ? 1 : block_info.get_row_count();
+        const std::int64_t subblock_size = contiguous_block_requested
+                                               ? block_info.get_element_count()
+                                               : block_info.get_column_count();
 
-        if (block_info.get_column_count() > 1) {
-            const std::int64_t subblocks_count =
-                contiguous_block_requested ? 1 : block_info.get_row_count();
-            const std::int64_t subblock_size = contiguous_block_requested
-                                                   ? block_info.get_element_count()
-                                                   : block_info.get_column_count();
-
-            for (std::int64_t i = 0; i < subblocks_count; i++) {
-                backend::convert_vector(
-                    policy,
-                    src_data + i * origin_info.get_column_count() * origin_dtype_size,
-                    dst_data + i * block_info.get_column_count(),
-                    origin_info.get_data_type(),
-                    block_dtype,
-                    subblock_size);
-            }
-        }
-        else {
-            backend::convert_vector(policy,
-                                    src_data,
-                                    dst_data,
-                                    origin_info.get_data_type(),
-                                    block_dtype,
-                                    origin_info.get_column_count(),
-                                    1,
-                                    block_info.get_element_count());
+        for (std::int64_t i = 0; i < subblocks_count; i++) {
+            backend::convert_vector(
+                policy,
+                src_data + i * origin_info.get_column_count() * origin_dtype_size,
+                dst_data + i * block_info.get_column_count(),
+                origin_info.get_data_type(),
+                block_dtype,
+                subblock_size);
         }
     }
 }

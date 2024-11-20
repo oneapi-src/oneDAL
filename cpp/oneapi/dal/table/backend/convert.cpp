@@ -238,8 +238,8 @@ sycl::event convert_vector_device2host(sycl::queue& q,
         dal::detail::check_mul_overflow(src_element_size_in_bytes, element_count);
     const std::int64_t src_stride_in_bytes =
         dal::detail::check_mul_overflow(src_element_size_in_bytes, src_stride);
-    if (src_element_size_in_bytes == dst_element_size_in_bytes &&
-        src_size_in_bytes == dst_size_in_bytes && src_stride_in_bytes == dst_stride_in_bytes) {
+    if (src_type == dst_type && src_size_in_bytes == dst_size_in_bytes &&
+        src_stride_in_bytes == dst_stride_in_bytes) {
         auto copy_event = memcpy_usm2host(q,
                                           dst_host,
                                           src_device,
@@ -303,9 +303,8 @@ sycl::event convert_vector_host2device(sycl::queue& q,
         dal::detail::check_mul_overflow(src_element_size_in_bytes, element_count);
     const std::int64_t src_stride_in_bytes =
         dal::detail::check_mul_overflow(src_element_size_in_bytes, src_stride);
-
-    if (src_element_size_in_bytes == dst_element_size_in_bytes &&
-        src_size_in_bytes == dst_size_in_bytes && src_stride_in_bytes == dst_stride_in_bytes) {
+    if (src_type == dst_type && src_size_in_bytes == dst_size_in_bytes &&
+        src_stride_in_bytes == dst_stride_in_bytes) {
         auto copy_event = memcpy_host2usm(q,
                                           dst_device,
                                           src_host,

@@ -221,8 +221,8 @@ inline sycl::event memcpy_host2usm(sycl::queue& queue,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
 
-    memcpy(queue, dest_usm, src_host, size, deps).wait_and_throw();
-    return {};
+    sycl::event memcpy_event = memcpy(queue, dest_usm, src_host, size, deps);
+    return memcpy_event;
 }
 
 inline sycl::event memcpy_usm2host(sycl::queue& queue,
@@ -232,8 +232,8 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
                                    const event_vector& deps = {}) {
     ONEDAL_ASSERT(is_known_usm(queue, src_usm));
 
-    memcpy(queue, dest_host, src_usm, size, deps).wait_and_throw();
-    return {};
+    sycl::event memcpy_event = memcpy(queue, dest_host, src_usm, size, deps);
+    return memcpy_event;
 }
 
 /// Copies `count` number of elements from the USM-allocated array pointed to by `src`
