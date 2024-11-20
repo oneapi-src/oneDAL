@@ -22,6 +22,8 @@
 #include <type_traits>
 
 #include <fmt/core.h>
+//Necessary headers from boost
+#include <boost/process.hpp>
 
 #include "oneapi/dal/train.hpp"
 #include "oneapi/dal/infer.hpp"
