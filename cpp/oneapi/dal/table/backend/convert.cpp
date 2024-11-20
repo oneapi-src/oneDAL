@@ -227,33 +227,50 @@ sycl::event convert_vector_device2host(sycl::queue& q,
     // To perform conversion, we gather data from device to host in temporary
     // contigious array and then run host conversion function
 
-    const std::int64_t element_size_in_bytes = dal::detail::get_data_type_size(src_type);
+    const std::int64_t dst_element_size_in_bytes = dal::detail::get_data_type_size(dst_type);
+    const std::int64_t dst_size_in_bytes =
+        dal::detail::check_mul_overflow(dst_element_size_in_bytes, element_count);
+    const std::int64_t dst_stride_in_bytes =
+        dal::detail::check_mul_overflow(dst_element_size_in_bytes, dst_stride);
+
+    const std::int64_t src_element_size_in_bytes = dal::detail::get_data_type_size(src_type);
     const std::int64_t src_size_in_bytes =
-        dal::detail::check_mul_overflow(element_size_in_bytes, element_count);
+        dal::detail::check_mul_overflow(src_element_size_in_bytes, element_count);
     const std::int64_t src_stride_in_bytes =
-        dal::detail::check_mul_overflow(element_size_in_bytes, src_stride);
+        dal::detail::check_mul_overflow(src_element_size_in_bytes, src_stride);
+    if (src_element_size_in_bytes == dst_element_size_in_bytes &&
+        src_size_in_bytes == dst_size_in_bytes && src_stride_in_bytes == dst_stride_in_bytes) {
+        auto copy_event = memcpy_usm2host(q,
+                                          dst_host,
+                                          src_device,
+                                          src_element_size_in_bytes * element_count,
+                                          deps);
 
-    const auto tmp_host_unique = make_unique_usm_host(q, src_size_in_bytes);
+        return copy_event;
+    }
+    else {
+        const auto tmp_host_unique = make_unique_usm_host(q, src_size_in_bytes);
 
-    auto gather_event = gather_device2host(q,
-                                           tmp_host_unique.get(),
-                                           src_device,
-                                           element_count,
-                                           src_stride_in_bytes,
-                                           element_size_in_bytes,
-                                           deps);
-    gather_event.wait_and_throw();
+        auto gather_event = gather_device2host(q,
+                                               tmp_host_unique.get(),
+                                               src_device,
+                                               element_count,
+                                               src_stride_in_bytes,
+                                               src_element_size_in_bytes,
+                                               deps);
+        gather_event.wait_and_throw();
 
-    convert_vector(dal::detail::default_host_policy{},
-                   tmp_host_unique.get(),
-                   dst_host,
-                   src_type,
-                   dst_type,
-                   1L,
-                   dst_stride,
-                   element_count);
+        convert_vector(dal::detail::default_host_policy{},
+                       tmp_host_unique.get(),
+                       dst_host,
+                       src_type,
+                       dst_type,
+                       1L,
+                       dst_stride,
+                       element_count);
 
-    return sycl::event{};
+        return sycl::event{};
+    }
 }
 
 sycl::event convert_vector_host2device(sycl::queue& q,
@@ -290,10 +307,10 @@ sycl::event convert_vector_host2device(sycl::queue& q,
     if (src_element_size_in_bytes == dst_element_size_in_bytes &&
         src_size_in_bytes == dst_size_in_bytes && src_stride_in_bytes == dst_stride_in_bytes) {
         auto copy_event = memcpy_host2usm(q,
-                                        dst_device,
-                                      src_host,
-                                      src_element_size_in_bytes * element_count,
-                                      deps);
+                                          dst_device,
+                                          src_host,
+                                          src_element_size_in_bytes * element_count,
+                                          deps);
 
         return copy_event;
     }
