@@ -145,7 +145,7 @@ homogen_table copy_data_to_dense(sycl::queue& queue,
                      dense_data_device.get_mutable_data(),
                      row_count * column_count)
         .wait_and_throw();
-    return homogen_table::wrap(dense_data_host, row_count, column_count);
+    return homogen_table::wrap(dense_data_device, row_count, column_count);
 }
 #endif // ONEDAL_DATA_PARALLEL
 
