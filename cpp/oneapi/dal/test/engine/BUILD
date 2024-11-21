@@ -24,6 +24,7 @@ dal_test_module(
     extra_deps = [
         "@boost//:boost",
         "@catch2//:catch2",
+        "@eigen//:eigen",
         "@fmt//:fmt",
     ],
 )

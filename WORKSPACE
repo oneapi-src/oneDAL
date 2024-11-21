@@ -122,6 +122,14 @@ http_archive(
 )
 
 http_archive(
+    name = "eigen",
+    url = "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz",
+    sha256 = "8586084f71f9bde545ee7fa6d00288b264a2b7ac3607b974e54d13e7162c1c72",
+    build_file = "@onedal//dev/bazel/deps:eigen.tpl.BUILD",
+    strip_prefix = "eigen-3.4.0",
+)
+
+http_archive(
     name = "fmt",
     url = "https://github.com/fmtlib/fmt/archive/11.0.2.tar.gz",
     sha256 = "6cb1e6d37bdcb756dbbe59be438790db409cdb4868c66e888d5df9f13f7c027f",

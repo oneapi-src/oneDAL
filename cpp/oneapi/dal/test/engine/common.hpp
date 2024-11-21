@@ -25,6 +25,9 @@
 //Necessary headers from boost
 #include <boost/process.hpp>
 
+#include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
+
 #include "oneapi/dal/train.hpp"
 #include "oneapi/dal/infer.hpp"
 #include "oneapi/dal/compute.hpp"
