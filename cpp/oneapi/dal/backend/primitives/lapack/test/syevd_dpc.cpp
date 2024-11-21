@@ -201,12 +201,12 @@ TEMPLATE_LIST_TEST_M(syevd_test, "test syevd with pos def matrix", "[sym_eigvals
     this->check_eigvals_with_eigen(s, eigenvectors, eigenvalues);
 }
 
-// TEMPLATE_LIST_TEST_M(syevd_test, "test syevd with pos def matrix 2", "[sym_eigvals]", eigen_types) {
-//     const auto s = this->generate_symmetric_positive();
+TEMPLATE_LIST_TEST_M(syevd_test, "test syevd with pos def matrix 2", "[sym_eigvals]", eigen_types) {
+    const auto s = this->generate_symmetric_positive();
 
-//     const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace_descending(s);
+    const auto [eigenvectors, eigenvalues] = this->call_sym_eigvals_inplace_descending(s);
 
-//     this->check_eigvals_are_descending(eigenvalues);
-// }
+    this->check_eigvals_are_descending(eigenvalues);
+}
 
 } // namespace oneapi::dal::backend::primitives::test
