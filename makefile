@@ -303,6 +303,18 @@ endif
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
 
+#=============================== VTune SDK folders ======================================
+
+ifeq ($(REQPROFILE), yes)
+    VTUNESDK.include := $(VTUNE_PROFILER_DIR)/sdk/include
+
+    VTUNESDK.libia := $(if $(OS_is_lnx), $(VTUNE_PROFILER_DIR)/sdk/lib64,)
+
+    VTUNESDK.LIBS_A := $(if $(OS_is_lnx), $(VTUNESDK.libia)/libittnotify.a,)
+endif
+
+$(info VTUNESDK: $(VTUNESDK.include))
+
 #===============================================================================
 # Release library names
 #===============================================================================
@@ -436,8 +448,10 @@ CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
                  $(CPPDIR.daal)/src/data_management
 
 CORE.incdirs.common := $(RELEASEDIR.include) $(CPPDIR.daal) $(WORKDIR)
-CORE.incdirs.thirdp := $(daaldep.math_backend.incdir) $(TBBDIR.include)
+CORE.incdirs.thirdp := $(daaldep.math_backend.incdir) $(VTUNESDK.include) $(TBBDIR.include)
 CORE.incdirs := $(CORE.incdirs.common) $(CORE.incdirs.thirdp)
+
+$(info CORE.incdirs: $(CORE.incdirs))
 
 containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
 notcontaining = $(foreach v,$2,$(if $(findstring $1,$v),,$v))
@@ -479,7 +493,7 @@ $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt): $(CORE.objs_a) | $(CORE.tmpdir_a)/. 
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  LOPT:=
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt) | $(CORE.tmpdir_a)/. ; $(LINK.STATIC)
 $(WORKDIR.lib)/$(core_a):                   LOPT:=
-$(WORKDIR.lib)/$(core_a):                   $(daaldep.math_backend.ext) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
+$(WORKDIR.lib)/$(core_a):                   $(daaldep.math_backend.ext) $(VTUNESDK.LIBS_A) $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a) ; $(LINK.STATIC)
 
 $(WORKDIR.lib)/$(core_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(core_y): LOPT += $(daaldep.rt.seq)
@@ -488,7 +502,7 @@ ifdef OS_is_win
 $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y)
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
-$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
+$(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) $(VTUNESDK.LIBS_A) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
@@ -552,7 +566,7 @@ PARAMETERS.tmpdir_a.dpc := $(WORKDIR)/parameters_dpc_static
 PARAMETERS.tmpdir_y.dpc := $(WORKDIR)/parameters_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend_oneapi.incdir) $(TBBDIR.include)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend_oneapi.incdir) $(VTUNESDK.include) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp) $(ONEAPI.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
@@ -697,7 +711,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-DEBC) $(-E
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y)))
 
 # Note: The libonedal_dpc.so library does not support debug mode.
-# When compiling with the debug flag $(-DEBC_DPCPP), linking with libonedal_dpc.so may cause indefinite linking times 
+# When compiling with the debug flag $(-DEBC_DPCPP), linking with libonedal_dpc.so may cause indefinite linking times
 # due to the extensive processing of debug information. For debugging, please use the static library version (libonedal_dpc.a).
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
 $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-Zl_DPCPP) $(-DMKL_ILP64) $(-EHsc) $(pedantic.opts.dpcpp) \
