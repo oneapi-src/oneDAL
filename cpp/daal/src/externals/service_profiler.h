@@ -101,13 +101,19 @@ public:
      * Get pointer to the ITT domain associated with the profiler.
      * \return Pointer to the ITT domain.
      */
-    static __itt_domain * getDomain() { return (getInstance())->_domain; }
+    static __itt_domain * getDomain()
+    {
+        return (getInstance())->_domain;
+    }
 
 private:
     /**
      * Construct the profiler.
      */
-    Profiler() { _domain = __itt_domain_create("oneDAL"); }
+    Profiler()
+    {
+        _domain = __itt_domain_create("oneDAL");
+    }
     ~Profiler() {}
     __itt_domain * _domain; /* Pointer to the ITT domain */
 #endif
