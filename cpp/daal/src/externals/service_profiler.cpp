@@ -30,7 +30,8 @@ ProfilerTask::ProfilerTask(const char * taskName) : _taskName(taskName)
     __itt_task_begin(Profiler::getDomain(), __itt_null, __itt_null, _handle);
 }
 
-ProfilerTask::~ProfilerTask() {
+ProfilerTask::~ProfilerTask()
+{
     Profiler::endTask(_taskName);
 }
 
@@ -39,7 +40,8 @@ ProfilerTask Profiler::startTask(const char * taskName)
     return ProfilerTask(taskName);
 }
 
-void Profiler::endTask(const char * taskName) {
+void Profiler::endTask(const char * taskName)
+{
     __itt_task_end(Profiler::getDomain());
 }
 
