@@ -25,8 +25,8 @@
 #define __SERVICE_PROFILER_H__
 
 #ifdef ONEDAL_KERNEL_PROFILER
-/* Here if oneDAL kernel profiling is enabled in the build */
-#include <ittnotify.h>
+    /* Here if oneDAL kernel profiling is enabled in the build */
+    #include <ittnotify.h>
 #endif
 
 #define DAAL_ITTNOTIFY_CONCAT2(x, y) x##y
@@ -58,8 +58,8 @@ private:
     const char * _taskName;
 #ifdef ONEDAL_KERNEL_PROFILER
     /* Here if oneDAL kernel profiling is enabled */
-    __itt_string_handle * _handle;  /* The task string handle */
-    __itt_domain * _domain;         /* Pointer to the domain of the task */
+    __itt_string_handle * _handle; /* The task string handle */
+    __itt_domain * _domain;        /* Pointer to the domain of the task */
 #endif
 };
 
@@ -91,8 +91,9 @@ public:
      * Get pointer to a global profiler state.
      * \return Pointer to a global profiler state.
      */
-    static Profiler* getInstance() {
-        static Profiler  instance;
+    static Profiler * getInstance()
+    {
+        static Profiler instance;
         return &instance;
     }
 
@@ -100,18 +101,15 @@ public:
      * Get pointer to the ITT domain associated with the profiler.
      * \return Pointer to the ITT domain.
      */
-    static __itt_domain * getDomain() {
-        return (getInstance())->_domain;
-    }
+    static __itt_domain * getDomain() { return (getInstance())->_domain; }
+
 private:
     /**
      * Construct the profiler.
      */
-    Profiler() {
-        _domain = __itt_domain_create("oneDAL");
-    }
+    Profiler() { _domain = __itt_domain_create("oneDAL"); }
     ~Profiler() {}
-    __itt_domain * _domain;     /* Pointer to the ITT domain */
+    __itt_domain * _domain; /* Pointer to the ITT domain */
 #endif
 };
 
