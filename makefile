@@ -306,14 +306,11 @@ include dev/make/deps.$(BACKEND_CONFIG).mk
 #=============================== VTune SDK folders ======================================
 
 ifeq ($(REQPROFILE), yes)
+    -DPROFILER := -DONEDAL_KERNEL_PROFILER
     VTUNESDK.include := $(VTUNE_PROFILER_DIR)/sdk/include
-
     VTUNESDK.libia := $(if $(OS_is_lnx), $(VTUNE_PROFILER_DIR)/sdk/lib64,)
-
     VTUNESDK.LIBS_A := $(if $(OS_is_lnx), $(VTUNESDK.libia)/libittnotify.a,)
 endif
-
-$(info VTUNESDK: $(VTUNESDK.include))
 
 #===============================================================================
 # Release library names
@@ -506,7 +503,7 @@ $(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) $(VTUNES
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
-$(CORE.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64)
+$(CORE.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64) $(-DPROFILER)
 $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
@@ -515,7 +512,7 @@ $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
 $(eval $(call append_uarch_copt,$(CORE.objs_a)))
 
 $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
-$(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64)
+$(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64) $(-DPROFILER)
 $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
                         -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -1117,7 +1114,8 @@ Flags:
       possible values: $(CORE.ALGORITHMS.CUSTOM.AVAILABLE)
   REQCPU - list of CPU optimizations to be included into library
       possible values: $(CPUs)
-  REQDBG - Flag that enables build in debug mode
+  REQDBG - flag that enables build in debug mode
+  REQPROFILE - flag that enables kernel profiling using <ittnotify.h>
 endef
 
 daal_dbg:
