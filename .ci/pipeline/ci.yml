@@ -622,6 +622,7 @@ jobs:
       export PREFIX=${CONDA_PREFIX}
       cd sklearnex
       export PYTHON=python
+      export NO_DIST=1
       ./conda-recipe/build.sh
     displayName: sklearnex build
   - task: PublishPipelineArtifact@1
