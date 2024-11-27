@@ -107,10 +107,26 @@ onedal_repo(
 )
 
 http_archive(
+    name = "boost",
+    url = "https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.gz",
+    sha256 = "2575e74ffc3ef1cd0babac2c1ee8bdb5782a0ee672b1912da40e5b4b591ca01f",
+    strip_prefix = "boost_1_86_0",
+    build_file = "@onedal//dev/bazel/deps:boost.tpl.BUILD",
+)
+
+http_archive(
     name = "catch2",
     url = "https://github.com/catchorg/Catch2/archive/v3.7.1.tar.gz",
     sha256 = "c991b247a1a0d7bb9c39aa35faf0fe9e19764213f28ffba3109388e62ee0269c",
     strip_prefix = "Catch2-3.7.1",
+)
+
+http_archive(
+    name = "eigen",
+    url = "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz",
+    sha256 = "8586084f71f9bde545ee7fa6d00288b264a2b7ac3607b974e54d13e7162c1c72",
+    build_file = "@onedal//dev/bazel/deps:eigen.tpl.BUILD",
+    strip_prefix = "eigen-3.4.0",
 )
 
 http_archive(
