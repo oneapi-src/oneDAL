@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/linear_regression/common.hpp"
+#include "oneapi/dal/detail/parameters/system_parameters.hpp"
 
 namespace oneapi::dal::linear_regression {
 
@@ -35,7 +36,7 @@ template <typename Task>
 class partial_train_result_impl;
 
 template <typename Task = task::by_default>
-class train_parameters : public base {
+class train_parameters : public dal::detail::system_parameters {
 public:
     explicit train_parameters();
     train_parameters(train_parameters&&) = default;

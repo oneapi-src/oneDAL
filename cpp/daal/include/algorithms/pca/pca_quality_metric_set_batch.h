@@ -56,7 +56,7 @@ namespace interface1
  * \par References
  *      - \ref algorithms::quality_metric_set::interface1::InputAlgorithmsCollection "algorithms::quality_metric_set::InputAlgorithmsCollection" class
  */
-class DAAL_EXPORT Batch : public algorithms::quality_metric_set::Batch
+class Batch : public algorithms::quality_metric_set::Batch
 {
 public:
     Parameter parameter; /*!< Parameters of the algorithm */
@@ -99,7 +99,7 @@ public:
     }
 
 protected:
-    virtual void initializeQualityMetrics();
+    DAAL_EXPORT virtual void initializeQualityMetrics();
 };
 /** @} */
 } // namespace interface1

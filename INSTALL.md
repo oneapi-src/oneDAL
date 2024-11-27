@@ -19,7 +19,10 @@
 
 Required Software:
 * C/C++ Compiler
-* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html)
+* [DPC++ Compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html) and [oneMKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html) if building with SYCL support
+* BLAS and LAPACK libraries - both provided by oneMKL
+* Python version 3.9 or higher
+* TBB library (repository contains script to download it)
 * Microsoft Visual Studio\* (Windows\* only)
 * [MSYS2](http://msys2.github.io) (Windows\* only)
 * `make` and `dos2unix` tools; install these packages using MSYS2 on Windows\* as follows:
@@ -27,6 +30,10 @@ Required Software:
         pacman -S msys/make msys/dos2unix
 
 For details, see [System Requirements for oneDAL](https://www.intel.com/content/www/us/en/developer/articles/system-requirements/system-requirements-for-oneapi-data-analytics-library.html).
+
+Note: the Intel(R) oneAPI components listed here can be installed together through the oneAPI Base Toolkit bundle:
+
+https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html
 
 ## Docker Development Environment
 
@@ -42,7 +49,7 @@ is available as an alternative to the manual setup.
 
         set PATH=C:\msys64\usr\bin;%PATH%
 
-3. Set the environment variables for one of the supported C/C++ compilers. For example:
+3. Set the environment variables for one of the supported C/C++ compilers, such as [Intel(R)'s DPC compiler](https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html). For example:
 
     - **Microsoft Visual Studio\* 2022**:
 
@@ -64,19 +71,30 @@ is available as an alternative to the manual setup.
 
             call "C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat"
 
-4. Download and set an environment for micromkl libs:
+    Note: if the Intel compilers were installed as part of a bundle such as oneAPI Base Toolkit, it's also possible to set the environment variables at once for all oneAPI components used here (compilers, MKL, oneMKL, TBB) through the more general script that they provide - for Linux:
+
+            source /opt/intel/oneapi/setvars.sh
+
+4. Set up MKL:
+
+    _Note: if you used the general oneAPI setvars script from a Base Toolkit installation, this step will not be necessary as oneMKL will already have been set up._
+    
+    Download and install [Intel(R) oneMKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html).
+    Set the environment variables for for Intel(R) oneMKL. For example:
 
     - **Windows\***:
 
-            .\dev\download_micromkl.bat
+            call "C:\Program Files (x86)\Intel\oneAPI\mkl\latest\env\vars.bat" intel64
 
     - **Linux\***:
 
-            ./dev/download_micromkl.sh
+            source /opt/intel/oneapi/mkl/latest/env/vars.sh
 
-5. Download and install Intel(R) Threading Building Blocks (Intel(R) TBB):
+5. Set up Intel(R) Threading Building Blocks (Intel(R) TBB):
 
-    Download and install free Community License Intel(R) TBB (see [Get Intel(R) Performance Libraries for Free](https://registrationcenter.intel.com/en/forms/?productid=2558&licensetype=2)).
+    _Note: if you used the general oneAPI setvars script from a Base Toolkit installation, this step will not be necessary as oneTBB will already have been set up._
+
+    Download and install [Intel(R) TBB](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html).
     Set the environment variables for for Intel(R) TBB. For example:
 
     - oneTBB (Windows\*):
@@ -91,7 +109,7 @@ is available as an alternative to the manual setup.
 
             ./dev/download_tbb.sh
 
-6. Download and install Python (version 3.7 or higher).
+6. Download and install Python (version 3.9 or higher).
 
 7. Build oneDAL via command-line interface. Choose the appropriate commands based on the interface, platform, and the compiler you use. Interface and platform are required arguments of makefile while others are optional. Below you can find the set of examples for building oneDAL. You may use a combination of them to get the desired build configuration:
 
@@ -137,3 +155,35 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 **NOTE:** Built libraries are located in the `__release_{os_name}[_{compiler_name}]/daal` directory.
 
 ---
+
+After having built the library, if one wishes to use it for building [scikit-learn-intelex](https://github.com/intel/scikit-learn-intelex/tree/main) or for executing the usage examples, one can set the required environment variables to point to the generated build by sourcing the script that it creates under the `env` folder. The script will be located under `__release_{os_name}[_{compiler_name}]/daal/latest/env/vars.sh` and can be sourced with a POSIX-compliant shell such as `bash`, by executing something like the following from inside the `__release*` folder:
+
+```shell
+cd daal/latest
+source env/vars.sh
+```
+
+The provided unit tests for the library can be executed through the Bazel system - see the [Bazel docs](https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel) for more information.
+
+Examples of library usage will also be auto-generated as part of the build under path `daal/latest/examples/daal/cpp/source`. These can be built through CMake - assuming one starts from the release path `__release_{os_name}[_{compiler_name}]`, the following would do:
+
+```shell
+cd daal/latest/examples/daal/cpp
+mkdir -p build
+cd build
+cmake ..
+make -j$(nproc)
+```
+
+This will generate executables under path `daal/latest/examples/daal/cpp/_cmake_results/{platform_name}`. They can be executed as follows (note that they require access to the data files under `daal/latest/examples/daal/data`), assuming that one starts from inside the `build` folder (as at the end of the previous step):
+
+```shell
+cd ..
+./_cmake_results/{platform_name}/{example}
+```
+
+For example, in a Linux platform, assuming one wishes to execute the `adaboost_dense_batch` example:
+
+```shell
+./_cmake_results/intel_intel64_so/adaboost_dense_batch
+```

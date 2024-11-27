@@ -64,6 +64,9 @@ typedef cpuset_t cpu_set_t;
         #elif defined(TARGET_ARM)
 using LNX_PTR2INT                = uintptr_t;
 constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
+        #elif defined(TARGET_RISCV64)
+            #define LNX_PTR2INT uintptr_t
+            #define LNX_MY1CON  1LL
         #else
             #define LNX_PTR2INT unsigned int
             #define LNX_MY1CON  1
@@ -108,7 +111,7 @@ constexpr LNX_PTR2INT LNX_MY1CON = 1LL;
         #endif
 
     #else /* WINDOWS */
-
+        #define NOMINMAX
         #include <windows.h>
 
         #ifdef _M_IA64
@@ -334,17 +337,17 @@ struct glktsn
     ~glktsn() { FreeArrays(); }
 };
 
-static unsigned long __internal_daal_getBitsFromDWORD(const unsigned int val, const char from, const char to);
-static unsigned __internal_daal_createMask(unsigned numEntries, unsigned * maskLength);
-static unsigned __internal_daal_slectOrdfromPkg(unsigned package, unsigned core, unsigned logical);
-static unsigned __internal_daal_getAPICID(unsigned processor);
-static void __internal_daal_initCpuTopology();
-static int __internal_daal_bindContext(unsigned cpu, void * prevAffinity);
-static void __internal_daal_restoreContext(void * prevAffinity);
-static void __internal_daal_setChkProcessAffinityConsistency(unsigned lcl_OSProcessorCount);
-static void __internal_daal_setGenericAffinityBit(GenericAffinityMask * pAffinityMap, unsigned cpu);
-static void __internal_daal_getCpuidInfo(CPUIDinfo * info, const unsigned int func, const unsigned int subfunc);
-static int __internal_daal_countBits(DWORD_PTR x);
+[[maybe_unused]] static unsigned long __internal_daal_getBitsFromDWORD(const unsigned int val, const char from, const char to);
+[[maybe_unused]] static unsigned __internal_daal_createMask(unsigned numEntries, unsigned * maskLength);
+[[maybe_unused]] static unsigned __internal_daal_slectOrdfromPkg(unsigned package, unsigned core, unsigned logical);
+[[maybe_unused]] static unsigned __internal_daal_getAPICID(unsigned processor);
+[[maybe_unused]] static void __internal_daal_initCpuTopology();
+[[maybe_unused]] static int __internal_daal_bindContext(unsigned cpu, void * prevAffinity);
+[[maybe_unused]] static void __internal_daal_restoreContext(void * prevAffinity);
+[[maybe_unused]] static void __internal_daal_setChkProcessAffinityConsistency(unsigned lcl_OSProcessorCount);
+[[maybe_unused]] static void __internal_daal_setGenericAffinityBit(GenericAffinityMask * pAffinityMap, unsigned cpu);
+[[maybe_unused]] static void __internal_daal_getCpuidInfo(CPUIDinfo * info, const unsigned int func, const unsigned int subfunc);
+[[maybe_unused]] static int __internal_daal_countBits(DWORD_PTR x);
 
 unsigned _internal_daal_GetMaxCPUSupportedByOS();
 unsigned _internal_daal_GetOSLogicalProcessorCount();

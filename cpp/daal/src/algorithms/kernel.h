@@ -24,10 +24,10 @@
 #ifndef __KERNEL_H__
 #define __KERNEL_H__
 
+#include "algorithms/algorithm_kernel.h"
 #include "services/daal_defines.h"
 #include "src/services/service_defines.h"
 #include "services/internal/daal_kernel_defines.h"
-#include "services/internal/gpu_support_checker.h"
 
 #include "src/algorithms/kernel_config.h"
 
@@ -35,12 +35,6 @@
 #define __DAAL_INITIALIZE_KERNELS(KernelClass, ...)    \
     {                                                  \
         _kernel = (new KernelClass<__VA_ARGS__, cpu>); \
-    }
-
-#undef __DAAL_INITIALIZE_KERNELS_SYCL
-#define __DAAL_INITIALIZE_KERNELS_SYCL(KernelClass, ...) \
-    {                                                    \
-        _kernel = (new KernelClass<__VA_ARGS__>);        \
     }
 
 #undef __DAAL_DEINITIALIZE_KERNELS
@@ -58,18 +52,8 @@
         return ((KernelClass<templateArguments, cpu> *)(_kernel))->method(__VA_ARGS__); \
     }
 
-#undef __DAAL_CALL_KERNEL_SYCL
-#define __DAAL_CALL_KERNEL_SYCL(env, KernelClass, templateArguments, method, ...)  \
-    {                                                                              \
-        return ((KernelClass<templateArguments> *)(_kernel))->method(__VA_ARGS__); \
-    }
-
 #undef __DAAL_CALL_KERNEL_STATUS
 #define __DAAL_CALL_KERNEL_STATUS(env, KernelClass, templateArguments, method, ...) \
     ((KernelClass<templateArguments, cpu> *)(_kernel))->method(__VA_ARGS__);
-
-#undef __DAAL_CALL_KERNEL_STATUS_SYCL
-#define __DAAL_CALL_KERNEL_STATUS_SYCL(env, KernelClass, templateArguments, method, ...) \
-    ((KernelClass<templateArguments> *)(_kernel))->method(__VA_ARGS__);
 
 #endif

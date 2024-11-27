@@ -34,7 +34,7 @@ template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::
                                                                     const daal::algorithms::Parameter * parameter, const int method);
 template DAAL_EXPORT services::Status Result::allocate<DAAL_FPTYPE>(const daal::algorithms::PartialResult * partialResult,
                                                                     daal::algorithms::Parameter * parameter, const int method);
-template DAAL_EXPORT services::Status Result::allocateImpl<DAAL_FPTYPE>(size_t m, size_t n);
+template services::Status Result::allocateImpl<DAAL_FPTYPE>(size_t m, size_t n);
 
 } // namespace interface1
 } // namespace svd

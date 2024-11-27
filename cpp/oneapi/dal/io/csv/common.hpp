@@ -27,6 +27,9 @@ namespace oneapi::dal::csv {
 namespace detail {
 namespace v1 {
 
+template <typename Float>
+constexpr bool is_valid_float_v = dal::detail::is_one_of_v<Float, float, double>;
+
 struct data_source_tag {};
 class data_source_impl;
 
@@ -65,32 +68,48 @@ protected:
 using v1::data_source_tag;
 using v1::data_source_impl;
 using v1::data_source_base;
+using v1::is_valid_float_v;
 
 } // namespace detail
 
 namespace v1 {
 
+/// Used for the specification of data source configuration.
+///
+/// @tparam Float The type of the floating-point that the data source will operate with.
+///               Must be a floating-point type.
+template <typename Float = float>
 class data_source : public detail::data_source_base {
+    static_assert(detail::is_valid_float_v<Float>);
+
 public:
+    using float_t = Float;
+
+    /// Constructs a data_source object from a C-style string file name.
     explicit data_source(const char* file_name) : data_source_base(file_name) {}
 
+    /// Constructs a data_source from C++-style std::string file name.
     explicit data_source(const std::string& file_name) : data_source_base(file_name.c_str()) {}
 
+    /// Sets the delimiter character for parsing the data source file.
     auto& set_delimiter(char value) {
         set_delimiter_impl(value);
         return *this;
     }
 
+    /// Specifies whether to parse the header of the data source file.
     auto& set_parse_header(bool value) {
         set_parse_header_impl(value);
         return *this;
     }
 
+    /// Sets the file name for the data source via the C-style string.
     auto& set_file_name(const char* value) {
         set_file_name_impl(value);
         return *this;
     }
 
+    /// Sets the file name for the data source via the C++-style std::string.
     auto& set_file_name(const std::string& value) {
         set_file_name_impl(value.c_str());
         return *this;

@@ -160,8 +160,8 @@ Examples
 
   .. tab:: Python*
 
-    - :daal4py_example:`df_cls_dense_batch_model_builder.py`
-    - :daal4py_example:`df_cls_traversed_model_builder.py`
+    - :daal4py_example:`decision_forest_classification_default_dense.py`
+    - :daal4py_example:`decision_forest_classification_traverse.py`
 
 Batch Processing
 ================
@@ -269,7 +269,7 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`decision_forest_classification_default_dense_batch.py`
-    - :daal4py_example:`decision_forest_classification_hist_batch.py`
-    - :daal4py_example:`decision_forest_classification_traverse_batch.py`
+    - :daal4py_example:`decision_forest_classification_default_dense.py`
+    - :daal4py_example:`decision_forest_classification_hist.py`
+    - :daal4py_example:`decision_forest_classification_traverse.py`
 

@@ -30,7 +30,7 @@ dal_module(
         "@onedal//cpp/daal:data_management",
     ],
     dpc_deps = [
-        "@micromkl_dpc//:mkl_dpc",
+        "@mkl//:mkl_dpc",
     ],
 )
 
@@ -53,7 +53,6 @@ dal_collect_modules(
     modules = [
         "algo",
         "io",
-        "backend/micromkl",
         "backend/primitives",
     ],
 )
@@ -65,6 +64,7 @@ dal_public_includes(
         ":optional",
         "@onedal//cpp/oneapi/dal/detail/mpi",
         "@onedal//cpp/oneapi/dal/detail/ccl",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
         "@onedal//cpp/oneapi/dal/algo:parameters",
     ],
 )
@@ -84,6 +84,7 @@ dal_static_lib(
     dal_deps = [
         ":static",
         "@onedal//cpp/oneapi/dal/algo:parameters",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
 )
 
@@ -102,6 +103,7 @@ dal_dynamic_lib(
     dal_deps = [
         ":dynamic",
         "@onedal//cpp/oneapi/dal/algo:parameters",
+        "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
 )
 
@@ -172,7 +174,6 @@ dal_collect_test_suites(
         "io",
         "table",
         "util",
-        "backend/micromkl",
         "backend/primitives",
     ],
     tests = [

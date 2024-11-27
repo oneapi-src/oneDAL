@@ -166,7 +166,7 @@ class DAAL_EXPORT Distributed : public daal::algorithms::Analysis<distributed>
  *      - \ref Method   Computation methods
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
+class Distributed<step1Local, algorithmFPType, method> : public Online<algorithmFPType, method>
 {
 public:
     typedef Online<algorithmFPType, method> super;
@@ -218,7 +218,7 @@ private:
  *      - \ref Method   SVD computation methods
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step2Master, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::svd::DistributedStep2Input InputType;
@@ -335,7 +335,7 @@ private:
  *      - \ref Method   SVD computation methods
  */
 template <typename algorithmFPType, Method method>
-class DAAL_EXPORT Distributed<step3Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
+class Distributed<step3Local, algorithmFPType, method> : public daal::algorithms::Analysis<distributed>
 {
 public:
     typedef algorithms::svd::DistributedStep3Input InputType;

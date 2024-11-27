@@ -51,6 +51,30 @@ struct square {
     }
 };
 
+template <typename T>
+struct isinfornan {
+    using tag_t = reduce_unary_op_tag;
+    bool operator()(const T& arg) const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return static_cast<T>(sycl::isinf(arg) || sycl::isnan(arg));
+#else
+        return static_cast<T>(isinf(arg) || (arg != arg));
+#endif
+    }
+};
+
+template <typename T>
+struct isinf {
+    using tag_t = reduce_unary_op_tag;
+    bool operator()(const T& arg) const {
+#ifdef ONEDAL_DATA_PARALLEL
+        return static_cast<T>(sycl::isinf(arg));
+#else
+        return static_cast<T>(isinf(arg));
+#endif
+    }
+};
+
 struct reduce_binary_op_tag;
 
 template <typename T>
@@ -93,6 +117,21 @@ struct min {
     constexpr static inline auto native = [](const T& a, const T& b) {
         return std::min(a, b);
     };
+#endif
+    T operator()(const T& a, const T& b) const {
+        return native(a, b);
+    }
+};
+
+template <typename T>
+struct logical_or {
+    using tag_t = reduce_binary_op_tag;
+    constexpr static inline T init_value = false;
+#ifdef ONEDAL_DATA_PARALLEL
+    constexpr static inline sycl::logical_or<T> native{};
+#else
+    constexpr static inline std::logical_or<T> native{};
+};
 #endif
     T operator()(const T& a, const T& b) const {
         return native(a, b);

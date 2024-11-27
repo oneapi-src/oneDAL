@@ -150,4 +150,4 @@ Examples
 
   .. tab:: Python*
 
-      - :daal4py_example:`adagrad_mse_batch.py`
+      - :daal4py_example:`adagrad_mse.py`

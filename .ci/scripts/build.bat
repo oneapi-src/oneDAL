@@ -19,8 +19,8 @@ rem %1 - Make target
 rem %2 - Compiler
 rem %3 - Instruction set
 
-for /f "tokens=*" %%i in ('python -c "from multiprocessing import cpu_count; print(cpu_count())"') do set CPUCOUNT=%%i
-echo CPUCOUNT=%CPUCOUNT%
+set errorcode=0
+echo CPUCOUNT=%NUMBER_OF_PROCESSORS%
 
 echo PATH=C:\msys64\usr\bin;%PATH%
 set PATH=C:\msys64\usr\bin;%PATH%
@@ -28,16 +28,21 @@ set PATH=C:\msys64\usr\bin;%PATH%
 echo pacman -S --noconfirm msys/make msys/dos2unix
 pacman -S --noconfirm msys/make msys/dos2unix
 
-echo call .ci\env\tbb.bat
-call .ci\env\tbb.bat
+IF "%VS_VER%"=="2017_build_tools" (
+    @call "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    echo "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+) ELSE (
+    IF "%VS_VER%"=="2019_build_tools" (
+        @call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+        echo "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+    ) ELSE (
+          @call "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+          echo "%ONEAPI_ROOT%\setvars-vcvarsall.bat" %VS_VER%
+    )
+)
 
-echo call .\dev\download_micromkl.bat
-call .\dev\download_micromkl.bat
+echo make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3
+make %1 -j%NUMBER_OF_PROCESSORS% COMPILER=%2 PLAT=win32e REQCPU=%3 || set errorcode=1
 
-echo call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall" x64
-
-echo make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
-make %1 -j%CPUCOUNT% COMPILER=%2 PLAT=win32e REQCPU=%3
-
-cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake
+cmake -DINSTALL_DIR=__release_win_vc\daal\latest\lib\cmake\oneDAL -DARCH_DIR=intel64 -P cmake\scripts\generate_config.cmake || set errorcode=1
+EXIT /B %errorcode%

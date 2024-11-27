@@ -180,6 +180,8 @@ MSG(input_model_centroids_cc_neq_input_data_cc,
     "Input model centroids column count is not equal to input data column count")
 MSG(input_model_centroids_rc_neq_desc_cluster_count,
     "Input model centroids row count is not equal to descriptor cluster count")
+MSG(kmeans_init_csr_methods_are_not_implemented_for_gpu,
+    "K-Means init methods for CSR data are not implemented for GPU")
 MSG(kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu,
     "K-Means init++ parallel dense method is not implemented for GPU")
 MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu,
@@ -301,6 +303,8 @@ MSG(input_y_is_empty, "Input y is empty")
 /* Linear Regression */
 MSG(intercept_result_option_requires_intercept_flag,
     "Intercept result option requires intercept flag")
+MSG(too_small_singular_values,
+    "Linear system has too small singular values, cannot calculate a solution")
 
 /* Logistic Regression */
 MSG(class_count_neq_two,
@@ -310,6 +314,8 @@ MSG(l1_coef_neq_zero,
     "Currently L1 regularization is not supported, so l1_coef should be equal to zero")
 MSG(log_reg_dense_batch_method_is_not_implemented_for_cpu,
     "LogisticRegression is not implemented for CPU")
+MSG(log_reg_sparse_method_is_not_implemented_for_cpu,
+    "LogisticRegression does not have sparsity support for CPU")
 MSG(unknown_optimizer, "Custom optimizers are not supported, use on of provided by the library")
 
 /* Decision Forest */

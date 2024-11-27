@@ -27,7 +27,7 @@
 
 #include "services/base.h"
 #include "services/daal_defines.h"
-#include "services/internal/execution_context.h"
+#include "services/error_handling.h"
 
 namespace daal
 {
@@ -52,6 +52,9 @@ enum CpuType
 #elif defined(TARGET_ARM)
     sve         = 0, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
     lastCpuType = sve
+#elif defined(TARGET_RISCV64)
+    rv64        = 0,
+    lastCpuType = rv64
 #endif
 };
 
@@ -102,6 +105,8 @@ public:
         avx512 = 2 /*!< Intel(R) Xeon(R) processors based on Intel(R) Advanced Vector Extensions 512 (Intel(R) AVX-512) \DAAL_DEPRECATED */
 #elif defined(TARGET_ARM)
         sve = 2, /*!< ARM(R) processors based on Arm's Scalable Vector Extension (SVE) */
+#elif defined(TARGET_RISCV64)
+        rv64 = 1
 #endif
     };
 
@@ -167,22 +172,6 @@ public:
      */
     int setMemoryLimit(MemType type, size_t limit);
 
-    /**
-     *  Sets execution context globally for all algorithms.
-     *  After this method is called, all computations inside algorithms are performed
-     *  using device information from execution context.
-     *  \param[in] ctx Execution context with information on how to perform computations inside the library
-     */
-    void setDefaultExecutionContext(const internal::ExecutionContext & ctx)
-    {
-        _executionContext = internal::ImplAccessor::getImplPtr<services::internal::sycl::ExecutionContextIface>(ctx);
-    }
-
-    services::internal::sycl::ExecutionContextIface & getDefaultExecutionContext()
-    {
-        return *_executionContext;
-    }
-
 private:
     Environment();
     Environment(const Environment & e);
@@ -193,8 +182,11 @@ private:
     void initNumberOfThreads();
 
     env _env;
+    // Pointer to the oneapi::tbb::task_scheduler_handle class object, global for oneDAL.
+    // The oneapi::tbb::task_scheduler_handle and the oneapi::tbb::finalize function
+    // allow user to wait for completion of worker threads.
+    void * _schedulerHandle;
     void * _globalControl;
-    SharedPtr<services::internal::sycl::ExecutionContextIface> _executionContext;
 };
 } // namespace interface1
 

@@ -1,5 +1,6 @@
 #===============================================================================
 # Copyright 2021 Intel Corporation
+# Copyright contributors to the oneDAL project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,13 +44,10 @@ if(REF_BACKEND)
     set(EXCLUDE_LIST
         ${EXCLUDE_LIST}
         "source/boosting/brownboost_dense_batch.cpp"
-        "source/em/em_gmm_dense_batch.cpp"
-        "source/linear_regression/lin_reg_qr_dense_distr.cpp"
-        "source/pca/pca_cor*"
-        "source/qr/qr_dense*"
-        "source/svd/svd_dense_batch.cpp"
-)
+    )
 endif()
+
+include("target_excludes.cmake")
 
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")

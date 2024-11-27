@@ -70,7 +70,7 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     const auto data_nd = pr::table2ndarray<Float>(q_, data, alloc::device);
 
     auto [sums, sums_event] = compute_sums(q_, data_nd);
-
+    sums_event.wait_and_throw();
     {
         ONEDAL_PROFILER_TASK(allreduce_sums, q_);
         comm_.allreduce(sums.flatten(q_, { sums_event }), spmd::reduce_op::sum).wait();
@@ -97,12 +97,13 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
     sycl::event means_event;
     if (desc.get_result_options().test(result_options::means)) {
         auto [means, means_event] = compute_means(q_, sums, rows_count_global, { gemm_event });
+        means_event.wait_and_throw();
         result.set_means(homogen_table::wrap(means.flatten(q_, { means_event }), 1, column_count));
     }
 
     auto [cov, cov_event] =
         compute_covariance(q_, rows_count_global, xtx, sums, bias, { gemm_event });
-
+    cov_event.wait_and_throw();
     auto [vars, vars_event] = compute_variances(q_, cov, { cov_event, means_event });
 
     if (desc.get_result_options().test(result_options::vars)) {
@@ -110,52 +111,57 @@ result_t train_kernel_cov_impl<Float>::operator()(const descriptor_t& desc, cons
             homogen_table::wrap(vars.flatten(q_, { vars_event }), 1, column_count));
     }
 
-    auto data_to_compute = cov;
+    auto eigenvectors = cov;
 
     sycl::event corr_event;
     if (desc.get_normalization_mode() == normalization::zscore) {
         auto corr = pr::ndarray<Float, 2>::empty(q_, { column_count, column_count }, alloc::device);
-        corr_event = pr::correlation_from_covariance(q_, row_count, cov, corr, bias, { cov_event });
-        data_to_compute = corr;
+        corr_event =
+            pr::correlation_from_covariance(q_, rows_count_global, cov, corr, bias, { cov_event });
+        eigenvectors = corr;
+        corr_event.wait_and_throw();
     }
 
-    auto [eigvecs, eigvals] = compute_eigenvectors_on_host(q_,
-                                                           std::move(data_to_compute),
-                                                           component_count,
-                                                           { cov_event, corr_event, vars_event });
+    auto [eigvals, syevd_event] =
+        syevd_computation(q_, eigenvectors, { cov_event, corr_event, vars_event });
+
+    auto flipped_eigvals_host = flip_eigenvalues(q_, eigvals, component_count, { syevd_event });
 
     if (desc.get_result_options().test(result_options::eigenvalues)) {
-        result.set_eigenvalues(homogen_table::wrap(eigvals.flatten(), 1, component_count));
+        result.set_eigenvalues(
+            homogen_table::wrap(flipped_eigvals_host.flatten(), 1, component_count));
     }
 
+    auto flipped_eigenvectors_host =
+        flip_eigenvectors(q_, eigenvectors, component_count, { syevd_event });
+
     if (desc.get_result_options().test(result_options::singular_values)) {
-        auto singular_values =
-            compute_singular_values_on_host(q_,
-                                            eigvals,
-                                            row_count,
-                                            { cov_event, corr_event, vars_event });
+        auto singular_values = compute_singular_values_on_host(q_,
+                                                               flipped_eigvals_host,
+                                                               rows_count_global,
+                                                               { syevd_event });
         result.set_singular_values(
             homogen_table::wrap(singular_values.flatten(), 1, component_count));
     }
 
     if (desc.get_result_options().test(result_options::explained_variances_ratio)) {
         auto vars_host = vars.to_host(q_);
-        auto explained_variances_ratio =
-            compute_explained_variances_on_host(q_,
-                                                eigvals,
-                                                vars_host,
-                                                { cov_event, corr_event, vars_event });
+        auto explained_variances_ratio = compute_explained_variances_on_host(q_,
+                                                                             flipped_eigvals_host,
+                                                                             vars_host,
+                                                                             { syevd_event });
         result.set_explained_variances_ratio(
             homogen_table::wrap(explained_variances_ratio.flatten(), 1, component_count));
     }
 
     if (desc.get_deterministic()) {
-        sign_flip(eigvecs);
+        sign_flip(flipped_eigenvectors_host);
     }
 
     if (desc.get_result_options().test(result_options::eigenvectors)) {
-        result.set_eigenvectors(
-            homogen_table::wrap(eigvecs.flatten(), component_count, column_count));
+        result.set_eigenvectors(homogen_table::wrap(flipped_eigenvectors_host.flatten(),
+                                                    flipped_eigenvectors_host.get_dimension(0),
+                                                    flipped_eigenvectors_host.get_dimension(1)));
     }
 
     return result;

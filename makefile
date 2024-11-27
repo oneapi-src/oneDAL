@@ -19,14 +19,15 @@
 # Common macros
 #===============================================================================
 
+IDENTIFIED_PLAT=$(shell bash dev/make/identify_os.sh)
 ifeq (help,$(MAKECMDGOALS))
-    PLAT:=win32e
+    PLAT := win32e
 else ifeq ($(PLAT),)
-    PLAT:=$(shell bash dev/make/identify_os.sh)
+    PLAT := $(IDENTIFIED_PLAT)
 endif
 
 # Check that we know how to build for the identified platform
-PLATs := lnx32e mac32e win32e lnxarm
+PLATs := lnx32e mac32e win32e lnxarm lnxriscv64
 $(if $(filter $(PLAT),$(PLATs)),,$(error Unknown platform $(PLAT)))
 
 # Non-platform or architecture specific defines live in common.mk
@@ -43,7 +44,15 @@ MSVC_RUNTIME_VERSIONs = release debug
 MSVC_RUNTIME_VERSION ?= release
 $(if $(filter $(MSVC_RUNTIME_VERSIONs),$(MSVC_RUNTIME_VERSION)),,$(error MSVC_RUNTIME_VERSION must be one of $(MSVC_RUNTIME_VERSIONs)))
 
+MAKE_PID := $(shell echo $$PPID)
+JOB_FLAG := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
+MAKE_JOBS := $(subst -j,,$(JOB_FLAG))
+MAKE_JOBS := $(if $(filter $(MAKE_JOBS),$(shell seq 1 999)),$(MAKE_JOBS),$(shell nproc))
+
+SYCL_LINK_PRL := $(MAKE_JOBS)
+
 COMPILER_is_$(COMPILER)            := yes
+COMPILER_is_cross                  := $(if $(filter $(PLAT),$(IDENTIFIED_PLAT)),no,yes)
 OS_is_$(_OS)                       := yes
 IA_is_$(_IA)                       := yes
 PLAT_is_$(PLAT)                    := yes
@@ -107,26 +116,27 @@ AR_is_$(subst $(space),_,$(origin AR)) := yes
 
 OSList          := lnx win mac
 
-o      := $(if $(OS_is_win),obj,o)
-a      := $(if $(OS_is_win),lib,a)
-d      := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
-dtbb   := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),_debug,),)
-plib   := $(if $(OS_is_win),,lib)
-scr    := $(if $(OS_is_win),bat,sh)
-y      := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
--Fo    := $(if $(OS_is_win),-Fo,-o)
--Q     := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
--cxx11 := $(if $(COMPILER_is_vc),,$(-Q)std=c++11)
--cxx17 := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
--fPIC  := $(if $(OS_is_win),,-fPIC)
--Zl    := $(-Zl.$(COMPILER))
--DEBC  := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
--DEBJ  := $(if $(REQDBG),-g,-g:none)
--DEBL  := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
--EHsc  := $(if $(OS_is_win),-EHsc,)
--isystem := $(if $(OS_is_win),-I,-isystem)
--sGRP  = $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
--eGRP  = $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
+o           := $(if $(OS_is_win),obj,o)
+a           := $(if $(OS_is_win),lib,a)
+d           := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),d,),)
+dtbb        := $(if $(OS_is_win),$(if $(MSVC_RT_is_debug),_debug,),)
+plib        := $(if $(OS_is_win),,lib)
+scr         := $(if $(OS_is_win),bat,sh)
+y           := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
+-Fo         := $(if $(OS_is_win),-Fo,-o)
+-Q          := $(if $(OS_is_win),$(if $(COMPILER_is_vc),-,-Q),-)
+-cxx17      := $(if $(COMPILER_is_vc),/std:c++17,$(-Q)std=c++17)
+-fPIC       := $(if $(OS_is_win),,-fPIC)
+-DMKL_ILP64 := $(if $(filter mkl,$(BACKEND_CONFIG)),-DMKL_ILP64)
+-Zl         := $(-Zl.$(COMPILER))
+-Zl_DPCPP   := $(-Zl.dpcpp)
+-DEBC       := $(if $(REQDBG),$(-DEBC.$(COMPILER)) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT) -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
+-DEBC_DPCPP := $(if $(REQDBG),$(-DEBC.dpcpp) -DDEBUG_ASSERT -DONEDAL_ENABLE_ASSERT)
+-DEBL       := $(if $(REQDBG),$(if $(OS_is_win),-debug,))
+-EHsc       := $(if $(OS_is_win),-EHsc,)
+-isystem    := $(if $(OS_is_win),-I,-isystem)
+-sGRP       := $(if $(OS_is_lnx),-Wl$(comma)--start-group,)
+-eGRP       := $(if $(OS_is_lnx),-Wl$(comma)--end-group,)
 daalmake = make
 
 $(eval $(call set_uarch_options_for_compiler,$(COMPILER)))
@@ -212,7 +222,9 @@ TBBDIR.include := $(if $(TBBDIR.2),$(TBBDIR.2)/include/tbb $(TBBDIR.2)/include)
 
 TBBDIR.libia.prefix := $(TBBDIR.2)/lib
 
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+OLD_TBB_LAYOUT := $(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)),yes,no)
+
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/vc_mt),$(TBBDIR.libia.prefix)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/vc14),$(TBBDIR.libia.prefix)/vc14)))
 else
   TBBDIR.libia.win.vc1  := $(if $(OS_is_win),$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc_mt),$(TBBDIR.libia.prefix)/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.libia.prefix))/$(_IA)/vc14),$(TBBDIR.libia.prefix)/$(_IA)/vc14)))
@@ -220,7 +232,7 @@ endif
 TBBDIR.libia.win.vc2  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc1),,$(firstword $(filter $(call topf,$$TBBROOT)%,$(subst ;,$(space),$(call topf,$$LIB))))))
 TBBDIR.libia.win.vc22 := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc2),$(wildcard $(TBBDIR.libia.win.vc2)/tbb12$(dtbb).dll)))
 
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.libia.win:= $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(TBBDIR.libia.win.vc1),$(TBBDIR.libia.win.vc1),$(error Can`t find TBB libs nether in $(call frompf,$(TBBDIR.libia.prefix))/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).))))
   TBBDIR.libia.lnx.gcc1 := $(if $(OS_is_lnx),$(if $(wildcard $(TBBDIR.libia.prefix)/*),$(TBBDIR.libia.prefix)))
 else
@@ -230,7 +242,7 @@ endif
 
 TBBDIR.libia.lnx.gcc2  := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc1),,$(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH))))))
 TBBDIR.libia.lnx.gcc22 := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc2),$(wildcard $(TBBDIR.libia.lnx.gcc2)/libtbb.so)))
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix) not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
 else
   TBBDIR.libia.lnx := $(if $(OS_is_lnx),$(if $(TBBDIR.libia.lnx.gcc22),$(TBBDIR.libia.lnx.gcc2),$(if $(TBBDIR.libia.lnx.gcc1),$(TBBDIR.libia.lnx.gcc1),$(error Can`t find TBB runtimes nether in $(TBBDIR.libia.prefix)/$(_IA)/gcc4.8 not in $(firstword $(filter $(TBBROOT)%,$(subst :,$(space),$(LD_LIBRARY_PATH)))).))))
@@ -243,7 +255,7 @@ TBBDIR.libia.mac := $(if $(OS_is_mac),$(if $(TBBDIR.libia.mac.clang22),$(TBBDIR.
 TBBDIR.libia := $(TBBDIR.libia.$(_OS))
 
 TBBDIR.soia.prefix := $(TBBDIR.2)/
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))bin/vc_mt/*),$(TBBDIR.soia.prefix)bin/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))bin/vc14/*),$(TBBDIR.soia.prefix)bin/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)bin/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
 else
   TBBDIR.soia.win  := $(if $(OS_is_win),$(if $(TBBDIR.libia.win.vc22),$(TBBDIR.libia.win.vc2),$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc_mt/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt,$(if $(wildcard $(call frompf1,$(TBBDIR.soia.prefix))redist/$(_IA)/vc14/*),$(TBBDIR.soia.prefix)redist/$(_IA)/vc14,$(error Can`t find TBB runtimes nether in $(TBBDIR.soia.prefix)redist/$(_IA)/vc_mt not in $(firstword $(filter $(TBBROOT)%,$(subst ;,$(space),$(LIB)))).)))))
@@ -253,7 +265,7 @@ TBBDIR.soia.mac  := $(if $(OS_is_mac),$(TBBDIR.libia.mac))
 TBBDIR.soia := $(TBBDIR.soia.$(_OS))
 
 RELEASEDIR.tbb       := $(RELEASEDIR)/tbb/latest
-ifeq ($(MKL_FPK_GPU_VERSION_LINE),2024.0.0)
+ifeq ($(OLD_TBB_LAYOUT),no)
   RELEASEDIR.tbb.libia := $(RELEASEDIR.tbb)/lib$(if $(OS_is_mac),,$(if $(OS_is_win),/vc_mt,/$(TBBDIR.libia.lnx.gcc)))
   RELEASEDIR.tbb.soia  := $(if $(OS_is_win),$(RELEASEDIR.tbb)/bin/vc_mt,$(RELEASEDIR.tbb.libia))
 else
@@ -270,27 +282,26 @@ releasetbb.LIBS_Y := $(TBBDIR.soia)/$(plib)tbb$(if $(OS_is_win),12$(dtbb),).$(y)
                                        $(if $(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib),$(wildcard $(TBBDIR.soia)/libtbbmalloc.2.dylib)))
 
 
-#============================= Micromkl folders =====================================
-RELEASEDIR.include.mklgpufpk := $(RELEASEDIR.include)/services/internal/sycl/math
+#============================= Math backend folders =====================================
 
-MKLGPUFPKDIR:= $(if $(wildcard $(DIR)/__deps/mklgpufpk/$(_OS)/*),$(DIR)/__deps/mklgpufpk/$(_OS),$(subst \,/,$(MKLGPUFPKROOT)))
-MKLGPUFPKDIR.include := $(MKLGPUFPKDIR)/include
-MKLGPUFPKDIR.lib   := $(MKLGPUFPKDIR)/lib
+ifeq ($(BACKEND_CONFIG), ref)
+    ifeq ($(RNG_BACKEND), openrng)
+        RNG_OPENRNG := yes
+    endif
+    ifndef RNG_BACKEND
+        RNG_BACKEND := ref
+    endif
+    $(if $(filter $(RNG_BACKEND),ref openrng),,$(error unknown rng backend $(RNG_BACKEND)))
+endif
 
-mklgpufpk.LIBS_A := $(MKLGPUFPKDIR.lib)/$(plib)daal_sycl$d.$(a)
-mklgpufpk.HEADERS := $(MKLGPUFPKDIR.include)/mkl_dal_sycl.hpp $(MKLGPUFPKDIR.include)/mkl_dal_blas_sycl.hpp
+ifeq ($(BACKEND_CONFIG), mkl)
+    ifndef RNG_BACKEND
+        RNG_BACKEND := mkl
+    endif
+    $(if $(filter $(RNG_BACKEND),mkl),,$(error mkl backend does not support the rng backend $(RNG_BACKEND)))
+endif
 
 include dev/make/deps.$(BACKEND_CONFIG).mk
-
-#============================= oneAPI folders =====================================
-ifeq ($(if $(or $(OS_is_lnx),$(OS_is_win)),yes,),yes)
-ONEAPIDIR := $(call topf,$$ONEAPI_ROOT)
-ONEAPIDIR := $(if $(wildcard $(ONEAPIDIR)/compiler/latest),$(ONEAPIDIR)/compiler/latest,$(info ONEAPI_ROOT not defined))
-ONEAPIDIR.libia.prefix := $(if $(ONEAPIDIR),$(ONEAPIDIR)/$(if $(OS_is_win),windows,linux)/lib)
-
-libsycl := $(if $(OS_is_win),$(notdir $(wildcard $(ONEAPIDIR.libia.prefix)/sycl$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9]$d.lib $(ONEAPIDIR.libia.prefix)/sycl[0-9][0-9]$d.lib)))
-libsycl.default = sycl7$d.lib
-endif
 
 #===============================================================================
 # Release library names
@@ -362,7 +373,7 @@ release.HEADERS.COMMON := $(filter-out $(subst _$(_OS),,$(release.HEADERS.OSSPEC
 # List examples files to populate release/examples.
 expat = %.cpp %.h %.hpp %.txt %.csv %.cmake
 expat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %_$(_OS).sh)
-release.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
+release.EXAMPLES.CMAKE := $(filter $(expat),$(shell find examples/cmake -type f))
 release.EXAMPLES.CPP   := $(filter $(expat),$(shell find examples/daal/cpp  -type f))
 release.EXAMPLES.DATA  := $(filter $(expat),$(shell find examples/daal/data -type f))
 release.ONEAPI.EXAMPLES.CPP  := $(filter $(expat),$(shell find examples/oneapi/cpp -type f))
@@ -380,8 +391,9 @@ release.CONF = deploy/local/config.txt
 
 # List samples files to populate release/examples.
 SAMPLES.srcdir:= $(DIR)/samples
-spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob
+spat = %.scala %.cpp %.h %.hpp %.txt %.csv %.html %.png %.parquet %.blob %.cmake
 spat += $(if $(OS_is_win),%.bat,%_$(_OS).lst %makefile_$(_OS) %.sh)
+release.SAMPLES.CMAKE := $(filter $(spat),$(shell find $(SAMPLES.srcdir)/cmake -type f))
 release.SAMPLES.CPP  := $(if $(wildcard $(SAMPLES.srcdir)/daal/cpp/*),                                                   \
                           $(if $(OS_is_mac),                                                                             \
                             $(filter $(spat),$(shell find $(SAMPLES.srcdir)/daal/cpp -not -wholename '*mpi*' -type f))   \
@@ -412,7 +424,7 @@ THR.srcdir       := $(CPPDIR.daal)/src/threading
 CORE.srcdir      := $(CPPDIR.daal)/src/algorithms
 EXTERNALS.srcdir := $(CPPDIR.daal)/src/externals
 
-CORE.SERV.srcdir          := $(CPPDIR.daal)/src/services
+CORE.SERV.srcdir := $(subst \,/,$(CPPDIR.daal)/src/services)
 CORE.SERV.COMPILER.srcdir := $(CPPDIR.daal)/src/services/compiler/$(CORE.SERV.COMPILER.$(COMPILER))
 
 CORE.srcdirs  := $(CORE.SERV.srcdir) $(CORE.srcdir)                  \
@@ -477,27 +489,24 @@ $(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(core_y
 endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.ext) \
-                                            $(if $(PLAT_is_win32e),$(CORE.srcdir)/export_win32e.def) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 $(CORE.objs_a): $(CORE.tmpdir_a)/inc_a_folders.txt
-$(CORE.objs_a): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
+$(CORE.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64)
 $(CORE.objs_a): COPT += -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_a): COPT += @$(CORE.tmpdir_a)/inc_a_folders.txt
-$(filter %threading.$o, $(CORE.objs_a)): COPT += -D__DO_TBB_LAYER__
 
 $(eval $(call append_uarch_copt,$(CORE.objs_a)))
 
 $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
-$(CORE.objs_y): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC)
+$(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-DMKL_ILP64)
 $(CORE.objs_y): COPT += -D__DAAL_IMPLEMENTATION \
                         -D__TBB_NO_IMPLICIT_LINKAGE -DDAAL_NOTHROW_EXCEPTIONS \
                         -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                         $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG)
 $(CORE.objs_y): COPT += @$(CORE.tmpdir_y)/inc_y_folders.txt
-$(filter %threading.$o, $(CORE.objs_y)): COPT += -D__DO_TBB_LAYER__
 
 $(eval $(call append_uarch_copt,$(CORE.objs_y)))
 
@@ -543,7 +552,7 @@ PARAMETERS.tmpdir_a.dpc := $(WORKDIR)/parameters_dpc_static
 PARAMETERS.tmpdir_y.dpc := $(WORKDIR)/parameters_dpc_dynamic
 
 ONEAPI.incdirs.common := $(CPPDIR)
-ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend.incdir) $(TBBDIR.include)
+ONEAPI.incdirs.thirdp := $(CORE.incdirs.common) $(daaldep.math_backend_oneapi.incdir) $(TBBDIR.include)
 ONEAPI.incdirs := $(ONEAPI.incdirs.common) $(CORE.incdirs.thirdp) $(ONEAPI.incdirs.thirdp)
 
 ONEAPI.dispatcher_cpu = $(WORKDIR)/oneapi/dal/_dal_cpu_dispatcher_gen.hpp
@@ -560,14 +569,16 @@ ONEAPI.srcdirs.base := $(ONEAPI.srcdir) \
                        $(addprefix $(ONEAPI.srcdir)/io/, $(ONEAPI.IO))
 ONEAPI.srcdirs.detail := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name detail))
 ONEAPI.srcdirs.backend := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name backend))
-ONEAPI.srcdirs.parameters := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
+ONEAPI.srcdirs.parameters := $(ONEAPI.srcdir)/detail/parameters \
+                             $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type d -name parameters))
 ONEAPI.srcdirs := $(ONEAPI.srcdirs.base) $(ONEAPI.srcdirs.detail) $(ONEAPI.srcdirs.backend) $(ONEAPI.srcdirs.parameters)
 
-ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*"
+ONEAPI.srcs.all.exclude := ! -path "*_test.*" ! -path "*/test/*" ! -path "*/detail/parameters/*"
+ONEAPI.srcs.parameters.exclude := ! -path "*_test.*" ! -path "*/test/*"
 ONEAPI.srcs.all := $(foreach x,$(ONEAPI.srcdirs.base),$(shell find $x -maxdepth 1 -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.detail),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
                    $(foreach x,$(ONEAPI.srcdirs.backend),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude))) \
-                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.all.exclude)))
+                   $(foreach x,$(ONEAPI.srcdirs.parameters),$(shell find $x -type f -name "*.cpp" $(ONEAPI.srcs.parameters.exclude)))
 ONEAPI.srcs.all	:= $(ONEAPI.srcs.all:./%=%)
 ONEAPI.srcs.dpc := $(filter %_dpc.cpp,$(ONEAPI.srcs.all))
 ONEAPI.srcs     := $(filter-out %_dpc.cpp,$(ONEAPI.srcs.all))
@@ -649,7 +660,7 @@ $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt: | $(ONEAPI.tmpdir_y.dpc)/.
 
 # Set compilation options to the object files which are part of STATIC lib
 $(ONEAPI.objs_a): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a)/inc_a_folders.txt
-$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -660,10 +671,9 @@ $(ONEAPI.objs_a): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_a)))
 
 $(ONEAPI.objs_a.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_a.dpc)/inc_a_folders.txt
-$(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
+$(ONEAPI.objs_a.dpc): COPT += $(-fPIC) $(-cxx17) $(-Zl_DPCPP) $(-DMKL_ILP64) $(-DEBC_DPCPP) $(-EHsc) $(pedantic.opts.dpcpp) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
-                              -DDAAL_SYCL_INTERFACE \
                               -DONEDAL_DATA_PARALLEL \
                               -D__TBB_NO_IMPLICIT_LINKAGE \
                               -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -674,7 +684,7 @@ $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_a.dpc),.dpcpp))
 
 # Set compilation options to the object files which are part of DYNAMIC lib
 $(ONEAPI.objs_y): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y)/inc_y_folders.txt
-$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic.opts) \
+$(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DMKL_ILP64) $(-DEBC) $(-EHsc) $(pedantic.opts) \
                           -DDAAL_NOTHROW_EXCEPTIONS \
                           -DDAAL_HIDE_DEPRECATED \
                           -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
@@ -686,11 +696,13 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) $(-EHsc) $(pedantic
 
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y)))
 
+# Note: The libonedal_dpc.so library does not support debug mode.
+# When compiling with the debug flag $(-DEBC_DPCPP), linking with libonedal_dpc.so may cause indefinite linking times 
+# due to the extensive processing of debug information. For debugging, please use the static library version (libonedal_dpc.a).
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
-$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.opts.dpcpp) \
+$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-Zl_DPCPP) $(-DMKL_ILP64) $(-EHsc) $(pedantic.opts.dpcpp) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
-                              -DDAAL_SYCL_INTERFACE \
                               -DONEDAL_DATA_PARALLEL \
                               -D_ENABLE_ATOMIC_ALIGNMENT_FIX \
                               $(if $(CHECK_DLL_SIG),-DDAAL_CHECK_DLL_SIG) \
@@ -702,14 +714,14 @@ $(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-DEBC) $(-EHsc) $(pedantic.op
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y.dpc),.dpcpp))
 
 # Filtering parameter files
-PARAMETERS.objs_a.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_a))
-ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_a))
-PARAMETERS.objs_y.filtered := $(filter %parameters.$(o),$(ONEAPI.objs_y))
-ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o),$(ONEAPI.objs_y))
-PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
-ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
-PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
-ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+PARAMETERS.objs_a.filtered := $(filter %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_a))
+ONEAPI.objs_a.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_a))
+PARAMETERS.objs_y.filtered := $(filter %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_y))
+ONEAPI.objs_y.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o),$(ONEAPI.objs_y))
+PARAMETERS.objs_a.dpc.filtered := $(filter %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+ONEAPI.objs_a.dpc.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_a.dpc))
+PARAMETERS.objs_y.dpc.filtered := $(filter %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
+ONEAPI.objs_y.dpc.filtered := $(filter-out %parameters.$(o) %parameters_impl.$(o) %parameters_dpc.$(o),$(ONEAPI.objs_y.dpc))
 
 # Actual compilation
 $(foreach x,$(ONEAPI.objs_a.filtered),$(eval $(call .ONEAPI.compile,$x,$(ONEAPI.tmpdir_a),C)))
@@ -780,8 +792,9 @@ $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.rt.dpc)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(REQDBG),-flink-huge-device-code,)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.$(MAJORBINARY).dll=%_dll.lib),)
 $(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),$(WORKDIR.lib)/$(core_y:%.$(MAJORBINARY).dll=%_dll.lib))
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win), $(if $(libsycl),$(libsycl),$(libsycl.default)) OpenCL.lib)
-$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(mklgpufpk.LIBS_A)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(if $(OS_is_win),sycl$d.lib OpenCL.lib)
+$(WORKDIR.lib)/$(oneapi_y.dpc): LOPT += $(daaldep.math_backend.sycl)
+
 ifdef OS_is_win
 $(WORKDIR.lib)/$(oneapi_y.dpc:%.$(MAJORBINARY).dll=%_dll.lib): $(WORKDIR.lib)/$(oneapi_y.dpc)
 endif
@@ -824,22 +837,18 @@ THR_TBB.objs_y := $(addprefix $(THR.tmpdir_y)/,$(THR.srcs:%.cpp=%_tbb.$o))
 -include $(THR.tmpdir_y)/*.d
 
 $(WORKDIR.lib)/$(thr_tbb_a): LOPT:=
-$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) $(daaldep.math_backend.thr) ; $(LINK.STATIC)
-
-$(THR.tmpdir_y)/%_link.def: $(THR.srcdir)/$(daaldep.$(PLAT).threxport) | $(THR.tmpdir_y)/.
-	$(daaldep.$(_OS).threxport.create) > $@
+$(WORKDIR.lib)/$(thr_tbb_a): $(THR_TBB.objs_a) ; $(LINK.STATIC)
 
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(-fPIC) $(daaldep.rt.thr)
 $(WORKDIR.lib)/$(thr_tbb_y): LOPT += $(if $(OS_is_win),-IMPLIB:$(@:%.dll=%_dll.lib),)
-$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(daaldep.math_backend.thr) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) $(THR.tmpdir_y)/$(thr_tbb_y:%.$y=%_link.def) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(WORKDIR.lib)/$(thr_tbb_y): $(THR_TBB.objs_y) $(if $(OS_is_win),$(THR.tmpdir_y)/dll_tbb.res,) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
 
 THR.objs_a := $(THR_TBB.objs_a)
 THR.objs_y := $(THR_TBB.objs_y)
 THR_TBB.objs := $(THR_TBB.objs_a) $(THR_TBB.objs_y)
 THR.objs := $(THR.objs_a) $(THR.objs_y)
 
-$(THR.objs): COPT += $(-fPIC) $(-cxx11) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
-$(THR_TBB.objs): COPT += -D__DO_TBB_LAYER__
+$(THR.objs): COPT += $(-fPIC) $(-cxx17) $(-Zl) $(-DEBC) -DDAAL_HIDE_DEPRECATED -DTBB_USE_ASSERT=0 -D_ENABLE_ATOMIC_ALIGNMENT_FIX
 
 $(THR.objs_a): $(THR.tmpdir_a)/thr_inc_a_folders.txt
 $(THR.objs_a): COPT += @$(THR.tmpdir_a)/thr_inc_a_folders.txt
@@ -977,19 +986,6 @@ $(foreach x,$(release.PARAMETERS.LIBS_Y.dpc),$(eval $(call .release.y_win,$x,$(R
 endif
 endif
 
-ifneq ($(MKLGPUFPKDIR),)
-# Copies the file to the destination directory and renames daal -> onedal
-# $1: Path to the file to be copied
-# $2: Destination directory
-define .release.sycl.old
-_release_common: $2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1))
-$2/$(subst daal_sycl$d.$a,onedal_sycl$d.$a,$(notdir $1)): $(call frompf1,$1) | $2/. ; $(value cpy)
-endef
-
-$(foreach t,$(mklgpufpk.HEADERS),$(eval $(call .release.sycl.old,$t,$(RELEASEDIR.include.mklgpufpk))))
-$(foreach t,$(mklgpufpk.LIBS_A), $(eval $(call .release.sycl.old,$t,$(RELEASEDIR.libia))))
-endif
-
 _release_c: ./deploy/pkg-config/pkg-config.tpl
 	python ./deploy/pkg-config/generate_pkgconfig.py --output_dir $(RELEASEDIR.pkgconfig) --template_name ./deploy/pkg-config/pkg-config.tpl
 
@@ -1005,8 +1001,7 @@ $(foreach x,$(release.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daa
 $(foreach x,$(release.ONEAPI.EXAMPLES.CPP),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_c)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DPC),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_dpc)))
 $(foreach x,$(release.ONEAPI.EXAMPLES.DATA),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_oneapi_common)))
-$(foreach x,$(release.EXAMPLES.COMMON_CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
-$(foreach x,$(release.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
+$(foreach x,$(release.EXAMPLES.CMAKE),$(eval $(call .release.x,$x,$(RELEASEDIR.daal),_release_common)))
 
 #----- releasing environment scripts
 define .release.x
@@ -1039,6 +1034,7 @@ $2: $1 | $(dir $2)/. ; $(value cpy)
 endef
 $(foreach d,$(release.SAMPLES.CPP),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_c)))
 $(foreach d,$(release.SAMPLES.ONEDAL.DPC),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$(subst _$(_OS),,$d)),_release_oneapi_dpc)))
+$(foreach d,$(release.SAMPLES.CMAKE),   $(eval $(call .release.d,$d,$(subst $(SAMPLES.srcdir),$(RELEASEDIR.samples),$d),_release_common)))
 
 $(CORE.incdirs): _release_c_h
 
@@ -1111,6 +1107,4 @@ Flags:
 endef
 
 daal_dbg:
-	@echo "1" "!$(mklgpufpk.LIBS_A)!"
-	@echo "2" "!$(MKLGPUFPKDIR)!"
-	@echo "3" "!$(MKLGPUFPKROOT)!"
+	@echo "1" "!$(MKLDIR)!"

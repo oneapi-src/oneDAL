@@ -40,7 +40,7 @@ accordance with the input.
   :width: 800
   :alt: Typical SPMD flow
 
-  Example of SPMD Flow in oneDAL
+  Example of SPMD Flow in the oneAPI Data Analytics Library (oneDAL).
 
 .. _communicator_operations:
 

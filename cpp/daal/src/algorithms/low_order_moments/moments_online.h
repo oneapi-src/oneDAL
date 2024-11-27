@@ -25,12 +25,10 @@
 
 #include "algorithms/moments/low_order_moments_types.h"
 #include "src/data_management/service_numeric_table.h"
-#include "data_management/data/internal/numeric_table_sycl_homogen.h"
-#include "services/internal/execution_context.h"
+#include "data_management/data/homogen_numeric_table.h"
 
 using namespace daal::internal;
 using namespace daal::data_management;
-using daal::data_management::internal::SyclHomogenNumericTable;
 
 namespace daal
 {
@@ -52,24 +50,10 @@ DAAL_EXPORT services::Status PartialResult::allocate(const daal::algorithms::Inp
     size_t nFeatures = 0;
     DAAL_CHECK_STATUS(s, static_cast<const InputIface *>(input)->getNumberOfColumns(nFeatures));
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
-    if (method != defaultDense || deviceInfo.isCpu)
+    set(nObservations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, &s));
+    for (size_t i = 1; i < lastPartialResultId + 1; i++)
     {
-        set(nObservations, HomogenNumericTable<size_t>::create(1, 1, NumericTable::doAllocate, &s));
-        for (size_t i = 1; i < lastPartialResultId + 1; i++)
-        {
-            Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-        }
-    }
-    else
-    {
-        set(nObservations, SyclHomogenNumericTable<algorithmFPType>::create(1, 1, NumericTable::doAllocate, &s));
-        for (size_t i = 1; i < lastPartialResultId + 1; i++)
-        {
-            Argument::set(i, SyclHomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
-        }
+        Argument::set(i, HomogenNumericTable<algorithmFPType>::create(nFeatures, 1, NumericTable::doAllocate, &s));
     }
     return s;
 }
@@ -82,36 +66,30 @@ DAAL_EXPORT services::Status PartialResult::initialize(const daal::algorithms::I
 
     services::Status s;
 
-    auto & context    = services::internal::getDefaultContext();
-    auto & deviceInfo = context.getInfoDevice();
-
     DAAL_CHECK_STATUS(s, get(nObservations)->assign((algorithmFPType)0.0))
 
-    if (method != defaultDense || deviceInfo.isCpu)
+    DAAL_CHECK_STATUS(s, get(partialSum)->assign((algorithmFPType)0.0))
+    DAAL_CHECK_STATUS(s, get(partialSumSquares)->assign((algorithmFPType)0.0))
+    DAAL_CHECK_STATUS(s, get(partialSumSquaresCentered)->assign((algorithmFPType)0.0))
+
+    ReadRows<algorithmFPType, DAAL_BASE_CPU> dataBlock(input->get(data).get(), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(dataBlock)
+    const algorithmFPType * firstRow = dataBlock.get();
+
+    WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> partialMinimumBlock(get(partialMinimum).get(), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(partialMinimumBlock)
+    algorithmFPType * partialMinimumArray = partialMinimumBlock.get();
+
+    WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> partialMaximumBlock(get(partialMaximum).get(), 0, 1);
+    DAAL_CHECK_BLOCK_STATUS(partialMaximumBlock)
+    algorithmFPType * partialMaximumArray = partialMaximumBlock.get();
+
+    size_t nColumns = input->get(data)->getNumberOfColumns();
+
+    for (size_t j = 0; j < nColumns; j++)
     {
-        DAAL_CHECK_STATUS(s, get(partialSum)->assign((algorithmFPType)0.0))
-        DAAL_CHECK_STATUS(s, get(partialSumSquares)->assign((algorithmFPType)0.0))
-        DAAL_CHECK_STATUS(s, get(partialSumSquaresCentered)->assign((algorithmFPType)0.0))
-
-        ReadRows<algorithmFPType, DAAL_BASE_CPU> dataBlock(input->get(data).get(), 0, 1);
-        DAAL_CHECK_BLOCK_STATUS(dataBlock)
-        const algorithmFPType * firstRow = dataBlock.get();
-
-        WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> partialMinimumBlock(get(partialMinimum).get(), 0, 1);
-        DAAL_CHECK_BLOCK_STATUS(partialMinimumBlock)
-        algorithmFPType * partialMinimumArray = partialMinimumBlock.get();
-
-        WriteOnlyRows<algorithmFPType, DAAL_BASE_CPU> partialMaximumBlock(get(partialMaximum).get(), 0, 1);
-        DAAL_CHECK_BLOCK_STATUS(partialMaximumBlock)
-        algorithmFPType * partialMaximumArray = partialMaximumBlock.get();
-
-        size_t nColumns = input->get(data)->getNumberOfColumns();
-
-        for (size_t j = 0; j < nColumns; j++)
-        {
-            partialMinimumArray[j] = firstRow[j];
-            partialMaximumArray[j] = firstRow[j];
-        }
+        partialMinimumArray[j] = firstRow[j];
+        partialMaximumArray[j] = firstRow[j];
     }
 
     return s;

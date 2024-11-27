@@ -91,7 +91,7 @@ Examples
 
   .. tab:: Python*
 
-    - :daal4py_example:`gbt_reg_traversed_model_builder.py`
+    - :daal4py_example:`gradient_boosted_regression_traverse.py`
 
 
 Batch Processing
@@ -172,5 +172,5 @@ Examples
 
     Batch Processing:
 
-    - :daal4py_example:`gradient_boosted_regression_batch.py`
-    - :daal4py_example:`gradient_boosted_regression_traverse_batch.py`
+    - :daal4py_example:`gradient_boosted_regression.py`
+    - :daal4py_example:`gradient_boosted_regression_traverse.py`

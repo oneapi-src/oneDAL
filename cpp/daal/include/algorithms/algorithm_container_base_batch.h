@@ -27,8 +27,6 @@
 
 #include "services/daal_memory.h"
 #include "services/internal/daal_kernel_defines.h"
-#include "services/internal/gpu_support_checker.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {
@@ -149,11 +147,14 @@ protected:
 #if defined(TARGET_X86_64)
 template <typename sse2Container DAAL_KERNEL_SSE42_ONLY(typename sse42Container) DAAL_KERNEL_AVX2_ONLY(typename avx2Container)
               DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
-class DAAL_EXPORT AlgorithmDispatchContainer<batch, sse2Container DAAL_KERNEL_SSE42_ONLY(sse42Container) DAAL_KERNEL_AVX2_ONLY(avx2Container)
-                                                        DAAL_KERNEL_AVX512_ONLY(avx512Container)> : public AlgorithmContainerImpl<batch>
+class AlgorithmDispatchContainer<batch, sse2Container DAAL_KERNEL_SSE42_ONLY(sse42Container) DAAL_KERNEL_AVX2_ONLY(avx2Container)
+                                            DAAL_KERNEL_AVX512_ONLY(avx512Container)> : public AlgorithmContainerImpl<batch>
 #elif defined(TARGET_ARM)
 template <typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
-class DAAL_EXPORT AlgorithmDispatchContainer<batch, SVEContainer DAAL_KERNEL_SVE_ONLY(sveContainer)> : public AlgorithmContainerImpl<batch>
+class AlgorithmDispatchContainer<batch, SVEContainer DAAL_KERNEL_SVE_ONLY(sveContainer)> : public AlgorithmContainerImpl<batch>
+#elif defined(TARGET_RISCV64)
+template <typename RV64Container DAAL_KERNEL_RV64_ONLY(typename rv64Container)>
+class AlgorithmDispatchContainer<batch, RV64Container DAAL_KERNEL_RV64_ONLY(rv64Container)> : public AlgorithmContainerImpl<batch>
 #endif
 {
 public:
@@ -171,9 +172,6 @@ public:
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {
-        services::internal::sycl::ExecutionContextIface & context = services::internal::getDefaultContext();
-        services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();
-        if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
         _cntr->setArguments(this->_in, this->_res, this->_par, this->_hpar);
         return _cntr->compute();
     }

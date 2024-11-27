@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/kmeans/backend/gpu/infer_kernel.hpp"
 #include "oneapi/dal/backend/transfer.hpp"
+#include "oneapi/dal/backend/primitives/sparse_blas.hpp"
 #include "oneapi/dal/backend/primitives/utils.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_integral.hpp"
 #include "oneapi/dal/algo/kmeans/backend/gpu/kernels_fp.hpp"
@@ -96,12 +97,10 @@ struct infer_kernel_gpu<Float, method::lloyd_dense, task::clustering> {
             result.set_objective_function_value(
                 static_cast<double>(*arr_objective_function.to_host(queue).get_data()));
         }
-        if (desc.get_result_options().test(result_options::compute_assignments)) {
-            result.set_responses(
-                dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }),
-                                         row_count,
-                                         1));
-        }
+
+        // Responses are set by default
+        result.set_responses(
+            dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
         return result;
     }
@@ -113,7 +112,6 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                               const descriptor_t& desc,
                                               const infer_input<task::clustering>& input) const {
         auto& queue = ctx.get_queue();
-        auto& comm = ctx.get_communicator();
         ONEDAL_ASSERT(input.get_data().get_kind() == dal::csr_table::kind());
         const auto data = static_cast<const csr_table&>(input.get_data());
         const std::int64_t row_count = data.get_row_count();
@@ -131,12 +129,27 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
             pr::ndarray<std::int64_t, 1>::wrap(arr_col.get_data(), arr_col.get_count());
         auto row_offsets =
             pr::ndarray<std::int64_t, 1>::wrap(arr_row.get_data(), arr_row.get_count());
+
+        pr::sparse_matrix_handle data_handle(queue);
+        auto set_csr_data_event = pr::set_csr_data(queue,
+                                                   data_handle,
+                                                   row_count,
+                                                   column_count,
+                                                   sparse_indexing::zero_based,
+                                                   arr_val.get_data(),
+                                                   arr_col.get_data(),
+                                                   arr_row.get_data());
+
         auto arr_centroid_squares =
             pr::ndarray<Float, 1>::empty(queue, cluster_count, sycl::usm::alloc::device);
         auto arr_data_squares =
             pr::ndarray<Float, 1>::empty(queue, row_count, sycl::usm::alloc::device);
-        auto data_squares_event =
-            compute_data_squares(queue, values, column_indices, row_offsets, arr_data_squares);
+        auto data_squares_event = compute_data_squares(queue,
+                                                       values,
+                                                       column_indices,
+                                                       row_offsets,
+                                                       arr_data_squares,
+                                                       { set_csr_data_event });
 
         auto distances = pr::ndarray<Float, 2>::empty(queue,
                                                       { row_count, cluster_count },
@@ -147,17 +160,15 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
         auto arr_centroids = pr::table2ndarray<Float>(queue,
                                                       input.get_model().get_centroids(),
                                                       sycl::usm::alloc::device);
+
         auto arr_responses =
             pr::ndarray<std::int32_t, 2>::empty(queue, { row_count, 1 }, sycl::usm::alloc::device);
 
-        auto centroid_squares_event = kernels_fp<Float>::compute_squares(queue,
-                                                                         arr_centroids,
-                                                                         arr_centroid_squares,
-                                                                         { data_squares_event });
+        auto centroid_squares_event =
+            kernels_fp<Float>::compute_squares(queue, arr_centroids, arr_centroid_squares);
         auto assign_event = assign_clusters(queue,
-                                            values,
-                                            column_indices,
-                                            row_offsets,
+                                            row_count,
+                                            data_handle,
                                             arr_data_squares,
                                             arr_centroids,
                                             arr_centroid_squares,
@@ -165,15 +176,16 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
                                             arr_responses,
                                             arr_closest_distances,
                                             { data_squares_event, centroid_squares_event });
-        auto objective_function =
-            calc_objective_function(queue, arr_closest_distances, { assign_event });
-        {
-            // Reduce objective function value over all ranks
-            comm.allreduce(objective_function).wait();
-        }
-        auto result = infer_result<task::clustering>{};
-        result.set_objective_function_value(objective_function);
+        auto result =
+            infer_result<task::clustering>{}.set_result_options(desc.get_result_options());
+        if (desc.get_result_options().test(result_options::compute_exact_objective_function)) {
+            auto objective_function =
+                calc_objective_function(queue, arr_closest_distances, { assign_event });
 
+            result.set_objective_function_value(objective_function);
+        }
+
+        // Responses are set by default
         result.set_responses(
             dal::homogen_table::wrap(arr_responses.flatten(queue, { assign_event }), row_count, 1));
 
@@ -181,9 +193,9 @@ struct infer_kernel_gpu<Float, method::lloyd_csr, task::clustering> {
     }
 };
 
-template struct infer_kernel_gpu<float, method::lloyd_csr, task::clustering>;
-template struct infer_kernel_gpu<double, method::lloyd_csr, task::clustering>;
 template struct infer_kernel_gpu<float, method::lloyd_dense, task::clustering>;
 template struct infer_kernel_gpu<double, method::lloyd_dense, task::clustering>;
+template struct infer_kernel_gpu<float, method::lloyd_csr, task::clustering>;
+template struct infer_kernel_gpu<double, method::lloyd_csr, task::clustering>;
 
 } // namespace oneapi::dal::kmeans::backend

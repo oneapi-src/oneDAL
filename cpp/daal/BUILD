@@ -18,10 +18,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ ],
         "//conditions:default": [
-                                    "@micromkl//:vml_ipp",
-                                    # TODO: Currently vml_ipp lib depends on TBB, but it shouldn't
-                                    #       Remove TBB from deps once problem with vml_ipp is resolved
-                                    "@tbb//:tbb_binary",
+                                    "@mkl//:mkl_thr",
                                 ],
         }),
 )
@@ -32,7 +29,7 @@ daal_module(
     deps = select({
         "@config//:backend_ref": [ "@openblas//:openblas",
                                  ],
-        "//conditions:default": [ "@micromkl//:mkl_thr",
+        "//conditions:default": [ "@mkl//:mkl_thr",
                                 ],
         }),
 )
@@ -64,8 +61,7 @@ daal_module(
                                  ],
         "//conditions:default": [
                                   ":public_includes",
-                                  "@micromkl//:headers",
-                                  "@micromkl_dpc//:headers",
+                                  "@mkl//:headers",
                                 ],
         }),
 )
@@ -115,7 +111,7 @@ daal_module(
 
 daal_module(
     name = "data_management",
-    hdrs = glob(["src/data_management/**/*.h"]),
+    hdrs = glob(["src/data_management/**/*.h", "src/data_management/**/*.i"]),
     srcs = glob(["src/data_management/**/*.cpp"]),
     deps = [
         ":services",
@@ -123,27 +119,9 @@ daal_module(
 )
 
 daal_module(
-    name = "sycl",
-    hdrs = glob(["src/sycl/**/*.h", "src/sycl/**/*.cl"]),
-    srcs = glob(["src/sycl/**/*.cpp"]),
-    deps = select({
-            "@config//:backend_ref": [
-                                    ":services",
-                                    "@onedal//cpp/daal/src/algorithms/engines:kernel",
-                                        ],
-            "//conditions:default": [
-                                    ":services",
-                                    "@onedal//cpp/daal/src/algorithms/engines:kernel",
-                                    "@micromkl_dpc//:headers",
-                                    ],
-        }),
-)
-
-daal_module(
     name = "threading_tbb",
     srcs = glob(["src/threading/**/*.cpp"]),
     local_defines = [
-        "__DO_TBB_LAYER__",
         "__TBB_NO_IMPLICIT_LINKAGE",
         "__TBB_LEGACY_MODE",
         "TBB_SUPPRESS_DEPRECATED_MESSAGES",
@@ -163,6 +141,13 @@ daal_module(
                                       "@tbb//:tbbmalloc",
                                     ],
         }),
+)
+
+daal_module(
+    name = "engines",
+    deps = [
+        "@onedal//cpp/daal/src/algorithms/engines:kernel",
+    ],
 )
 
 daal_module(
@@ -271,10 +256,6 @@ daal_dynamic_lib(
     deps = [
         ":threading_tbb",
     ],
-    def_file = select({
-        "@config//:backend_ref": "src/threading/export_lnx32e.ref.def",
-        "//conditions:default": "src/threading/export_lnx32e.mkl.def",
-        }),
 )
 
 daal_module(

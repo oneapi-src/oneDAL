@@ -48,6 +48,8 @@ if(REF_BACKEND)
 )
 endif()
 
+include("target_excludes.cmake")
+
 # Define variable to specify the examples or directories to include or exclude
 option(EXAMPLES_LIST "")
 

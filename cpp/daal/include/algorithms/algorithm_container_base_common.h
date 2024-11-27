@@ -29,8 +29,6 @@
 
 #include "algorithms/algorithm_container_base.h"
 #include "services/error_handling.h"
-#include "services/internal/gpu_support_checker.h"
-#include "services/internal/execution_context.h"
 
 namespace daal
 {
@@ -62,6 +60,8 @@ template <ComputeMode mode, typename sse2Container DAAL_KERNEL_SSE42_ONLY(typena
                                 DAAL_KERNEL_AVX512_ONLY(typename avx512Container)>
 #elif defined(TARGET_ARM)
 template <ComputeMode mode, typename SVEContainer DAAL_KERNEL_SVE_ONLY(typename sveContainer)>
+#elif defined(TARGET_RISCV64)
+template <ComputeMode mode, typename RV64Container DAAL_KERNEL_RV64_ONLY(typename rv64Container)>
 #endif
 class DAAL_EXPORT AlgorithmDispatchContainer : public AlgorithmContainerImpl<mode>
 {
@@ -76,9 +76,6 @@ public:
 
     virtual services::Status compute() DAAL_C11_OVERRIDE
     {
-        services::internal::sycl::ExecutionContextIface & context = services::internal::getDefaultContext();
-        services::internal::sycl::InfoDevice & deviceInfo         = context.getInfoDevice();
-        if (!daal::services::internal::isImplementedForDevice(deviceInfo, _cntr)) return services::Status(services::ErrorDeviceSupportNotImplemented);
         _cntr->setArguments(this->_in, this->_pres, this->_par, this->_hpar);
         return _cntr->compute();
     }
@@ -115,6 +112,9 @@ private:
 #elif defined(TARGET_ARM)
     #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
         algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, sve> DAAL_KERNEL_SVE_CONTAINER(ContainerTemplate, __VA_ARGS__)>
+#elif defined(TARGET_RISCV64)
+    #define __DAAL_ALGORITHM_CONTAINER(Mode, ContainerTemplate, ...) \
+        algorithms::AlgorithmDispatchContainer<Mode, ContainerTemplate<__VA_ARGS__, rv64> DAAL_KERNEL_RV64_CONTAINER(ContainerTemplate, __VA_ARGS__)>
 #endif
 
 /** @} */

@@ -38,6 +38,8 @@ DAAL_EXPORT bool daal_check_is_intel_cpu();
     #define DAAL_BASE_CPU daal::sse2
 #elif defined(TARGET_ARM)
     #define DAAL_BASE_CPU daal::sve
+#elif defined(TARGET_RISCV64)
+    #define DAAL_BASE_CPU daal::rv64
 #endif
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
@@ -71,7 +73,7 @@ DAAL_EXPORT bool daal_check_is_intel_cpu();
     #define PRAGMA_ICC_TO_STR(ARGS)
     #define PRAGMA_ICC_OMP(ARGS)
     #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME
+    #define DAAL_TYPENAME typename
 #else
     #define PRAGMA_IVDEP
     #define PRAGMA_NOVECTOR
@@ -129,6 +131,8 @@ enum DataFormat
     #define __avx512__ (6)
 #elif defined(TARGET_ARM)
     #define __sve__ (0)
+#elif defined(TARGET_RISCV64)
+    #define __rv64__ (0)
 #endif
 
 #define __float__  (0)
@@ -141,6 +145,8 @@ enum DataFormat
     #define CPU_avx512 __avx512__
 #elif defined(TARGET_ARM)
     #define CPU_sve __sve__
+#elif defined(TARGET_RISCV64)
+    #define CPU_rv64 __rv64__
 #endif
 
 #define FPTYPE_float  __float__

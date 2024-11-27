@@ -28,12 +28,13 @@
 #include "services/daal_defines.h"
 #include "src/services/service_defines.h"
 #include "services/internal/daal_kernel_defines.h"
-#include "services/internal/gpu_support_checker.h"
 
 #if defined(TARGET_X86_64)
     #include "src/algorithms/kernel_inst_x86.h"
 #elif defined(TARGET_ARM)
     #include "src/algorithms/kernel_inst_arm.h"
+#elif defined(TARGET_RISCV64)
+    #include "src/algorithms/kernel_inst_riscv64.h"
 #endif
 
 #define __DAAL_GET_CPUID int cpuid = daalEnv->cpuid;
@@ -42,21 +43,11 @@
     int cpuid = DAAL_BASE_CPU; \
     DAAL_SAFE_CPU_CALL((cpuid = daalEnv->cpuid), (cpuid = DAAL_BASE_CPU))
 
-#define __DAAL_KERNEL_MIN(a, b) ((a) < (b) ? (a) : (b))
-
 #define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SAFE(ContainerTemplate, Mode, ...)                                                               \
     __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID_SAFE, \
                                      __VA_ARGS__)
 
 #define __DAAL_INSTANTIATE_DISPATCH_CONTAINER(ContainerTemplate, Mode, ...) \
     __DAAL_INSTANTIATE_DISPATCH_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID, __VA_ARGS__)
-
-#define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL(ContainerTemplate, Mode, ...)                                                               \
-    __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID, \
-                                          __VA_ARGS__)
-
-#define __DAAL_INSTANTIATE_DISPATCH_CONTAINER_SYCL_SAFE(ContainerTemplate, Mode, ...)                                                               \
-    __DAAL_INSTANTIATE_DISPATCH_SYCL_IMPL(ContainerTemplate, Mode, AlgorithmDispatchContainer, AlgorithmContainerImpl<Mode>, __DAAL_GET_CPUID_SAFE, \
-                                          __VA_ARGS__)
 
 #endif

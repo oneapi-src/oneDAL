@@ -14,7 +14,6 @@
 * limitations under the License.
 *******************************************************************************/
 
-#include "oneapi/dal/backend/interop/common_dpc.hpp"
 #include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 
@@ -347,16 +346,10 @@ protected:
 
         const auto& [first, last] = bnds;
         ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
-
-        bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
-        auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
-        if (this->compute_sqrt_)
-            ndeps.push_back(sq_event);
 
         auto out_rps = this->responses_.get_slice(first, last);
         ONEDAL_ASSERT((last - first) == out_rps.get_count());
-        return (*(this->distance_voting_))(tmp_rps, inp_dts, out_rps, ndeps);
+        return (*(this->distance_voting_))(tmp_rps, inp_dts, out_rps, deps);
     }
 
     template <typename T = Task, typename = detail::enable_if_regression_t<T>>
@@ -371,16 +364,10 @@ protected:
 
         const auto& [first, last] = bnds;
         ONEDAL_ASSERT(last > first);
-        auto& queue = this->queue_;
-
-        bk::event_vector ndeps{ deps.cbegin(), deps.cend() };
-        auto sq_event = copy_with_sqrt(queue, inp_dts, inp_dts, deps);
-        if (this->compute_sqrt_)
-            ndeps.push_back(sq_event);
 
         auto out_rps = this->responses_.get_slice(first, last);
         ONEDAL_ASSERT((last - first) == out_rps.get_count());
-        return (*(this->distance_regression_))(tmp_rps, inp_dts, out_rps, ndeps);
+        return (*(this->distance_regression_))(tmp_rps, inp_dts, out_rps, deps);
     }
 
     sycl::event output_responses(const std::pair<idx_t, idx_t>& bnds,

@@ -25,7 +25,7 @@
 #include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
 #include <math.h>
 
-#include "oneapi/dal/backend/primitives/objective_function/logloss.hpp"
+#include "oneapi/dal/backend/primitives/objective_function.hpp"
 
 namespace oneapi::dal::backend::primitives::test {
 
@@ -219,38 +219,22 @@ private:
     ndarray<float_t, 1> b_;
 };
 
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with stable matrix - float",
-                "[newton-cg][gpu]",
-                float) {
-    SKIP_IF(this->get_policy().is_cpu());
-    this->gen_and_test_quadratic_function();
-    this->test_newton_cg();
-}
+using newton_cg_types = COMBINE_TYPES((float, double));
 
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with stable matrix - double",
-                "[newton-cg][gpu]",
-                double) {
+TEMPLATE_LIST_TEST_M(newton_cg_test,
+                     "test newton-cg with stable matrix",
+                     "[newton-cg][gpu]",
+                     newton_cg_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_and_test_quadratic_function();
     this->test_newton_cg();
 }
 
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with logloss function - double",
-                "[newton-cg][gpu]",
-                double) {
-    SKIP_IF(this->not_float64_friendly());
-    SKIP_IF(this->get_policy().is_cpu());
-    this->gen_and_test_logistic_loss();
-}
-
-TEMPLATE_TEST_M(newton_cg_test,
-                "test newton-cg with logloss function - float",
-                "[newton-cg][gpu]",
-                float) {
+TEMPLATE_LIST_TEST_M(newton_cg_test,
+                     "test newton-cg with logloss function",
+                     "[newton-cg][gpu]",
+                     newton_cg_types) {
     SKIP_IF(this->not_float64_friendly());
     SKIP_IF(this->get_policy().is_cpu());
     this->gen_and_test_logistic_loss();

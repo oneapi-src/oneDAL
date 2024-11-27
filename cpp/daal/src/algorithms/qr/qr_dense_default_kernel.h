@@ -21,8 +21,8 @@
 //--
 */
 
-#ifndef __QR_FPK_H__
-#define __QR_FPK_H__
+#ifndef __QR_DENSE_DEFAULT_KERNEL_H__
+#define __QR_DENSE_DEFAULT_KERNEL_H__
 
 #include "algorithms/qr/qr_batch.h"
 #include "src/algorithms/kernel.h"

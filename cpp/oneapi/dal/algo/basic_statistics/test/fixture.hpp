@@ -107,12 +107,13 @@ public:
         check_for_exception_for_non_requested_results(compute_mode, compute_result);
     }
 
-    void csr_general_checks(const te::csr_table_builder& data, bs::result_option_id compute_mode) {
+    void csr_general_checks(const te::csr_table_builder<>& data,
+                            bs::result_option_id compute_mode) {
         const auto desc =
             bs::descriptor<float_t, basic_statistics::method::sparse>{}.set_result_options(
                 compute_mode);
         const auto csr_table = data.build_csr_table(this->get_policy());
-        const auto dense_table = data.build_dense_table();
+        const auto dense_table = data.build_dense_table(this->get_policy());
 
         auto compute_result = this->compute(desc, csr_table);
         table weights;
@@ -121,7 +122,7 @@ public:
 
     // TODO: Fix DAAL code. On big datasets there is an error in computing.
     // To reproduce it remove this check from test case in batch.cpp
-    bool not_cpu_friendly(const te::csr_table_builder& data) {
+    bool not_cpu_friendly(const te::csr_table_builder<>& data) {
         auto policy = this->get_policy();
         return (data.row_count_ > 100 || data.column_count_ > 100) && policy.is_cpu();
     }

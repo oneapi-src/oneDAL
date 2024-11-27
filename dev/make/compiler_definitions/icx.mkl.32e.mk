@@ -18,29 +18,37 @@
 #  Intel compiler definitions for makefile
 #--
 
-PLATs.icx = lnx32e mac32e
+PLATs.icx = lnx32e win32e
 
-CMPLRDIRSUFF.icx = _icx
+CMPLRDIRSUFF.icx =
 
 CORE.SERV.COMPILER.icx = generic
 
--Zl.icx =  -no-intel-lib=libirc
--DEBC.icx = -g
 
-COMPILER.lnx.icx = icpx -m64 \
-                     -Werror -Wreturn-type
+-Zl.icx = $(if $(OS_is_win),-Zl,) $(-Q)no-intel-lib
+-DEBC.icx = $(if $(OS_is_win),-debug:all -Z7,-g) -fno-system-debug
 
+-Qopt = $(if $(OS_is_win),-Qopt-,-qopt-)
 
-link.dynamic.lnx.icx = icpx -m64
+COMPILER.lnx.icx = icx -m64 \
+                     -Werror -Wreturn-type -qopenmp-simd
 
-pedantic.opts.icx = -pedantic \
-                      -Wall \
-                      -Wextra \
-                      -Wno-unused-parameter
+COMPILER.win.icx = icx $(if $(MSVC_RT_is_release),-MD -Qopenmp-simd, -MDd) -nologo -WX -Wno-deprecated-declarations
 
-pedantic.opts.lnx.icx = $(pedantic.opts.icx)
+link.dynamic.lnx.icx = icx -m64 -no-intel-lib
 
-p4_OPT.icx   = $(-Q)march=nocona
-mc3_OPT.icx  = $(-Q)march=nehalem
-avx2_OPT.icx = $(-Q)march=haswell
-skx_OPT.icx  = $(-Q)march=skx
+pedantic.opts.lnx.icx = -pedantic \
+                        -Wall \
+                        -Wextra \
+                        -Wwritable-strings \
+                        -Wno-unused-parameter
+
+pedantic.opts.win.icx = -Wall \
+                        -Wextra \
+                        -Wwritable-strings \
+                        -Wno-unused-parameter
+
+p4_OPT.icx   = -march=nocona
+mc3_OPT.icx  = -march=nehalem
+avx2_OPT.icx = -march=haswell
+skx_OPT.icx  = -march=skx

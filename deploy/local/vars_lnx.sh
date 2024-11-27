@@ -230,6 +230,8 @@ if [ "${ARCH_ONEDAL}" = "x86_64" ]; then
     ARCH_DIR_ONEDAL="intel64"
 elif [ "${ARCH_ONEDAL}" = "aarch64" ]; then
     ARCH_DIR_ONEDAL="arm"
+elif [ "${ARCH_ONEDAL}" = "riscv64" ]; then
+    ARCH_DIR_ONEDAL="riscv64"
 else
     echo "Unsupported CPU architecture '${ARCH_ONEDAL}'"
     exit 1
@@ -245,12 +247,11 @@ if [ "$(basename "${my_script_path}")" = "env" ] ; then   # assume stand-alone
     export DALROOT="$__daal_tmp_dir"
     export PKG_CONFIG_PATH="$__daal_tmp_dir/lib/pkgconfig${PKG_CONFIG_PATH+:${PKG_CONFIG_PATH}}"
     export CMAKE_PREFIX_PATH="$__daal_tmp_dir${CMAKE_PREFIX_PATH+:${CMAKE_PREFIX_PATH}}"
+    export CPATH="$__daal_tmp_dir/include:$__daal_tmp_dir/include/dal${CPATH+:${CPATH}}"
     if [ -d "${component_root}/include/dal" ]; then
-      export CPATH="$__daal_tmp_dir/include/dal${CPATH+:${CPATH}}"
       export LIBRARY_PATH="$__daal_tmp_dir/lib${LIBRARY_PATH+:${LIBRARY_PATH}}"
       export LD_LIBRARY_PATH="$__daal_tmp_dir/lib${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     else
-      export CPATH="$__daal_tmp_dir/include${CPATH+:${CPATH}}"
       export LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR_ONEDAL${LIBRARY_PATH+:${LIBRARY_PATH}}"
       export LD_LIBRARY_PATH="$__daal_tmp_dir/lib/$ARCH_DIR_ONEDAL${LD_LIBRARY_PATH+:${LD_LIBRARY_PATH}}"
     fi
@@ -276,7 +277,7 @@ else   # must be a consolidated layout
 
   # *"etc"*)
     export DALROOT="$ONEAPI_ROOT"
-    export CPATH="$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}"
+    export CPATH="$ONEAPI_ROOT/include:$ONEAPI_ROOT/include/dal${CPATH+:${CPATH}}"
   # ;;
 # esac
 fi

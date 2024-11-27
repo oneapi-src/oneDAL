@@ -30,12 +30,10 @@ load("@onedal//dev/bazel/config:config.bzl",
 
 def daal_module(name, features=[], lib_tag="daal",
                 hdrs=[], srcs=[], auto=False,
-                opencl=False, local_defines=[], **kwargs):
+                local_defines=[], **kwargs):
     if auto:
         auto_hdrs = native.glob(["**/*.h", "**/*.i"])
         auto_srcs = native.glob(["**/*.cpp"])
-        if opencl:
-            auto_hdrs += native.glob(["**/*.cl"])
     else:
         auto_hdrs = []
         auto_srcs = []

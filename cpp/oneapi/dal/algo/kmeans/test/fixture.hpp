@@ -61,6 +61,16 @@ public:
             .set_accuracy_threshold(accuracy_threshold);
     }
 
+    kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t> get_dense_descriptor(
+        std::int64_t cluster_count,
+        std::int64_t max_iteration_count,
+        float_t accuracy_threshold) const {
+        return kmeans::descriptor<float_t, kmeans::method::lloyd_dense, task_t>{}
+            .set_cluster_count(cluster_count)
+            .set_max_iteration_count(max_iteration_count)
+            .set_accuracy_threshold(accuracy_threshold);
+    }
+
     descriptor_t get_descriptor(std::int64_t cluster_count) const {
         return descriptor_t{ cluster_count };
     }
@@ -94,8 +104,11 @@ public:
                            test_convergence);
 
         INFO("run inference");
-        const auto infer_result = this->infer(kmeans_desc, model, data);
-        check_infer_result(kmeans_desc, infer_result, ref_responses, ref_objective_function);
+        const auto kmeans_infer_desc =
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
+                .set_result_options(kmeans::result_options::compute_exact_objective_function);
+        const auto infer_result = this->infer(kmeans_infer_desc, model, data);
+        check_infer_result(kmeans_infer_desc, infer_result, ref_responses, ref_objective_function);
     }
 
     void exact_checks_with_reordering(const table& data,
@@ -291,11 +304,13 @@ public:
         this->exact_checks(x, x, x, y, cluster_count, 1, 0.0);
     }
 
-    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs& input,
+    void test_on_sparse_data(const oneapi::dal::test::engine::csr_make_blobs<float_t>& input,
                              std::int64_t max_iter_count,
                              float_t accuracy_threshold,
                              bool init_centroids) {
         const table data = input.get_data(this->get_policy());
+        const table dense_data = input.get_dense_data(this->get_policy());
+
         const auto cluster_count = input.cluster_count_;
         REQUIRE(data.get_kind() == csr_table::kind());
         auto desc = this->get_descriptor(cluster_count, max_iter_count, accuracy_threshold);
@@ -416,8 +431,7 @@ public:
         REQUIRE(te::has_no_nans(model.get_centroids()));
 
         const auto kmeans_desc_infer_assignments =
-            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
-                .set_result_options(dal::kmeans::result_options::compute_assignments);
+            get_descriptor(cluster_count, max_iteration_count, accuracy_threshold);
 
         const auto kmeans_desc_infer_obj_func =
             get_descriptor(cluster_count, max_iteration_count, accuracy_threshold)
@@ -501,7 +515,9 @@ public:
         CAPTURE(model.get_cluster_count());
 
         INFO("create descriptor");
-        const auto kmeans_desc = get_descriptor(model.get_cluster_count());
+        const auto kmeans_desc =
+            get_descriptor(model.get_cluster_count())
+                .set_result_options(kmeans::result_options::compute_exact_objective_function);
 
         INFO("run inference");
         const auto infer_result = this->infer(kmeans_desc, model, data);
