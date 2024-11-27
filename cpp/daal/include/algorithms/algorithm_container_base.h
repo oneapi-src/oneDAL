@@ -97,6 +97,9 @@ template <ComputeMode mode>
 class AlgorithmContainer : public AlgorithmContainerIfaceImpl
 {
 public:
+    AlgorithmContainer()                           = delete;
+    AlgorithmContainer(const AlgorithmContainer &) = delete;
+
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
@@ -152,6 +155,9 @@ template <ComputeMode mode>
 class AlgorithmContainerImpl : public AlgorithmContainer<mode>
 {
 public:
+    AlgorithmContainerImpl()                               = delete;
+    AlgorithmContainerImpl(const AlgorithmContainerImpl &) = delete;
+
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
