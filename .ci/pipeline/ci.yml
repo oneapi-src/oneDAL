@@ -643,7 +643,7 @@ jobs:
       conda activate CB
       source $(Pipeline.Workspace)/daal/latest/env/vars.sh
       ret_code=0
-      python -m sklearnex sklearnex/tests/run_examples.py
+      python -m sklearnex sklearnex/tests/run_examples.py --no-dist
       ret_code=$(($ret_code + $?))
       exit $ret_code
     displayName: sklearnex examples
