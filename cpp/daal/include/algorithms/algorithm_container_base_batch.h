@@ -53,8 +53,9 @@ template <>
 class AlgorithmContainer<batch> : public AlgorithmContainerIfaceImpl
 {
 public:
-    AlgorithmContainer()                           = default;
-    AlgorithmContainer(const AlgorithmContainer &) = delete;
+    AlgorithmContainer()                                                           = default;
+    AlgorithmContainer(const AlgorithmContainer &)                                 = delete;
+    AlgorithmContainer<batch> & operator=(const AlgorithmContainer<batch> & other) = delete;
 
     /**
      * Default constructor
@@ -94,7 +95,8 @@ class AlgorithmContainerImpl<batch> : public AlgorithmContainer<batch>
 public:
     DAAL_NEW_DELETE();
 
-    AlgorithmContainerImpl(const AlgorithmContainerImpl &) = delete;
+    AlgorithmContainerImpl(const AlgorithmContainerImpl &)                                 = delete;
+    AlgorithmContainerImpl<batch> & operator=(const AlgorithmContainerImpl<batch> & other) = delete;
 
     /**
      * Default constructor
