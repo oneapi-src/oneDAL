@@ -94,7 +94,6 @@ class AlgorithmContainerImpl<batch> : public AlgorithmContainer<batch>
 public:
     DAAL_NEW_DELETE();
 
-    AlgorithmContainerImpl()                               = default;
     AlgorithmContainerImpl(const AlgorithmContainerImpl &) = delete;
 
     /**

@@ -158,7 +158,6 @@ template <ComputeMode mode>
 class AlgorithmContainerImpl : public AlgorithmContainer<mode>
 {
 public:
-    AlgorithmContainerImpl()                               = default;
     AlgorithmContainerImpl(const AlgorithmContainerImpl &) = delete;
 
     /**
