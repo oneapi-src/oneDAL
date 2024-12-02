@@ -54,6 +54,12 @@ __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_CLASSIFIER_TRAINING_RE
 InputIface::InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
 Input::Input(size_t nElements) : InputIface(nElements) {}
 
+Input & Input::operator=(const Input & other)
+{
+    InputIface::operator=(other);
+    return *this;
+}
+
 size_t Input::getNumberOfFeatures() const
 {
     return get(classifier::training::data)->getNumberOfColumns();

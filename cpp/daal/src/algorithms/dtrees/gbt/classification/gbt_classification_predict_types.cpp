@@ -42,6 +42,12 @@ namespace prediction
 {
 namespace interface1
 {
+Input & Input::operator=(const Input & other)
+{
+    algorithms::classifier::prediction::Input::operator=(other);
+    return *this;
+}
+
 /**
  * Returns an input object for making gradient boosted trees model-based prediction
  * \param[in] id    Identifier of the input object

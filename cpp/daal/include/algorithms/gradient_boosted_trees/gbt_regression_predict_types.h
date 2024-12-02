@@ -133,6 +133,8 @@ class DAAL_EXPORT Input : public algorithms::regression::prediction::Input
 public:
     Input();
     Input(const Input & other);
+    Input & operator=(const Input & other);
+    virtual ~Input() {}
 
     /**
      * Returns an input object for making model-based prediction
