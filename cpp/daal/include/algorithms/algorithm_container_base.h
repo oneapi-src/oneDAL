@@ -65,6 +65,10 @@ public:
 class AlgorithmContainerIfaceImpl : public AlgorithmContainerIface
 {
 public:
+    AlgorithmContainerIfaceImpl()                                                      = default;
+    AlgorithmContainerIfaceImpl(const AlgorithmContainerIfaceImpl &)                   = delete;
+    AlgorithmContainerIfaceImpl & operator=(const AlgorithmContainerIfaceImpl & other) = delete;
+
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
@@ -97,6 +101,10 @@ template <ComputeMode mode>
 class AlgorithmContainer : public AlgorithmContainerIfaceImpl
 {
 public:
+    AlgorithmContainer()                                                         = default;
+    AlgorithmContainer(const AlgorithmContainer &)                               = delete;
+    AlgorithmContainer<mode> & operator=(const AlgorithmContainer<mode> & other) = delete;
+
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
@@ -152,6 +160,9 @@ template <ComputeMode mode>
 class AlgorithmContainerImpl : public AlgorithmContainer<mode>
 {
 public:
+    AlgorithmContainerImpl(const AlgorithmContainerImpl &)                       = delete;
+    AlgorithmContainer<mode> & operator=(const AlgorithmContainer<mode> & other) = delete;
+
     /**
      * Default constructor
      * \param[in] daalEnv   Pointer to the structure that contains information about the environment
