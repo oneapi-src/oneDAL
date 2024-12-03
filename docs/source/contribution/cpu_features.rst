@@ -15,11 +15,11 @@
 .. *******************************************************************************/
 
 .. |32e_make| replace:: 32e.mk
-.. _32e_make: https://github.com/oneapi-src/oneDAL/blob/main/dev/make/function_definitions/32e.mk
+.. _32e_make: https://github.com/uxlfoundation/oneDAL/blob/main/dev/make/function_definitions/32e.mk
 .. |riscv_make| replace:: riscv64.mk
-.. _riscv_make: https://github.com/oneapi-src/oneDAL/blob/main/dev/make/function_definitions/riscv64.mk
+.. _riscv_make: https://github.com/uxlfoundation/oneDAL/blob/main/dev/make/function_definitions/riscv64.mk
 .. |arm_make| replace:: arm.mk
-.. _arm_make: https://github.com/oneapi-src/oneDAL/blob/main/dev/make/function_definitions/arm.mk
+.. _arm_make: https://github.com/uxlfoundation/oneDAL/blob/main/dev/make/function_definitions/arm.mk
 
 .. highlight:: cpp
 
@@ -183,7 +183,7 @@ instruction set specific code. The implementation is located in the file `abc_cl
 Although the implementation of the ``method1`` does not contain any instruction set specific code, it is
 expected that the developers leverage SIMD related macros available in |short_name|.
 For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and other pragmas defined in
-`service_defines.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/services/service_defines.h>`_.
+`service_defines.h <https://github.com/uxlfoundation/oneDAL/blob/main/cpp/daal/src/services/service_defines.h>`_.
 This will guide the compiler to generate more efficient code for the target architecture.
 
 Consider that the implementation of the ``method2`` for the same algorithm will be different and will contain
@@ -264,9 +264,9 @@ To add a new architectural extension into |32e_make| file, ``CPUs`` and ``CPUs.f
 The functions like ``set_uarch_options_for_compiler`` and others should also be updated accordingly.
 
 The compiler options for the new architectural extension should be added to the respective file in the
-`compiler_definitions <https://github.com/oneapi-src/oneDAL/tree/main/dev/make/compiler_definitions>`_ folder.
+`compiler_definitions <https://github.com/uxlfoundation/oneDAL/tree/main/dev/make/compiler_definitions>`_ folder.
 
-For example, `gnu.32e.mk <https://github.com/oneapi-src/oneDAL/blob/main/dev/make/compiler_definitions/gnu.32e.mk>`_
+For example, `gnu.32e.mk <https://github.com/uxlfoundation/oneDAL/blob/main/dev/make/compiler_definitions/gnu.32e.mk>`_
 file contains the compiler options for the GNU compiler for x86-64 architecture in the form
 ``option_name.compiler_name``:
 
@@ -281,16 +281,16 @@ Bazel
 -----
 
 For now, Bazel build is supported only for Linux x86-64 platform
-It provides ``cpu`` `option <https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel#bazel-options>`_
+It provides ``cpu`` `option <https://github.com/uxlfoundation/oneDAL/tree/main/dev/bazel#bazel-options>`_
 that allows to specify the list of target architectural extensions.
 
 To add a new architectural extension into Bazel configuration, following steps should be done:
 
 - Add the new extension to the list of allowed values in the ``_ISA_EXTENSIONS`` variable in the
-  `config.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/config/config.bzl>`_ file;
+  `config.bzl <https://github.com/uxlfoundation/oneDAL/blob/main/dev/bazel/config/config.bzl>`_ file;
 - Update the ``get_cpu_flags`` function in the
-  `flags.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/flags.bzl>`_
+  `flags.bzl <https://github.com/uxlfoundation/oneDAL/blob/main/dev/bazel/flags.bzl>`_
   file to provide the compiler flags for the new extension;
 - Update the ``cpu_defines`` dictionaries in
-  `dal.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/dal.bzl>`_ and
-  `daal.bzl <https://github.com/oneapi-src/oneDAL/blob/main/dev/bazel/daal.bzl>`_ files accordingly.
+  `dal.bzl <https://github.com/uxlfoundation/oneDAL/blob/main/dev/bazel/dal.bzl>`_ and
+  `daal.bzl <https://github.com/uxlfoundation/oneDAL/blob/main/dev/bazel/daal.bzl>`_ files accordingly.

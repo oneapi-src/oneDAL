@@ -28,7 +28,7 @@ This is done in order not to be dependent on possible oneTBB API changes and eve
 on the particular threading technology like oneTBB, C++11 standard threads, etc.
 
 The API of the layer is defined in
-`threading.h <https://github.com/oneapi-src/oneDAL/blob/main/cpp/daal/src/threading/threading.h>`_.
+`threading.h <https://github.com/uxlfoundation/oneDAL/blob/main/cpp/daal/src/threading/threading.h>`_.
 Please be aware that the threading API is not a part of |short_name| product API.
 This is the product internal API that aimed to be used only by |short_name| developers, and can be changed at any time
 without any prior notification.

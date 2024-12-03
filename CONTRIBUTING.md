@@ -18,14 +18,14 @@
 # How to Contribute
 We welcome community contributions to Intel(R) oneAPI Data Analytics Library. You can:
 
-- Submit your changes directly with a [pull request](https://github.com/oneapi-src/oneDAL/pulls).
-- Log a bug or make a feature request with an [issue](https://github.com/oneapi-src/oneDAL/issues).
+- Submit your changes directly with a [pull request](https://github.com/uxlfoundation/oneDAL/pulls).
+- Log a bug or make a feature request with an [issue](https://github.com/uxlfoundation/oneDAL/issues).
 
 Refer to our guidelines on [pull requests](#pull-requests) and [issues](#issues) before you proceed.
 
 ## Contacting maintainers
 You may reach out to Intel project maintainers privately at onedal.maintainers@intel.com.
-[Codeowners](https://github.com/oneapi-src/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts:
+[Codeowners](https://github.com/uxlfoundation/oneDAL/blob/main/.github/CODEOWNERS) configuration defines specific maintainers for corresponding code sections, however it's currently limited to Intel members. With further migration to UXL we will be changing this, but here are non-Intel contacts:
 
 For ARM specifics you may contact: [@rakshithgb-fujitsu](https://github.com/rakshithgb-fujitsu/)
 
@@ -33,7 +33,7 @@ For RISC-V specifics you may contact: [@keeranroth](https://github.com/keeranrot
 
 ## Issues
 
-Use [GitHub issues](https://github.com/oneapi-src/oneDAL/issues) to:
+Use [GitHub issues](https://github.com/uxlfoundation/oneDAL/issues) to:
 - report an issue
 - make a feature request
 
@@ -43,11 +43,11 @@ Use [GitHub issues](https://github.com/oneapi-src/oneDAL/issues) to:
 
 To contribute your changes directly to the repository, do the following:
 - Make sure you can build the product and run all the examples with your patch.
-- Product uses bazel for validation and your changes should pass tests. Please add new tests as necessary. [Bazel Guide for oneDAL](https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel)
+- Product uses bazel for validation and your changes should pass tests. Please add new tests as necessary. [Bazel Guide for oneDAL](https://github.com/uxlfoundation/oneDAL/tree/main/dev/bazel)
 - Make sure your code is in line with our [coding style](#code-style) as `clang-format` is one of the checks in our public CI.
 - For a larger feature, provide a relevant example, and tests.
 - [Document](#documentation-guidelines) your code.
-- [Submit](https://github.com/oneapi-src/oneDAL/pulls) a pull request into the `main` branch.
+- [Submit](https://github.com/uxlfoundation/oneDAL/pulls) a pull request into the `main` branch.
 
 Public and private CIs are enabled for the repository. Your PR should pass all of our checks. We will review your contribution and, if any additional fixes or modifications are necessary, we may give some feedback to guide you. When accepted, your pull request will be merged into our GitHub* repository.
 
@@ -57,7 +57,7 @@ Public and private CIs are enabled for the repository. Your PR should pass all o
 
 **Prerequisites:** ClangFormat `9.0.0` or later
 
-Our repository contains [clang-format configurations](https://github.com/oneapi-src/oneDAL/blob/main/.clang-format) that you should use on your code. To do this, run:
+Our repository contains [clang-format configurations](https://github.com/uxlfoundation/oneDAL/blob/main/.clang-format) that you should use on your code. To do this, run:
 
 ```
 clang-format style=file <your file>
@@ -67,7 +67,7 @@ Refer to [ClangFormat documentation](https://clang.llvm.org/docs/ClangFormat.htm
 
 ### editorconfig-checker
 
-We also recommend using [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) to ensure your code adheres to the project's coding style. EditorConfig-Checker is a command-line tool that checks your code against the rules defined in the [.editorconfig](https://github.com/oneapi-src/oneDAL/blob/main/.editorconfig) file.
+We also recommend using [editorconfig-checker](https://github.com/editorconfig-checker/editorconfig-checker) to ensure your code adheres to the project's coding style. EditorConfig-Checker is a command-line tool that checks your code against the rules defined in the [.editorconfig](https://github.com/uxlfoundation/oneDAL/blob/main/.editorconfig) file.
 
 To use it, follow these steps:
 
