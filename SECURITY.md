@@ -32,7 +32,7 @@ back-ported to older oneDAL versions.
 We are very grateful to the security researchers and users that report back
 security vulnerabilities. We investigate every report thoroughly.
 We strongly encourage you to report security vulnerabilities to us privately,
-before disclosing them on public forums or opening a public GitHub* issue. 
+before disclosing them on public forums or opening a public GitHub* issue.
 
 Report a vulnerability to us in one of two ways:
 
@@ -46,7 +46,7 @@ Along with the report, provide the following info:
   * A description of the technical details of the vulnerabilities.
   * A minimal example of the vulnerability so we can reproduce your findings.
   * An explanation of who can exploit this vulnerability, and what they gain
-  doing so. 
+  doing so.
   * Whether this vulnerability is public or known to third parties. If it is,
   provide details.
 
@@ -73,14 +73,14 @@ according to severity level and impact on oneDAL Normally, security issues are f
 
 ## Disclosure Policy
 
-We will publish security advisories using the 
+We will publish security advisories using the
 [**GitHub Security Advisories feature**][3]
 to keep our community well-informed, and will credit you for your findings
 unless you prefer to stay anonymous. We request that you refrain from
 exploiting the vulnerability or making it public before the official disclosure.
 
 We will disclose the vulnerabilities and bugs as soon as possible once
-mitigation is implemented and available. 
+mitigation is implemented and available.
 
 ## Feedback on This Policy
 
@@ -88,6 +88,6 @@ If you have any suggestions on how this Policy could be improved, submit
 an issue or a pull request to this repository. **Do not** report
 potential vulnerabilities or security flaws via a pull request.
 
-[1]: https://github.com/oneapi-src/oneDAL/releases
-[2]: https://github.com/oneapi-src/oneDAL/security/advisories/new
-[3]: https://github.com/oneapi-src/oneDAL/security/advisories
+[1]: https://github.com/uxlfoundation/oneDAL/releases
+[2]: https://github.com/uxlfoundation/oneDAL/security/advisories/new
+[3]: https://github.com/uxlfoundation/oneDAL/security/advisories

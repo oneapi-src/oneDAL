@@ -18,7 +18,7 @@ rem ============================================================================
 rem req: PowerShell 3.0+
 powershell.exe -command "if ($PSVersionTable.PSVersion.Major -ge 3) {exit 1} else {Write-Host \"The script requires PowerShell 3.0 or above (current version: $($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor))\"}" && goto Error_load
 
-set TBBURLROOT=https://github.com/oneapi-src/oneTBB/releases/download/v2021.5.0/
+set TBBURLROOT=https://github.com/uxlfoundation/oneTBB/releases/download/v2021.5.0/
 set TBBVERSION=oneapi-tbb-2021.5.0
 set TBBPACKAGE=%TBBVERSION%-win
 
@@ -41,7 +41,7 @@ if not exist "%DST%\win\bin" (
 
     if not exist %DST%\win\tbb\redist\intel64\vc14 powershell.exe -command "New-Item -Path \"%DST%\win\tbb\redist\intel64\vc14\" -ItemType Directory"
 
-    goto Exit 
+    goto Exit
 
 :Error_load
     echo tbb.bat : Error: Failed to load %TBBURL% to %DST%, try to load it manually

@@ -51,7 +51,7 @@ Privileges:
 ## Code Owner
 
 A Code Owner has responsibility for a specific project component or a functional
-area. Code Owners are collectively responsible, with other Code Owners, 
+area. Code Owners are collectively responsible, with other Code Owners,
 for developing and maintaining their component or functional areas, including
 reviewing all changes to their their areas of responsibility and indicating
 whether those changes are ready to merge. They have a track record of
@@ -89,7 +89,7 @@ including name, Github username, and affiliation.
 
 
 ## Maintainer
-Maintainers are the most established contributors who are responsible for the 
+Maintainers are the most established contributors who are responsible for the
 project technical direction and participate in making decisions about the
 strategy and priorities of the project.
 
@@ -116,7 +116,7 @@ Privileges:
   * Can recommend Code Owners to become Maintainers.
 
 Process of becoming a maintainer:
-1. A Maintainer may nominate a current code owner to become a new Maintainer by 
+1. A Maintainer may nominate a current code owner to become a new Maintainer by
 opening a PR against MAINTAINERS.md file.
 2. A majority of the current Maintainers must then approve the PR.
 
@@ -124,7 +124,7 @@ opening a PR against MAINTAINERS.md file.
 
 ## oneDAL core
 
-Team: @oneapi-src/onedal-write
+Team: @uxlfoundation/onedal-write
 
 Currently entire Intel oneDAL team serves at contributor level and have corresponding rights
 with additional separation of roles coming with repository migration to UXL
@@ -135,7 +135,7 @@ with additional separation of roles coming with repository migration to UXL
 | ------------------ | --------------------- | ----------------- | ---------- |
 | Victoriya Fedotova | @Vika-F               | Intel Corporation | Maintainer |
 | Aleksandr Solovev  | @Alexandr-Solovev     | Intel Corporation | Maintainer |
-| Alexander Andreev  | @Alexsandruss         | Intel Corporation | Maintainer | 
+| Alexander Andreev  | @Alexsandruss         | Intel Corporation | Maintainer |
 
 ### AArch64
 
