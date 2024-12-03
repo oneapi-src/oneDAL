@@ -51,8 +51,8 @@ Computational Tasks
 
 An algorithm might have various tasks to compute. The most common options are:
 
-- `Classification <https://oneapi-src.github.io/oneDAL/onedal/glossary.html#term-Classification>`_,
-- `Regression <https://oneapi-src.github.io/oneDAL/onedal/glossary.html#term-Regression>`_.
+- `Classification <https://uxlfoundation.github.io/oneDAL/onedal/glossary.html#term-Classification>`_,
+- `Regression <https://uxlfoundation.github.io/oneDAL/onedal/glossary.html#term-Regression>`_.
 
 Computational Stages
 --------------------
@@ -65,15 +65,15 @@ Computational Methods
 
 An algorithm can support several methods for the same type of computations.
 For example, kNN algorithm supports
-`brute_force <https://oneapi-src.github.io/oneDAL/onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force>`_
-and `kd_tree <https://oneapi-src.github.io/oneDAL/onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-kd-tree>`_
+`brute_force <https://uxlfoundation.github.io/oneDAL/onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-brute-force>`_
+and `kd_tree <https://uxlfoundation.github.io/oneDAL/onedal/algorithms/nearest-neighbors/knn.html#knn-t-math-kd-tree>`_
 methods for algorithm training and inference.
 
 Computational Modes
 -------------------
 
 |short_name| can provide several computational modes for an algorithm.
-See `Computational Modes <https://oneapi-src.github.io/oneDAL/onedal/programming-model/computational-modes.html>`_
+See `Computational Modes <https://uxlfoundation.github.io/oneDAL/onedal/programming-model/computational-modes.html>`_
 chapter for details.
 
 Folders and Files

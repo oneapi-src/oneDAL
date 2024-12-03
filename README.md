@@ -34,7 +34,7 @@ The oneDAL is part of the [UXL Foundation](http://www.uxlfoundation.org) and is 
 ## Usage
 
 There are different ways for you to build high-performance data science applications that use the advantages of oneDAL:
-- Use oneDAL C++ interfaces with or without SYCL support ([learn more](https://oneapi-src.github.io/oneDAL/#oneapi-vs-daal-interfaces))
+- Use oneDAL C++ interfaces with or without SYCL support ([learn more](https://uxlfoundation.github.io/oneDAL/#oneapi-vs-daal-interfaces))
 - Use [Intel(R) Extension for Scikit-learn*](https://uxlfoundation.github.io/scikit-learn-intelex/) to accelerate existing scikit-learn code without changing it
 - Use [daal4py](https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/daal4py), a standalone package with Python API for oneDAL
 Deprecation Notice: The Java interfaces are removed from the oneDAL library.
@@ -42,7 +42,7 @@ Deprecation Notice: The Java interfaces are removed from the oneDAL library.
 
 ## Installation
 
-Check the [System Requirements](https://oneapi-src.github.io/oneDAL/system-requirements.html) before installing to ensure compatibility with your system.
+Check the [System Requirements](https://uxlfoundation.github.io/oneDAL/system-requirements.html) before installing to ensure compatibility with your system.
 
 There are several options available for installing oneDAL:
 
@@ -85,8 +85,8 @@ Python Examples:
 oneDAL documentation:
 
 - [Release Notes](https://github.com/uxlfoundation/oneDAL/releases)
-- [Get Started Guide](https://oneapi-src.github.io/oneDAL/quick-start.html)
-- [Developer Guide and Reference](http://oneapi-src.github.io/oneDAL/)
+- [Get Started Guide](https://uxlfoundation.github.io/oneDAL/quick-start.html)
+- [Developer Guide and Reference](http://uxlfoundation.github.io/oneDAL/)
 
 Other related documentation:
 

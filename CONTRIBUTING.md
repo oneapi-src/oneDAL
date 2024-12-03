@@ -81,7 +81,7 @@ editorconfig-checker
 
 ### Coding Guidelines
 
-For your convenience we also added [coding guidelines](http://oneapi-src.github.io/oneDAL/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
+For your convenience we also added [coding guidelines](http://uxlfoundation.github.io/oneDAL/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
 
 ## Custom Components
 
@@ -89,15 +89,15 @@ For your convenience we also added [coding guidelines](http://oneapi-src.github.
 
 oneDAL provides binaries that can contain code targeting different architectural extensions of a base instruction set architecture (ISA). For example, code paths can exist for Intel(R) SSE2, Intel(R) AVX2, Intel(R) AVX-512, etc. extensions, on top of the x86-64 base architecture.
 When run on a specific hardware implementation like Haswell, Skylake-X, etc., oneDAL chooses the code path which is most suitable for that implementation.
-Contributors should leverage [CPU Features Dispatching](http://oneapi-src.github.io/oneDAL/contribution/cpu_features.html) mechanism to implement the code of the algorithms that can perform most optimally on various hardware implementations.
+Contributors should leverage [CPU Features Dispatching](http://uxlfoundation.github.io/oneDAL/contribution/cpu_features.html) mechanism to implement the code of the algorithms that can perform most optimally on various hardware implementations.
 
 ### Threading Layer
 
-In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form are called the [threading layer](http://oneapi-src.github.io/oneDAL/contribution/threading.html). Contributors should leverage the primitives from the layer to implement parallel algorithms.
+In the source code of the algorithms, oneDAL does not use threading primitives directly. All the threading primitives used within oneDAL form are called the [threading layer](http://uxlfoundation.github.io/oneDAL/contribution/threading.html). Contributors should leverage the primitives from the layer to implement parallel algorithms.
 
 ## Documentation Guidelines
 
-oneDAL uses `Doxygen` for inline comments in public header files that are used to build the API reference and  `reStructuredText` for the Developer Guide. See [oneDAL documentation](https://oneapi-src.github.io/oneDAL/) for reference.
+oneDAL uses `Doxygen` for inline comments in public header files that are used to build the API reference and  `reStructuredText` for the Developer Guide. See [oneDAL documentation](https://uxlfoundation.github.io/oneDAL/) for reference.
 
 ---
 **Note:** oneDAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
