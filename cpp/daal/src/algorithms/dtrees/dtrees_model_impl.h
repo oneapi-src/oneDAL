@@ -144,7 +144,7 @@ struct TreeNodeLeaf : public TreeNodeBase
     double * hist;
 
     TreeNodeLeaf() {}
-    TreeNodeLeaf(const TreeNodeLeaf &) = delete;
+    TreeNodeLeaf(const TreeNodeLeaf &)                   = delete;
     TreeNodeLeaf & operator=(const TreeNodeLeaf & other) = delete;
 
     // nCLasses = 0 for regression
@@ -215,7 +215,7 @@ class DAAL_EXPORT MemoryManager
 {
 public:
     MemoryManager(size_t chunkSize) : _chunkSize(chunkSize), _posInChunk(0), _iCurChunk(-1) {}
-    MemoryManager(const MemoryManager &) = delete;
+    MemoryManager(const MemoryManager &)                   = delete;
     MemoryManager & operator=(const MemoryManager & other) = delete;
     ~MemoryManager() { destroy(); }
 
@@ -304,7 +304,7 @@ public:
         : _allocator(_cNumNodesHint), _top(t), _hasUnorderedFeatureSplits(bHasUnorderedFeatureSplits)
     {}
     TreeImpl() : _allocator(_cNumNodesHint), _top(nullptr), _hasUnorderedFeatureSplits(false) {}
-    TreeImpl(const TreeImpl &) = delete;
+    TreeImpl(const TreeImpl &)                   = delete;
     TreeImpl & operator=(const TreeImpl & other) = delete;
     ~TreeImpl() { destroy(); }
     void destroy();

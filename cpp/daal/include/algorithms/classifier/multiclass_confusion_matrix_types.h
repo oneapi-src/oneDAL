@@ -111,7 +111,7 @@ namespace interface1
 struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter(size_t nClasses = 0, double beta = 1.0);
-    Parameter(const Parameter & other) = default;
+    Parameter(const Parameter & other)             = default;
     Parameter & operator=(const Parameter & other) = default;
     virtual ~Parameter() {}
 
