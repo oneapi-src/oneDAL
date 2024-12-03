@@ -39,4 +39,4 @@ Examples
 You can find examples on Github*:
 
 - `C++ <https://github.com/oneapi-src/oneDAL/tree/main/examples/daal/cpp/source>`_ (CPU)
-- `Python* <https://github.com/intel/scikit-learn-intelex/tree/main/examples/daal4py>`_
+- `Python* <https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/examples/daal4py>`_

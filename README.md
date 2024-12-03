@@ -36,7 +36,7 @@ The oneDAL is part of the [UXL Foundation](http://www.uxlfoundation.org) and is 
 There are different ways for you to build high-performance data science applications that use the advantages of oneDAL:
 - Use oneDAL C++ interfaces with or without SYCL support ([learn more](https://oneapi-src.github.io/oneDAL/#oneapi-vs-daal-interfaces))
 - Use [Intel(R) Extension for Scikit-learn*](https://uxlfoundation.github.io/scikit-learn-intelex/) to accelerate existing scikit-learn code without changing it
-- Use [daal4py](https://github.com/intel/scikit-learn-intelex/tree/main/daal4py), a standalone package with Python API for oneDAL
+- Use [daal4py](https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/daal4py), a standalone package with Python API for oneDAL
 Deprecation Notice: The Java interfaces are removed from the oneDAL library.
 
 
@@ -70,8 +70,8 @@ C++ Examples:
 - [DAAL interfaces](https://github.com/oneapi-src/oneDAL/tree/main/examples/daal/cpp)
 
 Python Examples:
-- [scikit-learn-intelex](https://github.com/intel/scikit-learn-intelex/tree/main/examples/notebooks)
-- [daal4py](https://github.com/intel/scikit-learn-intelex/tree/main/examples/daal4py)
+- [scikit-learn-intelex](https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/examples/notebooks)
+- [daal4py](https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/examples/daal4py)
 
 <details><summary>Other Examples</summary>
 

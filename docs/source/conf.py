@@ -82,8 +82,8 @@ exclude_patterns = ["opt-notice.rst", 'daal/data-management/numeric-tables/*.rst
 
 extlinks = {
     'cpp_example': ('https://github.com/oneapi-src/oneDAL/tree/main/examples/daal/cpp/source/%s', None),
-    'daal4py_example': ('https://github.com/intel/scikit-learn-intelex/tree/main/examples/daal4py/%s', None),
-    'daal4py_sklearnex_example': ('https://github.com/intel/scikit-learn-intelex/tree/main/examples/sklearnex/%s', None),
+    'daal4py_example': ('https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/examples/daal4py/%s', None),
+    'daal4py_sklearnex_example': ('https://github.com/uxlfoundation/scikit-learn-intelex/tree/main/examples/sklearnex/%s', None),
     'cpp_sample': ('https://github.com/oneapi-src/oneDAL/tree/main/samples/daal/cpp/%s', None)
 }
 
