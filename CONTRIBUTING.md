@@ -81,7 +81,7 @@ editorconfig-checker
 
 ### Coding Guidelines
 
-For your convenience we also added [coding guidelines](http://uxlfoundation.github.io/oneDAL/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
+For your convenience we also added [coding guidelines](https://uxlfoundation.github.io/oneDAL/contribution/coding_guide.html) with examples and detailed descriptions of the coding style oneDAL follows. We encourage you to consult them when writing your code.
 
 ## Custom Components
 
