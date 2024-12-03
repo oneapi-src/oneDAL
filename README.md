@@ -86,7 +86,7 @@ oneDAL documentation:
 
 - [Release Notes](https://github.com/uxlfoundation/oneDAL/releases)
 - [Get Started Guide](https://uxlfoundation.github.io/oneDAL/quick-start.html)
-- [Developer Guide and Reference](http://uxlfoundation.github.io/oneDAL/)
+- [Developer Guide and Reference](https://uxlfoundation.github.io/oneDAL/)
 
 Other related documentation:
 
