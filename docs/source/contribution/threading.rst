@@ -112,7 +112,7 @@ Static Work Scheduling
 **********************
 
 By default, oneTBB uses
-`dynamic work scheduling <https://oneapi-src.github.io/oneTBB/main/tbb_userguide/How_Task_Scheduler_Works.html>`_
+`dynamic work scheduling <https://uxlfoundation.github.io/oneTBB/main/tbb_userguide/How_Task_Scheduler_Works.html>`_
 and work stealing.
 It means that two different runs of the same parallel loop can produce different
 mappings of the loop's iteration space to the available threads.
