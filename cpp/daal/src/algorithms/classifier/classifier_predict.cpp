@@ -39,12 +39,6 @@ InputIface::InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
 
 Input::Input() : InputIface(lastModelInputId + 1) {}
 
-Input & Input::operator=(const Input & other)
-{
-    InputIface::operator=(other);
-    return *this;
-}
-
 /**
  * Returns the number of rows in the input data set
  * \return Number of rows in the input data set

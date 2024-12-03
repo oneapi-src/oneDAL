@@ -480,8 +480,9 @@ class DAAL_EXPORT ModelImpl
 {
 public:
     ModelImpl();
-    ModelImpl(const ModelImpl &)                   = delete;
-    ModelImpl & operator=(const ModelImpl & other) = delete;
+
+    ModelImpl(const ModelImpl & other);
+    ModelImpl & operator=(const ModelImpl & other);
 
     virtual ~ModelImpl();
 
