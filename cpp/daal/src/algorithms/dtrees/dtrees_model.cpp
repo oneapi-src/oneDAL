@@ -46,9 +46,9 @@ ModelImpl::ModelImpl(const ModelImpl & other)
     for (size_t i = 0; i < nTree; ++i)
     {
         (*_serializationData)[i] = (*other._serializationData)[i];
-        (*_impurityTables)[i] = (*other._impurityTables)[i];
+        (*_impurityTables)[i]    = (*other._impurityTables)[i];
         (*_nNodeSampleTables)[i] = (*other._nNodeSampleTables)[i];
-        (*_probTbl)[i] = (*other._probTbl)[i];
+        (*_probTbl)[i]           = (*other._probTbl)[i];
     }
 }
 
@@ -63,9 +63,9 @@ ModelImpl & ModelImpl::operator=(const ModelImpl & other)
         for (size_t i = 0; i < nTree; ++i)
         {
             (*_serializationData)[i] = (*other._serializationData)[i];
-            (*_impurityTables)[i] = (*other._impurityTables)[i];
+            (*_impurityTables)[i]    = (*other._impurityTables)[i];
             (*_nNodeSampleTables)[i] = (*other._nNodeSampleTables)[i];
-            (*_probTbl)[i] = (*other._probTbl)[i];
+            (*_probTbl)[i]           = (*other._probTbl)[i];
         }
     }
     return *this;
