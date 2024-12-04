@@ -392,5 +392,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'kind::induced'),
     ('cpp:identifier', 'kind::non_induced'),
     ('cpp:identifier', 'preview'),
-    ('cpp:identifier', 'connected_components')
+    ('cpp:identifier', 'connected_components'),
+
+    # backend primitives - data management
+    ('cpp:identifier', 'ndarray')
 ]

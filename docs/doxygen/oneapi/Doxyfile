@@ -902,8 +902,27 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = */backend/* \
-                         */detail/*
+EXCLUDE_PATTERNS       = */backend/interop/*                            \
+                         */backend/primitives/blas/*                    \
+                         */backend/primitives/distance/*                \
+                         */backend/primitives/heap/*                    \
+                         */backend/primitives/intersection/*            \
+                         */backend/primitives/lapack/*                  \
+                         */backend/primitives/objective_function/*      \
+                         */backend/primitives/optimizers/*              \
+                         */backend/primitives/placement/*               \
+                         */backend/primitives/reduction/*               \
+                         */backend/primitives/regression/*              \
+                         */backend/primitives/rng/*                     \
+                         */backend/primitives/search/*                  \
+                         */backend/primitives/selection/*               \
+                         */backend/primitives/sort/*                    \
+                         */backend/primitives/sparse_blas/*             \
+                         */backend/primitives/stat/*                    \
+                         */backend/primitives/test/*                    \
+                         */backend/primitives/voting/*                  \
+                         */detail/*                                     \
+                         */table/backend/*
 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names

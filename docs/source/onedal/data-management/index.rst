@@ -291,3 +291,4 @@ This section includes the detailed descriptions of all data management objects i
    data-sources.rst
    graphs.rst
    tables.rst
+   backend-primitives.rst
