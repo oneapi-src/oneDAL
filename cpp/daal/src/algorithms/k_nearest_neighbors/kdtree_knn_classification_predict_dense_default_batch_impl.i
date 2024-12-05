@@ -145,11 +145,15 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     if (par3 == NULL) return Status(ErrorNullParameterNotSupported);
 
-    const Model * const model    = static_cast<const Model *>(m);
-    const auto & kdTreeTable     = *(model->impl()->getKDTreeTable());
+    const Model * const model       = static_cast<const Model *>(m);
+    const KDTreeTable & kdTreeTable = *(model->impl()->getKDTreeTable());
+    const size_t xRowCount          = x->getNumberOfRows();
+    const algorithmFpType base = 2.0;
+
     const auto rootTreeNodeIndex = model->impl()->getRootNodeIndex();
     const NumericTable & data    = *(model->impl()->getData());
     const NumericTable * labels  = nullptr;
+
     if (resultsToEvaluate != 0)
     {
         labels = model->impl()->getLabels().get();
@@ -164,8 +168,6 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
     }
     const size_t heapSize = (iSize / 16 + 1) * 16;
 
-    const size_t xRowCount        = x->getNumberOfRows();
-    const algorithmFpType base    = 2.0;
     const size_t expectedMaxDepth = (Math::sLog(xRowCount) / Math::sLog(base) + 1) * __KDTREE_DEPTH_MULTIPLICATION_FACTOR;
     const size_t stackSize        = Math::sPowx(base, Math::sCeil(Math::sLog(expectedMaxDepth) / Math::sLog(base)));
     struct Local
