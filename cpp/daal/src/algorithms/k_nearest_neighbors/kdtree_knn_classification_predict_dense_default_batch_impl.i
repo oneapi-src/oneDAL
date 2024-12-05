@@ -147,9 +147,7 @@ Status KNNClassificationPredictKernel<algorithmFpType, defaultDense, cpu>::compu
 
     const Model * const model       = static_cast<const Model *>(m);
     const KDTreeTable & kdTreeTable = *(model->impl()->getKDTreeTable());
-    const KDTreeNode * const nodes  = static_cast<const KDTreeNode *>(kdTreeTable.getArray());
     const size_t xRowCount          = x->getNumberOfRows();
-
     const algorithmFpType base = 2.0;
 
     const auto rootTreeNodeIndex = model->impl()->getRootNodeIndex();
