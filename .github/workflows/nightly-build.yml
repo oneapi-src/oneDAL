@@ -46,15 +46,13 @@ env:
 jobs:
   build_lnx:
     name: oneDAL Linux nightly build
-    if: github.repository == 'oneapi-src/oneDAL'
-    runs-on: ubuntu-22.04
+    if: github.repository == 'uxlfoundation/oneDAL'
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
 
     steps:
       - name: Checkout oneDAL
         uses: actions/checkout@v4
-        with:
-          repository: oneapi-src/oneDAL
       - name: Install DPC++
         run: .ci/env/apt.sh dpcpp
       - name: Install MKL
@@ -84,15 +82,13 @@ jobs:
 
   build_win:
     name: oneDAL Windows nightly build
-    if: github.repository == 'oneapi-src/oneDAL'
+    if: github.repository == 'uxlfoundation/oneDAL'
     runs-on: windows-2022
     timeout-minutes: 120
 
     steps:
       - name: Checkout oneDAL
         uses: actions/checkout@v4
-        with:
-          repository: oneapi-src/oneDAL
       - name: Install DPC++
         shell: cmd
         run: |
