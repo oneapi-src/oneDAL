@@ -34,12 +34,13 @@ function install_dpcpp {
     sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp-2025.0 intel-oneapi-runtime-libs=2025.0.0-406
 }
 
-function install_mkl {
-    sudo apt-get install -y intel-oneapi-mkl-devel-2025.0 intel-oneapi-tbb-devel-2022.0
-}
-
 function install_tbb {
     sudo apt-get install -y intel-oneapi-tbb-devel-2022.0
+}
+
+function install_mkl {
+    sudo apt-get install -y intel-oneapi-mkl-devel-2025.0
+    install_tbb
 }
 
 function install_clang-format {
@@ -101,12 +102,12 @@ function build_sysroot {
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
-elif [ "${component}" == "mkl" ]; then
-    add_repo
-    install_mkl
 elif [ "${component}" == "tbb" ]; then
     add_repo
     install_tbb
+elif [ "${component}" == "mkl" ]; then
+    add_repo
+    install_mkl
 elif [ "${component}" == "gnu-cross-compilers" ]; then
     update
     install_gnu-cross-compilers "$2"
