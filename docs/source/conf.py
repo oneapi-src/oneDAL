@@ -133,6 +133,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'dal'),
     # method
     ('cpp:identifier', 'method'),
+    ('cpp:identifier', 'method::by_default'),
     ('cpp:identifier', 'Method'),
     # task
     ('cpp:identifier', 'task'),
