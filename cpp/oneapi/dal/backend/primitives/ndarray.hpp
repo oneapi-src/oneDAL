@@ -539,14 +539,26 @@ inline sycl::event fill(sycl::queue& q,
 }
 #endif
 
+/// Multidimensional array
+///
+/// @tparam T           The type of the memory block elements within the multidimensional array.
+///                     :literal:`T` can represent :expr:`float`, :expr:`double` or :expr:`std::int32_t`.
+/// @tparam axis_count  The number of dimensions in the multidimensional array.
+/// @tparam order       Row-major or column-major order of the 2-dimensional array.
 template <typename T, std::int64_t axis_count, ndorder order>
 class ndarray : public ndview<T, axis_count, order> {
     template <typename, std::int64_t, ndorder>
     friend class ndarray;
 
     using base = ndview<T, axis_count, order>;
+
+    /// Type of the object holding the multidimensional array shape
     using shape_t = ndshape<axis_count>;
+
+    /// Type of a shared pointer to :literal:`T`
     using shared_t = dal::detail::shared<T>;
+
+    /// Type of the array with elements of type :literal:`T`
     using array_t = dal::array<std::remove_const_t<T>>;
 
     struct array_deleter {
@@ -562,54 +574,110 @@ class ndarray : public ndview<T, axis_count, order> {
 public:
     ndarray() = default;
 
+    /// Creates a new multidimensional array instance by passing the pointer to externally-defined memory block
+    /// for mutable data.
+    ///
+    /// @tparam Deleter     The type of a deleter called on ``data`` when
+    ///                     the last ndarray that refers it is out of the scope.
+    ///
+    /// @param data         The pointer to a homogeneous data block.
+    /// @param shape        The shape of the created multidimensional array.
+    /// @param deleter      The deleter that is called on the ``data`` when the last ndarray that refers it
+    ///                     is out of the scope.
     template <typename Deleter = dal::detail::empty_delete<T>>
     static ndarray wrap(T* data, const shape_t& shape, Deleter&& deleter = Deleter{}) {
         auto shared = shared_t{ data, std::forward<Deleter>(deleter) };
         return wrap(std::move(shared), shape);
     }
 
+    /// Creates a new multidimensional array instance by passing the pointer to externally-defined memory block
+    /// for immutable data.
+    ///
+    /// @tparam Deleter     The type of a deleter called on ``data`` when
+    ///                     the last ndarray that refers it is out of the scope.
+    ///
+    /// @param data         The pointer to a homogeneous data block.
+    /// @param shape        The shape of the created multidimensional array.
+    /// @param deleter      The deleter that is called on the ``data`` when the last ndarray that refers it
+    ///                     is out of the scope.
     template <typename Deleter = dal::detail::empty_delete<T>>
     static ndarray wrap(const T* data, const shape_t& shape, Deleter&& deleter = Deleter{}) {
         auto shared = shared_t{ const_cast<T*>(data), std::forward<Deleter>(deleter) };
         return wrap(std::move(shared), shape).set_mutability(false);
     }
 
+    /// Creates a new multidimensional array instance by passing the shared pointer to externally-defined
+    /// memory block for mutable data.
+    ///
+    /// @param data     The shared pointer to a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap(const shared_t& data, const shape_t& shape) {
         return ndarray{ data, shape };
     }
 
+    /// Creates a new multidimensional array instance by moving a shared pointer
+    /// to externally-defined memory block for mutable data.
+    ///
+    /// @param data     R-value reference to the shared pointer to a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap(shared_t&& data, const shape_t& shape) {
         return ndarray{ std::move(data), shape };
     }
 
+    /// Creates a new multidimensional array instance from an immutable array.
+    /// The created multidimensional array shares data ownership with the given array.
+    ///
+    /// @param ary      The array that stores a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap(const array_t& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         return wrap(ary.get_data(), shape, array_deleter{ ary });
     }
 
+    /// Creates a new multidimensional array instance by moving an immutable input array.
+    ///
+    /// @param ary      The r-value reference to array that stores a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap(array_t&& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         const T* data_ptr = ary.get_data();
         return wrap(data_ptr, shape, array_deleter{ std::move(ary) });
     }
 
+    /// Creates a 1d ndarray instance from an immutable array.
+    /// The created ndarray shares data ownership with the given array.
+    ///
+    /// @param ary  The array that stores a homogeneous data block.
     static ndarray wrap(const array_t& ary) {
         static_assert(axis_count == 1);
         return wrap(ary, shape_t{ ary.get_count() });
     }
 
+    /// Creates a 1d ndarray instance by moving an immutable input array.
+    /// The created ndarray shares data ownership with the given array.
+    ///
+    /// @param ary  The r-value reference to array that stores a homogeneous data block.
     static ndarray wrap(array_t&& ary) {
         static_assert(axis_count == 1);
         std::int64_t ary_count = ary.get_count();
         return wrap(std::move(ary), shape_t{ ary_count });
     }
 
+    /// Creates a new multidimensional array instance from a mutable array.
+    /// The created multidimensional array shares data ownership with the given array.
+    ///
+    /// @param ary      The array that stores a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap_mutable(const array_t& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         auto shared = shared_t{ ary.get_mutable_data(), array_deleter{ ary } };
         return wrap(std::move(shared), shape);
     }
 
+    /// Creates a new multidimensional array instance by moving a mutable input array.
+    ///
+    /// @param ary      The r-value reference to array that stores a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap_mutable(array_t&& ary, const shape_t& shape) {
         ONEDAL_ASSERT(ary.get_count() == shape.get_count());
         T* data_ptr = ary.get_mutable_data();
@@ -617,17 +685,28 @@ public:
         return wrap(std::move(shared), shape);
     }
 
+    /// Creates a 1d ndarray instance from a mutable array.
+    /// The created ndarray shares data ownership with the given array.
+    ///
+    /// @param ary  The array that stores a homogeneous data block.
     static ndarray wrap_mutable(const array_t& ary) {
         static_assert(axis_count == 1);
         return wrap_mutable(ary, shape_t{ ary.get_count() });
     }
 
+    /// Creates a 1d ndarray instance by moving a mutable input array.
+    /// The created ndarray shares data ownership with the given array.
+    ///
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray wrap_mutable(array_t&& ary) {
         static_assert(axis_count == 1);
         std::int64_t ary_count = ary.get_count();
         return wrap_mutable(std::move(ary), shape_t{ ary_count });
     }
 
+    /// Creates an uninitialized multidimensional array of a requested shape.
+    ///
+    /// @param ary  The r-value reference to array that stores a homogeneous data block.
     static ndarray empty(const shape_t& shape) {
         T* ptr = dal::detail::malloc<T>(dal::detail::default_host_policy{}, shape.get_count());
         return wrap(ptr,
@@ -635,12 +714,20 @@ public:
                     dal::detail::make_default_delete<T>(dal::detail::default_host_policy{}));
     }
 
+    /// Creates a multidimensional array of the requested shape and copies the values
+    /// from the input pointer to a memory block into that multidimensional array.
+    ///
+    /// @param data     The pointer to a homogeneous data block.
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray copy(const T* data, const shape_t& shape) {
         auto ary = empty(shape);
         ary.assign(data, shape.get_count());
         return ary;
     }
 
+    /// Creates a multidimensional array of the requested shape and fills it with zeros.
+    ///
+    /// @param shape    The shape of the created multidimensional array.
     static ndarray zeros(const shape_t& shape) {
         auto ary = empty(shape);
         ary.fill(T(0));
@@ -648,15 +735,27 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+    /// Creates an uninitialized multidimensional array of a requested shape
+    /// with the elements stored in SYCL* USM.
+    ///
+    /// @param q            The SYCL* queue object.
+    /// @param shape        The shape of the created multidimensional array.
+    /// @param alloc_kind   The kind of USM to be allocated.
     static ndarray empty(const sycl::queue& q,
                          const shape_t& shape,
                          const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         T* ptr = malloc<T>(q, shape.get_count(), alloc_kind);
         return wrap(ptr, shape, usm_deleter<T>{ q });
     }
-#endif
 
-#ifdef ONEDAL_DATA_PARALLEL
+    /// Creates a multidimensional array of the requested shape with the elements
+    /// stored in SYCL* USM and copies the values from the input pointer to a memory block
+    /// into that multidimensional array.
+    ///
+    /// @param q            The SYCL* queue object.
+    /// @param data         The pointer to a homogeneous data block.
+    /// @param shape        The shape of the created multidimensional array.
+    /// @param alloc_kind   The kind of USM to be allocated.
     static std::tuple<ndarray, sycl::event> copy(
         sycl::queue& q,
         const T* data,
@@ -666,9 +765,7 @@ public:
         auto event = ary.assign(q, data, shape.get_count());
         return { ary, event };
     }
-#endif
 
-#ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> full(
         sycl::queue& q,
         const shape_t& shape,
@@ -679,18 +776,14 @@ public:
         auto event = ary.fill(q, value, deps);
         return { ary, event };
     }
-#endif
 
-#ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> zeros(
         sycl::queue& q,
         const shape_t& shape,
         const sycl::usm::alloc& alloc_kind = sycl::usm::alloc::shared) {
         return full(q, shape, T(0), alloc_kind);
     }
-#endif
 
-#ifdef ONEDAL_DATA_PARALLEL
     static std::tuple<ndarray, sycl::event> ones(
         sycl::queue& q,
         const shape_t& shape,

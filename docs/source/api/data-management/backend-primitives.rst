@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright contributors to the oneDAL project
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,18 +14,26 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-===============
-Data Management
-===============
+.. highlight:: cpp
 
-Refer to :ref:`Developer Guide: Data Management <dg_data_management>`.
+    .. _api_dm_backend_primitives:
+
+==================
+Backend Primitives
+==================
+
+Refer to :ref:`Developer Guide: Backend Primitives <dm_backend_primitives>`.
+
+.. _backend_primitives_programming_interface:
+
+---------------------
+Programming interface
+---------------------
+
+All types and functions in this section are declared in the
+``oneapi::dal::backend::primitives`` namespace and be available via inclusion of the
+``oneapi/dal/backend/primitives/ndarray.hpp`` header file.
 
 .. toctree::
 
-   array.rst
-   accessors.rst
-   data-sources.rst
-   graphs.rst
-   graph-service.rst
-   tables.rst
-   backend-primitives.rst
+   backend/ndarray.rst
