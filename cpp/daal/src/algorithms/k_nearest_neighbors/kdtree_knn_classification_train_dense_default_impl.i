@@ -368,7 +368,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         const_cast<NumericTable &>(x).getBlockOfColumnValues(j, 0, xRowCount, readOnly, columnBD);
         const algorithmFpType * const dx = columnBD.getBlockPtr();
         SafeStatus safeStat;
-        daal::tls<BBox *> bboxTLS([&]() -> BBox * {
+        daal::tls<BBox *> bboxTLS([&safeStat]() -> BBox * {
             BBox * const ptr = service_scalable_calloc<BBox, cpu>(1);
             if (ptr)
             {
@@ -1246,79 +1246,69 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     if (status.ok())
     {
         status = [&]() -> Status {
-            int result           = 0;
-            bool isNeedToReindex = true;
-            localTLS.reduce([=, &isNeedToReindex](Local * ptr) -> void {
-                if (ptr && ptr->extraKDTreeNodes)
+            int result = 0;
+
+            size_t actualNodeCount = lastNodeIndex;
+            localTLS.reduce([=, &actualNodeCount](Local * ptr) -> void {
+                if (ptr)
                 {
-                    isNeedToReindex = true;
+                    actualNodeCount += ptr->nodeIndex - firstNodeIndex[ptr->threadIndex];
                 }
             });
 
-            if (isNeedToReindex)
-            {
-                size_t actualNodeCount = lastNodeIndex;
-                localTLS.reduce([=, &actualNodeCount](Local * ptr) -> void {
-                    if (ptr)
+            Status s;
+            KDTreeTablePtr newKDTreeTable(new KDTreeTable(actualNodeCount, s));
+            DAAL_CHECK_STATUS_VAR(s);
+            KDTreeNode * const oldRoot = static_cast<KDTreeNode *>(kdTreeTable.getArray());
+            KDTreeNode * const newRoot = static_cast<KDTreeNode *>(newKDTreeTable->getArray());
+
+            result |=
+                daal::services::internal::daal_memcpy_s(newRoot, actualNodeCount * sizeof(KDTreeNode), oldRoot, lastNodeIndex * sizeof(KDTreeNode));
+
+            size_t newNodeIndex = lastNodeIndex;
+            localTLS.reduce([=, &result, &newNodeIndex](Local * ptr) -> void {
+                if (ptr)
+                {
+                    const size_t oldNodeIndex = firstNodeIndex[ptr->threadIndex];
+                    if (ptr->nodeIndex != oldNodeIndex)
                     {
-                        actualNodeCount += ptr->nodeIndex - firstNodeIndex[ptr->threadIndex];
-                    }
-                });
-
-                Status s;
-                KDTreeTablePtr newKDTreeTable(new KDTreeTable(actualNodeCount, s));
-                DAAL_CHECK_STATUS_VAR(s);
-                KDTreeNode * const oldRoot = static_cast<KDTreeNode *>(kdTreeTable.getArray());
-                KDTreeNode * const newRoot = static_cast<KDTreeNode *>(newKDTreeTable->getArray());
-
-                result |= daal::services::internal::daal_memcpy_s(newRoot, actualNodeCount * sizeof(KDTreeNode), oldRoot,
-                                                                  lastNodeIndex * sizeof(KDTreeNode));
-
-                size_t newNodeIndex = lastNodeIndex;
-                localTLS.reduce([=, &result, &newNodeIndex](Local * ptr) -> void {
-                    if (ptr)
-                    {
-                        const size_t oldNodeIndex = firstNodeIndex[ptr->threadIndex];
-                        if (ptr->nodeIndex != oldNodeIndex)
+                        const size_t extraNodeIndex = firstNodeIndex[ptr->threadIndex + 1];
+                        if (ptr->nodeIndex > extraNodeIndex)
                         {
-                            const size_t extraNodeIndex = firstNodeIndex[ptr->threadIndex + 1];
-                            if (ptr->nodeIndex > extraNodeIndex)
-                            {
-                                result |= daal::services::internal::daal_memcpy_s(
-                                    &newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode), &oldRoot[oldNodeIndex],
-                                    (extraNodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
-                                const size_t idx = newNodeIndex + (extraNodeIndex - oldNodeIndex);
-                                result |= daal::services::internal::daal_memcpy_s(&newRoot[idx], (actualNodeCount - idx) * sizeof(KDTreeNode),
-                                                                                  ptr->extraKDTreeNodes,
-                                                                                  (ptr->nodeIndex - extraNodeIndex) * sizeof(KDTreeNode));
-                            }
-                            else
-                            {
-                                result |= daal::services::internal::daal_memcpy_s(
-                                    &newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode), &oldRoot[oldNodeIndex],
-                                    (ptr->nodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
-                            }
-                            const long delta = newNodeIndex - oldNodeIndex;
-                            for (size_t i = 0; i < ptr->fixupQueueIndex; ++i)
-                            {
-                                newRoot[ptr->fixupQueue[i]].leftIndex += delta;
-                                newRoot[ptr->fixupQueue[i]].rightIndex += delta;
-                            }
-                            for (size_t i = newNodeIndex, end = newNodeIndex + ptr->nodeIndex - oldNodeIndex; i < end; ++i)
-                            {
-                                if (newRoot[i].dimension != __KDTREE_NULLDIMENSION)
-                                {
-                                    newRoot[i].leftIndex += delta;
-                                    newRoot[i].rightIndex += delta;
-                                }
-                            }
-                            newNodeIndex += ptr->nodeIndex - oldNodeIndex;
+                            result |=
+                                daal::services::internal::daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
+                                                                        &oldRoot[oldNodeIndex], (extraNodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
+                            const size_t idx = newNodeIndex + (extraNodeIndex - oldNodeIndex);
+                            result |= daal::services::internal::daal_memcpy_s(&newRoot[idx], (actualNodeCount - idx) * sizeof(KDTreeNode),
+                                                                              ptr->extraKDTreeNodes,
+                                                                              (ptr->nodeIndex - extraNodeIndex) * sizeof(KDTreeNode));
                         }
+                        else
+                        {
+                            result |=
+                                daal::services::internal::daal_memcpy_s(&newRoot[newNodeIndex], (actualNodeCount - newNodeIndex) * sizeof(KDTreeNode),
+                                                                        &oldRoot[oldNodeIndex], (ptr->nodeIndex - oldNodeIndex) * sizeof(KDTreeNode));
+                        }
+                        const long delta = newNodeIndex - oldNodeIndex;
+                        for (size_t i = 0; i < ptr->fixupQueueIndex; ++i)
+                        {
+                            newRoot[ptr->fixupQueue[i]].leftIndex += delta;
+                            newRoot[ptr->fixupQueue[i]].rightIndex += delta;
+                        }
+                        for (size_t i = newNodeIndex, end = newNodeIndex + ptr->nodeIndex - oldNodeIndex; i < end; ++i)
+                        {
+                            if (newRoot[i].dimension != __KDTREE_NULLDIMENSION)
+                            {
+                                newRoot[i].leftIndex += delta;
+                                newRoot[i].rightIndex += delta;
+                            }
+                        }
+                        newNodeIndex += ptr->nodeIndex - oldNodeIndex;
                     }
-                });
-                r.impl()->setKDTreeTable(newKDTreeTable);
-                r.impl()->setLastNodeIndex(newNodeIndex);
-            }
+                }
+            });
+            r.impl()->setKDTreeTable(newKDTreeTable);
+            r.impl()->setLastNodeIndex(newNodeIndex);
 
             return (!result) ? Status() : Status(ErrorMemoryCopyFailedInternal);
         }();
