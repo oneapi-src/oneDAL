@@ -78,7 +78,7 @@ is available as an alternative to the manual setup.
 4. Set up MKL:
 
     _Note: if you used the general oneAPI setvars script from a Base Toolkit installation, this step will not be necessary as oneMKL will already have been set up._
-    
+
     Download and install [Intel(R) oneMKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html).
     Set the environment variables for for Intel(R) oneMKL. For example:
 
@@ -149,7 +149,15 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
+On **Linux\*** it is possible to build debug version of oneDAL or the version that allows to do kernel profiling using <ittnotify.h>.
 
+- To build debug version of oneDAL, run:
+
+            make -f makefile daal oneapi_c PLAT=lnx32e REQDBG=yes
+
+- To build oneDAL with kernel profiling information, run:
+
+            make -f makefile daal oneapi_c PLAT=lnx32e REQPROFILE=yes
 
 ---
 **NOTE:** Built libraries are located in the `__release_{os_name}[_{compiler_name}]/daal` directory.
