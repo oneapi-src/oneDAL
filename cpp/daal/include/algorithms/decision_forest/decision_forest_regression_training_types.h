@@ -152,9 +152,9 @@ public:
     Input();
 
     /** Copy constructor */
-    Input(const Input & other) : algorithms::regression::training::Input(other) {}
+    Input(const Input & other);
 
-    Input & operator=(const Input & other) = default;
+    Input & operator=(const Input & other);
 
     virtual ~Input() {};
 

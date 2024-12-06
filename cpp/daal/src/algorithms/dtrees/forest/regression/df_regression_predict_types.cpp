@@ -43,8 +43,9 @@ namespace interface1
 __DAAL_REGISTER_SERIALIZATION_CLASS(Result, SERIALIZATION_DECISION_FOREST_REGRESSION_PREDICTION_RESULT_ID);
 
 /** Default constructor */
-Input::Input() : algorithms::regression::prediction::Input(lastModelInputId + 1) {}
-Input::Input(const Input & other) : algorithms::regression::prediction::Input(other) {}
+Input::Input()                                = default;
+Input::Input(const Input & other)             = default;
+Input & Input::operator=(const Input & other) = default;
 
 /**
  * Returns an input object for making decision forest model-based prediction
