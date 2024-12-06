@@ -50,6 +50,23 @@ public:
     /// @param array Source array
     chunked_array(const chunked_array& array) : chunked_array_base{ array } {}
 
+    /// @brief       Move assignment
+    /// @param array Source array
+    chunked_array& operator=(chunked_array&& array) {
+        base_t::operator=(std::forward<base_t>(array));
+        return *this;
+    }
+
+    /// @brief       Copy assignment
+    /// @param array Source array
+    chunked_array& operator=(const chunked_array& array) {
+        base_t::operator=(array);
+        return *this;
+    }
+
+    /// @brief        Destructor
+    ~chunked_array() = default;
+
     /// @brief             Constructs an empty `chunked_array`
     ///                    with unpopulated chunks
     /// @param chunk_count Number of empty chunks in the
