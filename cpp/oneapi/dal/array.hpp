@@ -222,9 +222,7 @@ public:
         other.reset_data();
     }
 
-    // Add copy assignment, move assignment, and destructor
-    array<T>& operator=(const array<T>& other) = default;
-    array<T>& operator=(array<T>&& other) = default;
+    // Add destructor
     ~array() = default;
 
     /// Creates a new array instance which owns a memory block of externally-allocated mutable data.
