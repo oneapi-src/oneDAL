@@ -139,6 +139,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'task::by_default'),
     ('cpp:identifier', 'Task'),
     # detail
+    ('cpp:identifier', 'dal::detail'),
     ('cpp:identifier', 'detail'),
     ('cpp:identifier', 'detail::descriptor_base<>'),
     ('cpp:identifier', 'detail::descriptor_base<>::float_t'),
@@ -392,5 +393,18 @@ nitpick_ignore = [
     ('cpp:identifier', 'kind::induced'),
     ('cpp:identifier', 'kind::non_induced'),
     ('cpp:identifier', 'preview'),
-    ('cpp:identifier', 'connected_components')
+    ('cpp:identifier', 'connected_components'),
+
+    # sycl
+    ('cpp:identifier', 'sycl'),
+    ('cpp:identifier', 'sycl::queue'),
+    ('cpp:identifier', 'sycl::usm'),
+
+    # backend primitives - data management
+    ('cpp:identifier', 'array_t'),
+    ('cpp:identifier', 'ndarray'),
+    ('cpp:identifier', 'ndorder'),
+    ('cpp:identifier', 'ndshape'),
+    ('cpp:identifier', 'shape_t'),
+    ('cpp:identifier', 'shared_t')
 ]

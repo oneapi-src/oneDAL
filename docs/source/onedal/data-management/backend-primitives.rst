@@ -1,5 +1,5 @@
 .. ******************************************************************************
-.. * Copyright 2021 Intel Corporation
+.. * Copyright contributors to the oneDAL project
 .. *
 .. * Licensed under the Apache License, Version 2.0 (the "License");
 .. * you may not use this file except in compliance with the License.
@@ -14,18 +14,12 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-===============
-Data Management
-===============
+.. highlight:: cpp
 
-Refer to :ref:`Developer Guide: Data Management <dg_data_management>`.
+.. _dm_backend_primitives:
 
-.. toctree::
+==================
+Backend Primitives
+==================
 
-   array.rst
-   accessors.rst
-   data-sources.rst
-   graphs.rst
-   graph-service.rst
-   tables.rst
-   backend-primitives.rst
+This section describes the types related to internal backend data management primitives.
