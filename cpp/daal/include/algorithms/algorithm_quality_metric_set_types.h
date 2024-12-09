@@ -57,9 +57,9 @@ public:
 
     virtual ~InputAlgorithmsCollection();
 
-    InputAlgorithmsCollection(InputAlgorithmsCollection & other) = delete;
+    InputAlgorithmsCollection(InputAlgorithmsCollection & other);
 
-    InputAlgorithmsCollection & operator=(InputAlgorithmsCollection & other) = delete;
+    InputAlgorithmsCollection & operator=(InputAlgorithmsCollection & other);
 
     /**
      * Returns a reference to SharedPtr for a stored object with a given key if an object with such key is registered

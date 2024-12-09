@@ -39,6 +39,9 @@ InputAlgorithmsCollection::InputAlgorithmsCollection(size_t n) : _qualityMetrics
     nullPtr = new services::SharedPtr<quality_metric::Batch>();
 }
 
+InputAlgorithmsCollection::InputAlgorithmsCollection(InputAlgorithmsCollection & other)             = delete;
+InputAlgorithmsCollection & InputAlgorithmsCollection::operator=(InputAlgorithmsCollection & other) = delete;
+
 InputAlgorithmsCollection::~InputAlgorithmsCollection()
 {
     delete nullPtr;
