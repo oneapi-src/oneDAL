@@ -52,9 +52,9 @@ public:
             return parent.offsets;
         }
 
-        mutable_accessor(const mutable_accessor&) = default;
+        mutable_accessor(const mutable_accessor&) = delete;
 
-        mutable_accessor& operator=(const mutable_accessor&) = default;
+        mutable_accessor& operator=(const mutable_accessor&) = delete;
 
         ~mutable_accessor() {
             parent.update_offsets();
