@@ -52,17 +52,11 @@ public:
 
     /// @brief       Move assignment
     /// @param array Source array
-    chunked_array& operator=(chunked_array&& array) {
-        base_t::operator=(std::forward<base_t>(array));
-        return *this;
-    }
+    chunked_array& operator=(chunked_array&& array) = default;
 
     /// @brief       Copy assignment
     /// @param array Source array
-    chunked_array& operator=(const chunked_array& array) {
-        base_t::operator=(array);
-        return *this;
-    }
+    chunked_array& operator=(const chunked_array& array) = default;
 
     /// @brief        Destructor
     ~chunked_array() = default;
