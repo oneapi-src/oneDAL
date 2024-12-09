@@ -77,6 +77,7 @@ sycl::event gather_device2host(sycl::queue& q,
     copy_event.wait_and_throw();
 
     return sycl::event{};
+
 }
 
 sycl::event scatter_host2device(sycl::queue& q,
