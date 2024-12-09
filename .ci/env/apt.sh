@@ -134,6 +134,6 @@ elif [ "${component}" == "build-sysroot" ] ; then
     build_sysroot "$2" "$3" "$4" "$5"
 else
     echo "Usage:"
-    echo "   $0 [dpcpp|mkl|tbb|gnu-cross-compilers|clang-format|dev-base|qemu-apt|qemu-deb|llvm-version|build-sysroot]"
+    echo "   $0 [dpcpp|tbb|mkl|gnu-cross-compilers|clang-format|dev-base|qemu-apt|qemu-deb|llvm-version|build-sysroot]"
     exit 1
 fi
