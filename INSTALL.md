@@ -208,7 +208,7 @@ The previous instructions assumed system-wide installs of the necessary dependen
 To create a conda environment for building oneDAL, after `conda` has been installed:
 
 ```shell
-conda create -n -y onedal_env
+conda create -y -n onedal_env
 conda activate onedal_env
 ```
 
