@@ -99,7 +99,17 @@ In the source code of the algorithms, oneDAL does not use threading primitives d
 
 oneDAL uses `Doxygen` for inline comments in public header files that are used to build the API reference and  `reStructuredText` for the Developer Guide. See [oneDAL documentation](https://uxlfoundation.github.io/oneDAL/) for reference.
 
----
-**Note:** oneDAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
+## License and Copyright
 
----
+oneDAL is licensed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0). By contributing to the project, you agree to the license and copyright terms therein and release your contribution under these terms.
+
+### Copyright Guidelines for Contributions
+1. Each new file added to the project must include the following copyright notice:
+    ```plaintext
+    Copyright contributors to the oneDAL project
+    ```
+2. When modifying an existing file with an Intel Corporation copyright notice, do not remove the original notice. Simply add your own copyright notice with the following line:
+    ```plaintext
+    Copyright <YYYY> Intel Corporation
+    Copyright contributors to the oneDAL project
+    ```
