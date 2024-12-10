@@ -57,6 +57,10 @@ public:
 
     virtual ~InputAlgorithmsCollection();
 
+    InputAlgorithmsCollection(InputAlgorithmsCollection & other) = delete;
+
+    InputAlgorithmsCollection & operator=(InputAlgorithmsCollection & other) = delete;
+
     /**
      * Returns a reference to SharedPtr for a stored object with a given key if an object with such key is registered
      * \param[in] k     Key value
@@ -94,15 +98,6 @@ protected:
     services::Collection<services::SharedPtr<quality_metric::Batch> > _qualityMetrics;
     services::Collection<size_t> _keys;
     services::SharedPtr<quality_metric::Batch> * nullPtr;
-
-private:
-    // Those methods are declared here, but have no implementations in order to make
-    // the class nocopiable.
-    //
-    // Methods are declated private and not deleted using '= delete' intentionally
-    // to get rid of illegal instructions.
-    InputAlgorithmsCollection(InputAlgorithmsCollection & other);
-    InputAlgorithmsCollection & operator=(InputAlgorithmsCollection & other);
 };
 
 /**
