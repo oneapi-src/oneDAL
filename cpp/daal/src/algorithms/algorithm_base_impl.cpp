@@ -152,7 +152,7 @@ namespace interface1
 AlgorithmContainerIfaceImpl::AlgorithmContainerIfaceImpl() = default;
 AlgorithmContainer<batch>::AlgorithmContainer()            = default;
 
-template<ComputeMode mode>
+template <ComputeMode mode>
 AlgorithmContainer<mode>::AlgorithmContainer() = default;
 
 } //namespace interface1
