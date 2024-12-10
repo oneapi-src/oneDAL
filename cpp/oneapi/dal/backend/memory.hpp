@@ -222,6 +222,7 @@ inline sycl::event memcpy_host2usm(sycl::queue& queue,
     ONEDAL_ASSERT(is_known_usm(queue, dest_usm));
 
     sycl::event memcpy_event = memcpy(queue, dest_usm, src_host, size, deps);
+    memcpy_event.wait_and_throw();
     return memcpy_event;
 }
 
@@ -233,6 +234,7 @@ inline sycl::event memcpy_usm2host(sycl::queue& queue,
     ONEDAL_ASSERT(is_known_usm(queue, src_usm));
 
     sycl::event memcpy_event = memcpy(queue, dest_host, src_usm, size, deps);
+    memcpy_event.wait_and_throw();
     return memcpy_event;
 }
 
