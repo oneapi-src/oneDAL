@@ -289,7 +289,7 @@ public:
      * Returns the structure that contains correlation or variance-covariance matrix
      * \return Structure that contains the computed matrix
      */
-    ResultPtr getResulst() { return _result; }
+    ResultPtr getResult() { return _result; }
 
     /**
      * Registers user-allocated memory to store results of computation of the correlation or variance-covariance matrix
