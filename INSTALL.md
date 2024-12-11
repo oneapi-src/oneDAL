@@ -35,7 +35,7 @@ Note: the Intel(R) oneAPI components listed here can be installed together throu
 
 https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html
 
-These dependencies can also be installed through the `conda` software, but doing so will require a few additional setup steps - see rest of the instructions for details.
+All of these dependencies can alternatively be installed through the `conda` software, but doing so will require a few additional setup steps - see [Conda Development Environment Setup](https://github.com/uxlfoundation/oneDAL/blob/main/INSTALL.md#conda-development-environment-setup) for details.
 
 ## Docker Development Environment
 
@@ -44,7 +44,6 @@ is available as an alternative to the manual setup.
 
 ## Installation Steps
 
-_(If using `conda`, see subsequent sections for instructions)_
 
 1. Clone the sources from GitHub\* as follows:
 
@@ -201,33 +200,48 @@ For example, in a Linux platform, assuming one wishes to execute the `adaboost_d
 ./_cmake_results/intel_intel64_so/adaboost_dense_batch
 ```
 
-## Installation with a conda environment
+## Conda Development Environment Setup
 
 The previous instructions assumed system-wide installs of the necessary dependencies. These can also be installed at a user-level through the `conda` or [mamba](https://github.com/conda-forge/miniforge) ecosystems.
 
-To create a conda environment for building oneDAL, after `conda` has been installed:
+First, create a conda environment for building oneDAL, after `conda` has been installed:
 
 ```shell
 conda create -y -n onedal_env
 conda activate onedal_env
 ```
 
-To install the necessary dependencies with `conda`, **assuming a linux system**:
+Then, install the necessary dependencies from the appropriate channels with `conda`:
+
+* Linux:
 
 ```shell
 conda install -y \
     -c https://software.repos.intel.com/python/conda/ \ `# Intel's repository`
     -c conda-forge \ `# conda-forge, for tools like 'make'`
-    make python \ `# used by the build system`
+    make python>=3.9 \ `# used by the build system`
     dpcpp-cpp-rt dpcpp_linux-64 intel-sycl-rt \ `# Intel compiler packages`
     tbb tbb-devel \ `# required TBB packages`
     mkl mkl-devel mkl-static mkl-dpcpp mkl-devel-dpcpp \ `# required MKL packages`
     cmake `# required to build the examples only`
 ```
 
-_(for windows, replace `dpcpp_linux-64` with `dpcpp_win-64`, and remove the comments within backticks)_
+* Windows:
 
-Then, one needs to modify environment variables as appropriate to point to the necessary libraries - **assuming a linux system:**
+```bat
+conda install -y^
+    -c https://software.repos.intel.com/python/conda/^
+    -c conda-forge^
+    make dos2unix python>=3.9^
+    dpcpp-cpp-rt dpcpp_win-64 intel-sycl-rt^
+    tbb tbb-devel^
+    mkl mkl-devel mkl-static mkl-dpcpp mkl-devel-dpcpp^
+    cmake
+```
+
+Then modify the relevant environment variables to point to the conda-installed libraries:
+
+* Linux:
 
 ```shell
 export MKLROOT=${CONDA_PREFIX}
@@ -240,7 +254,7 @@ export PKG_CONFIG_PATH="${CONDA_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 export CMAKE_PREFIX_PATH="${CONDA_PREFIX}/lib/cmake:${CMAKE_PREFIX_PATH}"
 ```
 
-Equivalent for windows:
+* windows:
 
 ```bat
 set MKLROOT=%CONDA_PREFIX%\Library
@@ -253,16 +267,4 @@ set "PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\lib\pkgconfig;%PKG_CONFIG_PATH%"
 set "CMAKE_PREFIX_PATH=%CONDA_PREFIX%\Library\lib\cmake;%CMAKE_PREFIX_PATH%"
 ```
 
-.. And then, previous commands in this document from the Makefile for the Intel compiler should work - e.g.:
-
-* For linux:
-
-```shell
-make -f makefile daal PLAT=lnx32e
-```
-
-* For windows:
-
-```shell
-make -f makefile oneapi PLAT=win32e
-```
+After that, it should be possible to build oneDAL and run the examples using the ICX compiler and the oneMKL libraries as per the instructions.
