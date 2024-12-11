@@ -214,7 +214,6 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     Queue<BuildNode, cpu> q;
     BBox * bboxQ = nullptr;
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
-
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
 
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
