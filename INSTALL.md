@@ -215,15 +215,18 @@ conda activate onedal_env
 To install the necessary dependencies with `conda`, **assuming a linux system**:
 
 ```shell
-conda install -y -c https://software.repos.intel.com/python/conda/ \ `# Intel's repository`
+conda install -y \
+    -c https://software.repos.intel.com/python/conda/ \ `# Intel's repository`
+    -c conda-forge \ `# conda-forge, for tools like 'make'`
     make python \ `# used by the build system`
     dpcpp-cpp-rt dpcpp_linux-64 intel-sycl-rt \ `# Intel compiler packages`
     tbb tbb-devel \ `# required TBB packages`
     mkl mkl-devel mkl-static mkl-dpcpp mkl-devel-dpcpp \ `# required MKL packages`
-    cmake `# required to build the examples only`
+    impi_rt impi-devel `# required for spmd mode only`
+    cmake \ `# required to build the examples only`
 ```
 
-_(for windows, replace `dpcpp_linux-64` with `dpcpp_win-64`)_
+_(for windows, replace `dpcpp_linux-64` with `dpcpp_win-64`, and remove the comments within backticks)_
 
 Then, one needs to modify environment variables as appropriate to point to the necessary libraries - **assuming a linux system:**
 
@@ -251,7 +254,7 @@ set "PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\lib\pkgconfig;%PKG_CONFIG_PATH%"
 set "CMAKE_PREFIX_PATH=%CONDA_PREFIX%\Library\lib\cmake;%CMAKE_PREFIX_PATH%"
 ```
 
-.. And then, previous commands from the Makefile for the Intel compiler should work - e.g.:
+.. And then, previous commands in this document from the Makefile for the Intel compiler should work - e.g.:
 
 * For linux:
 
