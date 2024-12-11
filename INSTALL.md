@@ -222,8 +222,8 @@ conda install -y \
     dpcpp-cpp-rt dpcpp_linux-64 intel-sycl-rt \ `# Intel compiler packages`
     tbb tbb-devel \ `# required TBB packages`
     mkl mkl-devel mkl-static mkl-dpcpp mkl-devel-dpcpp \ `# required MKL packages`
-    impi_rt impi-devel `# required for spmd mode only`
-    cmake \ `# required to build the examples only`
+    impi_rt impi-devel \ `# required for spmd mode only`
+    cmake `# required to build the examples only`
 ```
 
 _(for windows, replace `dpcpp_linux-64` with `dpcpp_win-64`, and remove the comments within backticks)_
