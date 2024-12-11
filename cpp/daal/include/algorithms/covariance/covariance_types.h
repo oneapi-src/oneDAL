@@ -125,11 +125,11 @@ namespace interface1
 class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
 public:
-    InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
-    InputIface(const InputIface & other)             = default;
-    InputIface & operator=(const InputIface & other) = default;
-    virtual size_t getNumberOfFeatures() const       = 0;
-    virtual ~InputIface() {}
+    InputIface(size_t nElements);
+    InputIface(const InputIface & other);
+    InputIface & operator=(const InputIface & other);
+    virtual size_t getNumberOfFeatures() const = 0;
+    virtual ~InputIface();
 };
 
 /**
@@ -140,10 +140,10 @@ class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
-    Input(const Input & other)             = default;
-    Input & operator=(const Input & other) = default;
+    Input(const Input & other);
+    Input & operator=(const Input & other);
 
-    virtual ~Input() {}
+    virtual ~Input();
 
     /**
      * Returns number of columns in the input data set
@@ -404,10 +404,10 @@ class DAAL_EXPORT DistributedInput<step2Master> : public InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput & other)             = default;
-    DistributedInput & operator=(const DistributedInput & other) = default;
+    DistributedInput(const DistributedInput & other);
+    DistributedInput & operator=(const DistributedInput & other);
 
-    virtual ~DistributedInput() {}
+    virtual ~DistributedInput();
 
     /**
      * Returns number of columns in the input data set
