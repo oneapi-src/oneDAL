@@ -37,13 +37,13 @@ https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html
 
 ## Docker Development Environment
 
-[Docker file](https://github.com/oneapi-src/oneDAL/tree/main/dev/docker) with the oneDAL development environment
+[Docker file](https://github.com/uxlfoundation/oneDAL/tree/main/dev/docker) with the oneDAL development environment
 is available as an alternative to the manual setup.
 
 ## Installation Steps
 1. Clone the sources from GitHub\* as follows:
 
-        git clone https://github.com/oneapi-src/oneDAL.git
+        git clone https://github.com/uxlfoundation/oneDAL.git
 
 2. Set the PATH environment variable to the MSYS2\* bin directory (Windows\* only). For example:
 
@@ -78,7 +78,7 @@ is available as an alternative to the manual setup.
 4. Set up MKL:
 
     _Note: if you used the general oneAPI setvars script from a Base Toolkit installation, this step will not be necessary as oneMKL will already have been set up._
-    
+
     Download and install [Intel(R) oneMKL](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html).
     Set the environment variables for for Intel(R) oneMKL. For example:
 
@@ -149,21 +149,29 @@ It is possible to build oneDAL libraries with selected set of algorithms and/or 
 
             make -f makefile daal PLAT=win32e CORE.ALGORITHMS.CUSTOM=low_order_moments REQCPU=avx2 -j16
 
+On **Linux\*** it is possible to build debug version of oneDAL or the version that allows to do kernel profiling using <ittnotify.h>.
 
+- To build debug version of oneDAL, run:
+
+            make -f makefile daal oneapi_c PLAT=lnx32e REQDBG=yes
+
+- To build oneDAL with kernel profiling information, run:
+
+            make -f makefile daal oneapi_c PLAT=lnx32e REQPROFILE=yes
 
 ---
 **NOTE:** Built libraries are located in the `__release_{os_name}[_{compiler_name}]/daal` directory.
 
 ---
 
-After having built the library, if one wishes to use it for building [scikit-learn-intelex](https://github.com/intel/scikit-learn-intelex/tree/main) or for executing the usage examples, one can set the required environment variables to point to the generated build by sourcing the script that it creates under the `env` folder. The script will be located under `__release_{os_name}[_{compiler_name}]/daal/latest/env/vars.sh` and can be sourced with a POSIX-compliant shell such as `bash`, by executing something like the following from inside the `__release*` folder:
+After having built the library, if one wishes to use it for building [scikit-learn-intelex](https://github.com/uxlfoundation/scikit-learn-intelex/tree/main) or for executing the usage examples, one can set the required environment variables to point to the generated build by sourcing the script that it creates under the `env` folder. The script will be located under `__release_{os_name}[_{compiler_name}]/daal/latest/env/vars.sh` and can be sourced with a POSIX-compliant shell such as `bash`, by executing something like the following from inside the `__release*` folder:
 
 ```shell
 cd daal/latest
 source env/vars.sh
 ```
 
-The provided unit tests for the library can be executed through the Bazel system - see the [Bazel docs](https://github.com/oneapi-src/oneDAL/tree/main/dev/bazel) for more information.
+The provided unit tests for the library can be executed through the Bazel system - see the [Bazel docs](https://github.com/uxlfoundation/oneDAL/tree/main/dev/bazel) for more information.
 
 Examples of library usage will also be auto-generated as part of the build under path `daal/latest/examples/daal/cpp/source`. These can be built through CMake - assuming one starts from the release path `__release_{os_name}[_{compiler_name}]`, the following would do:
 
