@@ -399,7 +399,7 @@ jobs:
   - script: |
       .ci/env/openblas.sh --target-arch x86_64 --prefix $(OPENBLAS_CACHE_DIR) --version $(OPENBLAS_VERSION)
     displayName: 'Build OpenBLAS'
-    condition: ne(variables.OPENBLAS_RESTORED, 'true')
+    condition: ne(variables.OPENBLAS_RESTORED, 'false')
   - script: |
       .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend-config ref --conda-env ci-env --blas-dir $(OPENBLAS_CACHE_DIR)
     displayName: 'make daal'
