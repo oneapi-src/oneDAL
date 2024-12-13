@@ -100,9 +100,6 @@ TEMPLATE_LIST_TEST_M(kmeans_batch_test,
                      "kmeans block test",
                      "[kmeans][batch][nightly][block]",
                      kmeans_types) {
-    // This test is not stable on CPU
-    // TODO: Remove the following `SKIP_IF` once stability problem is resolved
-    SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->is_sparse_method());
     SKIP_IF(this->not_float64_friendly());
     this->check_on_large_data_with_one_cluster();
