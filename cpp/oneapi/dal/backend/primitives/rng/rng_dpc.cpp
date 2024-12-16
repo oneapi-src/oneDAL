@@ -22,15 +22,14 @@ namespace oneapi::dal::backend::primitives {
 
 namespace bk = oneapi::dal::backend;
 
-template <typename Type, typename Size>
-template <engine_method EngineType>
-void rng<Type, Size>::uniform_gpu(sycl::queue& queue,
-                                  Size count,
-                                  Type* dst,
-                                  dpc_engine<EngineType>& engine_,
-                                  Type a,
-                                  Type b,
-                                  const event_vector& deps) {
+template <typename Type, typename Size, engine_method EngineType>
+void uniform_gpu(sycl::queue& queue,
+                 Size count,
+                 Type* dst,
+                 dpc_engine<EngineType>& engine_,
+                 Type a,
+                 Type b,
+                 const event_vector& deps) {
     if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) == sycl::usm::alloc::host) {
         throw domain_error(dal::detail::error_messages::unsupported_data_type());
     }
@@ -41,16 +40,15 @@ void rng<Type, Size>::uniform_gpu(sycl::queue& queue,
 }
 
 //Currently only CPU impl
-template <typename Type, typename Size>
-template <engine_method EngineType>
-void rng<Type, Size>::uniform_without_replacement_gpu(sycl::queue& queue,
-                                                      Size count,
-                                                      Type* dst,
-                                                      Type* buffer,
-                                                      dpc_engine<EngineType>& engine_,
-                                                      Type a,
-                                                      Type b,
-                                                      const event_vector& deps) {
+template <typename Type, typename Size, engine_method EngineType>
+void uniform_without_replacement_gpu(sycl::queue& queue,
+                                     Size count,
+                                     Type* dst,
+                                     Type* buffer,
+                                     dpc_engine<EngineType>& engine_,
+                                     Type a,
+                                     Type b,
+                                     const event_vector& deps) {
     if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) ==
         sycl::usm::alloc::device) {
         throw domain_error(dal::detail::error_messages::unsupported_data_type());
@@ -61,13 +59,12 @@ void rng<Type, Size>::uniform_without_replacement_gpu(sycl::queue& queue,
 }
 
 //Currently only CPU impl
-template <typename Type, typename Size>
-template <engine_method EngineType>
-void rng<Type, Size>::shuffle_gpu(sycl::queue& queue,
-                                  Size count,
-                                  Type* dst,
-                                  dpc_engine<EngineType>& engine_,
-                                  const event_vector& deps) {
+template <typename Type, typename Size, engine_method EngineType>
+void shuffle_gpu(sycl::queue& queue,
+                 Size count,
+                 Type* dst,
+                 dpc_engine<EngineType>& engine_,
+                 const event_vector& deps) {
     Type idx[2];
     if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) ==
         sycl::usm::alloc::device) {
@@ -82,14 +79,14 @@ void rng<Type, Size>::shuffle_gpu(sycl::queue& queue,
     }
 }
 
-#define INSTANTIATE_(F, Size, EngineType)                                                  \
-    template ONEDAL_EXPORT void rng<F, Size>::uniform_gpu(sycl::queue& queue,              \
-                                                          Size count_,                     \
-                                                          F* dst,                          \
-                                                          dpc_engine<EngineType>& engine_, \
-                                                          F a,                             \
-                                                          F b,                             \
-                                                          const event_vector& deps);
+#define INSTANTIATE_(F, Size, EngineType)                                    \
+    template ONEDAL_EXPORT void uniform_gpu(sycl::queue& queue,              \
+                                            Size count_,                     \
+                                            F* dst,                          \
+                                            dpc_engine<EngineType>& engine_, \
+                                            F a,                             \
+                                            F b,                             \
+                                            const event_vector& deps);
 
 #define INSTANTIATE_FLOAT_(Size)                             \
     INSTANTIATE_(float, Size, engine_method::mt2203)         \
@@ -111,16 +108,15 @@ void rng<Type, Size>::shuffle_gpu(sycl::queue& queue,
 INSTANTIATE_FLOAT_(std::int64_t);
 INSTANTIATE_FLOAT_(std::int32_t);
 
-#define INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(F, Size, EngineType)       \
-    template ONEDAL_EXPORT void rng<F, Size>::uniform_without_replacement_gpu( \
-        sycl::queue& queue,                                                    \
-        Size count_,                                                           \
-        F* dst,                                                                \
-        F* buff,                                                               \
-        dpc_engine<EngineType>& engine_,                                       \
-        F a,                                                                   \
-        F b,                                                                   \
-        const event_vector& deps);
+#define INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(F, Size, EngineType)                         \
+    template ONEDAL_EXPORT void uniform_without_replacement_gpu(sycl::queue& queue,              \
+                                                                Size count_,                     \
+                                                                F* dst,                          \
+                                                                F* buff,                         \
+                                                                dpc_engine<EngineType>& engine_, \
+                                                                F a,                             \
+                                                                F b,                             \
+                                                                const event_vector& deps);
 
 #define INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU_FLOAT(Size)                             \
     INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU(float, Size, engine_method::mt2203)         \
@@ -142,12 +138,12 @@ INSTANTIATE_FLOAT_(std::int32_t);
 INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU_FLOAT(std::int64_t);
 INSTANTIATE_UNIFORM_WITHOUT_REPLACEMENT_GPU_FLOAT(std::int32_t);
 
-#define INSTANTIATE_SHUFFLE(F, Size, EngineType)                                           \
-    template ONEDAL_EXPORT void rng<F, Size>::shuffle_gpu(sycl::queue& queue,              \
-                                                          Size count_,                     \
-                                                          F* dst,                          \
-                                                          dpc_engine<EngineType>& engine_, \
-                                                          const event_vector& deps);
+#define INSTANTIATE_SHUFFLE(F, Size, EngineType)                             \
+    template ONEDAL_EXPORT void shuffle_gpu(sycl::queue& queue,              \
+                                            Size count_,                     \
+                                            F* dst,                          \
+                                            dpc_engine<EngineType>& engine_, \
+                                            const event_vector& deps);
 
 #define INSTANTIATE_SHUFFLE_FLOAT(Size)                          \
     INSTANTIATE_SHUFFLE(int, Size, engine_method::mt2203)        \

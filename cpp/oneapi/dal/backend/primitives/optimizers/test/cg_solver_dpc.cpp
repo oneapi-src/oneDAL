@@ -43,9 +43,8 @@ public:
         x_host_ = ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
         b_host_ = ndarray<float_t, 1>::empty(this->get_queue(), { n_ }, sycl::usm::alloc::host);
 
-        primitives::rng<float_t> rn_gen;
         primitives::host_engine eng(4014 + n_);
-        rn_gen.uniform_cpu(n_, x_host_.get_mutable_data(), eng, -1.0, 1.0);
+        primitives::uniform_cpu<float_t>(n_, x_host_.get_mutable_data(), eng, -1.0, 1.0);
 
         create_stable_matrix(this->get_queue(), A_host_);
 

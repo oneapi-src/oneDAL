@@ -572,13 +572,12 @@ public:
         const std::int64_t p = hessian_host.get_dimension(0) - 1;
         const std::int64_t dim = fit_intercept ? p + 1 : p;
 
-        primitives::rng<float_t> rn_gen;
         auto vec_host =
             ndarray<float_t, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::host);
 
         for (std::int32_t ij = 0; ij < num_checks; ++ij) {
             primitives::host_engine eng(2007 + dim * num_checks + ij);
-            rn_gen.uniform_cpu(dim, vec_host.get_mutable_data(), eng, -1.0, 1.0);
+            pr::uniform_cpu<float_t>(dim, vec_host.get_mutable_data(), eng, -1.0, 1.0);
             auto vec_gpu = vec_host.to_device(this->get_queue());
             auto out_vector =
                 ndarray<float_t, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::device);

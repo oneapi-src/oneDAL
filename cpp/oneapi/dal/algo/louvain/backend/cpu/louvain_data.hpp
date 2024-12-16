@@ -124,7 +124,6 @@ struct louvain_data {
     value_type m;
 
     host_engine<engine_method::mt2203> eng;
-    rng<std::int32_t> rn_gen;
 
     const std::int64_t vertex_count;
     const std::int64_t edge_count;

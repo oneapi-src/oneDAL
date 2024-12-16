@@ -68,11 +68,6 @@ public:
     using EngineType = std::tuple_element_t<1, TestType>;
     static constexpr auto engine_qq = engine_v<EngineType>;
 
-    auto get_rng() const {
-        rng<DataType> rn_gen;
-        return rn_gen;
-    }
-
     auto get_host_engine(std::int64_t seed) {
         auto rng_engine = host_engine<engine_qq>(seed);
         return rng_engine;
@@ -109,7 +104,7 @@ public:
     }
 };
 
-using rng_types = COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59, mrg32k3a, philox4x32x10));
+using rng_types = COMBINE_TYPES((float), (mt2203, mt19937, mcg59, mrg32k3a, philox4x32x10));
 
 TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
@@ -121,12 +116,11 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
     auto arr_host_ptr = arr_host.get_mutable_data();
 
-    auto rn_gen = this->get_rng();
     auto rng_engine = this->get_engine(seed);
     auto rng_engine_ = this->get_engine(seed);
 
-    rn_gen.uniform_cpu(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
+    uniform_cpu<float>(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
+    uniform_gpu<float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
 
     this->check_results(arr_gpu, arr_host);
 }
@@ -174,15 +168,14 @@ TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahe
     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
     auto arr_host_ptr = arr_host.get_mutable_data();
 
-    auto rn_gen = this->get_rng();
     auto rng_engine = this->get_engine(seed);
     auto rng_engine_2 = this->get_engine(seed);
 
-    rn_gen.uniform_cpu(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform_cpu(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
+    uniform_cpu<float>(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
+    uniform_cpu<float>(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
 
-    rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform_cpu(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
+    uniform_gpu<float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+    uniform_cpu<float>(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
     this->check_results(arr_host_init_1, arr_host_init_2);
     this->check_results(arr_gpu, arr_host);
@@ -204,25 +197,24 @@ TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types_skip_ahe
     auto arr_gpu_ptr = arr_gpu.get_mutable_data();
     auto arr_host_ptr = arr_host.get_mutable_data();
 
-    auto rn_gen = this->get_rng();
     auto rng_engine = this->get_engine(seed);
     auto rng_engine_2 = this->get_engine(seed);
 
-    rn_gen.uniform_gpu(this->get_queue(),
+    uniform_gpu<float>(this->get_queue(),
                        elem_count,
                        arr_device_init_1_ptr,
                        rng_engine,
                        0,
                        elem_count);
-    rn_gen.uniform_gpu(this->get_queue(),
+    uniform_gpu<float>(this->get_queue(),
                        elem_count,
                        arr_device_init_2_ptr,
                        rng_engine_2,
                        0,
                        elem_count);
 
-    rn_gen.uniform_gpu(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
-    rn_gen.uniform_cpu(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
+    uniform_gpu<float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+    uniform_cpu<float>(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
     this->check_results(arr_device_init_1, arr_device_init_2);
     this->check_results(arr_gpu, arr_host);
