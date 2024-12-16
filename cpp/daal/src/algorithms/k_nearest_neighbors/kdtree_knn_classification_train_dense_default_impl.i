@@ -64,7 +64,7 @@ class Queue
     static const size_t defaultSize = 4;
 
 public:
-    Queue() : _data(nullptr), _first(0), _last(0), _count(0), _size(0), _capacity(0) {}
+    Queue() : _data(nullptr), _first(0), _last(0), _count(0), _capacity(0) {}
 
     ~Queue() { clear(); }
 
@@ -74,21 +74,19 @@ public:
     bool init(size_t size)
     {
         clear();
-        if (size == 0) // Check for valid size
+        if (size == 0)
         {
             return false;
         }
 
-        _first = _count = 0;
-        _last = _sizeMinus1 = (_size = size) - 1;
-        _data               = static_cast<T *>(service_malloc<T, cpu>(size));
-
-        if (!_data) // Check if memory allocation was successful
+        _data = static_cast<T *>(service_malloc<T, cpu>(size));
+        if (!_data)
         {
             return false;
         }
 
-        _capacity = _size; // Initialize capacity
+        _capacity = size;
+        _first = _last = _count = 0;
         return true;
     }
 
@@ -96,35 +94,30 @@ public:
     {
         if (_data)
         {
-            daal::services::internal::service_free<T, cpu>(_data); // Free allocated memory if it exists
+            daal::services::internal::service_free<T, cpu>(_data);
             _data = nullptr;
         }
-        _first = _last = _count = _size = _sizeMinus1 = _capacity = 0; // Reset state
+        _first = _last = _count = _capacity = 0;
     }
 
     void reset() { _first = _last = _count = 0; }
 
-    DAAL_FORCEINLINE void push(const T & value)
+    void push(const T & value)
     {
-        if (_count >= _capacity) // Check if capacity is exceeded
+        if (_count >= _capacity)
         {
-            services::Status status = grow(); // Grow if necessary
-            //DAAL_CHECK_STATUS_VAR(status);
+            grow();
         }
 
-        _data[_last = (_last + 1) & _sizeMinus1] = value; // Add element to queue
+        _data[_last] = value;
+        ++_last;
         ++_count;
     }
 
-    DAAL_FORCEINLINE T pop()
+    T pop()
     {
-        // if (empty()) // Check if queue is empty
-        // {
-        //     throw std::underflow_error("Queue underflow: no elements to pop.");
-        // }
-
-        const T value = _data[_first++]; // Retrieve element
-        _first *= (_first != _size);     // Reset first index if it reaches the end
+        T value = _data[_first];
+        _first  = (_first + 1) % _capacity;
         --_count;
         return value;
     }
@@ -134,34 +127,28 @@ public:
     size_t size() const { return _count; }
 
 private:
-    services::Status grow()
+    void grow()
     {
-        int result = 0;
-        _capacity  = (_capacity == 0 ? defaultSize : _capacity * 2); // Double capacity or set to default
+        size_t newCapacity = (_capacity == 0 ? defaultSize : _capacity * 2);
+        T * newData        = static_cast<T *>(service_malloc<T, cpu>(newCapacity));
 
-        T * const newData = daal::services::internal::service_malloc<T, cpu>(_capacity);
-        DAAL_CHECK_MALLOC(newData);
-
-        if (_data != nullptr)
+        for (size_t i = 0; i < _count; ++i)
         {
-            result = services::internal::daal_memcpy_s(newData, _last * sizeof(T), _data, _last * sizeof(T));
-            daal::services::internal::service_free<T, cpu>(_data); // Free old data
-            _data = nullptr;
+            newData[i] = _data[(_first + i) % _capacity];
         }
 
-        _data       = newData;       // Assign new expanded memory
-        _size       = _capacity;     // Adjust size to new capacity
-        _sizeMinus1 = _capacity - 1; // Update size minus 1 for wrapping
-        return (!result) ? services::Status() : services::Status(services::ErrorMemoryCopyFailedInternal);
+        daal::services::internal::service_free<T, cpu>(_data);
+        _data     = newData;
+        _capacity = newCapacity;
+        _first    = 0;
+        _last     = _count;
     }
 
     T * _data;
-    size_t _first;      // Index of the first element
-    size_t _last;       // Index of the last element
-    size_t _count;      // Current number of elements
-    size_t _size;       // Current size of the queue
-    size_t _sizeMinus1; // Helper for wrap-around logic
-    size_t _capacity;   // Maximum capacity of the queue
+    size_t _first;    // Index of the first element
+    size_t _last;     // Index of the next position to insert
+    size_t _count;    // Current number of elements
+    size_t _capacity; // Maximum capacity of the queue
 };
 
 struct BuildNode
