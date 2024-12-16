@@ -17,7 +17,8 @@
 #include "oneapi/dal/table/backend/homogen_kernels.hpp"
 #include "oneapi/dal/table/backend/convert.hpp"
 #include "oneapi/dal/backend/common.hpp"
-
+#include "oneapi/dal/detail/profiler.hpp"
+#include <iostream>
 namespace oneapi::dal::backend {
 
 struct block_info {
@@ -95,6 +96,7 @@ static void pull_row_major_impl(const Policy& policy,
                                 array<BlockData>& block_data,
                                 alloc_kind requested_alloc_kind,
                                 bool preserve_mutability) {
+    ONEDAL_PROFILER_TASK(pull_row_major_impl);
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
@@ -117,6 +119,7 @@ static void pull_row_major_impl(const Policy& policy,
     const bool block_has_mutable_data = block_data.has_mutable_data();
 
     if (contiguous_block_requested && same_data_type && nocopy_alloc_kind) {
+        std::cout<<"if &&& line 122"<<std::endl;
         refer_origin_data(origin_data,
                           origin_offset * block_dtype_size,
                           block_info.get_element_count(),
@@ -125,6 +128,7 @@ static void pull_row_major_impl(const Policy& policy,
     }
     else {
         if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
+            std::cout<<"if line 131"<<std::endl;
             reset_array(policy, block_data, block_info.get_element_count(), requested_alloc_kind);
         }
 
@@ -132,6 +136,7 @@ static void pull_row_major_impl(const Policy& policy,
         auto dst_data = block_data.get_mutable_data();
 
         if (block_info.get_column_count() > 1) {
+            std::cout<<"if line 139"<<std::endl;
             const std::int64_t subblocks_count =
                 contiguous_block_requested ? 1 : block_info.get_row_count();
             const std::int64_t subblock_size = contiguous_block_requested
@@ -149,6 +154,7 @@ static void pull_row_major_impl(const Policy& policy,
             }
         }
         else {
+            std::cout<<"if line 157"<<std::endl;
             backend::convert_vector(policy,
                                     src_data,
                                     dst_data,
@@ -169,6 +175,7 @@ static void pull_column_major_impl(const Policy& policy,
                                    array<BlockData>& block_data,
                                    alloc_kind requested_alloc_kind,
                                    bool preserve_mutability) {
+    ONEDAL_PROFILER_TASK(pull_column_major_impl);
     constexpr std::int64_t block_dtype_size = sizeof(BlockData);
     const auto origin_dtype_size = origin_info.get_data_type_size();
     const auto block_dtype = detail::make_data_type<BlockData>();
@@ -186,6 +193,7 @@ static void pull_column_major_impl(const Policy& policy,
     const bool block_has_mutable_data = block_data.has_mutable_data();
 
     if (!block_has_enough_space || !block_has_mutable_data || !nocopy_alloc_kind) {
+        std::cout<<"if &&& line 196"<<std::endl;
         reset_array(policy, block_data, block_info.get_element_count(), requested_alloc_kind);
     }
 
@@ -363,6 +371,7 @@ void homogen_pull_rows(const Policy& policy,
                        const range& rows_range,
                        alloc_kind requested_alloc_kind,
                        bool preserve_mutability) {
+    ONEDAL_PROFILER_TASK(homogen_pull_rows);
     check_block_row_range(rows_range, origin_info.get_row_count());
 
     const block_info b_info{ rows_range.start_idx,
