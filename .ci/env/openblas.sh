@@ -165,7 +165,7 @@ pushd "${blas_src_dir}"
         USE_THREAD=0
         USE_LOCKING=1
         DYNAMIC_ARCH=1
-        DYNAMIC_LIST="Nehalem,Haswell"
+        DYNAMIC_LIST="NEHALEM HASWELL"
         )
   fi
   if [ "${openblas_ilp64}" == "on" ]; then
