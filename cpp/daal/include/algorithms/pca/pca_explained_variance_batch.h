@@ -112,7 +112,6 @@ public:
     // Add destructor
     ~Batch() = default;
 
-
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
