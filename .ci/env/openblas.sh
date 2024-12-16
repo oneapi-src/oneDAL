@@ -163,7 +163,10 @@ pushd "${blas_src_dir}"
         NO_FORTRAN=1
         USE_OPENMP=0
         USE_THREAD=0
-        USE_LOCKING=1)
+        USE_LOCKING=1
+        DYNAMIC_ARCH=1
+        DYNAMIC_LIST="Nehalem,Haswell"
+        )
   fi
   if [ "${openblas_ilp64}" == "on" ]; then
       make_options+=( 'BINARY=64' 'INTERFACE64=1' )
