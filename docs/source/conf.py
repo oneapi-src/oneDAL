@@ -396,7 +396,9 @@ nitpick_ignore = [
     ('cpp:identifier', 'connected_components'),
 
     # sycl
+    ('cpp:identifier', 'event_vector'),
     ('cpp:identifier', 'sycl'),
+    ('cpp:identifier', 'sycl::event'),
     ('cpp:identifier', 'sycl::queue'),
     ('cpp:identifier', 'sycl::usm'),
 
