@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "oneapi/dal/backend/primitives/rng/engine_cpu.hpp"
+#include "oneapi/dal/backend/primitives/rng/host_engine.hpp"
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-#include "oneapi/dal/backend/primitives/rng/engine_gpu.hpp"
+#include "oneapi/dal/backend/primitives/rng/dpc_engine.hpp"
 
 #endif
 
@@ -31,33 +31,33 @@ public:
     rng() = default;
     ~rng() = default;
 
-    template <engine_list EngineType>
-    void uniform_cpu(Size count, Type* dst, daal_engine<EngineType> daal_engine, Type a, Type b) {
-        auto state = daal_engine.get_cpu_engine_state();
+    template <engine_method EngineType>
+    void uniform_cpu(Size count, Type* dst, host_engine<EngineType> host_engine, Type a, Type b) {
+        auto state = host_engine.get_host_engine_state();
         uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <engine_list EngineType>
-    void uniform_cpu(Size count, Type* dst, onedal_engine<EngineType>& engine_, Type a, Type b) {
+    template <engine_method EngineType>
+    void uniform_cpu(Size count, Type* dst, dpc_engine<EngineType>& engine_, Type a, Type b) {
         if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) ==
             sycl::usm::alloc::device) {
             throw domain_error(dal::detail::error_messages::unsupported_data_type());
         }
-        auto state = engine_.get_cpu_engine_state();
+        auto state = engine_.get_host_engine_state();
         engine_.skip_ahead_gpu(count);
         uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
     }
 #endif
 
-    template <engine_list EngineType>
+    template <engine_method EngineType>
     void uniform_without_replacement_cpu(Size count,
                                          Type* dst,
                                          Type* buffer,
-                                         daal_engine<EngineType> daal_engine,
+                                         host_engine<EngineType> host_engine,
                                          Type a,
                                          Type b) {
-        auto state = daal_engine.get_cpu_engine_state();
+        auto state = host_engine.get_host_engine_state();
         uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
                                                                      dst,
                                                                      buffer,
@@ -66,18 +66,18 @@ public:
                                                                      b);
     }
 #ifdef ONEDAL_DATA_PARALLEL
-    template <engine_list EngineType>
+    template <engine_method EngineType>
     void uniform_without_replacement_cpu(Size count,
                                          Type* dst,
                                          Type* buffer,
-                                         onedal_engine<EngineType>& engine_,
+                                         dpc_engine<EngineType>& engine_,
                                          Type a,
                                          Type b) {
         if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) ==
             sycl::usm::alloc::device) {
             throw domain_error(dal::detail::error_messages::unsupported_data_type());
         }
-        void* state = engine_.get_cpu_engine_state();
+        void* state = engine_.get_host_engine_state();
         engine_.skip_ahead_gpu(count);
         uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count,
                                                                      dst,
@@ -88,12 +88,12 @@ public:
     }
 #endif
 
-    template <engine_list EngineType,
+    template <engine_method EngineType,
               typename T = Type,
               typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle_cpu(Size count, Type* dst, daal_engine<EngineType> daal_engine) {
+    void shuffle_cpu(Size count, Type* dst, host_engine<EngineType> host_engine) {
         Type idx[2];
-        auto state = daal_engine.get_cpu_engine_state();
+        auto state = host_engine.get_host_engine_state();
         for (Size i = 0; i < count; ++i) {
             uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
             std::swap(dst[idx[0]], dst[idx[1]]);
@@ -101,16 +101,16 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <engine_list EngineType,
+    template <engine_method EngineType,
               typename T = Type,
               typename = std::enable_if_t<std::is_integral_v<T>>>
-    void shuffle_cpu(Size count, Type* dst, onedal_engine<EngineType>& engine_) {
+    void shuffle_cpu(Size count, Type* dst, dpc_engine<EngineType>& engine_) {
         Type idx[2];
         if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) ==
             sycl::usm::alloc::device) {
             throw domain_error(dal::detail::error_messages::unsupported_data_type());
         }
-        void* state = engine_.get_cpu_engine_state();
+        void* state = engine_.get_host_engine_state();
         engine_.skip_ahead_gpu(count);
 
         for (Size i = 0; i < count; ++i) {
@@ -121,30 +121,30 @@ public:
 #endif
 
 #ifdef ONEDAL_DATA_PARALLEL
-    template <engine_list EngineType>
+    template <engine_method EngineType>
     void uniform_gpu(sycl::queue& queue,
                      Size count,
                      Type* dst,
-                     onedal_engine<EngineType>& engine_,
+                     dpc_engine<EngineType>& engine_,
                      Type a,
                      Type b,
                      const event_vector& deps = {});
 
-    template <engine_list EngineType>
+    template <engine_method EngineType>
     void uniform_without_replacement_gpu(sycl::queue& queue,
                                          Size count,
                                          Type* dst,
                                          Type* buffer,
-                                         onedal_engine<EngineType>& engine_,
+                                         dpc_engine<EngineType>& engine_,
                                          Type a,
                                          Type b,
                                          const event_vector& deps = {});
 
-    template <engine_list EngineType>
+    template <engine_method EngineType>
     void shuffle_gpu(sycl::queue& queue,
                      Size count,
                      Type* dst,
-                     onedal_engine<EngineType>& engine_,
+                     dpc_engine<EngineType>& engine_,
                      const event_vector& deps = {});
 #endif
 };

@@ -17,7 +17,8 @@
 mrg32k3a
 ========
 
-The engine is based on the 59-bit multiplicative congruential generator.
+The engine based on a 32-bit combined multiple recursive generator
+with two components of order 3, optimized for batch processing.
 
 .. rubric:: Subsequence selection methods support
 

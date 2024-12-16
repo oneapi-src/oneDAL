@@ -19,79 +19,80 @@
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
 #include "oneapi/dal/backend/primitives/rng/rng_types.hpp"
 #include <oneapi/mkl.hpp>
+
 namespace mkl = oneapi::mkl;
 namespace oneapi::dal::backend::primitives {
 
 #ifdef ONEDAL_DATA_PARALLEL
 
-template <engine_list EngineType>
-struct onedal_engine_type;
+template <engine_method EngineType>
+struct dpc_engine_type;
 
 template <>
-struct onedal_engine_type<engine_list::mt2203> {
+struct dpc_engine_type<engine_method::mt2203> {
     using type = oneapi::mkl::rng::mt2203;
 };
 
 template <>
-struct onedal_engine_type<engine_list::mcg59> {
+struct dpc_engine_type<engine_method::mcg59> {
     using type = oneapi::mkl::rng::mcg59;
 };
 
 template <>
-struct onedal_engine_type<engine_list::mt19937> {
+struct dpc_engine_type<engine_method::mt19937> {
     using type = oneapi::mkl::rng::mt19937;
 };
 
 template <>
-struct onedal_engine_type<engine_list::mrg32k3a> {
+struct dpc_engine_type<engine_method::mrg32k3a> {
     using type = oneapi::mkl::rng::mrg32k3a;
 };
 
 template <>
-struct onedal_engine_type<engine_list::philox4x32x10> {
+struct dpc_engine_type<engine_method::philox4x32x10> {
     using type = oneapi::mkl::rng::philox4x32x10;
 };
 
-template <engine_list EngineType = engine_list::mt2203>
-class onedal_engine {
+template <engine_method EngineType = engine_method::mt2203>
+class dpc_engine {
 public:
-    using onedal_engine_t = typename onedal_engine_type<EngineType>::type;
+    using dpc_engine_t = typename dpc_engine_type<EngineType>::type;
 
-    explicit onedal_engine(sycl::queue& queue, std::int64_t seed = 777)
+    explicit dpc_engine(sycl::queue& queue, std::int64_t seed = 777)
             : q(queue),
-              daal_engine_(initialize_daal_engine(seed)),
-              onedal_engine_(initialize_onedal_engine(queue, seed)),
+              host_engine_(initialize_host_engine(seed)),
+              dpc_engine_(initialize_dpc_engine(queue, seed)),
               impl_(dynamic_cast<daal::algorithms::engines::internal::BatchBaseImpl*>(
-                  daal_engine_.get())) {
+                  host_engine_.get())) {
         if (!impl_) {
             throw std::domain_error("RNG engine is not supported");
         }
     }
 
-    virtual ~onedal_engine() = default;
+    virtual ~dpc_engine() = default;
 
-    void* get_cpu_engine_state() const {
+    void* get_host_engine_state() const {
         return impl_->getState();
     }
 
     auto& get_cpu_engine() {
-        return daal_engine_;
+        return host_engine_;
     }
 
     auto& get_gpu_engine() {
-        return onedal_engine_;
+        return dpc_engine_;
     }
 
     void skip_ahead_cpu(size_t nSkip) {
-        daal_engine_->skipAhead(nSkip);
+        host_engine_->skipAhead(nSkip);
     }
 
     void skip_ahead_gpu(size_t nSkip) {
         // Will be fixed in the next oneMKL release.
-        if constexpr (EngineType == engine_list::mt2203) {
+        if constexpr (EngineType == engine_method::mt2203) {
         }
         else {
-            skip_ahead(onedal_engine_, nSkip);
+            skip_ahead(dpc_engine_, nSkip);
         }
     }
 
@@ -100,35 +101,36 @@ public:
     }
 
 private:
-    daal::algorithms::engines::EnginePtr initialize_daal_engine(std::int64_t seed) {
+    daal::algorithms::engines::EnginePtr initialize_host_engine(std::int64_t seed) {
         switch (EngineType) {
-            case engine_list::mt2203:
+            case engine_method::mt2203:
                 return daal::algorithms::engines::mt2203::Batch<>::create(seed);
-            case engine_list::mcg59: return daal::algorithms::engines::mcg59::Batch<>::create(seed);
-            case engine_list::mrg32k3a:
+            case engine_method::mcg59:
+                return daal::algorithms::engines::mcg59::Batch<>::create(seed);
+            case engine_method::mrg32k3a:
                 return daal::algorithms::engines::mrg32k3a::Batch<>::create(seed);
-            case engine_list::philox4x32x10:
+            case engine_method::philox4x32x10:
                 return daal::algorithms::engines::philox4x32x10::Batch<>::create(seed);
-            case engine_list::mt19937:
+            case engine_method::mt19937:
                 return daal::algorithms::engines::mt19937::Batch<>::create(seed);
             default: throw std::invalid_argument("Unsupported engine type");
         }
     }
 
-    onedal_engine_t initialize_onedal_engine(sycl::queue& queue, std::int64_t seed) {
-        if constexpr (EngineType == engine_list::mt2203) {
-            return onedal_engine_t(
+    dpc_engine_t initialize_dpc_engine(sycl::queue& queue, std::int64_t seed) {
+        if constexpr (EngineType == engine_method::mt2203) {
+            return dpc_engine_t(
                 queue,
                 seed,
                 0); // Aligns CPU and GPU results for mt2203, impacts the performance.
         }
         else {
-            return onedal_engine_t(queue, seed);
+            return dpc_engine_t(queue, seed);
         }
     }
     sycl::queue q;
-    daal::algorithms::engines::EnginePtr daal_engine_;
-    onedal_engine_t onedal_engine_;
+    daal::algorithms::engines::EnginePtr host_engine_;
+    dpc_engine_t dpc_engine_;
     daal::algorithms::engines::internal::BatchBaseImpl* impl_;
 };
 

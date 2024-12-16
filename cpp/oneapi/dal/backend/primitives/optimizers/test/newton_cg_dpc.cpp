@@ -57,7 +57,7 @@ public:
         auto params_host =
             ndarray<float_t, 1>::empty(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::host);
         primitives::rng<float_t> rn_gen;
-        primitives::daal_engine eng(2007 + n);
+        primitives::host_engine eng(2007 + n);
         rn_gen.uniform_cpu(n_ * p_, X_host.get_mutable_data(), eng, -10.0, 10.0);
         rn_gen.uniform_cpu(p_ + 1, params_host.get_mutable_data(), eng, -5.0, 5.0);
         for (std::int64_t i = 0; i < n_; ++i) {

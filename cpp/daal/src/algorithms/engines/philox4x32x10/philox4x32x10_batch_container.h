@@ -1,6 +1,5 @@
 /* file: philox4x32x10_batch_container.h */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +21,8 @@
 //--
 */
 
-#ifndef __philox4x32x10_BATCH_CONTAINER_H__
-#define __philox4x32x10_BATCH_CONTAINER_H__
+#ifndef __PHILOX4X32X10_BATCH_CONTAINER_H__
+#define __PHILOX4X32X10_BATCH_CONTAINER_H__
 
 #include "algorithms/engines/philox4x32x10/philox4x32x10.h"
 #include "src/algorithms/engines/philox4x32x10/philox4x32x10_kernel.h"

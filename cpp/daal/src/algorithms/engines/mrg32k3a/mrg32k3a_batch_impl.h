@@ -1,6 +1,5 @@
 /* file: mrg32k3a_batch_impl.h */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");

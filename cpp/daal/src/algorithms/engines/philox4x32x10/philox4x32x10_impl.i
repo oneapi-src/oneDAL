@@ -1,6 +1,5 @@
 /* file: philox4x32x10_impl.i */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +21,8 @@
 //--
 */
 
-#ifndef __philox4x32x10_IMPL_I__
-#define __philox4x32x10_IMPL_I__
+#ifndef __PHILOX4X32X10_IMPL_I__
+#define __PHILOX4X32X10_IMPL_I__
 
 namespace daal
 {

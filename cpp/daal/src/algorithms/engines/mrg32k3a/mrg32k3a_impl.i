@@ -1,6 +1,5 @@
 /* file: mrg32k3a_impl.i */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +21,8 @@
 //--
 */
 
-#ifndef __mrg32k3a_IMPL_I__
-#define __mrg32k3a_IMPL_I__
+#ifndef __MRG32K3A_IMPL_I__
+#define __MRG32K3A_IMPL_I__
 
 namespace daal
 {

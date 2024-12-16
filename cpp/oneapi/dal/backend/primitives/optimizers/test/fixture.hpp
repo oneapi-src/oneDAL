@@ -134,7 +134,7 @@ void create_stable_matrix(sycl::queue& queue,
     auto J = ndarray<Float, 2>::empty(queue, { n, n }, sycl::usm::alloc::host);
     auto eigen_values = ndarray<Float, 1>::empty(queue, { n }, sycl::usm::alloc::host);
     primitives::rng<Float> rn_gen;
-    primitives::daal_engine eng(2007 + n);
+    primitives::host_engine eng(2007 + n);
 
     rn_gen.uniform_cpu(n * n, J.get_mutable_data(), eng, -1.0, 1.0);
     rn_gen.uniform_cpu(n, eigen_values.get_mutable_data(), eng, bottom_eig, top_eig);

@@ -1,6 +1,5 @@
 /* file: philox4x32x10_kernel.h */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +19,8 @@
 //  Declaration of a template function for generating values using the Philox4x32-10 engine.
 //--
 
-#ifndef __philox4x32x10_KERNEL_H__
-#define __philox4x32x10_KERNEL_H__
+#ifndef __PHILOX4X32X10_KERNEL_H__
+#define __PHILOX4X32X10_KERNEL_H__
 
 #include "algorithms/engines/philox4x32x10/philox4x32x10.h"
 #include "src/algorithms/kernel.h"

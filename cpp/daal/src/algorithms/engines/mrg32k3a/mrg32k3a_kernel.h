@@ -1,6 +1,5 @@
 /* file: mrg32k3a_kernel.h */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +19,8 @@
 //  Declaration of a template function for calculating values using the MRG32k3a generator.
 //--
 
-#ifndef __mrg32k3a_KERNEL_H__
-#define __mrg32k3a_KERNEL_H__
+#ifndef __MRG32K3A_KERNEL_H__
+#define __MRG32K3A_KERNEL_H__
 
 #include "algorithms/engines/mrg32k3a/mrg32k3a.h"
 #include "src/algorithms/kernel.h"

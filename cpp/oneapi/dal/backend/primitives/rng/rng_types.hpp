@@ -24,6 +24,6 @@
 
 namespace oneapi::dal::backend::primitives {
 
-enum class engine_list { mt2203, mcg59, mt19937, mrg32k3a, philox4x32x10 };
+enum class engine_method { mt2203, mcg59, mt19937, mrg32k3a, philox4x32x10 };
 
 }

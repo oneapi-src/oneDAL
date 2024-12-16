@@ -35,27 +35,27 @@ struct engine_map {};
 
 template <>
 struct engine_map<mt2203> {
-    constexpr static auto value = engine_list::mt2203;
+    constexpr static auto value = engine_method::mt2203;
 };
 
 template <>
 struct engine_map<mcg59> {
-    constexpr static auto value = engine_list::mcg59;
+    constexpr static auto value = engine_method::mcg59;
 };
 
 template <>
 struct engine_map<mrg32k3a> {
-    constexpr static auto value = engine_list::mrg32k3a;
+    constexpr static auto value = engine_method::mrg32k3a;
 };
 
 template <>
 struct engine_map<philox4x32x10> {
-    constexpr static auto value = engine_list::philox4x32x10;
+    constexpr static auto value = engine_method::philox4x32x10;
 };
 
 template <>
 struct engine_map<mt19937> {
-    constexpr static auto value = engine_list::mt19937;
+    constexpr static auto value = engine_method::mt19937;
 };
 
 template <typename engine_type>
@@ -73,13 +73,13 @@ public:
         return rn_gen;
     }
 
-    auto get_daal_engine(std::int64_t seed) {
-        auto rng_engine = daal_engine<engine_qq>(seed);
+    auto get_host_engine(std::int64_t seed) {
+        auto rng_engine = host_engine<engine_qq>(seed);
         return rng_engine;
     }
 
     auto get_engine(std::int64_t seed) {
-        auto rng_engine = onedal_engine<engine_qq>(this->get_queue(), seed);
+        auto rng_engine = dpc_engine<engine_qq>(this->get_queue(), seed);
         return rng_engine;
     }
 
@@ -134,29 +134,29 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
 using rng_types_skip_ahead_support = COMBINE_TYPES((float),
                                                    (mt19937, mcg59, mrg32k3a, philox4x32x10));
 
-//Just for perf tests
-TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip_ahead_support) {
-    SKIP_IF(this->get_policy().is_cpu());
-    std::int64_t elem_count = GENERATE_COPY(10000);
-    std::int64_t seed = GENERATE_COPY(777);
+// //Just for perf tests
+// TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types_skip_ahead_support) {
+//     SKIP_IF(this->get_policy().is_cpu());
+//     std::int64_t elem_count = GENERATE_COPY(10000);
+//     std::int64_t seed = GENERATE_COPY(777);
 
-    auto arr_host = this->allocate_array_host(elem_count);
-    auto arr_host_ptr_ = arr_host.get_mutable_data();
+//     auto arr_host = this->allocate_array_host(elem_count);
+//     auto arr_host_ptr_ = arr_host.get_mutable_data();
 
-    auto arr_host_fake = this->allocate_array_host(1);
-    auto arr_host_ptr_fake = arr_host_fake.get_mutable_data();
-    auto rn_gen_ = this->get_rng();
-    auto rng_engine_1 = this->get_engine(seed);
+//     auto arr_host_fake = this->allocate_array_host(1);
+//     auto arr_host_ptr_fake = arr_host_fake.get_mutable_data();
+//     auto rn_gen_ = this->get_rng();
+//     auto rng_engine_1 = this->get_engine(seed);
 
-    BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
-        rn_gen_.uniform_without_replacement_cpu(elem_count,
-                                                arr_host_ptr_,
-                                                arr_host_ptr_fake,
-                                                rng_engine_1,
-                                                0,
-                                                elem_count);
-    };
-}
+//     BENCHMARK("Uniform GPU arr" + std::to_string(elem_count)) {
+//         rn_gen_.uniform_without_replacement_cpu(elem_count,
+//                                                 arr_host_ptr_,
+//                                                 arr_host_ptr_fake,
+//                                                 rng_engine_1,
+//                                                 0,
+//                                                 elem_count);
+//     };
+// }
 
 TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahead_support) {
     SKIP_IF(this->get_policy().is_cpu());
@@ -228,13 +228,13 @@ TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types_skip_ahe
     this->check_results(arr_gpu, arr_host);
 }
 
-//TODO: add engine collection test + daal_engine tests
+//TODO: add engine collection test + host_engine tests
 // TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip collection", "[rng]", rng_types_skip) {
 //     SKIP_IF(this->get_policy().is_cpu());
 //     std::int64_t elem_count = GENERATE_COPY(10, 100, 777, 10000);
 //     std::int64_t seed = GENERATE_COPY(1, 777, 999);
 
-//     engine_collection<std::int64_t,engine_list::mcg59> collection(this->get_queue(), 2, seed);
+//     engine_collection<std::int64_t,engine_method::mcg59> collection(this->get_queue(), 2, seed);
 
 //     auto engine_arr = collection.get_engines();
 

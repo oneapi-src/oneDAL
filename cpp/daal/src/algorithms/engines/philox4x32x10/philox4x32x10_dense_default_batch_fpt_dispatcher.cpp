@@ -1,6 +1,5 @@
 /* file: philox4x32x10_dense_default_batch_fpt_dispatcher.cpp */
 /*******************************************************************************
-* Copyright 2024 Intel Corporation
 * Copyright contributors to the oneDAL project
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
