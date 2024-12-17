@@ -88,7 +88,7 @@ public:
     }
 
     void skip_ahead_gpu(size_t nSkip) {
-        // Will be fixed in the next oneMKL release.
+        // Will be supported in the next oneMKL release.
         if constexpr (EngineType == engine_method::mt2203) {
         }
         else {

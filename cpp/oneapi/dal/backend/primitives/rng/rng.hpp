@@ -31,6 +31,7 @@ void uniform_cpu(Size count, Type* dst, host_engine<EngineType>& host_engine, Ty
     auto state = host_engine.get_host_engine_state();
     uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
 }
+
 template <typename Type, typename Size, engine_method EngineType>
 void uniform_without_replacement_cpu(Size count,
                                      Type* dst,
@@ -48,8 +49,8 @@ template <typename Type,
           typename T = Type,
           typename = std::enable_if_t<std::is_integral_v<T>>>
 void shuffle_cpu(Size count, Type* dst, host_engine<EngineType> host_engine) {
-    Type idx[2];
     auto state = host_engine.get_host_engine_state();
+    Type idx[2];
     for (Size i = 0; i < count; ++i) {
         uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
         std::swap(dst[idx[0]], dst[idx[1]]);
@@ -64,8 +65,8 @@ void uniform_cpu(Size count, Type* dst, dpc_engine<EngineType>& engine_, Type a,
         throw domain_error(dal::detail::error_messages::unsupported_data_type());
     }
     auto state = engine_.get_host_engine_state();
-    engine_.skip_ahead_gpu(count);
     uniform_dispatcher::uniform_by_cpu<Type>(count, dst, state, a, b);
+    engine_.skip_ahead_gpu(count);
 }
 
 template <typename Type, typename Size, engine_method EngineType>
@@ -80,8 +81,8 @@ void uniform_without_replacement_cpu(Size count,
         throw domain_error(dal::detail::error_messages::unsupported_data_type());
     }
     void* state = engine_.get_host_engine_state();
-    engine_.skip_ahead_gpu(count);
     uniform_dispatcher::uniform_without_replacement_by_cpu<Type>(count, dst, buffer, state, a, b);
+    engine_.skip_ahead_gpu(count);
 }
 
 template <typename Type,
@@ -90,18 +91,17 @@ template <typename Type,
           typename T = Type,
           typename = std::enable_if_t<std::is_integral_v<T>>>
 void shuffle_cpu(Size count, Type* dst, dpc_engine<EngineType>& engine_) {
-    Type idx[2];
     if (sycl::get_pointer_type(dst, engine_.get_queue().get_context()) ==
         sycl::usm::alloc::device) {
         throw domain_error(dal::detail::error_messages::unsupported_data_type());
     }
+    Type idx[2];
     void* state = engine_.get_host_engine_state();
-    engine_.skip_ahead_gpu(count);
-
     for (Size i = 0; i < count; ++i) {
         uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
         std::swap(dst[idx[0]], dst[idx[1]]);
     }
+    engine_.skip_ahead_gpu(count);
 }
 
 template <typename Type, typename Size, engine_method EngineType>

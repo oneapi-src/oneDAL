@@ -16,12 +16,14 @@
 
 #pragma once
 
+#include "oneapi/dal/backend/primitives/rng/rng_types.hpp"
+#include "oneapi/dal/backend/primitives/rng/rng.hpp"
 #include "oneapi/dal/backend/primitives/rng/utils.hpp"
+
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
-#include "oneapi/dal/backend/primitives/rng/rng.hpp"
-#include "oneapi/dal/backend/primitives/rng/rng_types.hpp"
+
 namespace oneapi::dal::backend::primitives {
 
 template <engine_method EngineType = engine_method::mt2203>

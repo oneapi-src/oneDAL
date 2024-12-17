@@ -58,8 +58,8 @@ public:
             ndarray<float_t, 1>::empty(this->get_queue(), { p_ + 1 }, sycl::usm::alloc::host);
 
         primitives::host_engine eng(2007 + n);
-        primitives::rnguniform_cpu<float_t>(n_ * p_, X_host.get_mutable_data(), eng, -10.0, 10.0);
-        primitives::rnguniform_cpu<float_t>(p_ + 1, params_host.get_mutable_data(), eng, -5.0, 5.0);
+        primitives::uniform_cpu<float_t>(n_ * p_, X_host.get_mutable_data(), eng, -10.0, 10.0);
+        primitives::uniform_cpu<float_t>(p_ + 1, params_host.get_mutable_data(), eng, -5.0, 5.0);
         for (std::int64_t i = 0; i < n_; ++i) {
             float_t val = 0;
             for (std::int64_t j = 0; j < p_; ++j) {
