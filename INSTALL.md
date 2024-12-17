@@ -213,7 +213,7 @@ conda activate onedal_env
 
 Then, install the necessary dependencies from the appropriate channels with `conda`:
 
-* Linux:
+* **Linux\***:
 
 ```shell
 conda install -y \
@@ -226,7 +226,7 @@ conda install -y \
     cmake `# required to build the examples only`
 ```
 
-* Windows:
+* **Windows\***:
 
 ```bat
 conda install -y^
@@ -241,7 +241,7 @@ conda install -y^
 
 Then modify the relevant environment variables to point to the conda-installed libraries:
 
-* Linux:
+* **Linux\***:
 
 ```shell
 export MKLROOT=${CONDA_PREFIX}
@@ -254,7 +254,7 @@ export PKG_CONFIG_PATH="${CONDA_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 export CMAKE_PREFIX_PATH="${CONDA_PREFIX}/lib/cmake:${CMAKE_PREFIX_PATH}"
 ```
 
-* windows:
+* **Windows\***:
 
 ```bat
 set MKLROOT=%CONDA_PREFIX%\Library
