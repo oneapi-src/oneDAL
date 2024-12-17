@@ -173,8 +173,9 @@ pushd "${blas_src_dir}"
     make install "${make_options[@]}" PREFIX="${blas_prefix}"
   else
     # Download and extract the build
-    OPENBLAS_ARCHIVE="OpenBLAS-${BLAS_VERSION}-x64-64.zip"
-    wget "https://github.com/OpenMathLib/OpenBLAS/releases/download/v${BLAS_VERSION}/${OPENBLAS_ARCHIVE}"
+    BLAS_VERSION_SHORT=$(echo -n ${BLAS_VERSION} | sed 's/^.//')
+    OPENBLAS_ARCHIVE="OpenBLAS-${BLAS_VERSION_SHORT}-x64-64.zip"
+    wget "https://github.com/OpenMathLib/OpenBLAS/releases/download/${BLAS_VERSION}/${OPENBLAS_ARCHIVE}"
     if [[ ! -d "${blas_prefix}" ]] ; then
       mkdir -p "${blas_prefix}"
     fi
