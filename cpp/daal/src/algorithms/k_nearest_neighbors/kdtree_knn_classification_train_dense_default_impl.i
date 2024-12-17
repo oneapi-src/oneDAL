@@ -61,6 +61,9 @@ using namespace kdtree_knn_classification::internal;
 template <typename T, CpuType cpu>
 class Queue
 {
+    // Default size of the queue. This value is suitable for small allocations
+    // during construction, but the primary use case involves calling the init(size)
+    // function. In most cases, init(size) will be called.
     static const size_t defaultSize = 4;
 
 public:
@@ -368,7 +371,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             return ptr;
         });
 
-        DAAL_CHECK_STATUS_OK((status.ok()), status);
+        DAAL_CHECK_STATUS_OK((safeStat.detach()), status);
 
         daal::threader_for(blockCount, blockCount, [=, &bboxTLS, &safeStat](int iBlock) {
             BBox * const bboxLocal = bboxTLS.local();
