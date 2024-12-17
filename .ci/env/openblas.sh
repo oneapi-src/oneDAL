@@ -158,25 +158,24 @@ pushd "${blas_src_dir}"
           USE_LOCKING=1
           CFLAGS="${cflags}")
     fi
-  else
-    make_options=(-j"${CoreCount}"
-        NO_FORTRAN=1
-        USE_OPENMP=0
-        USE_THREAD=0
-        USE_LOCKING=1
-        DYNAMIC_ARCH=1
-        DYNAMIC_LIST="NEHALEM HASWELL"
-        )
-  fi
-  if [ "${openblas_ilp64}" == "on" ]; then
+
+    if [ "${openblas_ilp64}" == "on" ]; then
       make_options+=( 'BINARY=64' 'INTERFACE64=1' )
+    fi
+
+    # Clean
+    echo make "${make_options[@]}" clean
+    make "${make_options[@]}" clean
+    # Build
+    echo make "${make_options[@]}"
+    make "${make_options[@]}"
+    # The install needs to be done with the same options as the build
+    make install "${make_options[@]}" PREFIX="${blas_prefix}"
+  else
+    # Download and extract the build
+    OPENBLAS_ARCHIVE="OpenBLAS-${BLAS_VERSION}-x64-64.zip"
+    wget "https://github.com/OpenMathLib/OpenBLAS/releases/download/v${BLAS_VERSION}/${OPENBLAS_ARCHIVE}"
+    unzip -o -q ${OPENBLAS_ARCHIVE} -d "${blas_prefix}"
   fi
-  # Clean
-  echo make "${make_options[@]}" clean
-  make "${make_options[@]}" clean
-  # Build
-  echo make "${make_options[@]}"
-  make "${make_options[@]}"
-  # The install needs to be done with the same options as the build
-  make install "${make_options[@]}" PREFIX="${blas_prefix}"
+
 popd
