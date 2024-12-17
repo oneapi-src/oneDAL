@@ -175,6 +175,9 @@ pushd "${blas_src_dir}"
     # Download and extract the build
     OPENBLAS_ARCHIVE="OpenBLAS-${BLAS_VERSION}-x64-64.zip"
     wget "https://github.com/OpenMathLib/OpenBLAS/releases/download/v${BLAS_VERSION}/${OPENBLAS_ARCHIVE}"
+    if [[ ! -d "${blas_prefix}" ]] ; then
+      mkdir -p "${blas_prefix}"
+    fi
     unzip -o -q ${OPENBLAS_ARCHIVE} -d "${blas_prefix}"
   fi
 
