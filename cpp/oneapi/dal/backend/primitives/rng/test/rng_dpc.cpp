@@ -120,8 +120,8 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     auto rng_engine = this->get_dpc_engine(seed);
     auto rng_engine_ = this->get_dpc_engine(seed);
 
-    uniform_cpu<Float>(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
-    uniform_gpu<Float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
+    uniform<Float>(elem_count, arr_host_ptr, rng_engine, 0, elem_count);
+    uniform<Float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine_, 0, elem_count);
 
     this->check_results(arr_gpu, arr_host);
 }
@@ -150,11 +150,11 @@ TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahe
     auto rng_engine = this->get_dpc_engine(seed);
     auto rng_engine_2 = this->get_dpc_engine(seed);
 
-    uniform_cpu<Float>(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
-    uniform_cpu<Float>(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
+    uniform<Float>(elem_count, arr_host_init_1_ptr, rng_engine, 0, elem_count);
+    uniform<Float>(elem_count, arr_host_init_2_ptr, rng_engine_2, 0, elem_count);
 
-    uniform_gpu<Float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
-    uniform_cpu<Float>(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
+    uniform<Float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+    uniform<Float>(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
     this->check_results(arr_host_init_1, arr_host_init_2);
     this->check_results(arr_gpu, arr_host);
@@ -181,21 +181,16 @@ TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types_skip_ahe
     auto rng_engine = this->get_dpc_engine(seed);
     auto rng_engine_2 = this->get_dpc_engine(seed);
 
-    uniform_gpu<Float>(this->get_queue(),
-                       elem_count,
-                       arr_device_init_1_ptr,
-                       rng_engine,
-                       0,
-                       elem_count);
-    uniform_gpu<Float>(this->get_queue(),
-                       elem_count,
-                       arr_device_init_2_ptr,
-                       rng_engine_2,
-                       0,
-                       elem_count);
+    uniform<Float>(this->get_queue(), elem_count, arr_device_init_1_ptr, rng_engine, 0, elem_count);
+    uniform<Float>(this->get_queue(),
+                   elem_count,
+                   arr_device_init_2_ptr,
+                   rng_engine_2,
+                   0,
+                   elem_count);
 
-    uniform_gpu<Float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
-    uniform_cpu<Float>(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
+    uniform<Float>(this->get_queue(), elem_count, arr_gpu_ptr, rng_engine, 0, elem_count);
+    uniform<Float>(elem_count, arr_host_ptr, rng_engine_2, 0, elem_count);
 
     this->check_results(arr_device_init_1, arr_device_init_2);
     this->check_results(arr_gpu, arr_host);

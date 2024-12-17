@@ -53,6 +53,21 @@ struct dpc_engine_type<engine_method::philox4x32x10> {
     using type = oneapi::mkl::rng::philox4x32x10;
 };
 
+/// A class that provides a unified interface for random number generation on both CPU and GPU devices.
+///
+/// This class serves as a wrapper for random number generators (RNGs) that supports different engine types,
+/// enabling efficient random number generation on heterogeneous platforms using SYCL. It integrates a host
+/// (CPU) engine and a device (GPU) engine, allowing operations to be executed seamlessly on the appropriate
+/// device.
+///
+/// @tparam EngineType The RNG engine type to be used. Defaults to `engine_method::mt2203`.
+///
+/// @param[in] queue The SYCL queue used to manage device operations.
+/// @param[in] seed  The initial seed for the random number generator. Defaults to `777`.
+///
+/// The class provides functionality to skip ahead in the RNG sequence, retrieve engine states, and
+/// manage host and device engines independently. Support for `skip_ahead` on GPU is currently limited for
+/// some engine types.
 template <engine_method EngineType = engine_method::mt2203>
 class dpc_engine {
 public:

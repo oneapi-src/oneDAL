@@ -135,8 +135,8 @@ void create_stable_matrix(sycl::queue& queue,
     auto eigen_values = ndarray<Float, 1>::empty(queue, { n }, sycl::usm::alloc::host);
     primitives::host_engine eng(2007 + n);
 
-    primitives::uniform_cpu<Float>(n * n, J.get_mutable_data(), eng, -1.0, 1.0);
-    primitives::uniform_cpu<Float>(n, eigen_values.get_mutable_data(), eng, bottom_eig, top_eig);
+    primitives::uniform<Float>(n * n, J.get_mutable_data(), eng, -1.0, 1.0);
+    primitives::uniform<Float>(n, eigen_values.get_mutable_data(), eng, bottom_eig, top_eig);
 
     // orthogonalize matrix J
     gram_schmidt(J);

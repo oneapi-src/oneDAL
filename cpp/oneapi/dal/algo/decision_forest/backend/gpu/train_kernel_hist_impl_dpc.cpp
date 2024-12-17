@@ -398,11 +398,11 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::gen_initial_tree_or
         for (Index node_idx = 0; node_idx < node_count; ++node_idx) {
             Index* gen_row_idx_global_ptr =
                 selected_row_global_ptr + ctx.selected_row_total_count_ * node_idx;
-            pr::uniform_cpu<Index>(ctx.selected_row_total_count_,
-                                   gen_row_idx_global_ptr,
-                                   rng_engine_list[engine_offset + node_idx],
-                                   0,
-                                   ctx.row_total_count_);
+            pr::uniform<Index>(ctx.selected_row_total_count_,
+                               gen_row_idx_global_ptr,
+                               rng_engine_list[engine_offset + node_idx],
+                               0,
+                               ctx.row_total_count_);
 
             if (ctx.distr_mode_) {
                 Index* node_ptr = node_list_ptr + node_idx * impl_const_t::node_prop_count_;
@@ -485,7 +485,7 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_feature_list(
     auto tree_map_ptr = node_vs_tree_map_list_host.get_mutable_data();
     if (ctx.selected_ftr_count_ != ctx.column_count_) {
         for (Index node = 0; node < node_count; ++node) {
-            pr::uniform_without_replacement_cpu<Index>(
+            pr::uniform_without_replacement<Index>(
                 ctx.selected_ftr_count_,
                 selected_features_host_ptr + node * ctx.selected_ftr_count_,
                 selected_features_host_ptr + (node + 1) * ctx.selected_ftr_count_,
@@ -534,11 +534,11 @@ train_kernel_hist_impl<Float, Bin, Index, Task>::gen_random_thresholds(
 
     // Generate random bins for selected features
     for (Index node = 0; node < node_count; ++node) {
-        pr::uniform_cpu<Float>(ctx.selected_ftr_count_,
-                               random_bins_host_ptr + node * ctx.selected_ftr_count_,
-                               rng_engine_list[tree_map_ptr[node]],
-                               0.0f,
-                               1.0f);
+        pr::uniform<Float>(ctx.selected_ftr_count_,
+                           random_bins_host_ptr + node * ctx.selected_ftr_count_,
+                           rng_engine_list[tree_map_ptr[node]],
+                           0.0f,
+                           1.0f);
     }
     auto event_rnd_generate =
         random_bins_com.assign_from_host(queue_, random_bins_host_ptr, random_bins_com.get_count());
@@ -1658,9 +1658,9 @@ sycl::event train_kernel_hist_impl<Float, Bin, Index, Task>::compute_results(
             const Float div1 = Float(1) / Float(built_tree_count + tree_idx_in_block + 1);
 
             for (Index column_idx = 0; column_idx < ctx.column_count_; ++column_idx) {
-                pr::shuffle_cpu<Index>(oob_row_count,
-                                       permutation_ptr,
-                                       engine_arr[built_tree_count + tree_idx_in_block]);
+                pr::shuffle<Index>(oob_row_count,
+                                   permutation_ptr,
+                                   engine_arr[built_tree_count + tree_idx_in_block]);
                 const Float oob_err_perm = compute_oob_error_perm(ctx,
                                                                   model_manager,
                                                                   data_host,

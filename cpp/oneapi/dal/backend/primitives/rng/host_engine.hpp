@@ -26,6 +26,17 @@
 
 namespace oneapi::dal::backend::primitives {
 
+/// A class that provides an interface for random number generation on the host (CPU) only.
+///
+/// This class serves as a wrapper for host-based random number generators (RNGs), supporting multiple engine
+/// types for flexible and efficient random number generation on CPU. It abstracts the underlying engine
+/// implementation and provides an interface to manage and retrieve the engine's state.
+///
+/// @tparam EngineType The RNG engine type to be used. Defaults to `engine_method::mt2203`.
+///
+/// @param[in] seed  The initial seed for the random number generator. Defaults to `777`.
+///
+/// @note The class only supports host-based RNG and does not require a SYCL queue or device context.
 template <engine_method EngineType = engine_method::mt2203>
 class host_engine {
 public:

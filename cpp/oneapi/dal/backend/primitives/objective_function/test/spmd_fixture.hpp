@@ -105,7 +105,7 @@ public:
             host_engine eng(2007 + dim * num_checks + ij);
             vecs_host[ij] =
                 (ndarray<float_t, 1>::empty(this->get_queue(), { dim }, sycl::usm::alloc::host));
-            uniform_cpu<float_t>(dim, vecs_host[ij].get_mutable_data(), eng, -1.0, 1.0);
+            uniform<float_t>(dim, vecs_host[ij].get_mutable_data(), eng, -1.0, 1.0);
             vecs_gpu[ij] = vecs_host[ij].to_device(this->get_queue());
         }
 
