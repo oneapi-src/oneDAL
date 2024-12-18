@@ -19,7 +19,7 @@
 
 [Installation](#installation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Documentation](#documentation)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Support](#support)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Examples](#examples)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[How to Contribute](CONTRIBUTING.md)&nbsp;&nbsp;&nbsp;
 
-[![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/uxlfoundation.oneDAL?branchName=main)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=5&branchName=main)
+[![Build Status](https://dev.azure.com/daal/DAAL/_apis/build/status/CI?repoName=uxlfoundation/oneDAL&branchName=main)](https://dev.azure.com/daal/DAAL/_build/latest?definitionId=7&branchName=main)
 [![License](https://img.shields.io/github/license/uxlfoundation/oneDAL.svg)](https://github.com/uxlfoundation/oneDAL/blob/main/LICENSE)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/8859/badge)](https://www.bestpractices.dev/projects/8859)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/uxlfoundation/oneDAL/badge)](https://securityscorecards.dev/viewer/?uri=github.com/uxlfoundation/oneDAL)
