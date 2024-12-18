@@ -130,21 +130,23 @@ public:
     size_t size() const { return _count; }
 
 private:
-    void grow()
+    Status grow()
     {
-        size_t newCapacity = (_capacity == 0 ? defaultSize : _capacity * 2);
-        T * newData        = static_cast<T *>(service_malloc<T, cpu>(newCapacity));
+        int result  = 0;
+        _capacity   = (_capacity == 0 ? defaultSize : _capacity * 2);
+        T * newData = static_cast<T *>(service_malloc<T, cpu>(_capacity));
+        DAAL_CHECK_MALLOC(newData);
 
-        for (size_t i = 0; i < _count; ++i)
+        if (_data != nullptr)
         {
-            newData[i] = _data[(_first + i) % _capacity];
+            result = services::internal::daal_memcpy_s(newData, _last * sizeof(T), _data, _last * sizeof(T));
+            daal::services::internal::service_free<T, cpu>(_data);
+            _data = nullptr;
         }
 
-        daal::services::internal::service_free<T, cpu>(_data);
-        _data     = newData;
-        _capacity = newCapacity;
-        _first    = 0;
-        _last     = _count;
+        _data = newData;
+
+        return (!result) ? Status() : Status(services::ErrorMemoryCopyFailedInternal);
     }
 
     T * _data;
