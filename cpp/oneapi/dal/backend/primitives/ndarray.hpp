@@ -23,8 +23,10 @@
 namespace oneapi::dal::backend::primitives {
 
 enum class ndorder {
-    c, /* C-style ordering, row-major in 2D case */
-    f /* Fortran-style ordering, column-major in 2D case */
+    /// C-style ordering, row-major in 2D case
+    c,
+    /// Fortran-style ordering, column-major in 2D case
+    f
 };
 
 template <ndorder order>

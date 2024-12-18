@@ -22,4 +22,35 @@
 Backend Primitives
 ==================
 
-This section describes the types related to internal backend data management primitives.
+This section describes the types related to data management backend primitives.
+
+.. tabularcolumns::  |\Y{0.2}|\Y{0.8}|
+
+.. list-table:: Data Management Backend Primitives Types
+   :header-rows: 1
+   :widths: 10 70
+   :class: longtable
+
+   * - Type
+     - Description
+
+   * - :ref:`api_ndorder`
+     - An enumeration of multidimensional data orders used to store
+       contiguous data blocks inside the table.
+
+   * - :ref:`api_ndshape`
+     - A class that represents the shape of a multidimensional array.
+
+   * - :ref:`api_ndview`
+     - An implementation of a multidimensional data container that provides a view of the homogeneous
+       data stored in an externally-managed memory block.
+
+   * - :ref:`api_ndarray`
+     - A class that provides a way to store and manipulate homogeneous data
+       in a multidimensional structure.
+
+---------------------
+Programming interface
+---------------------
+
+Refer to :ref:`API: Data Management Backend Primitives <api_dm_backend_primitives>`.

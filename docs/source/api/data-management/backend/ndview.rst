@@ -14,15 +14,14 @@
 .. * limitations under the License.
 .. *******************************************************************************/
 
-.. _api_ndarray:
+.. _api_ndview:
 
-======================
-Multidimensional array
-======================
+=====================
+Multidimensional view
+=====================
 
-The ``ndarray`` class provides a way to store and manipulate homogeneous data
-in a multidimensional structure.
-The pointer to the data within the ``ndarray`` object is :term:`reference-counted <Reference-counted object>`:.
+The ``ndview`` class provides a view of the homogeneous data as a multidimensional structure
+stored in an externally-managed memory block.
 
 ---------------------
 Programming interface
@@ -32,4 +31,4 @@ All types and functions in this section are declared in the
 ``oneapi::dal::backend::primitives`` namespace and be available via inclusion of the
 ``oneapi/dal/table/ndarray.hpp`` header file.
 
-.. onedal_class:: oneapi::dal::backend::primitives::ndarray
+.. onedal_class:: oneapi::dal::backend::primitives::ndview
