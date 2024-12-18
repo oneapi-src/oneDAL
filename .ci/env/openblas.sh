@@ -22,7 +22,7 @@ SCRIPT_PATH=$(readlink -f "${BASH_SOURCE[0]}")
 SCRIPT_DIR=$(dirname "${SCRIPT_PATH}")
 ONEDAL_DIR=$(readlink -f "${SCRIPT_DIR}/../..")
 OPENBLAS_DEFAULT_SOURCE_DIR="${ONEDAL_DIR}/__work/openblas"
-BLAS_DEFAULT_VERSION="v0.3.27"
+BLAS_DEFAULT_VERSION="v0.3.28"
 
 show_help() {
   echo "Usage: $0 [--help]"
@@ -158,28 +158,22 @@ pushd "${blas_src_dir}"
           USE_LOCKING=1
           CFLAGS="${cflags}")
     fi
-
-    if [ "${openblas_ilp64}" == "on" ]; then
-      make_options+=( 'BINARY=64' 'INTERFACE64=1' )
-    fi
-
-    # Clean
-    echo make "${make_options[@]}" clean
-    make "${make_options[@]}" clean
-    # Build
-    echo make "${make_options[@]}"
-    make "${make_options[@]}"
-    # The install needs to be done with the same options as the build
-    make install "${make_options[@]}" PREFIX="${blas_prefix}"
   else
-    # Download and extract the build
-    BLAS_VERSION_SHORT=$(echo -n ${BLAS_VERSION} | sed 's/^.//')
-    OPENBLAS_ARCHIVE="OpenBLAS-${BLAS_VERSION_SHORT}-x64-64.zip"
-    wget "https://github.com/OpenMathLib/OpenBLAS/releases/download/${BLAS_VERSION}/${OPENBLAS_ARCHIVE}"
-    if [[ ! -d "${blas_prefix}" ]] ; then
-      mkdir -p "${blas_prefix}"
-    fi
-    unzip -o -q ${OPENBLAS_ARCHIVE} -d "${blas_prefix}"
+    make_options=(-j"${CoreCount}"
+        NO_FORTRAN=1
+        USE_OPENMP=0
+        USE_THREAD=0
+        USE_LOCKING=1)
   fi
-
+  if [ "${openblas_ilp64}" == "on" ]; then
+      make_options+=( 'BINARY=64' 'INTERFACE64=1' )
+  fi
+  # Clean
+  echo make "${make_options[@]}" clean
+  make "${make_options[@]}" clean
+  # Build
+  echo make "${make_options[@]}"
+  make "${make_options[@]}"
+  # The install needs to be done with the same options as the build
+  make install "${make_options[@]}" PREFIX="${blas_prefix}"
 popd

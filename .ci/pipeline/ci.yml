@@ -378,6 +378,7 @@ jobs:
 
 - job: 'LinuxMakeGNU_OpenBLAS_x86'
   timeoutInMinutes: 0
+  condition: false
   variables:
     release.dir: '__release_lnx_gnu'
     platform.type : 'lnx32e'
