@@ -557,7 +557,7 @@ class DistributedInput<correlationDense> : public InputIface
 public:
     DAAL_EXPORT DistributedInput();
     DAAL_EXPORT DistributedInput(const DistributedInput & other);
-    DAAL_EXPORT DistributedInput operator=(const DistributedInput & other) = delete;
+    DAAL_EXPORT DistributedInput operator=(const DistributedInput & other);
 
     /**
         * Sets input objects for the PCA on the second step in the distributed processing mode
