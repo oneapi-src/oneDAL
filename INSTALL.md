@@ -284,7 +284,7 @@ conda install -y -c conda-forge \
 
 ```shell
 conda install -y -c conda-forge \
-    blas=*=*openblas* libopenblas
+    blas=*=*openblas* openblas
 ```
 
 * Optionally, if one wishes to install the OpenMP variant of OpenBLAS instead of the pthreads one, or to use the ILP64 variant:
