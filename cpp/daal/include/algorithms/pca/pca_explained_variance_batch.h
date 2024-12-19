@@ -109,7 +109,6 @@ public:
         input.set(eigenvalues, other.input.get(eigenvalues));
     }
 
-    // Add destructor
     ~Batch() = default;
 
     /**
