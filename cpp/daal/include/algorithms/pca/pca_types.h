@@ -200,7 +200,7 @@ class DAAL_EXPORT Input : public InputIface
 public:
     Input();
     Input(const Input & other);
-    Input & operator=(const Input & other) = delete;
+    Input & operator=(const Input & other);
 
     virtual ~Input() {};
 
