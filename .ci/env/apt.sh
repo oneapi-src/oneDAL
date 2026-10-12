@@ -134,10 +134,7 @@ function install_miniforge {
 }
 
 function install_abigail {
-    # binutils is not pulled in by abigail-tools, but .ci/scripts/abi_check.sh
-    # needs nm, objcopy and readelf next to abidiff. It happens to be present on
-    # the GitHub runner images; naming it here keeps the check from depending on
-    # that.
+    # abi_check.sh also needs nm, objcopy and readelf from binutils.
     sudo apt-get install -y abigail-tools binutils
 }
 

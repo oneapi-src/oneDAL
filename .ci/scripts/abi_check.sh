@@ -23,9 +23,7 @@ main_release_dir=$1
 release_dir=$2
 RETURN_CODE=0
 
-# abidiff reads DWARF when it is there and the symbol-only comparisons below
-# need nm; both are used unconditionally, so a missing binutils would otherwise
-# surface as a wrong answer rather than as a failure.
+# A missing binutils would otherwise give a wrong answer instead of a failure.
 for tool in nm objcopy readelf; do
     if [ -z "$(command -v "$tool")" ]; then
         echo "::error:: ${tool} not found (binutils is required, see .ci/env/apt.sh abigail)"
@@ -35,9 +33,6 @@ done
 
 has_dwarf () {
     # $1: path to a shared library. Succeeds if it has a .debug_info section.
-    # libabigail builds a type-aware corpus from .debug_info and an
-    # ELF-symbol-only one without it, so this decides which kind of comparison
-    # a given library can take part in.
     readelf -SW "$1" | grep -q '[[:space:]]\.debug_info[[:space:]]'
 }
 
@@ -59,14 +54,9 @@ do
     old=$i
     new=$release_dir/$name
 
-    # The two sides come from different builds -- this branch against a cached
-    # build of main -- so the commit that turns debug info on or off for a
-    # library leaves them disagreeing about it until main is rebuilt. abidiff
-    # does not fail on that (it falls back to the symbol sets), but the result is
-    # a weaker check than the log claims, and nothing says so. Say so, and strip
-    # both sides so the comparison is the same in either direction no matter how
-    # libabigail chooses to mix a DWARF corpus with a symbols-only one.
-    # A missing $new is reported by abidiff below; readelf only needs to see files.
+    # The cached main build may differ from this branch in having debug info.
+    # abidiff then silently falls back to symbols only, so warn and compare
+    # stripped copies of both. A missing $new is reported by abidiff below.
     dwarf_old=no; dwarf_new=no
     if [ -f "$new" ]; then
         has_dwarf "$old" && dwarf_old=yes
@@ -93,9 +83,7 @@ do
     if [ $retVal != 4 ]; then
         RETURN_CODE=$(($RETURN_CODE+$retVal))
     else
-        # With debug info present this is the common outcome for a real type
-        # change, so surface it in the checks UI instead of leaving it to whoever
-        # scrolls the log.
+        # With debug info this is the usual result of a real type change.
         echo "::warning:: ${name}: abidiff reports a sub-type change it considers" \
              "possibly compatible. Not a failure, but read the diff above."
     fi
@@ -103,37 +91,15 @@ done
 
 # Cross-flavor public-symbol drift report.
 #
-# abidiff above catches per-library ABI changes. When debug info is stripped
-# (the DPC++ libraries in CI to keep memory usage in check, see
-# https://github.com/uxlfoundation/oneDAL/pull/3703), abidiff falls back to
-# symbol addition/removal and misses layout/return-type breaks. As a cheap
-# supplement, diff the set of newly-exported symbols between the host (_c)
-# and DPC++ flavors of the same library. A symbol added only to the DPC++
-# flavor is public surface that abidiff cannot type-check, so it is reported
-# for manual review. This works on .dynsym alone, so debug info is not
-# required.
+# The DPC++ libraries are built without debug info, so abidiff only checks
+# their symbols for addition and removal. Report public symbols added to a
+# DPC++ library but not to its host library: that surface is not type-checked.
+# Warnings only, since every new GPU implementation adds such symbols.
 #
-# This report is deliberately non-fatal. The DPC++ library compiles every
-# host translation unit plus the *_dpc.cpp ones (see ONEAPI.srcs.dpc in the
-# top-level makefile), so its symbol set is structurally a superset: every
-# PR that adds a GPU implementation legitimately adds DPC++-only symbols.
-# Failing here would force such PRs to carry the 'API/ABI breaking change'
-# label, which skips the whole job (.github/workflows/ci.yml) and would
-# therefore disable the abidiff gate above to silence an expected message.
-#
-# Namespaces that oneDAL does not treat as part of the public ABI. Derived from
-# .github/.abignore rather than restated here, so this report and abidiff cannot
-# drift apart on what "public" means: the suppression file is the single source.
-#
-# Only unconditional suppressions are taken, i.e. [suppress_{type,variable,
-# function}] stanzas that say 'drop = yes' and carry no 'change_kind'. A stanza
-# with a 'change_kind' says "this kind of change to these symbols is allowed",
-# not "these symbols are internal" -- the added-{type,variable,function} block
-# at the end of .abignore covers every oneapi::dal symbol, so honouring it here
-# would filter the entire public surface away and the report would go blind.
-#
-# libabigail's symbol_name_regexp is POSIX ERE, the same dialect awk matches
-# with, so the patterns transfer verbatim.
+# Internal namespaces come from the unconditional suppressions in .abignore
+# ('drop = yes', no 'change_kind'). The change_kind stanzas cover all of
+# oneapi::dal, so taking them would filter out the whole public surface.
+# symbol_name_regexp is POSIX ERE, so awk can use the patterns verbatim.
 abignore=.github/.abignore
 if [ ! -f "$abignore" ]; then
     echo "::error:: ${abignore} not found (required to know which namespaces are internal)"
@@ -166,9 +132,7 @@ internal_sym_re=$(awk '
     END { flush(); print out }
 ' "$abignore")
 
-# An empty set would classify every symbol as public-and-unchanged-looking in
-# one direction and swallow the whole surface in the other, so refuse to run a
-# report whose notion of "internal" came out empty.
+# An empty filter means the parser no longer understands .abignore.
 if [ -z "$internal_sym_re" ]; then
     echo "::error:: no unconditional [suppress_*] entries parsed from ${abignore}"
     exit 1
@@ -179,16 +143,10 @@ public_syms () {
     # Sorted, unique names of the defined external dynamic symbols of $1,
     # minus the internal namespaces above.
     local dump
-    # nm is called on its own so a read failure propagates: an ABI report that
-    # silently degrades to an empty symbol set would claim "no drift" on tool
-    # failure. Note that pipefail cannot do this job here, because a failure
-    # inside a process substitution is invisible to the enclosing pipeline.
+    # nm runs on its own so that its failure is not reported as "no drift".
     dump=$(nm -D --defined-only --extern-only "$1") || return 1
-    # filtering in awk (not grep) keeps the pipeline status meaningful: grep
-    # exits 1 when every symbol happens to be filtered out. The pattern is
-    # passed through the environment rather than with `-v`, which would expand
-    # escape sequences in it and silently widen a pattern that spells a literal
-    # `\.` or `\+`.
+    # awk, not grep, which exits 1 when everything is filtered out. The pattern
+    # goes through ENVIRON because `awk -v` would expand its backslashes.
     printf '%s\n' "$dump" |
         internal_sym_re="$internal_sym_re" \
             awk 'NF && $NF !~ ENVIRON["internal_sym_re"] { print $NF }' |
@@ -200,8 +158,7 @@ new_syms () {
     local before after
     before=$(public_syms "$1") || return 1
     after=$(public_syms "$2") || return 1
-    # printf '%s' (not echo) so an empty set doesn't inject a spurious blank
-    # line into comm's input, which would produce false-positive drift.
+    # printf '%s', not echo: an empty set must not feed comm a blank line.
     comm -13 <(printf '%s' "$before") <(printf '%s' "$after")
 }
 
