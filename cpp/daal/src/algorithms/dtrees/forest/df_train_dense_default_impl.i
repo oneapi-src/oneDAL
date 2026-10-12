@@ -91,6 +91,38 @@ services::SharedPtr<NumericTable> normalizeWeights(const NumericTable * weights,
     return normalized;
 }
 
+// Every tree reads its sampled responses as algorithmFPType. Convert a table of another type
+// once per fit so those reads are zero-copy instead of a conversion per tree.
+template <typename algorithmFPType, CpuType cpu>
+services::SharedPtr<NumericTable> convertResponses(const NumericTable * y, services::Status & s)
+{
+    services::SharedPtr<NumericTable> empty;
+    if (!y || dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(y)) return empty;
+
+    const size_t nRows = y->getNumberOfRows();
+    const size_t nCols = y->getNumberOfColumns();
+    if (!nRows || !nCols) return empty;
+
+    services::SharedPtr<HomogenNumericTableCPU<algorithmFPType, cpu> > converted =
+        HomogenNumericTableCPU<algorithmFPType, cpu>::create(nCols, nRows, &s);
+    if (!s) return empty;
+    algorithmFPType * dst = converted->getArray();
+
+    const size_t blockSize = 4096;
+    const size_t nBlocks   = nRows / blockSize + !!(nRows % blockSize);
+    daal::SafeStatus safeStat;
+    daal::threader_for(nBlocks, 1, [&](size_t iBlock) {
+        const size_t iStart = iBlock * blockSize;
+        const size_t n      = (iStart + blockSize > nRows) ? nRows - iStart : blockSize;
+        ReadRows<algorithmFPType, cpu> src(const_cast<NumericTable *>(y), iStart, n);
+        DAAL_CHECK_BLOCK_STATUS_THR(src);
+        services::internal::tmemcpy<algorithmFPType, cpu>(dst + iStart * nCols, src.get(), n * nCols);
+    });
+    s |= safeStat.detach();
+    if (!s) return empty;
+    return converted;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Service class, it uses to keep information about nodes
 //////////////////////////////////////////////////////////////////////////////////////////
