@@ -14,11 +14,11 @@
 * limitations under the License.
 *******************************************************************************/
 
-/// GPU HDBSCAN kd_tree and ball_tree. Both run the same exact search over the GPU block tree,
-/// with alpha scaling only the pairwise distance.
+/// GPU HDBSCAN kd_tree and ball_tree. Both run the same exact GPU search, with alpha scaling only
+/// the pairwise distance.
 
 #include "oneapi/dal/algo/hdbscan/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/hdbscan/backend/gpu/compute_block_tree.hpp"
+#include "oneapi/dal/algo/hdbscan/backend/gpu/compute_pipeline.hpp"
 
 namespace oneapi::dal::hdbscan::backend {
 
@@ -33,7 +33,7 @@ struct compute_kernel_gpu<Float, method::kd_tree, task::clustering> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return compute_with_block_tree<Float>(ctx.get_queue(), desc, input.get_data(), false);
+        return compute_gpu<Float>(ctx.get_queue(), desc, input.get_data(), false);
     }
 };
 
@@ -42,7 +42,7 @@ struct compute_kernel_gpu<Float, method::ball_tree, task::clustering> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return compute_with_block_tree<Float>(ctx.get_queue(), desc, input.get_data(), false);
+        return compute_gpu<Float>(ctx.get_queue(), desc, input.get_data(), false);
     }
 };
 

@@ -1645,6 +1645,47 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
                          te::get_tolerance<Float>(1e-4, 1e-9));
 }
 
+// From 16 columns up the GPU takes the matrix path whenever the matrix fits.
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan gpu: the matrix path matches the cpu for every metric",
+                     "[hdbscan][batch][gpu]",
+                     hdbscan_bf_kd_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+
+    constexpr std::int64_t per_cluster = 501;
+    constexpr std::int64_t cluster_count = 4;
+    constexpr std::int64_t column_count = 24;
+    constexpr std::int64_t row_count = per_cluster * cluster_count;
+    const auto data = te::make_blobs<Float>(per_cluster,
+                                            cluster_count,
+                                            column_count,
+                                            /*separation=*/Float(20.0),
+                                            /*spread=*/Float(1.0));
+    const auto x = homogen_table::wrap(data.data(), row_count, column_count);
+
+    const auto metric = GENERATE(distance_metric::euclidean,
+                                 distance_metric::manhattan,
+                                 distance_metric::minkowski,
+                                 distance_metric::chebyshev);
+    const double alpha = GENERATE(1.0, 2.0);
+    CAPTURE(metric, alpha);
+
+    const auto desc =
+        this->template get_method_descriptor<Method>(25, 10, metric, 3.0)
+            .set_alpha(alpha)
+            .set_result_options(result_options::responses | result_options::single_linkage_tree);
+    const auto [host, device] = this->compare_device_with_float64_host(desc, x);
+    REQUIRE(device.get_cluster_count() == cluster_count);
+
+    check_same_hierarchy(this->get_single_linkage_tree(device),
+                         this->get_single_linkage_tree(host),
+                         row_count,
+                         te::get_tolerance<Float>(1e-4, 1e-9));
+}
+
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
                      "hdbscan gpu: the block tree breaks distance ties like the cpu brute force",
                      "[hdbscan][batch][gpu]",

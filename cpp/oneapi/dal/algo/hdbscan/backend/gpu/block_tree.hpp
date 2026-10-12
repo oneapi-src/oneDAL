@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <type_traits>
 #include <vector>
 
 #include "oneapi/dal/algo/hdbscan/common.hpp"
@@ -127,6 +128,110 @@ inline auto dispatch_lp_ops(distance_metric metric, double degree, Body&& body) 
         case distance_metric::chebyshev: return body(lp_ops<Float, lp_kind::linf>{ Float(1) });
         default: return body(lp_ops<Float, lp_kind::squared_l2>{ Float(2) });
     }
+}
+
+/// Write the `lp_ops` distance between every pair of rows into `dist`, from coordinate differences
+/// staged through local memory. Euclidean entries stay squared, the others are final.
+///
+/// The terms are summed in column order, as in the tree search, so both paths see the same
+/// distances.
+///
+/// @tparam Float Floating-point type
+/// @tparam Ops   `lp_ops` instance
+///
+/// @param[in]  queue The SYCL queue
+/// @param[in]  data  Input `n x d`, device USM
+/// @param[in]  ops   Distance
+/// @param[out] dist  `n x n` output, row-major
+/// @param[in]  deps  Events that must complete before submission
+///
+/// @return Event signaling completion
+template <typename Float, typename Ops>
+inline sycl::event compute_lp_distance_matrix(sycl::queue& queue,
+                                              const pr::ndview<Float, 2>& data,
+                                              const Ops& ops,
+                                              pr::ndview<Float, 2>& dist,
+                                              const bk::event_vector& deps = {}) {
+    // A 16 x 16 work-group computes a 64 x 64 tile, 4 x 4 entries per lane, over 16-column
+    // chunks of both row blocks staged in local memory.
+    constexpr std::int64_t lanes = 16;
+    constexpr std::int64_t per_lane = 4;
+    constexpr std::int64_t tile = lanes * per_lane;
+    constexpr std::int64_t chunk = 16;
+    const std::int64_t n = data.get_dimension(0);
+    const std::int64_t d = data.get_dimension(1);
+    const std::int64_t tiles = (n + tile - 1) / tile;
+    const std::int64_t stride = dist.get_leading_stride();
+    const Float* x = data.get_data();
+    Float* out = dist.get_mutable_data();
+    constexpr bool keep_squared = std::is_same_v<Ops, lp_ops<Float, lp_kind::squared_l2>>;
+
+    // Blocks of tile rows keep each launch inside the int32 range.
+    const std::int64_t block_tiles =
+        std::max<std::int64_t>(1, bk::max_range_2d_rows(tiles * lanes) / lanes);
+    bk::event_vector events;
+    for (std::int64_t first_tile = 0; first_tile < tiles; first_tile += block_tiles) {
+        const std::int64_t row_tiles = std::min(block_tiles, tiles - first_tile);
+        events.push_back(queue.submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+            sycl::local_accessor<Float, 2> a({ tile, chunk + 1 }, h);
+            sycl::local_accessor<Float, 2> b({ tile, chunk + 1 }, h);
+            const sycl::nd_range<2> range({ static_cast<std::size_t>(row_tiles * lanes),
+                                            static_cast<std::size_t>(tiles * lanes) },
+                                          { lanes, lanes });
+            h.parallel_for(range, [=](sycl::nd_item<2> it) {
+                const std::int64_t li = it.get_local_id(0);
+                const std::int64_t lj = it.get_local_id(1);
+                const std::int64_t lane = li * lanes + lj;
+                const std::int64_t i0 = (first_tile + it.get_group(0)) * tile;
+                const std::int64_t j0 = it.get_group(1) * tile;
+                Float acc[per_lane][per_lane];
+                for (std::int64_t r = 0; r < per_lane; r++) {
+                    for (std::int64_t q = 0; q < per_lane; q++) {
+                        acc[r][q] = Float(0);
+                    }
+                }
+                for (std::int64_t c0 = 0; c0 < d; c0 += chunk) {
+                    // Each lane stages 4 of the 64 x 16 entries of either block.
+                    for (std::int64_t e = lane; e < tile * chunk; e += lanes * lanes) {
+                        const std::int64_t row = e / chunk;
+                        const std::int64_t c = c0 + e % chunk;
+                        a[row][e % chunk] =
+                            (c < d && i0 + row < n) ? x[(i0 + row) * d + c] : Float(0);
+                        b[row][e % chunk] =
+                            (c < d && j0 + row < n) ? x[(j0 + row) * d + c] : Float(0);
+                    }
+                    sycl::group_barrier(it.get_group());
+                    const std::int64_t width = std::min(chunk, d - c0);
+                    for (std::int64_t cc = 0; cc < width; cc++) {
+                        Float av[per_lane];
+                        Float bv[per_lane];
+                        for (std::int64_t r = 0; r < per_lane; r++) {
+                            av[r] = a[li + r * lanes][cc];
+                            bv[r] = b[lj + r * lanes][cc];
+                        }
+                        for (std::int64_t r = 0; r < per_lane; r++) {
+                            for (std::int64_t q = 0; q < per_lane; q++) {
+                                acc[r][q] = ops.add(acc[r][q], av[r] - bv[q]);
+                            }
+                        }
+                    }
+                    sycl::group_barrier(it.get_group());
+                }
+                for (std::int64_t r = 0; r < per_lane; r++) {
+                    const std::int64_t i = i0 + li + r * lanes;
+                    for (std::int64_t q = 0; q < per_lane; q++) {
+                        const std::int64_t j = j0 + lj + q * lanes;
+                        if (i < n && j < n) {
+                            out[i * stride + j] =
+                                keep_squared ? acc[r][q] : ops.finalize(acc[r][q]);
+                        }
+                    }
+                }
+            });
+        }));
+    }
+    return bk::wait_or_pass(events);
 }
 
 /// The input rows in `kd_order`, grouped into a bounding-box tree.

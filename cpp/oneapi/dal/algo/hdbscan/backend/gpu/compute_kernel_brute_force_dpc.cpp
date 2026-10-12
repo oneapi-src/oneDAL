@@ -15,20 +15,9 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/hdbscan/backend/gpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/hdbscan/backend/gpu/compute_block_tree.hpp"
-#include "oneapi/dal/algo/hdbscan/backend/gpu/kernel_impl.hpp"
-#include "oneapi/dal/algo/hdbscan/backend/gpu/results.hpp"
-
-#include "oneapi/dal/detail/profiler.hpp"
-
-#include "oneapi/dal/backend/common.hpp"
-#include "oneapi/dal/backend/primitives/ndarray.hpp"
-#include "oneapi/dal/backend/primitives/utils.hpp"
+#include "oneapi/dal/algo/hdbscan/backend/gpu/compute_pipeline.hpp"
 
 namespace oneapi::dal::hdbscan::backend {
-
-namespace bk = oneapi::dal::backend;
-namespace pr = oneapi::dal::backend::primitives;
 
 using dal::backend::context_gpu;
 
@@ -36,99 +25,13 @@ using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;
 using input_t = compute_input<task::clustering>;
 
-/// Run the brute-force HDBSCAN GPU pipeline for cosine, which has no box bound: distance
-/// matrix, core distances, MRD matrix, Boruvka MST and cluster extraction.
-///
-/// @tparam Float Floating-point type
-///
-/// @param[in] ctx        GPU dispatch context (carries the SYCL queue)
-/// @param[in] desc       Algorithm descriptor
-/// @param[in] local_data Input data table of size `n x d`
-///
-/// @return oneAPI `compute_result` with responses and cluster count
-template <typename Float>
-static result_t compute_kernel_cosine_impl(const context_gpu& ctx,
-                                           const descriptor_t& desc,
-                                           const table& local_data) {
-    ONEDAL_PROFILER_TASK(hdbscan.compute, ctx.get_queue());
-
-    auto& queue = ctx.get_queue();
-
-    const std::int64_t row_count = local_data.get_row_count();
-    const std::int64_t min_samples = desc.get_min_samples();
-    const std::int64_t edge_count = row_count - 1;
-    const auto metric = desc.get_metric();
-    const double alpha = desc.get_alpha();
-    ONEDAL_ASSERT(metric == distance_metric::cosine);
-
-    check_mrd_matrix_fits_on_device<Float>(queue,
-                                           row_count,
-                                           local_data.get_column_count(),
-                                           min_samples);
-
-    const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
-    queue.wait_and_throw();
-
-    // Step 1: pairwise distance matrix. Not zero-filled: every entry is written, and a fill of
-    // more than 2^31 elements is rejected.
-    auto dist_matrix =
-        pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, sycl::usm::alloc::device);
-
-    auto dist_event = compute_cosine_distance_matrix<Float>(queue, data_nd, dist_matrix);
-    dist_event.wait_and_throw();
-
-    // Step 2: core distances, unscaled; step 3 applies alpha.
-    auto [core_distances, core_dist_event] =
-        pr::ndarray<Float, 1>::zeros(queue, row_count, sycl::usm::alloc::device);
-    core_dist_event.wait_and_throw();
-
-    auto core_event = compute_core_distances<Float>(queue,
-                                                    dist_matrix,
-                                                    core_distances,
-                                                    min_samples,
-                                                    row_count,
-                                                    metric,
-                                                    { dist_event, core_dist_event });
-    core_event.wait_and_throw();
-
-    // Step 3: MRD matrix in place.
-    auto& mrd_matrix = dist_matrix;
-
-    auto mrd_compute_event =
-        compute_mrd_matrix<Float>(queue, core_distances, mrd_matrix, metric, alpha, { core_event });
-    mrd_compute_event.wait_and_throw();
-
-    // Step 4: Boruvka MST.
-    array<std::int32_t> mst_from;
-    array<std::int32_t> mst_to;
-    array<Float> mst_weights;
-    if (edge_count > 0) {
-        std::tie(mst_from, mst_to, mst_weights) =
-            build_mst<Float>(queue, mrd_matrix, { mrd_compute_event });
-    }
-
-    // Free the `n x n` matrix before the extraction.
-    dist_matrix = pr::ndarray<Float, 2>{};
-
-    // Step 5: extract the flat clusters.
-    return make_results_from_mst<Float>(queue, desc, local_data, mst_from, mst_to, mst_weights);
-}
-
-template <typename Float>
-static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    // The other metrics prune over the block tree; brute force scales the core distances by alpha.
-    if (desc.get_metric() != distance_metric::cosine) {
-        return compute_with_block_tree<Float>(ctx.get_queue(), desc, input.get_data(), true);
-    }
-    return compute_kernel_cosine_impl<Float>(ctx, desc, input.get_data());
-}
-
 template <typename Float>
 struct compute_kernel_gpu<Float, method::brute_force, task::clustering> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
                         const input_t& input) const {
-        return compute<Float>(ctx, desc, input);
+        // scikit-learn's brute-force path divides the core distances by alpha too.
+        return compute_gpu<Float>(ctx.get_queue(), desc, input.get_data(), true);
     }
 };
 

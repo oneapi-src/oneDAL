@@ -123,7 +123,7 @@ inline bool mrd_matrix_fits_on_device(std::int64_t row_count,
     return peak_bytes <= global_mem_bytes / mrd_global_mem_divisor;
 }
 
-/// Reject the row counts whose `n x n` MRD matrix does not fit on the device.
+/// Whether the `n x n` MRD matrix and the buffers around it fit on the device of `queue`.
 ///
 /// @tparam Float Floating-point type of the distance matrix
 ///
@@ -131,40 +131,34 @@ inline bool mrd_matrix_fits_on_device(std::int64_t row_count,
 /// @param[in] row_count    Number of input rows `n`
 /// @param[in] column_count Number of input columns `d`
 /// @param[in] min_samples  `k` of the core-distance k-selection
-///
-/// @throws domain_error if the matrix exceeds the single-allocation limit or if
-///         the pipeline's peak footprint exceeds device global memory
 template <typename Float>
-inline void check_mrd_matrix_fits_on_device(sycl::queue& queue,
-                                            std::int64_t row_count,
-                                            std::int64_t column_count,
-                                            std::int64_t min_samples) {
+inline bool mrd_matrix_fits_device(sycl::queue& queue,
+                                   std::int64_t row_count,
+                                   std::int64_t column_count,
+                                   std::int64_t min_samples) {
     constexpr std::int64_t element_size = static_cast<std::int64_t>(sizeof(Float));
     const std::int64_t max_alloc_bytes = bk::device_max_mem_alloc_size(queue);
     const std::int64_t global_mem_bytes = bk::device_global_mem_size(queue);
 
     // Size the matrix alone first: the scratch query needs an `n x n` shape to be representable.
-    const bool matrix_fits = mrd_matrix_fits_on_device(row_count,
-                                                       column_count,
-                                                       element_size,
-                                                       max_alloc_bytes,
-                                                       global_mem_bytes,
-                                                       min_samples,
-                                                       0);
-    const std::int64_t kselect_scratch_bytes =
-        matrix_fits
-            ? pr::kselect_by_rows_scratch_size<Float>(queue, { row_count, row_count }, min_samples)
-            : 0;
-    if (!matrix_fits || !mrd_matrix_fits_on_device(row_count,
-                                                   column_count,
-                                                   element_size,
-                                                   max_alloc_bytes,
-                                                   global_mem_bytes,
-                                                   min_samples,
-                                                   kselect_scratch_bytes)) {
-        throw domain_error(
-            dal::detail::error_messages::hdbscan_brute_force_matrix_does_not_fit_on_device());
+    if (!mrd_matrix_fits_on_device(row_count,
+                                   column_count,
+                                   element_size,
+                                   max_alloc_bytes,
+                                   global_mem_bytes,
+                                   min_samples,
+                                   0)) {
+        return false;
     }
+    const std::int64_t kselect_scratch_bytes =
+        pr::kselect_by_rows_scratch_size<Float>(queue, { row_count, row_count }, min_samples);
+    return mrd_matrix_fits_on_device(row_count,
+                                     column_count,
+                                     element_size,
+                                     max_alloc_bytes,
+                                     global_mem_bytes,
+                                     min_samples,
+                                     kselect_scratch_bytes);
 }
 
 /// Match scikit-learn on zero-norm rows of a square cosine distance matrix.
@@ -208,23 +202,27 @@ inline sycl::event fix_zero_norm_cosine(sycl::queue& queue,
     return event;
 }
 
-/// Compute the full pairwise cosine distance matrix.
+/// Compute the full pairwise distance matrix; squared L2 for `euclidean`, final distances otherwise.
 ///
 /// The rows are computed in blocks small enough for an int32 kernel range.
 ///
 /// @tparam Float Floating-point type
 ///
-/// @param[in]  queue The SYCL queue
-/// @param[in]  data  Input matrix of size `n x d`
-/// @param[out] dist  Output matrix of size `n x n` (row-major)
-/// @param[in]  deps  Events that must complete before submission
+/// @param[in]  queue  The SYCL queue
+/// @param[in]  data   Input matrix of size `n x d`
+/// @param[out] dist   Output matrix of size `n x n` (row-major)
+/// @param[in]  metric Distance metric tag
+/// @param[in]  degree Minkowski degree (used only when `metric == minkowski`)
+/// @param[in]  deps   Events that must complete before submission
 ///
 /// @return Event signaling completion of the distance computation
 template <typename Float>
-inline sycl::event compute_cosine_distance_matrix(sycl::queue& queue,
-                                                  const pr::ndview<Float, 2>& data,
-                                                  pr::ndview<Float, 2>& dist,
-                                                  const bk::event_vector& deps = {}) {
+inline sycl::event compute_distance_matrix(sycl::queue& queue,
+                                           const pr::ndview<Float, 2>& data,
+                                           pr::ndview<Float, 2>& dist,
+                                           distance_metric metric,
+                                           double degree,
+                                           const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(hdbscan.compute_distance_matrix, queue);
 
     const std::int64_t n = data.get_dimension(0);
@@ -233,16 +231,31 @@ inline sycl::event compute_cosine_distance_matrix(sycl::queue& queue,
     ONEDAL_ASSERT(dist.get_dimension(0) == n);
     ONEDAL_ASSERT(dist.get_dimension(1) == n);
 
-    pr::cosine_distance<Float> dist_op(queue);
-    const bk::uniform_blocking blocking(n, bk::max_range_2d_rows(n));
-    bk::event_vector block_events;
-    for (std::int64_t b = 0; b < blocking.get_block_count(); b++) {
-        const std::int64_t first = blocking.get_block_start_index(b);
-        const std::int64_t last = blocking.get_block_end_index(b);
-        auto dist_block = dist.get_row_slice(first, last);
-        block_events.push_back(dist_op(data.get_row_slice(first, last), data, dist_block, deps));
+    // Cosine needs the norms, so it keeps the primitive; the Lp metrics subtract coordinates.
+    const auto by_row_blocks = [&](auto&& dist_op) {
+        const bk::uniform_blocking blocking(n, bk::max_range_2d_rows(n));
+        bk::event_vector block_events;
+        for (std::int64_t b = 0; b < blocking.get_block_count(); b++) {
+            const std::int64_t first = blocking.get_block_start_index(b);
+            const std::int64_t last = blocking.get_block_end_index(b);
+            auto dist_block = dist.get_row_slice(first, last);
+            block_events.push_back(
+                dist_op(data.get_row_slice(first, last), data, dist_block, deps));
+        }
+        return block_events;
+    };
+
+    switch (metric) {
+        case distance_metric::cosine:
+            return fix_zero_norm_cosine<Float>(queue,
+                                               data,
+                                               dist,
+                                               by_row_blocks(pr::cosine_distance<Float>(queue)));
+        default:
+            return dispatch_lp_ops<Float>(metric, degree, [&](const auto& ops) {
+                return compute_lp_distance_matrix<Float>(queue, data, ops, dist, deps);
+            });
     }
-    return fix_zero_norm_cosine<Float>(queue, data, dist, block_events);
 }
 
 /// Compute per-point core distances as the `min_samples`-th smallest entry of each row.
@@ -395,7 +408,9 @@ inline sycl::event compute_core_distances_blocked(sycl::queue& queue,
 /// @param[in,out] mrd_matrix     Distance matrix `n x n` (squared L2 for euclidean), overwritten
 ///                               with MRD values
 /// @param[in]     metric         Distance metric tag (controls the sqrt finalize)
-/// @param[in]     alpha          Robust single-linkage scaling factor; divides the whole MRD
+/// @param[in]     alpha          Robust single-linkage scaling factor of `dist(i, j)`
+/// @param[in]     alpha_scales_core Divide the core distances by alpha too, as scikit-learn's
+///                                  brute-force path does
 /// @param[in]     deps           Events that must complete before submission
 ///
 /// @return Event signaling completion
@@ -405,6 +420,7 @@ inline sycl::event compute_mrd_matrix(sycl::queue& queue,
                                       pr::ndview<Float, 2>& mrd_matrix,
                                       distance_metric metric,
                                       double alpha,
+                                      bool alpha_scales_core,
                                       const bk::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(hdbscan.compute_mrd_matrix, queue);
 
@@ -418,6 +434,7 @@ inline sycl::event compute_mrd_matrix(sycl::queue& queue,
     Float* mrd_ptr = mrd_matrix.get_mutable_data();
     const bool needs_sqrt = (metric == distance_metric::euclidean);
     const Float inv_alpha = static_cast<Float>(1.0 / alpha);
+    const Float core_scale = alpha_scales_core ? inv_alpha : Float(1);
 
     return bk::parallel_for_2d_by_row_blocks(
         queue,
@@ -427,9 +444,8 @@ inline sycl::event compute_mrd_matrix(sycl::queue& queue,
             // Euclidean entries hold squared L2; the other metrics hold final distances.
             const Float d = needs_sqrt ? sycl::sqrt(sycl::fmax(mrd_ptr[i * n + j], Float(0)))
                                        : mrd_ptr[i * n + j];
-            // scikit-learn's brute path scales the core distances by 1/alpha as well.
-            const Float cd_i = core_ptr[i] * inv_alpha;
-            const Float cd_j = core_ptr[j] * inv_alpha;
+            const Float cd_i = core_ptr[i] * core_scale;
+            const Float cd_j = core_ptr[j] * core_scale;
             mrd_ptr[i * n + j] = sycl::fmax(sycl::fmax(cd_i, cd_j), d * inv_alpha);
         },
         deps);
@@ -456,22 +472,34 @@ inline sycl::event boruvka_find_nearest_mrd(sycl::queue& queue,
                                             std::int32_t* pt_best_idx_ptr,
                                             std::int64_t n,
                                             const bk::event_vector& deps) {
+    // One work-group per row, so the row is read coalesced.
+    constexpr std::int64_t wg = 256;
     return queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
-        h.parallel_for(sycl::range<1>(n), [=](sycl::id<1> idx) {
-            const std::int64_t i = idx[0];
+        h.parallel_for(bk::make_multiple_nd_range_1d(n * wg, wg), [=](sycl::nd_item<1> it) {
+            constexpr std::int32_t none = std::numeric_limits<std::int32_t>::max();
+            const auto group = it.get_group();
+            const std::int64_t i = it.get_group(0);
             const std::int32_t my_comp = comp_ptr[i];
             const Float* row = mrd_ptr + i * n;
             Float best_m = std::numeric_limits<Float>::max();
-            std::int32_t best_j = -1;
-            for (std::int64_t j = 0; j < n; j++) {
+            std::int32_t best_j = none;
+            for (std::int64_t j = it.get_local_id(0); j < n; j += wg) {
                 if (comp_ptr[j] != my_comp && row[j] < best_m) {
                     best_m = row[j];
                     best_j = static_cast<std::int32_t>(j);
                 }
             }
-            pt_best_mrd_ptr[i] = best_m;
-            pt_best_idx_ptr[i] = best_j;
+            // The smallest MRD, then the lowest column among the lanes that reach it.
+            const Float row_best = sycl::reduce_over_group(group, best_m, sycl::minimum<Float>());
+            const std::int32_t row_best_j =
+                sycl::reduce_over_group(group,
+                                        (best_m == row_best) ? best_j : none,
+                                        sycl::minimum<std::int32_t>());
+            if (it.get_local_id(0) == 0) {
+                pt_best_mrd_ptr[i] = row_best;
+                pt_best_idx_ptr[i] = (row_best_j == none) ? -1 : row_best_j;
+            }
         });
     });
 }
