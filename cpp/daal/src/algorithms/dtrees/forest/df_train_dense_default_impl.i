@@ -103,23 +103,14 @@ services::SharedPtr<NumericTable> convertResponses(const NumericTable * y, servi
     const size_t nCols = y->getNumberOfColumns();
     if (!nRows || !nCols) return empty;
 
+    ReadRows<algorithmFPType, cpu> srcBlock(const_cast<NumericTable *>(y), 0, nRows);
+    s |= srcBlock.status();
+    if (!s) return empty;
+
     services::SharedPtr<HomogenNumericTableCPU<algorithmFPType, cpu> > converted =
         HomogenNumericTableCPU<algorithmFPType, cpu>::create(nCols, nRows, &s);
     if (!s) return empty;
-    algorithmFPType * dst = converted->getArray();
-
-    const size_t blockSize = 4096;
-    const size_t nBlocks   = nRows / blockSize + !!(nRows % blockSize);
-    daal::SafeStatus safeStat;
-    daal::threader_for(nBlocks, 1, [&](size_t iBlock) {
-        const size_t iStart = iBlock * blockSize;
-        const size_t n      = (iStart + blockSize > nRows) ? nRows - iStart : blockSize;
-        ReadRows<algorithmFPType, cpu> src(const_cast<NumericTable *>(y), iStart, n);
-        DAAL_CHECK_BLOCK_STATUS_THR(src);
-        services::internal::tmemcpy<algorithmFPType, cpu>(dst + iStart * nCols, src.get(), n * nCols);
-    });
-    s |= safeStat.detach();
-    if (!s) return empty;
+    services::internal::tmemcpy<algorithmFPType, cpu>(converted->getArray(), srcBlock.get(), nRows * nCols);
     return converted;
 }
 
