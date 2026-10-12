@@ -242,11 +242,10 @@ def _impl(ctx):
             # every compile action so the release build keeps the exact flag
             # set it had when this came from `win_icx_common_flags`.
             #
-            # Empty for upstream clang-cl: `-Qopenmp-simd` is an Intel spelling
-            # that clang-cl reports as an unknown argument, which `-Werror` in
-            # the clang flag set turns into a build failure, and Make's
-            # `COMPILER.win.clang` (clang.ref.arm.mk) passes no OpenMP SIMD
-            # flag either.
+            # The attribute is empty for clang-cl, which rejects the Intel
+            # `-Qopenmp-simd` spelling, as Make's `COMPILER.win.clang`
+            # (clang.ref.arm.mk) does; the guard below is needed because
+            # `flag_group` refuses an empty `flags` list.
             flag_set(
                 actions = all_compile_actions,
                 flag_groups = ([flag_group(flags = ctx.attr.openmp_simd_flags)]

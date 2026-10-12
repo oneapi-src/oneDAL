@@ -863,8 +863,9 @@ it, supports the `ref` backend only, with a single fixed SVE ISA variant and the
 LLVM toolchain from `dev/make/compiler_definitions/clang.ref.arm.mk`: `clang-cl`
 driving `--target=aarch64-pc-windows-msvc -march=armv8-a+sve`, `lld-link` and
 `llvm-lib`. That toolchain is selected automatically whenever the target arch is
-ARM64 — `ONEDAL_WIN_COMPILER` may only be `clang` there, any other value fails
-with a diagnostic, because neither MSVC `cl` nor `icx` builds this target.
+ARM64 — a compiler named through `ONEDAL_WIN_COMPILER` or `CC`/`CXX` may only be
+clang-cl there, anything else fails with a diagnostic, because neither MSVC `cl`
+nor `icx` builds this target.
 
 The default target is the host arch, read from `PROCESSOR_ARCHITEW6432` /
 `PROCESSOR_ARCHITECTURE`, so an ARM64 host targets ARM64 and

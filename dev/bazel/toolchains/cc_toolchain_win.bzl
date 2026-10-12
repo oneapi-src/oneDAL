@@ -116,6 +116,35 @@ def _find_tools_clang(repo_ctx):
         is_dpc_found = False,
     )
 
+def _requested_compiler(repo_ctx):
+    """Which Windows compiler the environment asks for: clang, icx, cl or "".
+
+    `ONEDAL_WIN_COMPILER` is the explicit switch. Failing that, the driver
+    named by `CC`/`CXX` decides, the same two variables `_detect_cross_compiler`
+    and `_detect_target_flag_arch` read in common.bzl -- on Windows one driver
+    compiles both languages, so either variable names the same compiler, and
+    honouring only one of them would make `CXX=clang-cl` silently fall back to
+    MSVC. Both are declared in the toolchain repository rule's `environ`
+    (dev/bazel/toolchains/cc_toolchain.bzl), so a change to either
+    re-evaluates the toolchain.
+
+    The value may be a full path, with either slash flavour, and Windows lets
+    the `.exe` suffix be omitted, so compare basenames with the suffix
+    stripped. An empty result means "nothing requested": the caller decides
+    the default.
+    """
+    override = repo_ctx.os.environ.get("ONEDAL_WIN_COMPILER", "").lower()
+    if override:
+        return override
+    for env_var in ["CC", "CXX"]:
+        driver = repo_ctx.os.environ.get(env_var, "").lower().split(" ")[0]
+        basename = driver.replace("\\", "/").split("/")[-1]
+        if basename.endswith(".exe"):
+            basename = basename[:-len(".exe")]
+        if basename:
+            return basename
+    return ""
+
 def _is_icx_requested(repo_ctx):
     """Return True if the Windows toolchain should use Intel oneAPI icx/icpx.
 
@@ -123,15 +152,13 @@ def _is_icx_requested(repo_ctx):
     opt out via ONEDAL_WIN_COMPILER=cl (or CC=cl) to fall back to the
     rules_cc MSVC auto-config.
     """
-    override = repo_ctx.os.environ.get("ONEDAL_WIN_COMPILER", "").lower()
-    if override == "cl":
-        return False
-    if override == "icx":
+    requested = _requested_compiler(repo_ctx)
+    if requested == "icx":
         return True
-    # Same basename comparison as _is_clang_requested: `CC` may be a full path
-    # with either slash flavour and with the `.exe` suffix omitted.
-    cc = repo_ctx.os.environ.get("CC", "").lower().split(" ")[0]
-    if cc.replace("\\", "/").split("/")[-1] in ["cl", "cl.exe"]:
+    if requested:
+        # Anything else named explicitly -- `cl`, a cross-compiler, a wrapper
+        # script -- is not icx, so do not let it be overridden by icx being on
+        # PATH.
         return False
     # Fall back to icx if the compiler is available.
     return repo_ctx.which("icx") != None
@@ -341,23 +368,17 @@ def _configure_cc_toolchain_win_llvm(repo_ctx, reqs, compiler_id):
 
 def _is_clang_requested(repo_ctx):
     """Return True if the Windows toolchain should use upstream LLVM clang-cl."""
-    if repo_ctx.os.environ.get("ONEDAL_WIN_COMPILER", "").lower() == "clang":
-        return True
-    # `CC` may carry a full path, with either slash flavour, and Windows lets
-    # the `.exe` suffix be omitted — compare the basename both ways.
-    cc = repo_ctx.os.environ.get("CC", "").lower().split(" ")[0]
-    basename = cc.replace("\\", "/").split("/")[-1]
-    return basename in ["clang-cl", "clang-cl.exe"]
+    return _requested_compiler(repo_ctx) in ["clang", "clang-cl"]
 
 def configure_cc_toolchain_win(repo_ctx, reqs):
     if reqs.target_arch_id == "arm":
         # Windows ARM64 (Make's `PLAT=winarm`) is clang-cl only: neither icx nor
         # MSVC `cl` compiles the SVE code paths oneDAL selects for this arch.
-        requested = repo_ctx.os.environ.get("ONEDAL_WIN_COMPILER", "").lower()
-        if requested and requested != "clang":
-            fail(("ONEDAL_WIN_COMPILER={} is not supported when targeting " +
-                  "Windows ARM64; only clang-cl is (see " +
-                  "dev/make/compiler_definitions/clang.ref.arm.mk)").format(requested))
+        requested = _requested_compiler(repo_ctx)
+        if requested and requested not in ["clang", "clang-cl"]:
+            fail(("Compiler {} (from ONEDAL_WIN_COMPILER or CC/CXX) is not " +
+                  "supported when targeting Windows ARM64; only clang-cl is " +
+                  "(see dev/make/compiler_definitions/clang.ref.arm.mk)").format(requested))
         _configure_cc_toolchain_win_llvm(repo_ctx, reqs, "clang")
     elif _is_clang_requested(repo_ctx):
         _configure_cc_toolchain_win_llvm(repo_ctx, reqs, "clang")

@@ -247,8 +247,8 @@ jobs:
           set PATH=%PATH%;C:\msys64\usr\bin
           rem `thread_dynamic` is what links `@openblas//:openblas` through
           rem `mathbackend_thread`, so it is listed explicitly: without it the
-          rem lane would not exercise the new Windows OpenBLAS import-library
-          rem and DLL wiring at all.
+          rem lane would not exercise the new Windows OpenBLAS static archive
+          rem at all.
           bazel build --platforms=@config//:windows_arm64 --backend_config=ref ^
             //cpp/daal:core_dynamic //cpp/daal:thread_dynamic //cpp/oneapi/dal:dynamic
 
