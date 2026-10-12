@@ -69,7 +69,7 @@ md5sum.cmd.mac = md5 -q
 # Enable compiler-provided defences as recommended by Intel Security Development Lifecycle document (SW.01)
 secure.opts.win = $(if $(COMPILER_is_vc),-GS,)
 secure.opts.lnx = -Wformat -Wformat-security -fstack-protector-strong
-secure.opts.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
+secure.opts.mac = -Wformat -Wformat-security -fstack-protector
 
 
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT

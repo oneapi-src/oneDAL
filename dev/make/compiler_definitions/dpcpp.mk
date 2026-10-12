@@ -55,7 +55,7 @@ ifeq ($(OS_is_win),true)
         -optlevel.dpcpp = -$(OPTFLAG)
     endif
 else
-    # -U_FORTIFY_SOURCE comes first because some toolchain builds predefine it.
+    # -U first: a different level from CXXFLAGS would otherwise be a -Werror redefinition.
     ifeq ($(OPTFLAG),Ofast)
         -optlevel.dpcpp = -O3 -ffast-math -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
     else ifeq ($(OPTFLAG),O0)

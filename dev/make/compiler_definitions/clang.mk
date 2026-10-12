@@ -39,7 +39,7 @@ else
     $(error Invalid OPTFLAG '$(OPTFLAG)' for $(COMPILER). Supported: $(OPTFLAGS_SUPPORTED))
 endif
 
-# -U_FORTIFY_SOURCE comes first because some toolchain builds predefine it.
+# -U first: a different level from CXXFLAGS would otherwise be a -Werror redefinition.
 ifeq ($(filter $(OPTFLAG),O0 Og),$(OPTFLAG))
     -optlevel.clang = -$(OPTFLAG)
 else ifeq ($(OPTFLAG),Ofast)

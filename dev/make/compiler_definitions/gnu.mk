@@ -40,7 +40,7 @@ endif
 
 # Ofast maps to -O3 -ffast-math rather than to -Ofast itself, because -Ofast
 # also implies -fallow-store-data-races, which is unsafe in threaded kernels.
-# -U_FORTIFY_SOURCE comes first because some gcc builds predefine it.
+# -U first: a different level from CXXFLAGS would otherwise be a -Werror redefinition.
 ifeq ($(filter $(OPTFLAG),O0 Og),$(OPTFLAG))
     -optlevel.gnu = -$(OPTFLAG)
 else ifeq ($(OPTFLAG),Ofast)
