@@ -180,7 +180,8 @@ static services::Status computeMedoids(const algorithmFPType * data, const int *
     DAAL_CHECK_MALLOC(dist.get());
     DAAL_CHECK_STATUS(status, dist->init());
 
-    // One task per (cluster, block of rowBlock members).
+    // One task per (cluster, block of rowBlock members). A tile holds the 32k entries that
+    // `finalize` handles in a single task.
     const size_t rowBlock = 128;
     const size_t colBlock = 256;
     TArrayCalloc<size_t, cpu> taskOffsetsArr(nClusters + 1);

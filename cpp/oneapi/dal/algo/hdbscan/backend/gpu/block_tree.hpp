@@ -17,7 +17,6 @@
 #pragma once
 
 #include <algorithm>
-#include <numeric>
 #include <type_traits>
 #include <vector>
 

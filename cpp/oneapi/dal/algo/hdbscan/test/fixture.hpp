@@ -36,9 +36,7 @@ namespace te = dal::test::engine;
 
 constexpr inline std::uint64_t mask_full = 0xffffffffffffffff;
 
-/// Check that two label arrays define the same partition (permutation-invariant).
-/// Different implementations may assign different integer labels to the same clusters
-/// because floating-point differences can reorder MST edges.
+/// Check that two label arrays define the same partition, up to renumbering.
 template <typename Float>
 static void check_same_partition(const dal::array<Float>& a_rows,
                                  const dal::array<Float>& b_rows,
@@ -66,12 +64,8 @@ static void check_same_partition(const dal::array<Float>& a_rows,
 
 /// Label the points of a single-linkage tree cut at `cut_distance`.
 ///
-/// Transcription of scikit-learn's `labelling_at_cut`, the routine behind
-/// `HDBSCAN.dbscan_clustering`: union every merge below the cut, then hand a
-/// dense label to each component holding at least `min_cluster_size` points and
-/// `-1` to the rest. The test uses it to check that the exported dendrogram is
-/// usable for exactly that purpose, so it is written against the table only --
-/// it never looks at the data or the flat responses.
+/// Port of scikit-learn's `labelling_at_cut`, behind `HDBSCAN.dbscan_clustering`: join every
+/// merge below the cut, label each component of at least `min_cluster_size` points, -1 the rest.
 ///
 /// @tparam Float Floating-point type of the dendrogram table
 ///
@@ -88,10 +82,7 @@ static std::vector<std::int32_t> labelling_at_cut(const dal::array<Float>& tree,
                                                   std::int64_t min_cluster_size) {
     const std::int64_t node_count = 2 * row_count - 1;
 
-    // Union-find over the whole dendrogram, points and merge nodes alike, with the
-    // union by rank and the find by path compression the reference uses. The two
-    // match because the label of a component is handed out in the order of its root
-    // id, and the root id depends on how the unions were taken.
+    // Union by rank and path compression as in scikit-learn, since labels follow the root ids.
     std::vector<std::int64_t> parent(node_count);
     std::vector<std::int64_t> rank(node_count, 0);
     for (std::int64_t i = 0; i < node_count; i++) {
@@ -127,8 +118,6 @@ static std::vector<std::int32_t> labelling_at_cut(const dal::array<Float>& tree,
         if (static_cast<double>(tree[4 * e + 2]) >= cut_distance) {
             continue;
         }
-        // Both children join the node the merge created, so a chain of merges below
-        // the cut collapses into one component.
         const auto node = row_count + e;
         unite(static_cast<std::int64_t>(tree[4 * e + 0]), node);
         unite(static_cast<std::int64_t>(tree[4 * e + 1]), node);
@@ -154,12 +143,8 @@ static std::vector<std::int32_t> labelling_at_cut(const dal::array<Float>& tree,
 
 /// Check that two single-linkage trees describe the same hierarchy.
 ///
-/// The rows are deliberately not compared one by one. Merges at an equal distance
-/// may be taken in either order, which shifts the node ids of everything above
-/// them without changing the hierarchy, and that does happen between two
-/// implementations and even between two backends of this one. What is well defined
-/// is the sequence of merge distances and the partition the tree induces at each of
-/// them, which is also all a re-cut of the hierarchy can observe.
+/// Merges at an equal distance may come in either order, which renumbers every node above them,
+/// so the merge distances and the partition at each of them are compared instead of the rows.
 ///
 /// @tparam Float    Floating-point type of the tree under test
 /// @tparam RefFloat Floating-point type of the expected tree
@@ -181,9 +166,7 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
         REQUIRE(std::abs(double(tree[4 * e + 2]) - double(ref_tree[4 * e + 2])) < tol);
     }
 
-    // Component id of each point, named after its smallest member, so two
-    // labellings of the same partition compare equal whatever order they numbered
-    // the components in.
+    // Each component is named after its smallest member, so equal partitions compare equal.
     const auto canonical = [=](const std::vector<std::int32_t>& labels) {
         std::vector<std::int32_t> first_point;
         std::map<std::int32_t, std::int32_t> label_to_first;
@@ -199,10 +182,8 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
     constexpr std::int64_t max_levels = 256;
     const std::int64_t stride = std::max<std::int64_t>(1, edge_count / max_levels);
     for (std::int64_t e = 0; e < edge_count; e++) {
-        // Halfway to the next distinct merge distance, so merge `e` is taken and
-        // merge `e + 1` is not, with room to spare for the gap between the two
-        // trees. Merges within `2 * tol` of each other have no level of their own:
-        // they are only observable together, at the level of the last one.
+        // Cut halfway to the next merge distance; merges within `2 * tol` of each other are only
+        // checked together, at the last of them.
         const double distance = static_cast<double>(ref_tree[4 * e + 2]);
         const bool has_next = (e + 1 < edge_count);
         const double next = has_next ? static_cast<double>(ref_tree[4 * (e + 1) + 2]) : 0.0;
@@ -355,9 +336,8 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
-    /// Run `desc` on the device of the test policy, and the same method in float64 on the host as
-    /// the reference, and check that the two partitions agree.
-    /// A float64 reference tells float32 rounding apart from a wrong neighbor.
+    /// Check that `desc` on the device gives the partition of the same method in float64 on the
+    /// host, which tells float32 rounding apart from a wrong neighbor.
     template <typename Desc>
     std::pair<result_t, result_t> compare_device_with_float64_host(const Desc& desc,
                                                                    const table& data) {
@@ -511,14 +491,9 @@ public:
         }
     }
 
-    /// Check the shape and the structural invariants of a `single_linkage_tree` table.
-    ///
-    /// Everything checked here holds for any valid single-linkage dendrogram, so the
-    /// check applies to every input: the documented shape, merge distances ascending
-    /// (the hierarchy is built from an ascending sweep of the MST, and a re-cut is
-    /// only meaningful if they are monotone), ids referring only to already-formed
-    /// nodes, subtree sizes equal to the sum of the two children, every node consumed
-    /// by exactly one later merge, and a root spanning all `row_count` points.
+    /// Check the shape and the invariants of any single-linkage tree: ascending distances,
+    /// children formed before their merge, sizes that add up, every node merged once and a root
+    /// over all points.
     ///
     /// @param[in] result    Compute result with `single_linkage_tree` requested
     /// @param[in] row_count Number of input observations
@@ -530,10 +505,8 @@ public:
 
         const auto tree = row_accessor<const Float>(tree_table).pull({ 0, -1 });
 
-        // Size of every node, leaves included, so the per-merge sum can be checked.
         std::vector<std::int64_t> node_size(row_count + edge_count, 1);
-        // How many later merges consumed each node. A dendrogram is a tree, so the
-        // root is consumed zero times and every other node exactly once.
+        // Number of later merges that take each node.
         std::vector<std::int32_t> consumed(row_count + edge_count, 0);
 
         Float previous = -std::numeric_limits<Float>::infinity();
@@ -548,8 +521,7 @@ public:
             REQUIRE(distance >= previous);
             previous = distance;
 
-            // `row_count + e` is this row's own node, so both children must be
-            // strictly below it: a merge can only consume what already exists.
+            // Row `e` forms node `row_count + e`, so its children have smaller ids.
             REQUIRE(left >= 0);
             REQUIRE(right >= 0);
             REQUIRE(left < row_count + e);
@@ -592,15 +564,9 @@ public:
         check_single_linkage_tree(compute_result, data.get_row_count());
     }
 
-    /// Check the shape and the value invariants of a requested `probabilities` table.
-    ///
-    /// Only the invariants that hold for every input are checked: the table has the
-    /// documented shape, every membership strength lies in `[0, 1]`, a noise point
-    /// gets exactly 0 and a clustered point gets a strictly positive value, and the
-    /// most persistent point of the whole dataset reaches 1 (the deepest surviving
-    /// point of a cluster drops out at that cluster's death lambda, which is what the
-    /// ratio normalizes by). The responses are only cross-checked when they were
-    /// requested too, so this also covers the probabilities-only mode.
+    /// Check the shape and the invariants of the probabilities: all in `[0, 1]`, exactly 0 for
+    /// noise, positive otherwise and 1 for the most persistent point. The labels are only checked
+    /// when the responses were requested.
     ///
     /// @param[in] result    Compute result with `probabilities` requested
     /// @param[in] row_count Number of input observations

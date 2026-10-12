@@ -54,8 +54,7 @@ struct CondensedEdge
 
 /// Stably sort MST edges in ascending order of weight, keeping endpoint arrays aligned.
 ///
-/// Ties are broken by edge position, as the GPU backend's stable radix sort does, since the
-/// order of tied edges decides the dendrogram. The weights must be finite.
+/// Tied edges keep their input order, which decides the dendrogram. The weights must be finite.
 ///
 /// @tparam algorithmFPType Floating-point type used for edge weights
 /// @tparam cpu             CPU dispatch tag
@@ -1116,9 +1115,9 @@ static int labelPoints(const CondensedEdge * condensed, const algorithmFPType * 
     return labelCounter;
 }
 
-/// Sort MST edges by weight and extract flat clusters via condensed tree + EOM.
+/// Sort MST edges by weight and extract the flat clusters from the condensed tree.
 ///
-/// Shared by all CPU methods. An empty MST labels every point as noise.
+/// Shared by every method and backend. An empty MST labels every point as noise.
 ///
 /// @tparam algorithmFPType Floating-point type used for edge weights / lambdas
 /// @tparam cpu             CPU dispatch tag

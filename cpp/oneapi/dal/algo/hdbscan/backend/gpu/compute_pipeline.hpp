@@ -30,11 +30,10 @@ namespace oneapi::dal::hdbscan::backend {
 ///
 /// @tparam Float Floating-point type
 ///
-/// @param[in] queue               The SYCL queue
-/// @param[in] desc                Algorithm descriptor
-/// @param[in] local_data          Input data table of size `n x d`
-/// @param[in] alpha_scales_core   Divide the core distances by alpha too, as scikit-learn's
-///                                brute-force path does; the tree paths leave them unscaled
+/// @param[in] queue             The SYCL queue
+/// @param[in] desc              Algorithm descriptor
+/// @param[in] local_data        Input data table of size `n x d`
+/// @param[in] alpha_scales_core Divide the core distances by alpha too
 ///
 /// @return oneAPI `compute_result`
 template <typename Float>
@@ -46,7 +45,6 @@ inline compute_result<task::clustering> compute_with_block_tree(
     ONEDAL_PROFILER_TASK(hdbscan.compute_block_tree, queue);
 
     const std::int64_t row_count = local_data.get_row_count();
-    const std::int64_t edge_count = row_count - 1;
     const auto metric = desc.get_metric();
     const double degree = desc.get_degree();
     const Float inv_alpha = static_cast<Float>(1.0 / desc.get_alpha());
@@ -56,7 +54,7 @@ inline compute_result<task::clustering> compute_with_block_tree(
     array<std::int32_t> mst_to;
     array<Float> mst_weights;
 
-    if (edge_count > 0) {
+    if (row_count > 1) {
         const auto data_nd = pr::table2ndarray<Float>(queue, local_data, sycl::usm::alloc::device);
         const auto tree = build_block_tree<Float>(queue, data_nd);
 
@@ -158,7 +156,7 @@ constexpr std::int64_t matrix_min_column_count = 16;
 /// @param[in] desc              Algorithm descriptor
 /// @param[in] local_data        Input data table of size `n x d`
 /// @param[in] alpha_scales_core Divide the core distances by alpha too, as scikit-learn's
-///                              brute-force path does; the tree paths leave them unscaled
+///                              brute-force path does; the tree methods leave them unscaled
 ///
 /// @return oneAPI `compute_result`
 ///

@@ -26,7 +26,6 @@
 #include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
-#include "oneapi/dal/backend/atomic.hpp"
 #include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/backend/primitives/ndarray.hpp"
 #include "oneapi/dal/backend/primitives/distance/distance.hpp"
@@ -303,14 +302,13 @@ inline sycl::event compute_core_distances(sycl::queue& queue,
 
     const Float* ksel_ptr = ksel_vals.get_data();
     Float* core_ptr = core_distances.get_mutable_data();
-    const std::int64_t kk = k;
     const bool needs_sqrt = (metric == distance_metric::euclidean);
 
     auto extract_event = queue.submit([&](sycl::handler& h) {
         h.depends_on({ ksel_event });
         h.parallel_for(sycl::range<1>(n), [=](sycl::id<1> idx) {
             const std::int64_t i = idx[0];
-            const Float val = ksel_ptr[i * kk + (kk - 1)];
+            const Float val = ksel_ptr[i * k + (k - 1)];
             core_ptr[i] = needs_sqrt ? sycl::sqrt(sycl::fmax(val, Float(0))) : val;
         });
     });
