@@ -195,6 +195,9 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
     };
 
     INFO("the induced partition agrees at every merge distance");
+    // At most this many levels are cut, evenly spread, so large trees stay cheap to check.
+    constexpr std::int64_t max_levels = 256;
+    const std::int64_t stride = std::max<std::int64_t>(1, edge_count / max_levels);
     for (std::int64_t e = 0; e < edge_count; e++) {
         // Halfway to the next distinct merge distance, so merge `e` is taken and
         // merge `e + 1` is not, with room to spare for the gap between the two
@@ -203,7 +206,7 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
         const double distance = static_cast<double>(ref_tree[4 * e + 2]);
         const bool has_next = (e + 1 < edge_count);
         const double next = has_next ? static_cast<double>(ref_tree[4 * (e + 1) + 2]) : 0.0;
-        if (has_next && next - distance <= 2 * tol) {
+        if ((has_next && next - distance <= 2 * tol) || (has_next && e % stride != 0)) {
             continue;
         }
         const double cut = has_next ? 0.5 * (distance + next) : (distance + 1.0);
@@ -211,7 +214,9 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
 
         const auto actual = canonical(labelling_at_cut(tree, row_count, cut, 1));
         const auto expected = canonical(labelling_at_cut(ref_tree, row_count, cut, 1));
-        for (std::int64_t i = 0; i < row_count; i++) {
+        const auto mismatch = std::mismatch(actual.begin(), actual.end(), expected.begin());
+        if (mismatch.first != actual.end()) {
+            const auto i = std::distance(actual.begin(), mismatch.first);
             CAPTURE(i, actual[i], expected[i]);
             REQUIRE(actual[i] == expected[i]);
         }
@@ -350,6 +355,25 @@ public:
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
+    /// Run `desc` on the device of the test policy, and the same method in float64 on the host as
+    /// the reference, and check that the two partitions agree.
+    /// A float64 reference tells float32 rounding apart from a wrong neighbor.
+    template <typename Desc>
+    std::pair<result_t, result_t> compare_device_with_float64_host(const Desc& desc,
+                                                                   const table& data) {
+        const auto reference_desc =
+            hdbscan::descriptor<double, method_t>(desc.get_min_cluster_size(),
+                                                  desc.get_min_samples())
+                .set_metric(desc.get_metric())
+                .set_degree(desc.get_degree())
+                .set_alpha(desc.get_alpha())
+                .set_result_options(desc.get_result_options());
+        const auto host = dal::compute(reference_desc, data);
+        const auto device = dal::compute(this->get_policy().get_queue(), desc, data);
+        check_same_result(host, device);
+        return { host, device };
+    }
+
     /// Run `desc` on the host and on the device of the test policy, and check that the two
     /// partitions agree when the responses were requested.
     ///

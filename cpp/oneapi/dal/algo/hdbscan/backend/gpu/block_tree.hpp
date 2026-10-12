@@ -48,7 +48,7 @@ constexpr std::int32_t block_tree_stack_size = 96;
 constexpr std::int64_t block_tree_wg_size = 32;
 
 /// Largest `min_samples` the tree k-NN keeps in registers.
-constexpr std::int64_t block_tree_max_k = 64;
+constexpr std::int64_t block_tree_max_k = 256;
 
 /// The Lp distances in accumulated form: squared L2, L1, sum of `|x|^p`, or L-infinity.
 ///
@@ -250,25 +250,32 @@ inline pr::ndarray<std::uint32_t, 1> kd_order(sycl::queue& queue,
         const std::uint32_t* order_ptr = order.get_data();
         std::uint32_t* moved_ptr = moved.get_mutable_data();
         std::uint32_t* next_ptr = next.get_mutable_data();
-
-        auto reset_event = queue.submit([&](sycl::handler& h) {
+        // One work-group per (segment, column) box side.
+        const std::int64_t wg = std::min<std::int64_t>(seg_size, 256);
+        auto box_event = queue.submit([&](sycl::handler& h) {
             h.depends_on(last_event);
-            h.parallel_for(sycl::range<1>(seg_count * d), [=](sycl::id<1> idx) {
-                lo_ptr[idx[0]] = std::numeric_limits<Float>::max();
-                hi_ptr[idx[0]] = std::numeric_limits<Float>::lowest();
-            });
+            h.parallel_for(
+                bk::make_multiple_nd_range_1d(seg_count * d * wg, wg),
+                [=](sycl::nd_item<1> it) {
+                    const std::int64_t g = it.get_group(0);
+                    const std::int64_t s = g / d;
+                    const std::int64_t c = g % d;
+                    const std::int64_t end = std::min(n, (s + 1) * seg_size);
+                    Float lo = std::numeric_limits<Float>::max();
+                    Float hi = std::numeric_limits<Float>::lowest();
+                    for (std::int64_t p = s * seg_size + it.get_local_id(0); p < end; p += wg) {
+                        const Float v = data_ptr[static_cast<std::int64_t>(order_ptr[p]) * d + c];
+                        lo = sycl::fmin(lo, v);
+                        hi = sycl::fmax(hi, v);
+                    }
+                    lo = sycl::reduce_over_group(it.get_group(), lo, sycl::minimum<Float>());
+                    hi = sycl::reduce_over_group(it.get_group(), hi, sycl::maximum<Float>());
+                    if (it.get_local_id(0) == 0) {
+                        lo_ptr[s * d + c] = lo;
+                        hi_ptr[s * d + c] = hi;
+                    }
+                });
         });
-        auto box_event = bk::parallel_for_2d_by_row_blocks(
-            queue,
-            n,
-            d,
-            [=](std::int64_t p, std::int64_t c) {
-                const Float v = data_ptr[static_cast<std::int64_t>(order_ptr[p]) * d + c];
-                const std::int64_t s = p / seg_size;
-                bk::atomic_global_min(lo_ptr + s * d + c, v);
-                bk::atomic_global_max(hi_ptr + s * d + c, v);
-            },
-            { reset_event });
 
         // One sort on `segment * 2^bits + coordinate cell` while that stays below 2^24, which
         // every float key holds exactly; past that, by coordinate and then stably by segment.

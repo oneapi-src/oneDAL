@@ -1603,6 +1603,130 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
     this->check_same_result(reference, compute_with_block(block_size));
 }
 
+// Thousands of rows give the GPU block tree three levels and a partial last leaf.
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan gpu: the block tree search matches the cpu for every Lp metric",
+                     "[hdbscan][batch][gpu]",
+                     hdbscan_bf_kd_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+
+    constexpr std::int64_t per_cluster = 1501;
+    constexpr std::int64_t cluster_count = 4;
+    constexpr std::int64_t column_count = 5;
+    constexpr std::int64_t row_count = per_cluster * cluster_count;
+    const auto data = te::make_blobs<Float>(per_cluster,
+                                            cluster_count,
+                                            column_count,
+                                            /*separation=*/Float(20.0),
+                                            /*spread=*/Float(1.0));
+    const auto x = homogen_table::wrap(data.data(), row_count, column_count);
+
+    const auto metric = GENERATE(distance_metric::euclidean,
+                                 distance_metric::manhattan,
+                                 distance_metric::minkowski,
+                                 distance_metric::chebyshev);
+    const double alpha = GENERATE(1.0, 2.0);
+    CAPTURE(metric, alpha);
+
+    const auto desc =
+        this->template get_method_descriptor<Method>(25, 10, metric, 3.0)
+            .set_alpha(alpha)
+            .set_result_options(result_options::responses | result_options::single_linkage_tree);
+    const auto [host, device] = this->compare_device_with_float64_host(desc, x);
+    REQUIRE(device.get_cluster_count() == cluster_count);
+
+    // Both build an exact MST, so the merge distances agree up to the device rounding.
+    check_same_hierarchy(this->get_single_linkage_tree(device),
+                         this->get_single_linkage_tree(host),
+                         row_count,
+                         te::get_tolerance<Float>(1e-4, 1e-9));
+}
+
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan gpu: the block tree breaks distance ties like the cpu brute force",
+                     "[hdbscan][batch][gpu]",
+                     hdbscan_bf_kd_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+
+    // Integer grid points, every third one duplicated, so most MRD values tie exactly.
+    constexpr std::int64_t side = 40;
+    std::vector<Float> data;
+    for (std::int64_t i = 0; i < side; i++) {
+        for (std::int64_t j = 0; j < side; j++) {
+            const Float shift = Float((i < side / 2) ? 0 : 3);
+            const std::int64_t copies = ((i * side + j) % 3 == 0) ? 2 : 1;
+            for (std::int64_t c = 0; c < copies; c++) {
+                data.push_back(Float(i) + shift);
+                data.push_back(Float(j));
+            }
+        }
+    }
+    const std::int64_t row_count = static_cast<std::int64_t>(data.size()) / 2;
+    const auto x = homogen_table::wrap(data.data(), row_count, 2);
+
+    const auto metric = GENERATE(distance_metric::euclidean,
+                                 distance_metric::manhattan,
+                                 distance_metric::chebyshev);
+    CAPTURE(metric);
+
+    const auto gpu_desc =
+        this->template get_method_descriptor<Method>(20, 6, metric)
+            .set_result_options(result_options::responses | result_options::single_linkage_tree);
+    const auto cpu_desc =
+        this->template get_method_descriptor<hdbscan::method::brute_force>(20, 6, metric)
+            .set_result_options(result_options::responses | result_options::single_linkage_tree);
+    const auto host = dal::compute(cpu_desc, x);
+    const auto device = dal::compute(this->get_policy().get_queue(), gpu_desc, x);
+
+    // The grid distances are exact in either precision, so even the tied merges agree.
+    this->check_same_result(host, device);
+    check_same_hierarchy(this->get_single_linkage_tree(device),
+                         this->get_single_linkage_tree(host),
+                         row_count,
+                         1e-6);
+}
+
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan gpu: core distances past the tree k-NN capacity match the cpu",
+                     "[hdbscan][batch][gpu]",
+                     hdbscan_bf_kd_types) {
+    SKIP_IF(this->get_policy().is_cpu());
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+    using Method = std::tuple_element_t<1, TestType>;
+
+    constexpr std::int64_t per_cluster = 700;
+    constexpr std::int64_t cluster_count = 3;
+    constexpr std::int64_t row_count = per_cluster * cluster_count;
+    const auto data = te::make_blobs<Float>(per_cluster,
+                                            cluster_count,
+                                            3,
+                                            /*separation=*/Float(20.0),
+                                            /*spread=*/Float(1.0));
+    const auto x = homogen_table::wrap(data.data(), row_count, 3);
+
+    // Up to 256 neighbors take the tree k-NN, more the blocked search.
+    const std::int64_t min_samples = GENERATE(16, 33, 65, 129, 256, 257);
+    CAPTURE(min_samples);
+    const auto desc =
+        this->template get_method_descriptor<Method>(50, min_samples)
+            .set_result_options(result_options::responses | result_options::single_linkage_tree);
+    const auto [host, device] = this->compare_device_with_float64_host(desc, x);
+    // The blocked search forms squared L2 from norms and a dot product, which loses about
+    // eps * |x|^2 in float32.
+    const double float_tol = (min_samples > 256) ? 5e-3 : 1e-4;
+    check_same_hierarchy(this->get_single_linkage_tree(device),
+                         this->get_single_linkage_tree(host),
+                         row_count,
+                         te::get_tolerance<Float>(float_tol, 1e-9));
+}
+
 // The sizing helpers below guard row counts whose n x n matrix is several gigabytes, so they are
 // driven directly rather than through `dal::compute`.
 

@@ -734,6 +734,20 @@ inline pr::ndarray<Float, 1> compute_block_tree_core_distances(sycl::queue& queu
                                                             min_samples,
                                                             core_ptr);
             }
+            if (min_samples <= 64) {
+                return block_tree_core_distances<Float, 64>(queue,
+                                                            tree,
+                                                            ops,
+                                                            min_samples,
+                                                            core_ptr);
+            }
+            if (min_samples <= 128) {
+                return block_tree_core_distances<Float, 128>(queue,
+                                                             tree,
+                                                             ops,
+                                                             min_samples,
+                                                             core_ptr);
+            }
             return block_tree_core_distances<Float, block_tree_max_k>(queue,
                                                                       tree,
                                                                       ops,
