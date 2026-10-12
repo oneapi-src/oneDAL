@@ -123,19 +123,14 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     dist_matrix = pr::ndarray<Float, 2>{};
     queue.wait_and_throw();
 
-    // Step 5: sort the MST edges by weight.
-    auto sort_event =
-        sort_mst_by_weight<Float>(queue, mst_from, mst_to, mst_weights, edge_count, { mst_event });
-    sort_event.wait_and_throw();
-
-    // Step 6: extract the flat clusters.
-    return make_results_from_sorted_mst<Float>(queue,
-                                               desc,
-                                               local_data,
-                                               mst_from,
-                                               mst_to,
-                                               mst_weights,
-                                               { sort_event });
+    // Step 5: extract the flat clusters.
+    return make_results_from_mst<Float>(queue,
+                                        desc,
+                                        local_data,
+                                        mst_from,
+                                        mst_to,
+                                        mst_weights,
+                                        { mst_event });
 }
 
 template <typename Float>

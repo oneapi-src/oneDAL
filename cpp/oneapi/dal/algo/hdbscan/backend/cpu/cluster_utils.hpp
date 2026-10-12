@@ -33,6 +33,40 @@ inline bool centers_requested(const detail::descriptor_base<task::clustering>& d
            desc.get_result_options().test(result_options::responses);
 }
 
+/// Host outputs of `extract_clusters_from_mst`; the optional arrays are empty unless requested.
+template <typename Float>
+struct extracted_clusters {
+    array<std::int32_t> responses;
+    array<Float> probabilities;
+    array<Float> single_linkage_tree;
+    std::int64_t cluster_count = 0;
+};
+
+/// Extract the flat clusters from an MST on host, with the same code as the CPU kernels.
+///
+/// @tparam Float Floating-point type
+///
+/// @param[in] ctx                 CPU dispatch context
+/// @param[in] desc                Algorithm descriptor
+/// @param[in] mst_from            Source endpoint of each MST edge, length `row_count - 1`
+/// @param[in] mst_to              Target endpoint of each MST edge, length `row_count - 1`
+/// @param[in] mst_weights         Edge weights, length `row_count - 1`, in any order
+/// @param[in] row_count           Number of points
+/// @param[in] need_probabilities  Also compute the membership strengths
+/// @param[in] need_single_linkage Also export the single linkage tree
+///
+/// @return Labels, cluster count and the requested optional outputs
+template <typename Float>
+extracted_clusters<Float> extract_clusters_from_mst(
+    const dal::backend::context_cpu& ctx,
+    const detail::descriptor_base<task::clustering>& desc,
+    const array<std::int32_t>& mst_from,
+    const array<std::int32_t>& mst_to,
+    const array<Float>& mst_weights,
+    std::int64_t row_count,
+    bool need_probabilities,
+    bool need_single_linkage);
+
 /// Fill the centroid and/or medoid tables `store_centers` asks for into `result`, as
 /// scikit-learn defines them. Does nothing when there are no clusters.
 ///

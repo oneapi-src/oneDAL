@@ -31,6 +31,69 @@ template <typename Float, daal::internal::CpuType Cpu>
 using daal_hdbscan_centers_t =
     daal::algorithms::hdbscan::internal::HDBSCANCentersKernel<Float, Cpu>;
 
+template <typename Float, daal::internal::CpuType Cpu>
+using daal_hdbscan_extract_t =
+    daal::algorithms::hdbscan::internal::HDBSCANExtractClustersKernel<Float, Cpu>;
+
+template <typename Float>
+extracted_clusters<Float> extract_clusters_from_mst(
+    const dal::backend::context_cpu& ctx,
+    const detail::descriptor_base<task::clustering>& desc,
+    const array<std::int32_t>& mst_from,
+    const array<std::int32_t>& mst_to,
+    const array<Float>& mst_weights,
+    std::int64_t row_count,
+    bool need_probabilities,
+    bool need_single_linkage) {
+    ONEDAL_ASSERT(row_count > 0);
+    const std::int64_t edge_count = row_count - 1;
+
+    extracted_clusters<Float> out;
+    out.responses = array<std::int32_t>::empty(row_count);
+    if (need_probabilities) {
+        out.probabilities = array<Float>::empty(row_count);
+    }
+    if (need_single_linkage && edge_count > 0) {
+        out.single_linkage_tree = array<Float>::empty(4 * edge_count);
+    }
+    auto cluster_count = array<std::int32_t>::empty(1);
+
+    auto from_copy = mst_from;
+    auto to_copy = mst_to;
+    auto weights_copy = mst_weights;
+    const auto daal_from = interop::convert_to_daal_homogen_table(from_copy, edge_count, 1);
+    const auto daal_to = interop::convert_to_daal_homogen_table(to_copy, edge_count, 1);
+    const auto daal_weights = interop::convert_to_daal_homogen_table(weights_copy, edge_count, 1);
+    const auto daal_responses = interop::convert_to_daal_homogen_table(out.responses, row_count, 1);
+    const auto daal_cluster_count = interop::convert_to_daal_homogen_table(cluster_count, 1, 1);
+    const auto daal_probabilities =
+        interop::convert_to_daal_homogen_table(out.probabilities, row_count, 1);
+    const auto daal_single_linkage_tree =
+        interop::convert_to_daal_homogen_table(out.single_linkage_tree, edge_count, 4);
+
+    const bool allow_single_cluster = desc.get_allow_single_cluster();
+    const int cluster_selection =
+        (desc.get_cluster_selection() == cluster_selection_method::leaf) ? 1 : 0;
+    interop::status_to_exception(interop::call_daal_kernel<Float, daal_hdbscan_extract_t>(
+        ctx,
+        daal_from.get(),
+        daal_to.get(),
+        daal_weights.get(),
+        static_cast<size_t>(row_count),
+        daal_responses.get(),
+        daal_cluster_count.get(),
+        daal_probabilities.get(),
+        daal_single_linkage_tree.get(),
+        static_cast<size_t>(desc.get_min_cluster_size()),
+        cluster_selection,
+        allow_single_cluster,
+        desc.get_cluster_selection_epsilon(),
+        static_cast<size_t>(desc.get_max_cluster_size())));
+
+    out.cluster_count = cluster_count.get_data()[0];
+    return out;
+}
+
 template <typename Float>
 void set_cluster_centers(const dal::backend::context_cpu& ctx,
                          const detail::descriptor_base<task::clustering>& desc,
@@ -96,7 +159,16 @@ void set_cluster_centers(const dal::backend::context_cpu& ctx,
                                       const array<std::int32_t>&,                       \
                                       const array<F>&,                                  \
                                       std::int64_t,                                     \
-                                      compute_result<task::clustering>&);
+                                      compute_result<task::clustering>&);               \
+    template extracted_clusters<F> extract_clusters_from_mst(                           \
+        const dal::backend::context_cpu&,                                               \
+        const detail::descriptor_base<task::clustering>&,                               \
+        const array<std::int32_t>&,                                                     \
+        const array<std::int32_t>&,                                                     \
+        const array<F>&,                                                                \
+        std::int64_t,                                                                   \
+        bool,                                                                           \
+        bool);
 
 INSTANTIATE(float)
 INSTANTIATE(double)

@@ -130,19 +130,14 @@ static result_t compute_kernel_tree_impl(const context_gpu& ctx,
                              { prev_block_event, mst_from_event, mst_to_event, mst_weights_event });
     mst_event.wait_and_throw();
 
-    // Step 3: sort the MST edges by weight.
-    auto sort_event =
-        sort_mst_by_weight<Float>(queue, mst_from, mst_to, mst_weights, edge_count, { mst_event });
-    sort_event.wait_and_throw();
-
-    // Step 4: extract the flat clusters.
-    return make_results_from_sorted_mst<Float>(queue,
-                                               desc,
-                                               local_data,
-                                               mst_from,
-                                               mst_to,
-                                               mst_weights,
-                                               { sort_event });
+    // Step 3: extract the flat clusters.
+    return make_results_from_mst<Float>(queue,
+                                        desc,
+                                        local_data,
+                                        mst_from,
+                                        mst_to,
+                                        mst_weights,
+                                        { mst_event });
 }
 
 template <typename Float>

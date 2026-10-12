@@ -116,6 +116,38 @@ public:
                              double minkowskiDegree);
 };
 
+/// Cluster extraction from a finished MST: the same labeling, probabilities and single linkage
+/// tree as `HDBSCANBatchKernel`, for backends that build the MST elsewhere.
+///
+/// @tparam algorithmFPType Floating-point type of the edge weights
+/// @tparam cpu             CPU dispatch tag
+template <typename algorithmFPType, CpuType cpu>
+class HDBSCANExtractClustersKernel : public Kernel
+{
+public:
+    /// Sort the MST and extract the flat clusters from it.
+    ///
+    /// @param[in]  ntMstFrom               Source endpoint of each MST edge, `(N - 1) x 1`, any order
+    /// @param[in]  ntMstTo                 Target endpoint of each MST edge, `(N - 1) x 1`
+    /// @param[in]  ntMstWeights            Mutual reachability weight of each MST edge, `(N - 1) x 1`
+    /// @param[in]  nRows                   Number of points `N`
+    /// @param[out] ntAssignments           Cluster id per point, `N x 1`; -1 is noise
+    /// @param[out] ntNClusters             Number of clusters, `1 x 1`
+    /// @param[out] ntProbabilities         Membership strength per point, `N x 1`; pass `nullptr` to skip
+    /// @param[out] ntSingleLinkageTree     Dendrogram, `(N - 1) x 4`; pass `nullptr` to skip
+    /// @param[in]  minClusterSize          Minimum number of points required to form a cluster
+    /// @param[in]  clusterSelection        Cluster selection strategy: 0 -- excess of mass, 1 -- leaf
+    /// @param[in]  allowSingleCluster      If true, allow the root cluster of the condensed tree to be selected
+    /// @param[in]  clusterSelectionEpsilon Distance threshold below which clusters are merged
+    /// @param[in]  maxClusterSize          Maximum allowed cluster size; 0 disables the limit
+    ///
+    /// @return Status code
+    services::Status compute(const NumericTable * ntMstFrom, const NumericTable * ntMstTo, const NumericTable * ntMstWeights, size_t nRows,
+                             NumericTable * ntAssignments, NumericTable * ntNClusters, NumericTable * ntProbabilities,
+                             NumericTable * ntSingleLinkageTree, size_t minClusterSize, int clusterSelection, bool allowSingleCluster,
+                             double clusterSelectionEpsilon, size_t maxClusterSize);
+};
+
 } // namespace internal
 } // namespace hdbscan
 } // namespace algorithms

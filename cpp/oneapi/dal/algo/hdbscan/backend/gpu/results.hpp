@@ -21,7 +21,7 @@
 #include "oneapi/dal/algo/hdbscan/common.hpp"
 #include "oneapi/dal/algo/hdbscan/compute_types.hpp"
 #include "oneapi/dal/algo/hdbscan/backend/cpu/cluster_utils.hpp"
-#include "oneapi/dal/algo/hdbscan/backend/gpu/kernel_impl.hpp"
+#include "oneapi/dal/detail/profiler.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 
@@ -33,209 +33,91 @@ namespace pr = oneapi::dal::backend::primitives;
 using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;
 
-/// Build a oneAPI compute result from device-side outputs, without centers.
+/// Copy a host array to a new device array.
 ///
-/// @tparam Float Floating-point type
+/// @tparam T Element type
 ///
-/// @param[in] queue         The SYCL queue
-/// @param[in] desc          Algorithm descriptor (carries `result_options`)
-/// @param[in] responses     Per-point cluster labels on device, length `n`
-/// @param[in] cluster_count Number of distinct clusters
-/// @param[in] probabilities Per-point membership strength on device, length `n`; empty
-///                          unless `result_options::probabilities` was requested
-/// @param[in] single_linkage_tree Dendrogram on device, length `4 * (n - 1)`; empty unless
-///                          `result_options::single_linkage_tree` was requested
+/// @param[in] queue The SYCL queue
+/// @param[in] host  Host array
 ///
-/// @return oneAPI `compute_result`
-template <typename Float>
-inline result_t make_results(sycl::queue& queue,
-                             const descriptor_t& desc,
-                             const pr::ndarray<std::int32_t, 1>& responses,
-                             std::int64_t cluster_count,
-                             const pr::ndarray<Float, 1>& probabilities = {},
-                             const pr::ndarray<Float, 1>& single_linkage_tree = {}) {
-    const std::int64_t row_count = responses.get_dimension(0);
-    ONEDAL_ASSERT(row_count > 0);
-
-    auto results =
-        result_t().set_cluster_count(cluster_count).set_result_options(desc.get_result_options());
-
-    if (desc.get_result_options().test(result_options::responses)) {
-        results.set_responses(dal::homogen_table::wrap(responses.flatten(queue), row_count, 1));
-    }
-
-    if (desc.get_result_options().test(result_options::probabilities)) {
-        ONEDAL_ASSERT(probabilities.get_count() == row_count);
-        results.set_probabilities(
-            dal::homogen_table::wrap(probabilities.flatten(queue), row_count, 1));
-    }
-
-    // Left empty for a single observation, which has no merge to report.
-    if (desc.get_result_options().test(result_options::single_linkage_tree) &&
-        single_linkage_tree.get_count() > 0) {
-        const std::int64_t edge_count = row_count - 1;
-        ONEDAL_ASSERT(single_linkage_tree.get_count() == 4 * edge_count);
-        results.set_single_linkage_tree(
-            dal::homogen_table::wrap(single_linkage_tree.flatten(queue), edge_count, 4));
-    }
-
-    return results;
+/// @return Device array with the same contents
+template <typename T>
+inline array<T> to_device_array(sycl::queue& queue, const array<T>& host) {
+    return pr::ndarray<T, 1>::wrap(host).to_device(queue).flatten(queue);
 }
 
-/// Build a oneAPI compute result from device-side outputs, with the centers `store_centers` asks
-/// for (see `set_cluster_centers`).
+/// Extract the flat clusters from an MST and pack them, with the outputs `desc` asks for, into a
+/// oneAPI compute result.
 ///
-/// @tparam Float Floating-point type used for centers
-///
-/// @param[in] queue         The SYCL queue
-/// @param[in] desc          Algorithm descriptor
-/// @param[in] responses     Per-point cluster labels on device, length `n`
-/// @param[in] cluster_count Number of distinct clusters
-/// @param[in] data          Original input table (read for centers)
-/// @param[in] probabilities Per-point membership strength on device, length `n`; empty
-///                          unless `result_options::probabilities` was requested
-/// @param[in] single_linkage_tree Dendrogram on device, length `4 * (n - 1)`; empty unless
-///                          `result_options::single_linkage_tree` was requested
-///
-/// @return oneAPI `compute_result` with optional cluster/medoid centers
-template <typename Float>
-inline result_t make_results(sycl::queue& queue,
-                             const descriptor_t& desc,
-                             const pr::ndarray<std::int32_t, 1>& responses,
-                             std::int64_t cluster_count,
-                             const table& data,
-                             const pr::ndarray<Float, 1>& probabilities = {},
-                             const pr::ndarray<Float, 1>& single_linkage_tree = {}) {
-    auto results = make_results<Float>(queue,
-                                       desc,
-                                       responses,
-                                       cluster_count,
-                                       probabilities,
-                                       single_linkage_tree);
-
-    if (cluster_count > 0 && centers_requested(desc)) {
-        // The centers are computed on host, by the same kernel as on CPU.
-        const std::int64_t row_count = data.get_row_count();
-        ONEDAL_ASSERT(probabilities.get_count() == row_count);
-        const auto data_host = row_accessor<const Float>(data).pull({ 0, -1 });
-        auto responses_host = responses.to_host(queue);
-        auto probabilities_host = probabilities.to_host(queue);
-        set_cluster_centers(dal::backend::context_cpu{},
-                            desc,
-                            homogen_table::wrap(data_host, row_count, data.get_column_count()),
-                            array<std::int32_t>::wrap(responses_host.get_mutable_data(), row_count),
-                            array<Float>::wrap(probabilities_host.get_mutable_data(), row_count),
-                            cluster_count,
-                            results);
-    }
-
-    return results;
-}
-
-/// Extract the flat clusters from a weight-sorted MST and pack them, with the outputs `desc` asks
-/// for, into a oneAPI compute result.
+/// The extraction walks the dendrogram and the condensed tree in order, which one CPU core does
+/// far faster than one work-item, so it runs on host with the code of the CPU kernels. The
+/// responses, probabilities and single linkage tree are returned on device.
 ///
 /// @tparam Float Floating-point type
 ///
 /// @param[in] queue       The SYCL queue
 /// @param[in] desc        Algorithm descriptor
 /// @param[in] data        Input table, `n x d`, used for the centers
-/// @param[in] mst_from    Source endpoint of each MST edge, sorted by weight, length `n - 1`
-/// @param[in] mst_to      Target endpoint of each MST edge, sorted by weight, length `n - 1`
-/// @param[in] mst_weights Edge weights in ascending order, length `n - 1`
-/// @param[in] deps        Events that must complete before the extraction
+/// @param[in] mst_from    Source endpoint of each MST edge, length `n - 1`, any order
+/// @param[in] mst_to      Target endpoint of each MST edge, length `n - 1`
+/// @param[in] mst_weights Edge weights, length `n - 1`
+/// @param[in] deps        Events that must complete before the MST is read
 ///
 /// @return oneAPI `compute_result`
 template <typename Float>
-inline result_t make_results_from_sorted_mst(sycl::queue& queue,
-                                             const descriptor_t& desc,
-                                             const table& data,
-                                             const pr::ndview<std::int32_t, 1>& mst_from,
-                                             const pr::ndview<std::int32_t, 1>& mst_to,
-                                             const pr::ndview<Float, 1>& mst_weights,
-                                             const bk::event_vector& deps) {
+inline result_t make_results_from_mst(sycl::queue& queue,
+                                      const descriptor_t& desc,
+                                      const table& data,
+                                      const pr::ndview<std::int32_t, 1>& mst_from,
+                                      const pr::ndview<std::int32_t, 1>& mst_to,
+                                      const pr::ndview<Float, 1>& mst_weights,
+                                      const bk::event_vector& deps) {
+    ONEDAL_PROFILER_TASK(hdbscan.extract_clusters, queue);
+
     const std::int64_t row_count = data.get_row_count();
-    const std::int64_t edge_count = row_count - 1;
-    const std::int64_t min_cluster_size = desc.get_min_cluster_size();
-    const std::int32_t cluster_selection =
-        (desc.get_cluster_selection() == cluster_selection_method::leaf) ? 1 : 0;
-    const bool allow_single_cluster = desc.get_allow_single_cluster();
-    const Float cluster_selection_epsilon =
-        static_cast<Float>(desc.get_cluster_selection_epsilon());
-    const std::int64_t max_cluster_size = desc.get_max_cluster_size();
+    const auto& options = desc.get_result_options();
+    const bool need_centers = centers_requested(desc);
+    const bool need_probabilities = options.test(result_options::probabilities) || need_centers;
+    const bool need_single_linkage_tree = options.test(result_options::single_linkage_tree);
 
-    auto [arr_responses, responses_event] =
-        pr::ndarray<std::int32_t, 1>::full(queue, row_count, -1, sycl::usm::alloc::device);
-    responses_event.wait_and_throw();
+    const auto clusters =
+        extract_clusters_from_mst<Float>(dal::backend::context_cpu{},
+                                         desc,
+                                         mst_from.to_host(queue, deps).flatten(),
+                                         mst_to.to_host(queue, deps).flatten(),
+                                         mst_weights.to_host(queue, deps).flatten(),
+                                         row_count,
+                                         need_probabilities,
+                                         need_single_linkage_tree);
 
-    // Empty unless requested, which skips the probability kernels; the centers need them too.
-    const bool need_probabilities =
-        desc.get_result_options().test(result_options::probabilities) || centers_requested(desc);
-    pr::ndarray<Float, 1> arr_probabilities;
-    if (need_probabilities) {
-        arr_probabilities =
-            std::get<0>(pr::ndarray<Float, 1>::zeros(queue, row_count, sycl::usm::alloc::device));
-        queue.wait_and_throw();
+    auto results = result_t().set_cluster_count(clusters.cluster_count).set_result_options(options);
+
+    if (options.test(result_options::responses)) {
+        results.set_responses(
+            homogen_table::wrap(to_device_array(queue, clusters.responses), row_count, 1));
     }
-
-    // Empty unless requested; there is no merge below two rows.
-    const bool need_single_linkage_tree =
-        desc.get_result_options().test(result_options::single_linkage_tree) && edge_count > 0;
-    pr::ndarray<Float, 1> arr_single_linkage_tree;
-    if (need_single_linkage_tree) {
-        arr_single_linkage_tree = std::get<0>(
-            pr::ndarray<Float, 1>::zeros(queue, 4 * edge_count, sycl::usm::alloc::device));
-        queue.wait_and_throw();
+    if (options.test(result_options::probabilities)) {
+        results.set_probabilities(
+            homogen_table::wrap(to_device_array(queue, clusters.probabilities), row_count, 1));
     }
-
-    bk::event_vector cluster_deps = deps;
-    cluster_deps.push_back(responses_event);
-    auto cluster_event = extract_clusters<Float>(
-        queue,
-        mst_from,
-        mst_to,
-        mst_weights,
-        arr_responses,
-        row_count,
-        min_cluster_size,
-        cluster_deps,
-        cluster_selection,
-        allow_single_cluster,
-        cluster_selection_epsilon,
-        max_cluster_size,
-        need_probabilities ? arr_probabilities.get_mutable_data() : nullptr,
-        need_single_linkage_tree ? arr_single_linkage_tree.get_mutable_data() : nullptr);
-    cluster_event.wait_and_throw();
-
-    // The cluster count is the largest label plus one.
-    auto [max_label_arr, ml_ev] =
-        pr::ndarray<std::int32_t, 1>::full(queue, 1, -1, sycl::usm::alloc::device);
-    sycl::event ml_alloc_ev = ml_ev;
-    const std::int32_t* r_ptr = arr_responses.get_data();
-    std::int32_t* ml_ptr = max_label_arr.get_mutable_data();
-    auto reduce_event = queue.submit([&](sycl::handler& h) {
-        h.depends_on({ ml_alloc_ev });
-        h.single_task([=]() {
-            std::int32_t mx = -1;
-            for (std::int64_t i = 0; i < row_count; i++) {
-                if (r_ptr[i] > mx)
-                    mx = r_ptr[i];
-            }
-            ml_ptr[0] = mx;
-        });
-    });
-    reduce_event.wait_and_throw();
-    auto max_label_host = max_label_arr.to_host(queue, { reduce_event });
-    const std::int32_t max_label = max_label_host.get_data()[0];
-    const std::int64_t cluster_count = (max_label >= 0) ? (max_label + 1) : 0;
-
-    return make_results<Float>(queue,
-                               desc,
-                               arr_responses,
-                               cluster_count,
-                               data,
-                               arr_probabilities,
-                               arr_single_linkage_tree);
+    // Left empty for a single observation, which has no merge to report.
+    if (clusters.single_linkage_tree.get_count() > 0) {
+        results.set_single_linkage_tree(
+            homogen_table::wrap(to_device_array(queue, clusters.single_linkage_tree),
+                                row_count - 1,
+                                4));
+    }
+    if (need_centers && clusters.cluster_count > 0) {
+        const auto data_host = row_accessor<const Float>(data).pull({ 0, -1 });
+        set_cluster_centers(dal::backend::context_cpu{},
+                            desc,
+                            homogen_table::wrap(data_host, row_count, data.get_column_count()),
+                            clusters.responses,
+                            clusters.probabilities,
+                            clusters.cluster_count,
+                            results);
+    }
+    return results;
 }
 
 } // namespace oneapi::dal::hdbscan::backend
