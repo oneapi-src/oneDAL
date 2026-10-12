@@ -202,6 +202,27 @@ exceeds approximately 20, as it maintains effective pruning regardless of
 dimensionality.
 
 
+.. _hdbscan_c_math_gpu:
+
+Computation on GPU
+~~~~~~~~~~~~~~~~~~
+
+On GPU, the three methods share one implementation that builds the exact
+minimum spanning tree; as on CPU, only ``brute_force`` also divides the core
+distances by ``alpha``. Each call takes one of two paths:
+
+- The :math:`n \times n` matrix path described for *brute_force*, used for the
+  Cosine distance, and for the other metrics when :math:`p \geq 16` and the
+  matrix and its work buffers fit in half of the device memory.
+- Otherwise, a bounding-box tree over the k-d ordered observations, searched
+  exactly for the core distances and in every Boruvka round. For
+  ``min_samples`` above 256 the core distances come from a blocked brute-force
+  k-NN search instead, whose block size is ``distance_block_size``.
+
+Cosine raises :expr:`domain_error` when the matrix does not fit on the device.
+Cluster extraction runs on the host.
+
+
 ---------------------
 Programming Interface
 ---------------------

@@ -386,12 +386,10 @@ public:
         return *this;
     }
 
-    /// Row block size `B` for the GPU blocked pairwise-distance sweep in
-    /// :expr:`method::kd_tree` / :expr:`method::ball_tree`. When left at the
-    /// default (0), an internal heuristic picks a value that targets a `B x N`
-    /// device buffer of roughly 256 MB (clamped to `[256, row_count]`).
-    /// Non-zero values override the heuristic and are clamped to `row_count`.
-    /// Ignored by CPU backends and by :expr:`method::brute_force`.
+    /// Query rows per block `B` of the GPU k-NN search that gives the core
+    /// distances when `min_samples` exceeds 256 and the `n x n` matrix is not
+    /// used. The default (0) targets a `B x N` buffer of about 256 MB; other
+    /// values are clamped to `row_count`. Ignored by CPU backends.
     /// @invariant :expr:`distance_block_size >= 0`
     std::int64_t get_distance_block_size() const {
         return base_t::get_distance_block_size();
