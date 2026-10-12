@@ -46,10 +46,9 @@ deploy/
 ```
 
 ### pkg-config Files
-```bash
-python deploy/pkg-config/generate_pkgconfig.py
-# Outputs: onedal.pc, onedal_c.pc, platform-specific configs
-```
+`deploy/pkg-config/pkg-config.cpp` is a template that the build runs through the compiler's preprocessor. The make
+`_release_c` target writes `lib/pkgconfig/dal-static-threading-host.pc` and `dal-dynamic-threading-host.pc` into
+the release tree; the Bazel release generates the same files in `dev/bazel/scripts.bzl`.
 
 ### Local Development Setup
 ```bash

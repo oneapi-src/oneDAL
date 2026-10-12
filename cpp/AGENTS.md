@@ -11,11 +11,11 @@ The two C++ interfaces: DAAL (`cpp/daal/`, CPU) and oneAPI (`cpp/oneapi/`, CPU a
 | Namespaces | `daal::algorithms`, `daal::data_management`, `daal::services` | `oneapi::dal`, `oneapi::dal::<algorithm>`; `detail`, `backend`, `preview` sub-namespaces |
 | Ownership | `daal::services::SharedPtr<T>` | `std::unique_ptr`, `std::shared_ptr` |
 | Errors | Kernels return `services::Status`; the interface layer converts it with `services::throwIfPossible()` | Exceptions from `cpp/oneapi/dal/exceptions.hpp` (`invalid_argument`, `domain_error`, `unimplemented`, ...) with messages from `cpp/oneapi/dal/detail/error_messages.hpp` |
-| Kernels | Template bodies in `.i` files under `cpp/daal/src/`, templated on `CpuType cpu` | `cpp/oneapi/dal/algo/<algorithm>/backend/{cpu,gpu}` |
+| Kernels | Template bodies in `.i` files under `cpp/daal/src/`, templated on `CpuType cpu` | `cpp/oneapi/dal/algo/<algorithm>/backend/{cpu,gpu}` where they exist: some algorithms have no `gpu` (or no `backend`) directory |
 | Naming | Classes `CamelCase`, functions and variables `lowerCamelCase` | `snake_case` throughout; private members end in `_` |
 
 ## Rules for Changes
-- Never mix the two interfaces in one file. C++17 only; no C++20/23 features.
+- Never mix the two interfaces in one file. The exception is the bridge: oneAPI CPU backends (`algo/*/backend/cpu`) and `cpp/oneapi/dal/backend/interop` call DAAL kernels and convert their `services::Status` with `interop::status_to_exception`; keep DAAL types inside those files. C++17 only; no C++20/23 features.
 - Parallelize through the threading layer (`cpp/oneapi/dal/detail/threading.hpp`, `cpp/daal/src/threading/threading.h`), never TBB directly.
 - Keep CPU dispatch intact: optimized code is templated on `CpuType` and selected at runtime.
 - Removing anything from a public header needs a deprecation period and an entry in `docs/source/deprecation.rst`. Expected symbol removals go in `.github/.abignore`, which the ABI check reads.
