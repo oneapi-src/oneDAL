@@ -25,16 +25,9 @@
 namespace oneapi::dal::detail {
 
 #ifdef ONEDAL_DATA_PARALLEL
-// RAII wrapper that synchronizes a SYCL queue around a profiled region so the recorded duration
-// reflects device-side execution rather than just host-side enqueue.
-//
-// Ordering matters: the pre-region wait_and_throw() MUST happen before start_task() captures its
-// timestamp, otherwise any work already in flight on the queue when the region begins would be
-// charged to the region. The pre-region wait therefore lives in a static factory that runs before
-// the profiler_task is constructed and passed to the guard's ctor.
-//
-// When `enabled` is false the guard is a no-op: no waits are issued and the passed profiler_task
-// is a null one, so the profiler-disabled fast path pays only for a nullptr check on each side.
+// Waits on the queue at both ends of a profiled region so the duration covers device execution.
+// make() waits before start_task() takes its timestamp, so earlier work is not charged to the region.
+// When `enabled` is false no waits are issued.
 class queue_sync_guard {
 public:
     static queue_sync_guard make(sycl::queue& q, const char* task_name, bool enabled) {
@@ -47,15 +40,16 @@ public:
 
     ~queue_sync_guard() {
         if (queue_) {
-            // A destructor must not throw, and DAAL_NOTHROW_EXCEPTIONS is defined in every
-            // release build, so catch unconditionally.
             try {
                 queue_->wait_and_throw();
             }
             catch (std::exception& e) {
-                std::cerr << e.what() << std::endl;
+                std::cerr << "ONEDAL KERNEL_PROFILER: unexpected error while waiting on the queue: "
+                          << e.what() << std::endl;
             }
             catch (...) {
+                std::cerr << "ONEDAL KERNEL_PROFILER: unexpected error while waiting on the queue"
+                          << std::endl;
             }
         }
     }
@@ -93,11 +87,8 @@ private:
 #define ONEDAL_PROFILER_GET_MACRO(arg_1, arg_2, MACRO, ...) MACRO
 
 // START_TASKS
-// Each START_TASK* macro self-gates on `is_profiler_enabled()` so a single top-level TASK macro
-// can dispatch by arg count without a wrapping ternary. Both branches of every ternary here
-// return the same type, so `auto` at the call site picks up whichever type the arg count
-// selected. When profiler is off, `start_task(nullptr)` returns a null profiler_task, and the
-// queue variant leaves `queue_` null so no SYCL wait is ever issued.
+// Each START_TASK* macro checks is_profiler_enabled() itself, so the TASK macros can dispatch by
+// argument count alone.
 #define ONEDAL_PROFILER_START_TASK(name)                                                 \
     (daal::internal::is_profiler_enabled() ? daal::internal::profiler::start_task(#name) \
                                            : daal::internal::profiler::start_task(nullptr))
@@ -108,19 +99,14 @@ private:
                                                   #name,   \
                                                   daal::internal::is_profiler_enabled())
 #else
-// Non-SYCL translation unit that happens to include this header — fall back to plain
-// host-side timing. Semantically the same as the no-queue variant.
+// Host-only build: time on the host, as the no-queue variant does.
 #define ONEDAL_PROFILER_START_TASK_WITH_QUEUE(name, queue) ONEDAL_PROFILER_START_TASK(name)
 #endif
 
 #define ONEDAL_PROFILER_START_NULL_TASK() daal::internal::profiler::start_task(nullptr)
 
 // PROFILER TASKS
-// The variable name is uniquified via __LINE__ so multiple profiled scopes on adjacent lines in
-// the same block coexist. `auto` accepts either a profiler_task or a queue_sync_guard depending
-// on which START_TASK* macro the arg count selects. The logger side-effect body is guarded by
-// `is_logger_enabled()`; both is_logger_enabled and is_profiler_enabled are cached-bool functions
-// initialized once per process so calling them per macro is cheap.
+// `auto` holds a profiler_task or a queue_sync_guard, depending on the argument count.
 #define ONEDAL_PROFILER_TASK_WITH_ARGS(task_name, ...)                                  \
     auto ONEDAL_PROFILER_CONCAT(__profiler_task__, ONEDAL_PROFILER_UNIQUE_ID) = [&]() { \
         if (daal::internal::is_logger_enabled()) {                                      \
@@ -149,10 +135,7 @@ private:
                                          FICTIVE)(__VA_ARGS__);                         \
     }()
 
-// SERVICE TASK variants gate on `is_service_debug_enabled()`. Structurally identical to the
-// non-service TASK macros; the only difference is the enable predicate applied inside each
-// START_TASK*. To keep behavior consistent we define parallel service variants of the START_TASK
-// macros too.
+// SERVICE variants are enabled by is_service_debug_enabled() instead of is_profiler_enabled().
 #define ONEDAL_PROFILER_SERVICE_START_TASK(name)                                              \
     (daal::internal::is_service_debug_enabled() ? daal::internal::profiler::start_task(#name) \
                                                 : daal::internal::profiler::start_task(nullptr))
@@ -171,10 +154,7 @@ private:
 #define ONEDAL_PROFILER_SERVICE_MACRO_2(name, queue) \
     ONEDAL_PROFILER_SERVICE_START_TASK_WITH_QUEUE(name, queue)
 
-// SERVICE variants gate the logger side-effect on `is_service_debug_enabled()`, not the plain
-// `is_logger_enabled()` used by the non-service TASK macros. Service tasks fire in hot paths
-// (e.g. every table2ndarray conversion), so allowing them to print under ONEDAL_VERBOSE=1/4 would
-// swamp the output; only DEBUG mode (5) prints service task args, matching the pre-refactor gate.
+// Service tasks run in hot paths such as table2ndarray, so they log only in debug mode (5).
 #define ONEDAL_PROFILER_SERVICE_TASK_WITH_ARGS(task_name, ...)                          \
     auto ONEDAL_PROFILER_CONCAT(__profiler_task__, ONEDAL_PROFILER_UNIQUE_ID) = [&]() { \
         if (daal::internal::is_service_debug_enabled()) {                               \

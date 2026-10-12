@@ -47,6 +47,11 @@
 
 #define __SERVICE_PROFILER_H__
 
+// Some Windows builds compile DAAL without /EHsc, where a try block does not compile.
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
+    #define DAAL_PROFILER_EXCEPTIONS_ENABLED
+#endif
+
 #define DAAL_PROFILER_CONCAT2(x, y) x##y
 #define DAAL_PROFILER_CONCAT(x, y)  DAAL_PROFILER_CONCAT2(x, y)
 #define DAAL_PROFILER_UNIQUE_ID     __LINE__
@@ -139,10 +144,7 @@ namespace daal
 namespace internal
 {
 
-// Reads ONEDAL_VERBOSE once per process; the C++17 function-local static gives thread-safe
-// single initialization and a single storage instance across all translation units, i.e.
-// .cpp files (fixes the previous namespace-scope `static volatile int`, which gave every
-// translation unit its own copy).
+// Reads ONEDAL_VERBOSE once per process; the function-local static is shared by all .cpp files.
 inline static int daal_verbose_mode()
 {
     static const int cached = [] {
@@ -265,6 +267,7 @@ struct task_entry
     std::int64_t count;
     bool threading_task;
     std::int64_t parent_idx; // -1 for top-level; index into task::kernels otherwise
+    bool in_parallel;        // opened inside a parallel region, on any thread
 };
 
 struct task
@@ -310,16 +313,9 @@ private:
     bool is_thread_         = false;
 };
 
-// Per-thread stacks of currently-open tasks. Two stacks per thread — regular and threading — kept
-// separate so a worker thread's threading task can find its own inner nesting without colliding
-// with regular tasks opened on the main thread.
-//
-// Storage: an `unordered_map<std::thread::id, vector>` protected by the profiler's global mutex.
-// We do NOT use `thread_local`: this header is included into multiple shared libraries
-// (libonedal_core, libonedal_thread, libonedal_dpc, libonedal, per-CPU-variant translation units)
-// and different .so boundaries can end up owning different TLS instances for the same OS thread,
-// which corrupts the push/pop invariant. The map avoids that entirely — all threads share one
-// well-defined instance in the singleton, and mutex-guarded access makes it thread-safe.
+// Per-thread stacks of open task indices, one for regular and one for threading tasks.
+// They live in the singleton next to the task list they index into, not in thread_local storage,
+// so both are always the same instance.
 using per_thread_stack_map = std::unordered_map<std::thread::id, std::vector<std::int64_t> >;
 
 class profiler
@@ -331,8 +327,10 @@ public:
     {
         if (is_analyzer_enabled())
         {
+#ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED
             try
             {
+#endif
                 merge_tasks();
                 const auto & tasks_info  = get_instance()->get_task();
                 std::uint64_t total_time = 0;
@@ -356,13 +354,17 @@ public:
                 }
                 std::cerr << "|--(end)" << '\n';
                 std::cerr << "DAAL KERNEL_PROFILER: kernels total time " << format_time_for_output(total_time) << '\n';
+#ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED
             }
             catch (std::exception & e)
             {
-                std::cerr << e.what() << std::endl;
+                std::cerr << "DAAL KERNEL_PROFILER: unexpected error while printing the report: " << e.what() << std::endl;
             }
             catch (...)
-            {}
+            {
+                std::cerr << "DAAL KERNEL_PROFILER: unexpected error while printing the report" << std::endl;
+            }
+#endif
         }
     }
 
@@ -373,11 +375,8 @@ public:
     /// @return A profiler_task object containing the task name and a unique task ID. Returns an invalid
     /// profiler_task (nullptr, -1) if task_name is nullptr
     ///
-    /// @note Captures the start time before acquiring the profiler mutex (so lock-wait time is not
-    /// charged to the task), records the parent task index from the calling thread's regular-task stack
-    /// (falling back to the innermost open regular task across threads), derives the nesting level from
-    /// the parent, and pushes the entry into tasks_info.kernels.
-    /// Invoked by the DAAL_PROFILER_TASK macro.
+    /// @note The start time is taken before the mutex so lock waits are not charged to the task.
+    /// See find_parent() for how the parent is chosen. Invoked by the DAAL_PROFILER_TASK macro.
     inline static profiler_task start_task(const char * task_name)
     {
         if (!task_name) return profiler_task(nullptr, -1);
@@ -386,15 +385,17 @@ public:
         std::lock_guard<std::mutex> lock(global_mutex());
         auto & inst          = *get_instance();
         auto & tasks_info    = inst.get_task();
-        auto & rstack        = inst.regular_stacks_[std::this_thread::get_id()];
+        const auto tid       = std::this_thread::get_id();
+        auto & rstack        = inst.regular_stacks_[tid];
         std::int64_t new_idx = static_cast<std::int64_t>(tasks_info.kernels.size());
 
-        const std::int64_t parent_idx = rstack.empty() ? inst.innermost_regular_task_idx_ : rstack.back();
+        bool in_parallel              = false;
+        const std::int64_t parent_idx = inst.find_parent(rstack, inst.threading_stacks_[tid], in_parallel);
         const std::int64_t level      = (parent_idx < 0) ? 0 : tasks_info.kernels[parent_idx].level + 1;
 
-        tasks_info.kernels.push_back({ new_idx, task_name, ns_start, level, 1, false, parent_idx });
+        tasks_info.kernels.push_back({ new_idx, task_name, ns_start, level, 1, false, parent_idx, in_parallel });
         rstack.push_back(new_idx);
-        inst.innermost_regular_task_idx_ = new_idx;
+        if (!in_parallel) inst.innermost_regular_task_idx_ = new_idx;
         return profiler_task(task_name, static_cast<int>(new_idx));
     }
 
@@ -405,21 +406,18 @@ public:
     /// @return A profiler_task object containing the task name, a unique task ID, and a threading flag.
     /// Returns an invalid profiler_task (nullptr, -1) if task_name is nullptr
     ///
-    /// @note Captures the start time before acquiring the mutex. Parent index comes from the calling
-    /// worker thread's threading-task stack (allowing nested threading tasks on the same worker);
-    /// if that stack is empty, falls back to the innermost open regular task recorded across threads
-    /// (i.e. the task that spawned the parallel region). Logs unique task names once per process
-    /// if logging is enabled. Invoked by the DAAL_PROFILER_THREADING_TASK macro.
+    /// @note Same parent rules as start_task(). Logs each task name once per process if logging is
+    /// enabled. Invoked by the DAAL_PROFILER_THREADING_TASK macro.
     inline static profiler_task start_threading_task(const char * task_name)
     {
         if (!task_name) return profiler_task(nullptr, -1);
 
         const std::uint64_t ns_start = get_time();
         std::lock_guard<std::mutex> lock(global_mutex());
+        auto & inst = *get_instance();
 
         if (is_logger_enabled())
         {
-            auto & inst = *get_instance();
             if (!is_service_debug_enabled())
             {
                 if (inst.unique_threading_task_names_.insert(task_name).second)
@@ -435,15 +433,16 @@ public:
             }
         }
 
-        auto & inst          = *get_instance();
         auto & tasks_info    = inst.get_task();
-        auto & tstack        = inst.threading_stacks_[std::this_thread::get_id()];
+        const auto tid       = std::this_thread::get_id();
+        auto & tstack        = inst.threading_stacks_[tid];
         std::int64_t new_idx = static_cast<std::int64_t>(tasks_info.kernels.size());
 
-        const std::int64_t parent_idx = tstack.empty() ? inst.innermost_regular_task_idx_ : tstack.back();
+        bool in_parallel              = false;
+        const std::int64_t parent_idx = inst.find_parent(inst.regular_stacks_[tid], tstack, in_parallel);
         const std::int64_t level      = (parent_idx < 0) ? 0 : tasks_info.kernels[parent_idx].level + 1;
 
-        tasks_info.kernels.push_back({ new_idx, task_name, ns_start, level, 1, true, parent_idx });
+        tasks_info.kernels.push_back({ new_idx, task_name, ns_start, level, 1, true, parent_idx, true });
         tstack.push_back(new_idx);
         return profiler_task(task_name, static_cast<int>(new_idx), true);
     }
@@ -453,11 +452,8 @@ public:
     /// @param[in] task_name The name of the task to end
     /// @param[in] idx_ The index of the task in the tasks_info.kernels vector
     ///
-    /// @note If task_name is nullptr, the function returns immediately. Captures the end time
-    /// before acquiring the mutex (so the recorded duration excludes lock-wait time), pops the
-    /// calling thread's regular-task stack, and restores the global innermost-regular-task index
-    /// to the popped task's parent. Logs the task name and duration if tracing is enabled.
-    /// Invoked by macros such as DAAL_PROFILER_TASK.
+    /// @note The end time is taken before the mutex so lock waits are not charged to the task.
+    /// Logs the task name and duration if tracing is enabled. Invoked by DAAL_PROFILER_TASK.
     inline static void end_task(const char * task_name, int idx_)
     {
         if (!task_name) return;
@@ -479,10 +475,10 @@ public:
         }
         else if (!rstack.empty())
         {
-            // RAII invariant violated (should not happen); fall back to scan+erase to stay safe.
+            // Only reachable if tasks end out of RAII order.
             rstack.erase(std::remove(rstack.begin(), rstack.end(), static_cast<std::int64_t>(idx_)), rstack.end());
         }
-        inst.innermost_regular_task_idx_ = entry.parent_idx;
+        if (inst.innermost_regular_task_idx_ == idx_) inst.innermost_regular_task_idx_ = entry.parent_idx;
 
         if (is_tracer_enabled()) std::cerr << task_name << " " << format_time_for_output(duration) << '\n';
     }
@@ -492,10 +488,8 @@ public:
     /// @param[in] task_name The name of the threading task to end
     /// @param[in] idx_ The index of the task in the tasks_info.kernels vector
     ///
-    /// @note If task_name is nullptr or idx_ is invalid, the function returns immediately.
-    /// Captures the end time before the mutex, calculates duration, updates the entry, and pops
-    /// the calling worker thread's threading-task stack. Logs unique task names and durations if
-    /// tracing is enabled. Invoked by the DAAL_PROFILER_THREADING_TASK macro.
+    /// @note Logs each task name and duration once per process if tracing is enabled.
+    /// Invoked by the DAAL_PROFILER_THREADING_TASK macro.
     inline static void end_threading_task(const char * task_name, int idx_)
     {
         if (!task_name) return;
@@ -545,12 +539,9 @@ public:
 
     /// Merges sibling tasks with identical names (same parent, same name) into a single entry.
     ///
-    /// @note Combines matching tasks in the tasks_info.kernels vector to simplify profiling output.
-    /// For non-threading tasks, durations are summed; for threading tasks, the maximum duration is
-    /// taken (rough estimate of wall-clock time under parallelism). Skipped in service-debug mode
-    /// to preserve per-instance detail. Uses an unordered_map keyed on (parent_idx, name) so the
-    /// merge is O(n) instead of the previous O(n^2), and matches on true parent identity rather
-    /// than the ambiguous (level, name) pair.
+    /// @note Regular task durations are summed; threading tasks take the maximum, which
+    /// approximates wall-clock time of a parallel region. Skipped in service-debug mode so each
+    /// instance is printed.
     inline void merge_tasks()
     {
         if (is_service_debug_enabled())
@@ -610,21 +601,39 @@ public:
 
     inline task & get_task() { return task_; }
 
+    /// Returns the parent index for a task opened on the calling thread, or -1 for a top-level task.
+    ///
+    /// @param[in]  rstack      The calling thread's open regular tasks
+    /// @param[in]  tstack      The calling thread's open threading tasks
+    /// @param[out] in_parallel Set if the new task runs inside a parallel region
+    ///
+    /// @note The innermost task open on this thread wins. A thread with nothing open is a worker
+    /// that joined a parallel region, so its parent is the innermost sequential task, which is the
+    /// one that started the region. Must be called under global_mutex().
+    inline std::int64_t find_parent(const std::vector<std::int64_t> & rstack, const std::vector<std::int64_t> & tstack, bool & in_parallel) const
+    {
+        const std::int64_t r = rstack.empty() ? -1 : rstack.back();
+        const std::int64_t t = tstack.empty() ? -1 : tstack.back();
+        // Indices grow with creation order, so the larger one was opened later.
+        const std::int64_t own = std::max(r, t);
+        if (own >= 0)
+        {
+            in_parallel = task_.kernels[own].in_parallel;
+            return own;
+        }
+        in_parallel = innermost_regular_task_idx_ >= 0;
+        return innermost_regular_task_idx_;
+    }
+
 public:
-    // Per-thread stacks of currently-open regular and threading tasks, keyed by std::thread::id.
-    // These are made public solely so the static start_/end_task methods (which run on many
-    // threads but share this singleton) can index into them under global_mutex(). Guarded by
-    // global_mutex().
+    // Accessed by the static start_/end_ methods under global_mutex().
     per_thread_stack_map regular_stacks_;
     per_thread_stack_map threading_stacks_;
 
-    // Innermost open regular task across all threads; used as fallback parent for threading tasks
-    // opened on worker threads that have no regular task on their own stack. Guarded by global_mutex().
+    // Innermost open task outside parallel regions; worker threads with nothing open attach to it.
     std::int64_t innermost_regular_task_idx_ = -1;
 
-    // Once-per-process suppression sets for the logger/tracer THREADING messages. Live on the
-    // singleton so their lifetime is bounded to the profiler's, not the process, and they can be
-    // inspected. Guarded by global_mutex().
+    // Names already logged, so each threading task is reported once.
     std::unordered_set<std::string> unique_threading_task_names_;
     std::unordered_set<std::string> unique_threading_task_end_names_;
 
@@ -642,19 +651,25 @@ inline profiler_task::~profiler_task()
 {
     if (task_name_)
     {
+#ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED
         try
         {
+#endif
             if (is_thread_)
                 profiler::end_threading_task(task_name_, idx_);
             else
                 profiler::end_task(task_name_, idx_);
+#ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED
         }
         catch (std::exception & e)
         {
-            std::cerr << e.what() << std::endl;
+            std::cerr << "DAAL KERNEL_PROFILER: unexpected error while ending task " << task_name_ << ": " << e.what() << std::endl;
         }
         catch (...)
-        {}
+        {
+            std::cerr << "DAAL KERNEL_PROFILER: unexpected error while ending task " << task_name_ << std::endl;
+        }
+#endif
     }
 }
 
