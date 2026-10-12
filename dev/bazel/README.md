@@ -54,7 +54,7 @@ validation.
 2. Download Bazelisk for Windows and put it into a directory on `PATH`, or keep
    it in the repository root as `bazelisk.exe`.
    ```bat
-   set BAZELISK_VERSION=v1.28.1
+   set BAZELISK_VERSION=v1.29.0
    curl.exe -L -o bazelisk.exe https://github.com/bazelbuild/bazelisk/releases/download/%BAZELISK_VERSION%/bazelisk-windows-amd64.exe
    bazelisk.exe version
    ```
@@ -93,6 +93,32 @@ The C++ compiler can be forcibly changed using environment variable `CC`.
 export CC=gcc
 bazel <bazel-command> ... # Will use GCC for normal C++ code
 ```
+
+### Prebuilt dependency roots
+Each prebuilt dependency is described by its own file in `dev/bazel/deps/`: an
+environment variable that points at a local installation, and the archives to
+fall back on when that variable is not set. `MODULE.bazel` only names the
+repositories.
+
+| Dependency        | Environment variable | Fallback archives |
+| ----------------- | -------------------- | ----------------- |
+| `@mkl`            | `MKLROOT`            | yes               |
+| `@tbb`            | `TBBROOT`            | yes               |
+| `@mpi`            | `MPIROOT`            | yes               |
+| `@ccl`            | `CCL_ROOT`           | yes               |
+| `@dpl`            | `DPL_ROOT`           | yes               |
+| `@openmp`         | `GOMPROOT`           | yes               |
+| `@openblas`       | `OPENBLASROOT`       | no                |
+| `@openrng`        | `OPENRNGROOT`        | no                |
+| `@onedal_release` | `DALROOT`            | no                |
+
+The dependencies without fallback archives are only resolvable through their
+variable and fail the build with an explicit message when it is unset.
+
+These variables are watched, so setting, changing or unsetting one re-fetches
+the repository on the next Bazel command rather than on the next server
+restart. Sourcing `setvars.sh` in a shell that already has a warm Bazel server
+therefore repoints `@mkl` and `@tbb` at the oneAPI installation immediately.
 
 ## Common Bazel commands
 The most used Bazel commands are `build`, `test` and `run`.
