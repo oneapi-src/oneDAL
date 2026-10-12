@@ -22,7 +22,56 @@
 namespace oneapi::dal::decision_forest::test {
 
 template <typename TestType>
-class df_batch_test : public df_test<TestType, df_batch_test<TestType>> {};
+class df_batch_test : public df_test<TestType, df_batch_test<TestType>> {
+public:
+    using base_t = df_test<TestType, df_batch_test<TestType>>;
+    using float_t = typename base_t::float_t;
+    using task_t = typename base_t::task_t;
+
+    // Trains a bootstrapped forest on random data with the given engine and returns
+    // the inferred probabilities (classification) or responses (regression).
+    std::vector<float_t> train_and_infer_with_engine(engine_type engine) {
+        constexpr std::int64_t row_count = 200;
+        constexpr std::int64_t column_count = 4;
+        constexpr std::int64_t class_count = 2;
+        constexpr bool is_cls = std::is_same_v<task_t, df::task::classification>;
+
+        std::mt19937 gen(777);
+        std::uniform_real_distribution<double> uniform(0.0, 1.0);
+        std::vector<float_t> x_arr(row_count * column_count);
+        std::vector<float_t> y_arr(row_count);
+        for (auto& v : x_arr) {
+            v = float_t(uniform(gen));
+        }
+        for (auto& v : y_arr) {
+            v = is_cls ? float_t(gen() % class_count) : float_t(uniform(gen));
+        }
+        const auto x = dal::homogen_table::wrap(x_arr.data(), row_count, column_count);
+        const auto y = dal::homogen_table::wrap(y_arr.data(), row_count, 1);
+
+        auto desc = this->get_default_descriptor();
+        desc.set_tree_count(10);
+        desc.set_bootstrap(true);
+        desc.set_seed(1);
+        desc.set_engine_type(engine);
+        if constexpr (is_cls) {
+            desc.set_class_count(class_count);
+            desc.set_infer_mode(infer_mode::class_probabilities);
+        }
+
+        const auto model = this->train(desc, x, y).get_model();
+        const auto result = this->infer(desc, model, x);
+        table values_table;
+        if constexpr (is_cls) {
+            values_table = result.get_probabilities();
+        }
+        else {
+            values_table = result.get_responses();
+        }
+        const auto values = row_accessor<const float_t>(values_table).pull();
+        return std::vector<float_t>(values.get_data(), values.get_data() + values.get_count());
+    }
+};
 
 // dataset configuration
 const std::int64_t df_ds_ion_ftrs_list[] = { 0 };
@@ -418,6 +467,14 @@ DF_BATCH_CLS_TEST("df cls probabilities stay valid when constant features are sk
     }
 }
 
+DF_BATCH_CLS_TEST("df cls training uses the engine from the descriptor") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    REQUIRE(this->train_and_infer_with_engine(engine_type::mt2203) !=
+            this->train_and_infer_with_engine(engine_type::philox4x32x10));
+}
+
 DF_BATCH_CLS_TEST("df cls base check with non default params") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -515,6 +572,14 @@ DF_BATCH_REG_TEST("df reg min weight fraction reduces node count") {
     const splitter_mode splitter_mode_val =
         GENERATE_COPY(splitter_mode::best, splitter_mode::random);
     this->check_min_weight_fraction_reduces_node_count(splitter_mode_val);
+}
+
+DF_BATCH_REG_TEST("df reg training uses the engine from the descriptor") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    REQUIRE(this->train_and_infer_with_engine(engine_type::mt2203) !=
+            this->train_and_infer_with_engine(engine_type::philox4x32x10));
 }
 
 DF_BATCH_REG_TEST("df reg base check with non default params") {
