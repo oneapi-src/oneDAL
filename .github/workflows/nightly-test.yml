@@ -138,9 +138,22 @@ jobs:
         with:
           script: |
             const headSha = context.payload.workflow_run?.head_sha || context.sha
-            // `check_finish` narrows this to each job's page once the jobs exist.
-            const detailsUrl =
+            const runUrl =
               `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            // `details_url` is where "Details" on the Checks list goes, but for a
+            // check run created by the `github-actions` app the platform ignores
+            // the value and points it at the check run's own page: measured on
+            // check run 112379851735, where `details_url` came back equal to
+            // `html_url` although this workflow had passed a job URL. That page
+            // shows only what `output` carries, so the links have to live there
+            // -- otherwise "Details" returns the reader to the list they clicked
+            // from, with no way to reach the log.
+            const summary = [
+              `Build and release comparison run: ${runUrl}`,
+              `Tested commit: \`${headSha}\``,
+              '',
+              'The job log appears here when the test finishes.',
+            ].join('\n')
             for (const [output, name] of [
               ['lnx_check_run_id', 'Nightly-test / oneDAL Linux Bazel test'],
               ['win_check_run_id', 'Nightly-test / oneDAL Windows Bazel test'],
@@ -151,7 +164,8 @@ jobs:
                 name,
                 head_sha: headSha,
                 status: 'in_progress',
-                details_url: detailsUrl,
+                details_url: runUrl,
+                output: { title: 'Running', summary },
               })
               core.setOutput(output, data.id)
             }
@@ -356,7 +370,7 @@ jobs:
     if: always() && needs.check_start.result == 'success'
     permissions:
       checks: write
-      # Job list lookup for per-job "Details" links.
+      # Job list lookup for the per-job log links in the check summary.
       actions: read
     steps:
       - name: Report check runs (finish)
@@ -370,7 +384,9 @@ jobs:
           script: |
             const runUrl =
               `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            // Map job `name:` values to their log pages for "Details" links.
+            // Map job `name:` values to their log pages. These go into the
+            // check run `output`, not only into `details_url`, which the
+            // platform overrides for this app (see `check_start`).
             const jobUrls = new Map()
             try {
               const jobs = await github.paginate(
@@ -389,6 +405,9 @@ jobs:
               // Fall back to the run URL; reporting conclusions matters more.
               core.warning(`Could not resolve per-job URLs: ${error.message}`)
             }
+            const headSha = context.payload.workflow_run?.head_sha || context.sha
+            const sourceRunId =
+              context.payload.workflow_run?.id || context.payload.inputs?.source_run_id
             // A job result the checks API accepts verbatim is passed through, so
             // a cancelled or skipped test job does not read as a failed check.
             const passThrough = new Set(['success', 'cancelled', 'skipped'])
@@ -399,12 +418,26 @@ jobs:
               const checkRunId = Number(process.env[idVar])
               if (!checkRunId) continue
               const result = process.env[resultVar]
+              const jobUrl = jobUrls.get(jobName)
+              const summary = [
+                `**${jobName}**: ${result}`,
+                '',
+                `- Job log: ${jobUrl || runUrl}`,
+                `- Run: ${runUrl}`,
+                sourceRunId
+                  ? `- Make release built by Nightly-build run: ` +
+                    `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}` +
+                    `/actions/runs/${sourceRunId}`
+                  : null,
+                `- Tested commit: \`${headSha}\``,
+              ].filter(Boolean).join('\n')
               await github.rest.checks.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 check_run_id: checkRunId,
                 status: 'completed',
                 conclusion: passThrough.has(result) ? result : 'failure',
-                details_url: jobUrls.get(jobName) || runUrl,
+                details_url: jobUrl || runUrl,
+                output: { title: result, summary },
               })
             }
