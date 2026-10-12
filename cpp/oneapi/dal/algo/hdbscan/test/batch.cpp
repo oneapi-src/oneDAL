@@ -1600,24 +1600,25 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
-    // Three blobs on a fixed grid. 64 rows with blocks of 7 leave a 1-row tail block.
-    constexpr std::int64_t row_count = 64;
-    std::vector<Float> data(row_count * 2);
-    for (std::int64_t i = 0; i < row_count; ++i) {
-        const Float center = Float(10 * (i % 3));
-        data[2 * i] = center + Float(0.01) * Float(i % 11);
-        data[2 * i + 1] = center + Float(0.013) * Float(i % 7);
-    }
+    // More than 256 neighbors take the blocked search. Blocks of 7 and 899 rows leave a tail.
+    constexpr std::int64_t per_cluster = 300;
+    constexpr std::int64_t cluster_count = 3;
+    constexpr std::int64_t row_count = per_cluster * cluster_count;
+    const auto data = te::make_blobs<Float>(per_cluster,
+                                            cluster_count,
+                                            2,
+                                            /*separation=*/Float(20.0),
+                                            /*spread=*/Float(1.0));
     const auto x = homogen_table::wrap(data.data(), row_count, 2);
 
     const auto compute_with_block = [&](std::int64_t block_size) {
-        return this->compute(this->get_descriptor(5, 4).set_distance_block_size(block_size), x);
+        return this->compute(this->get_descriptor(50, 257).set_distance_block_size(block_size), x);
     };
 
     const auto reference = compute_with_block(row_count);
-    REQUIRE(reference.get_cluster_count() == 3);
+    REQUIRE(reference.get_cluster_count() == cluster_count);
 
-    const std::int64_t block_size = GENERATE(1, 7, 63);
+    const std::int64_t block_size = GENERATE(1, 7, 899);
     CAPTURE(block_size);
     this->check_same_result(reference, compute_with_block(block_size));
 }
