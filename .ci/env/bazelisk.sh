@@ -33,11 +33,10 @@ esac
 
 BAZELISK_ASSET="bazelisk-linux-${arch}"
 
-# Both the GitHub API and the release CDN fail transiently in CI: the API
-# rate-limits unauthenticated callers per runner IP (the Azure jobs send no
-# token), and either endpoint can drop a connection. A single failure took the
-# whole job down, which is a lost build hour for a condition that clears on the
-# next attempt, so retry with exponential backoff before giving up.
+# The GitHub API and the release CDN both fail in CI without the install being
+# wrong: a dropped connection, a 5xx, a secondary rate limit. Those are retried
+# with exponential backoff. A primary rate limit is not retried -- see
+# fetch_release_json.
 BAZELISK_FETCH_ATTEMPTS=${BAZELISK_FETCH_ATTEMPTS:-5}
 BAZELISK_FETCH_DELAY=${BAZELISK_FETCH_DELAY:-5}
 # A non-numeric attempt count would make the loop's test fail forever.
@@ -46,10 +45,19 @@ if ! [[ "${BAZELISK_FETCH_ATTEMPTS}" =~ ^[1-9][0-9]*$ && "${BAZELISK_FETCH_DELAY
   exit 1
 fi
 
+# Exit status a fetch uses to say "this will not pass on a retry".
+BAZELISK_FATAL_RC=2
+
 function retry {
   local attempt=1
   local delay=${BAZELISK_FETCH_DELAY}
-  until "$@"; do
+  local rc
+  while true; do
+    "$@" && return 0
+    rc=$?
+    if [ "${rc}" -eq "${BAZELISK_FATAL_RC}" ]; then
+      return "${rc}"
+    fi
     if [ "${attempt}" -ge "${BAZELISK_FETCH_ATTEMPTS}" ]; then
       echo "giving up after ${attempt} attempts: $*" >&2
       return 1
@@ -62,21 +70,46 @@ function retry {
 }
 
 function fetch_release_json {
-  # `wget -O-` writes to stdout, so the caller captures the body; an empty body
+  # Writes the response body to stdout for the caller to capture. An empty body
   # with a zero exit status is a failure too, and must not end the retry loop.
-  local body
-  body=$(wget -qO- \
+  # Headers go to a file so the rate-limit state can be read off them: with
+  # `--server-response` wget prints them to stderr, and `-q` would suppress
+  # them along with everything else.
+  local body headers rc remaining reset
+  headers=$(mktemp)
+  body=$(wget -nv -O- --server-response \
     --header="Accept: application/vnd.github+json" \
     ${GITHUB_TOKEN:+--header="Authorization: Bearer $GITHUB_TOKEN"} \
     --header="X-GitHub-Api-Version: 2022-11-28" \
-    "https://api.github.com/repos/bazelbuild/bazelisk/releases/tags/${BAZELISK_VERSION}") || return 1
-  [ -n "${body}" ] || return 1
+    "https://api.github.com/repos/bazelbuild/bazelisk/releases/tags/${BAZELISK_VERSION}" \
+    2>"${headers}")
+  rc=$?
+  remaining=$(sed -n 's/^[[:space:]]*[Xx]-[Rr]ate[Ll]imit-[Rr]emaining:[[:space:]]*\([0-9]*\).*/\1/p' \
+    "${headers}" | tail -1)
+  reset=$(sed -n 's/^[[:space:]]*[Xx]-[Rr]ate[Ll]imit-[Rr]eset:[[:space:]]*\([0-9]*\).*/\1/p' \
+    "${headers}" | tail -1)
+  if [ "${remaining}" = "0" ]; then
+    # A primary rate limit refills only at the reset timestamp, up to an hour
+    # out, and the quota belongs to the caller -- the runner IP, for the
+    # unauthenticated Azure jobs. Retrying inside the job cannot clear it.
+    echo ":error: GitHub API rate limit exhausted for this runner$( \
+      [ -n "${reset}" ] && printf ' (resets at %s)' "$(date -u -d "@${reset}" 2>/dev/null)")." >&2
+    echo ":error: Set GITHUB_TOKEN for this step to use the authenticated quota." >&2
+    cat "${headers}" >&2
+    rm -f "${headers}"
+    return "${BAZELISK_FATAL_RC}"
+  fi
+  if [ "${rc}" -ne 0 ] || [ -z "${body}" ]; then
+    cat "${headers}" >&2
+    rm -f "${headers}"
+    return 1
+  fi
+  rm -f "${headers}"
   printf '%s' "${body}"
 }
 
 # collect information about the bazelisk release
-BAZELISK_JSON=$(retry fetch_release_json)
-if [ $? -ne 0 ] || [ -z "$BAZELISK_JSON" ]; then
+if ! BAZELISK_JSON=$(retry fetch_release_json) || [ -z "${BAZELISK_JSON}" ]; then
   echo ":error: Failed to fetch Bazelisk release information from GitHub API." >&2
   exit 1
 fi

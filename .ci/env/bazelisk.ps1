@@ -46,14 +46,35 @@ if ($env:GITHUB_TOKEN) {
     $headers.Authorization = "Bearer $env:GITHUB_TOKEN"
 }
 
-# Both the GitHub API and the release CDN fail transiently in CI: the API
-# rate-limits unauthenticated callers per runner IP, and either endpoint can
-# drop a connection. One failure used to take the whole job down, so retry with
-# exponential backoff, as `.ci/env/bazelisk.sh` does.
+# The GitHub API and the release CDN both fail in CI without the install being
+# wrong: a dropped connection, a 5xx, a secondary rate limit. Those are retried
+# with exponential backoff, as `.ci/env/bazelisk.sh` does. A primary rate limit
+# is reported instead of retried, see Test-RateLimitExhausted.
 $fetchAttempts = if ($env:BAZELISK_FETCH_ATTEMPTS) { [int]$env:BAZELISK_FETCH_ATTEMPTS } else { 5 }
 $fetchDelay = if ($env:BAZELISK_FETCH_DELAY) { [int]$env:BAZELISK_FETCH_DELAY } else { 5 }
 if ($fetchAttempts -lt 1 -or $fetchDelay -lt 0) {
     throw "BAZELISK_FETCH_ATTEMPTS must be at least 1 and BAZELISK_FETCH_DELAY non-negative"
+}
+
+function Test-RateLimitExhausted {
+    param([Parameter(Mandatory = $true)] $ErrorRecord)
+
+    $response = $ErrorRecord.Exception.Response
+    if (-not $response) {
+        return $false
+    }
+    # `StatusCode` is an enum on PowerShell 7 and an int on Windows PowerShell;
+    # casting handles both.
+    $status = [int] $response.StatusCode
+    if ($status -ne 403 -and $status -ne 429) {
+        return $false
+    }
+    # The headers collection differs between the two editions as well, and its
+    # indexer throws when the header is absent.
+    $remaining = $null
+    try { $remaining = $response.Headers["X-RateLimit-Remaining"] } catch { }
+    if ($remaining -is [array]) { $remaining = $remaining[0] }
+    return "$remaining" -eq "0"
 }
 
 function Invoke-WithRetry {
@@ -68,6 +89,14 @@ function Invoke-WithRetry {
             return & $Action
         }
         catch {
+            if (Test-RateLimitExhausted -ErrorRecord $_) {
+                # A primary rate limit refills only at the window reset, up to
+                # an hour out, and the quota belongs to the caller, so there is
+                # nothing to wait out inside the job.
+                throw ("GitHub API rate limit exhausted for this runner while trying to " +
+                       "$Description. Set GITHUB_TOKEN for this step to use the " +
+                       "authenticated quota. Error: $($_.Exception.Message)")
+            }
             if ($attempt -ge $fetchAttempts) {
                 throw "Giving up after $attempt attempts: $Description. Last error: $($_.Exception.Message)"
             }
