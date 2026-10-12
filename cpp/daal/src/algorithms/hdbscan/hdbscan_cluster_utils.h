@@ -218,6 +218,67 @@ static DAAL_INT buildDendrogramFromSortedMst(const DAAL_INT * mstFrom, const DAA
     return root;
 }
 
+/// Order the children of every merge as scikit-learn does, which decides how the clusters are numbered.
+///
+/// scikit-learn runs Prim's algorithm from point 0 and puts first the child it reaches first. It
+/// reaches the root at point 0, the first child of a merge where it reached the merge, and the
+/// second child at that child's endpoint of the MST edge of the merge.
+///
+/// @tparam cpu CPU dispatch tag
+///
+/// @param[in]     mstFrom    Source endpoint of each sorted MST edge, inside `leftChild` of its merge
+/// @param[in]     mstTo      Target endpoint of each sorted MST edge, inside `rightChild` of its merge
+/// @param[in]     nRows      Number of original points
+/// @param[in]     root       Dendrogram root node id
+/// @param[in]     nodeSize   Subtree size for every node, length `2*nRows - 1`
+/// @param[in,out] leftChild  Left child id for every node, length `2*nRows - 1`
+/// @param[in,out] rightChild Right child id for every node, length `2*nRows - 1`
+template <CpuType cpu>
+static void orientDendrogramLikePrim(const DAAL_INT * mstFrom, const DAAL_INT * mstTo, size_t nRows, DAAL_INT root, const DAAL_INT * nodeSize,
+                                     DAAL_INT * leftChild, DAAL_INT * rightChild)
+{
+    const size_t totalNodes  = 2 * nRows - 1;
+    const DAAL_INT firstNode = static_cast<DAAL_INT>(nRows);
+    TArray<DAAL_INT, cpu> firstLeafArr(totalNodes);
+    TArray<DAAL_INT, cpu> entryArr(totalNodes);
+    DAAL_INT * firstLeaf = firstLeafArr.get();
+    DAAL_INT * entry     = entryArr.get();
+    // Without the scratch arrays the merges keep the union-find order, which is only numbered differently.
+    if (firstLeaf == nullptr || entry == nullptr) return;
+
+    // Lay the leaves out so that every subtree covers `[firstLeaf, firstLeaf + nodeSize)`. A child
+    // always has a smaller id than its parent, so one pass from the root down reaches every node.
+    firstLeaf[root] = 0;
+    for (DAAL_INT v = root; v >= firstNode; --v)
+    {
+        // A merge that union-find skipped leaves a forest, which has no single order to follow.
+        if (leftChild[v] < 0) return;
+        firstLeaf[leftChild[v]]  = firstLeaf[v];
+        firstLeaf[rightChild[v]] = firstLeaf[v] + nodeSize[leftChild[v]];
+    }
+
+    entry[root] = 0;
+    for (DAAL_INT v = root; v >= firstNode; --v)
+    {
+        const DAAL_INT left  = leftChild[v];
+        const DAAL_INT right = rightChild[v];
+        const DAAL_INT edge  = v - firstNode;
+        const DAAL_INT at    = firstLeaf[entry[v]];
+        if (at >= firstLeaf[left] && at < firstLeaf[left] + nodeSize[left])
+        {
+            entry[left]  = entry[v];
+            entry[right] = mstTo[edge];
+        }
+        else
+        {
+            leftChild[v]  = right;
+            rightChild[v] = left;
+            entry[right]  = entry[v];
+            entry[left]   = mstFrom[edge];
+        }
+    }
+}
+
 /// Dump the single-linkage dendrogram as a row-major `(nRows - 1) x 4` matrix.
 ///
 /// Row `e` is the merge that created node `nRows + e`: `[left, right, distance, size]`, the
@@ -1120,6 +1181,8 @@ int sortMstAndExtractClusters(DAAL_INT * mstFrom, DAAL_INT * mstTo, algorithmFPT
         }
         return 0;
     }
+
+    orientDendrogramLikePrim<cpu>(mstFrom, mstTo, nRows, root, nodeSize, leftChild, rightChild);
 
     if (singleLinkageTree != nullptr)
     {

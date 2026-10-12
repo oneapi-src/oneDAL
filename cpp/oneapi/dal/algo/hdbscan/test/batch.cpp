@@ -61,6 +61,25 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan: clusters numbered as scikit-learn numbers them",
+                     "[hdbscan][batch]",
+                     hdbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    // scikit-learn gives label 0 to the cluster of point 0, which here is the cluster near 10.
+    constexpr std::int64_t row_count = 12;
+    constexpr double data[] = { 10.044, 10.957, 0.253,  0.435,  0.779,  0.198,  10.863, 10.983,
+                                10.786, 10.866, 10.164, 10.597, 10.009, 10.387, 0.698,  0.216,
+                                0.976,  0.006,  0.967,  0.547,  0.973,  0.715,  10.436, 10.949 };
+    constexpr std::int32_t labels[] = { 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0 };
+
+    const auto x = make_table<Float>(data, row_count, 2);
+    const auto result = this->compute(this->get_descriptor(3, 3), x);
+    this->check_responses_against_ref(result.get_responses(), labels, row_count);
+}
+
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
                      "hdbscan: gold data test",
                      "[hdbscan][batch][gold]",
                      hdbscan_types) {
