@@ -1565,10 +1565,12 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
 
     // The gold data has two merges at an equal distance, which the backends may take in either
     // order, so the hierarchies are compared rather than the rows; see `check_same_hierarchy`.
+    // The CPU forms squared L2 from norms and a dot product, which loses about eps * |x|^2 in
+    // float32; the GPU subtracts coordinates.
     check_same_hierarchy(this->get_single_linkage_tree(device),
                          this->get_single_linkage_tree(host),
                          row_count,
-                         te::get_tolerance<Float>(1e-4, 1e-10));
+                         te::get_tolerance<Float>(5e-4, 1e-10));
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,

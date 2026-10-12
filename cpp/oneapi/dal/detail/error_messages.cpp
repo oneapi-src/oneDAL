@@ -218,8 +218,8 @@ MSG(hdbscan_leaf_size_lt_one, "HDBSCAN leaf_size must be at least 1")
 MSG(hdbscan_distance_block_size_lt_zero,
     "HDBSCAN distance_block_size must be non-negative (0 = auto)")
 MSG(hdbscan_brute_force_matrix_does_not_fit_on_device,
-    "HDBSCAN brute_force needs an n x n distance matrix that does not fit in device memory, "
-    "use the kd_tree or ball_tree method instead")
+    "HDBSCAN brute_force with the cosine metric needs an n x n distance matrix that does not "
+    "fit in device memory")
 MSG(hdbscan_input_data_is_not_finite,
     "Input data contains NaN or infinite values, so the minimum spanning tree is incomplete")
 

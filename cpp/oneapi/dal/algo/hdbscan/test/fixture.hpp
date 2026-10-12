@@ -198,12 +198,12 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
     for (std::int64_t e = 0; e < edge_count; e++) {
         // Halfway to the next distinct merge distance, so merge `e` is taken and
         // merge `e + 1` is not, with room to spare for the gap between the two
-        // trees. A tie has no level of its own: the pair of merges is only
-        // observable together, at the level of the second one.
+        // trees. Merges within `2 * tol` of each other have no level of their own:
+        // they are only observable together, at the level of the last one.
         const double distance = static_cast<double>(ref_tree[4 * e + 2]);
         const bool has_next = (e + 1 < edge_count);
         const double next = has_next ? static_cast<double>(ref_tree[4 * (e + 1) + 2]) : 0.0;
-        if (has_next && next == distance) {
+        if (has_next && next - distance <= 2 * tol) {
             continue;
         }
         const double cut = has_next ? 0.5 * (distance + next) : (distance + 1.0);

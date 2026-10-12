@@ -15,6 +15,7 @@
 *******************************************************************************/
 
 #include "oneapi/dal/algo/hdbscan/backend/gpu/compute_kernel.hpp"
+#include "oneapi/dal/algo/hdbscan/backend/gpu/compute_block_tree.hpp"
 #include "oneapi/dal/algo/hdbscan/backend/gpu/kernel_impl.hpp"
 #include "oneapi/dal/algo/hdbscan/backend/gpu/results.hpp"
 
@@ -35,8 +36,8 @@ using descriptor_t = detail::descriptor_base<task::clustering>;
 using result_t = compute_result<task::clustering>;
 using input_t = compute_input<task::clustering>;
 
-/// Run the brute-force HDBSCAN GPU pipeline: distance matrix, core distances, MRD matrix, Boruvka
-/// MST, sort and cluster extraction.
+/// Run the brute-force HDBSCAN GPU pipeline for cosine, which has no box bound: distance
+/// matrix, core distances, MRD matrix, Boruvka MST and cluster extraction.
 ///
 /// @tparam Float Floating-point type
 ///
@@ -46,9 +47,9 @@ using input_t = compute_input<task::clustering>;
 ///
 /// @return oneAPI `compute_result` with responses and cluster count
 template <typename Float>
-static result_t compute_kernel_dense_impl(const context_gpu& ctx,
-                                          const descriptor_t& desc,
-                                          const table& local_data) {
+static result_t compute_kernel_cosine_impl(const context_gpu& ctx,
+                                           const descriptor_t& desc,
+                                           const table& local_data) {
     ONEDAL_PROFILER_TASK(hdbscan.compute, ctx.get_queue());
 
     auto& queue = ctx.get_queue();
@@ -57,8 +58,8 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     const std::int64_t min_samples = desc.get_min_samples();
     const std::int64_t edge_count = row_count - 1;
     const auto metric = desc.get_metric();
-    const double degree = desc.get_degree();
     const double alpha = desc.get_alpha();
+    ONEDAL_ASSERT(metric == distance_metric::cosine);
 
     check_mrd_matrix_fits_on_device<Float>(queue,
                                            row_count,
@@ -73,8 +74,7 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     auto dist_matrix =
         pr::ndarray<Float, 2>::empty(queue, { row_count, row_count }, sycl::usm::alloc::device);
 
-    auto dist_event =
-        compute_distance_matrix<Float>(queue, data_nd, dist_matrix, metric, degree, {});
+    auto dist_event = compute_cosine_distance_matrix<Float>(queue, data_nd, dist_matrix);
     dist_event.wait_and_throw();
 
     // Step 2: core distances, unscaled; step 3 applies alpha.
@@ -99,43 +99,28 @@ static result_t compute_kernel_dense_impl(const context_gpu& ctx,
     mrd_compute_event.wait_and_throw();
 
     // Step 4: Boruvka MST.
-    auto [mst_from, mst_from_event] =
-        pr::ndarray<std::int32_t, 1>::zeros(queue, edge_count, sycl::usm::alloc::device);
-    auto [mst_to, mst_to_event] =
-        pr::ndarray<std::int32_t, 1>::zeros(queue, edge_count, sycl::usm::alloc::device);
-    auto [mst_weights, mst_weights_event] =
-        pr::ndarray<Float, 1>::zeros(queue, edge_count, sycl::usm::alloc::device);
-    mst_from_event.wait_and_throw();
-    mst_to_event.wait_and_throw();
-    mst_weights_event.wait_and_throw();
+    array<std::int32_t> mst_from;
+    array<std::int32_t> mst_to;
+    array<Float> mst_weights;
+    if (edge_count > 0) {
+        std::tie(mst_from, mst_to, mst_weights) =
+            build_mst<Float>(queue, mrd_matrix, { mrd_compute_event });
+    }
 
-    auto mst_event =
-        build_mst<Float>(queue,
-                         mrd_matrix,
-                         mst_from,
-                         mst_to,
-                         mst_weights,
-                         row_count,
-                         { mrd_compute_event, mst_from_event, mst_to_event, mst_weights_event });
-    mst_event.wait_and_throw();
-
-    // Free the `n x n` matrix before the remaining steps.
+    // Free the `n x n` matrix before the extraction.
     dist_matrix = pr::ndarray<Float, 2>{};
-    queue.wait_and_throw();
 
     // Step 5: extract the flat clusters.
-    return make_results_from_mst<Float>(queue,
-                                        desc,
-                                        local_data,
-                                        mst_from,
-                                        mst_to,
-                                        mst_weights,
-                                        { mst_event });
+    return make_results_from_mst<Float>(queue, desc, local_data, mst_from, mst_to, mst_weights);
 }
 
 template <typename Float>
 static result_t compute(const context_gpu& ctx, const descriptor_t& desc, const input_t& input) {
-    return compute_kernel_dense_impl<Float>(ctx, desc, input.get_data());
+    // The other metrics prune over the block tree; brute force scales the core distances by alpha.
+    if (desc.get_metric() != distance_metric::cosine) {
+        return compute_with_block_tree<Float>(ctx.get_queue(), desc, input.get_data(), true);
+    }
+    return compute_kernel_cosine_impl<Float>(ctx, desc, input.get_data());
 }
 
 template <typename Float>

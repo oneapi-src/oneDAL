@@ -58,20 +58,18 @@ inline array<T> to_device_array(sycl::queue& queue, const array<T>& host) {
 /// @param[in] queue       The SYCL queue
 /// @param[in] desc        Algorithm descriptor
 /// @param[in] data        Input table, `n x d`, used for the centers
-/// @param[in] mst_from    Source endpoint of each MST edge, length `n - 1`, any order
-/// @param[in] mst_to      Target endpoint of each MST edge, length `n - 1`
-/// @param[in] mst_weights Edge weights, length `n - 1`
-/// @param[in] deps        Events that must complete before the MST is read
+/// @param[in] mst_from    Source endpoint of each MST edge on host, length `n - 1`, any order
+/// @param[in] mst_to      Target endpoint of each MST edge on host, length `n - 1`
+/// @param[in] mst_weights Edge weights on host, length `n - 1`
 ///
 /// @return oneAPI `compute_result`
 template <typename Float>
 inline result_t make_results_from_mst(sycl::queue& queue,
                                       const descriptor_t& desc,
                                       const table& data,
-                                      const pr::ndview<std::int32_t, 1>& mst_from,
-                                      const pr::ndview<std::int32_t, 1>& mst_to,
-                                      const pr::ndview<Float, 1>& mst_weights,
-                                      const bk::event_vector& deps) {
+                                      const array<std::int32_t>& mst_from,
+                                      const array<std::int32_t>& mst_to,
+                                      const array<Float>& mst_weights) {
     ONEDAL_PROFILER_TASK(hdbscan.extract_clusters, queue);
 
     const std::int64_t row_count = data.get_row_count();
@@ -80,15 +78,14 @@ inline result_t make_results_from_mst(sycl::queue& queue,
     const bool need_probabilities = options.test(result_options::probabilities) || need_centers;
     const bool need_single_linkage_tree = options.test(result_options::single_linkage_tree);
 
-    const auto clusters =
-        extract_clusters_from_mst<Float>(dal::backend::context_cpu{},
-                                         desc,
-                                         mst_from.to_host(queue, deps).flatten(),
-                                         mst_to.to_host(queue, deps).flatten(),
-                                         mst_weights.to_host(queue, deps).flatten(),
-                                         row_count,
-                                         need_probabilities,
-                                         need_single_linkage_tree);
+    const auto clusters = extract_clusters_from_mst<Float>(dal::backend::context_cpu{},
+                                                           desc,
+                                                           mst_from,
+                                                           mst_to,
+                                                           mst_weights,
+                                                           row_count,
+                                                           need_probabilities,
+                                                           need_single_linkage_tree);
 
     auto results = result_t().set_cluster_count(clusters.cluster_count).set_result_options(options);
 
