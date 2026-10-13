@@ -35,23 +35,14 @@ name: Nightly-test
 # only build a fork's commit when it carries none of the write scopes, secrets,
 # caches or on-disk credentials that make such a job a target.
 #
-# Cache access: these jobs run with GITHUB_REF pointing at the default branch,
-# and entries in main's cache scope are restored on every branch — `ci.yml`'s
-# ABI check restores one into pull request jobs. `workflow_run` runs only get
-# read access to that scope, but `workflow_dispatch` runs get write access, and
-# a dispatch can point `source_run_id` at a fork's build. `cache-mode: none`
-# below takes cache access away from the job token entirely. The cache service
-# enforces it: a write with such a token is refused with "cache write denied:
-# token has no writable scopes". Nothing in these jobs needs the cache; the CVE
-# scan keeps the read access it had, for the action's pip cache.
+# Cache access: `workflow_dispatch` runs could write to main's cache scope,
+# which `ci.yml`'s ABI check restores into pull request jobs, so the jobs below
+# run with `cache-mode: none`; the CVE scan keeps read access for its pip cache.
 #
-# CodeQL flags both checkouts under `actions/untrusted-checkout` (alerts 9 and
-# 10), and the same steps under `actions/cache-poisoning/poisonable-step`
-# (alerts 15 and 16, raised for the `workflow_dispatch` trigger). The query does
-# not model `cache-mode`, so those two alerts stay open and are dismissed with a
-# reference to this note. Building a fork's commit is the point of these jobs;
-# if the risk is judged unacceptable, the fix is to stop testing fork pull
-# requests here, not to hide the checkout from the scanner.
+# CodeQL alerts 15 and 16 (`actions/cache-poisoning/poisonable-step`) are raised
+# because the query does not model `cache-mode`; they are dismissed with a
+# reference to this note. Alerts 9 and 10 (`actions/untrusted-checkout`) are
+# the fork builds these jobs exist for.
 
 on:
   workflow_run:
@@ -88,8 +79,7 @@ jobs:
           && github.event.workflow_run.event != 'pull_request' }}
     permissions:
       security-events: write
-    # Runs only on workflow_run and executes no repository code. `read` is what
-    # workflow_run gets by default, and lets the action restore its pip cache.
+    # Executes no repository code; read access keeps the action's pip cache.
     cache-mode: read
     env:
       BUILD_FOLDER: "builds"
@@ -190,14 +180,8 @@ jobs:
           # GITHUB_TOKEN in `.git/config` for them to read. Nothing here needs
           # to push or to fetch a second repository.
           persist-credentials: false
-          # checkout refuses fork code under workflow_run unless this is set,
-          # because such a job normally carries the base repository's write
-          # scopes, secrets and default-branch cache — the "pwn request" shape.
-          # None of that is present here: the permissions block above grants
-          # read only, the job references no secrets, `persist-credentials:
-          # false` above keeps the token off disk, and `cache-mode: none` leaves
-          # the job no cache access, so building a fork's commit is no more
-          # privileged than the pull_request run that already builds it.
+          # The job holds read-only permissions, no secrets, no cache access and
+          # no stored credentials, so building a fork's commit is safe here.
           allow-unsafe-pr-checkout: true
       - name: Download oneDAL Linux build artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
