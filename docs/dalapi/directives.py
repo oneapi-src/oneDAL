@@ -75,7 +75,7 @@ class DoxyDirective(MacroDirective):
             x.add_doc(desc_str, level=level)
 
     def add_function_base(self, func, x: RstBuilder, is_free=True, level=0):
-        if func.doc and func.doc.description:
+        if func.doc and func.doc.description and func.doc.description.runs:
             namespace = func.parent_fully_qualified_name if is_free else None
             x.add_function(func.declaration, namespace, level=level)
             self.add_description(func.doc.description, x, level=level + 1)
@@ -205,10 +205,12 @@ class FunctionDirective(DoxyDirective):
     has_content = False
 
     def rst(self, x: RstBuilder):
-        func = self.ctx.index.find(self.arguments[0])
-        if self.ctx.listing_enabled:
-            self.add_listing(func, x)
-        self.add_function_base(func, x, is_free=True)
+        # Find all functions with the same name in the index and add them to the documentation
+        funcs = self.ctx.index.find_all(self.arguments[0])
+        for func in funcs:
+            if self.ctx.listing_enabled:
+                self.add_listing(func, x)
+            self.add_function_base(func, x, is_free=True)
 
 @directive
 class EnumClassDirective(DoxyDirective):

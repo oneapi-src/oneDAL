@@ -380,6 +380,20 @@ inline Out integral_cast_debug(const In& value) {
     return static_cast<Out>(value);
 }
 
+#ifdef ONEDAL_DATA_PARALLEL
+inline alloc_kind get_alloc_kind(sycl::queue& queue, const void* ptr) {
+    const sycl::usm::alloc alloc = sycl::get_pointer_type(ptr, queue.get_context());
+    switch (alloc) {
+        case sycl::usm::alloc::host: return alloc_kind::usm_host;
+        case sycl::usm::alloc::device: return alloc_kind::usm_device;
+        case sycl::usm::alloc::shared: return alloc_kind::usm_shared;
+        case sycl::usm::alloc::unknown: return alloc_kind::non_usm;
+        /// Should never come here, because get_pointer_type returns unknown for non-USM pointers
+        default: throw unimplemented{ dal::detail::error_messages::unsupported_usm_alloc() };
+    }
+}
+#endif
+
 } // namespace v1
 
 namespace v2 {
@@ -448,6 +462,10 @@ using v2::is_safe_mul;
 using v1::integral_cast;
 using v1::integral_cast_debug;
 
+#ifdef ONEDAL_DATA_PARALLEL
+using v1::get_alloc_kind;
+#endif
+
 } // namespace oneapi::dal::detail
 
 namespace oneapi::dal::preview::detail {
@@ -463,7 +481,9 @@ static constexpr auto allocate(Alloc& alloc, std::int64_t count) {
 }
 
 template <typename Alloc>
-static constexpr void deallocate(Alloc& alloc, typename Alloc::pointer ptr, std::int64_t count) {
+static constexpr void deallocate(Alloc& alloc,
+                                 typename std::allocator_traits<Alloc>::pointer ptr,
+                                 std::int64_t count) {
     using allocator_traits_t =
         typename std::allocator_traits<Alloc>::template rebind_traits<typename Alloc::value_type>;
     if (ptr != nullptr) {
@@ -472,7 +492,7 @@ static constexpr void deallocate(Alloc& alloc, typename Alloc::pointer ptr, std:
 }
 
 #ifdef ONEDAL_DATA_PARALLEL
-void check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr);
+void ONEDAL_EXPORT check_if_pointer_matches_queue(const sycl::queue& q, const void* ptr);
 #endif
 
 } // namespace oneapi::dal::preview::detail

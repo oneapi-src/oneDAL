@@ -73,7 +73,7 @@ Status MinMaxKernel<algorithmFPType, method, cpu>::compute(const NumericTable & 
     size_t blocksNumber     = nRows / regularBlockSize;
 
     SafeStatus safeStat;
-    daal::threader_for(blocksNumber, blocksNumber, [&](int iRowsBlock) {
+    daal::threader_for(blocksNumber, 1, [&](int iRowsBlock) {
         size_t blockSize     = regularBlockSize;
         size_t startRowIndex = iRowsBlock * regularBlockSize;
 
@@ -106,7 +106,7 @@ Status MinMaxKernel<algorithmFPType, method, cpu>::processBlock(const NumericTab
 
     for (size_t i = 0; i < blockSize; i++)
     {
-        PRAGMA_IVDEP
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
         for (size_t j = 0; j < nColumns; j++)
         {

@@ -28,7 +28,6 @@
 #include "src/algorithms/elastic_net/elastic_net_train_kernel.h"
 #include "src/algorithms/elastic_net/elastic_net_model_impl.h"
 #include "src/algorithms/service_error_handling.h"
-#include "src/services/service_algo_utils.h"
 #include "algorithms/optimization_solver/objective_function/mse_batch.h"
 #include "algorithms/optimization_solver/coordinate_descent/coordinate_descent_batch.h"
 
@@ -56,7 +55,7 @@ namespace internal
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, elastic_net::training::Method method, CpuType cpu>
 services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
-    const HostAppIfacePtr & pHost, const NumericTablePtr & x, const NumericTablePtr & y, elastic_net::Model & m, Result & res, const Parameter & par,
+    const NumericTablePtr & x, const NumericTablePtr & y, elastic_net::Model & m, Result & res, const Parameter & par,
     services::SharedPtr<daal::algorithms::optimization_solver::mse::Batch<algorithmFPType> > & objFunc)
 {
     services::Status s;
@@ -132,7 +131,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
             for (size_t i = 0; i < numRowsInBlock; ++i)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t id = 0; id < nDependentVariables; ++id)
                 {
@@ -142,14 +141,14 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         });
         yTlsData.reduceTo(yMeansPtr, nDependentVariables);
 
-        PRAGMA_IVDEP
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nDependentVariables; ++i)
         {
             yMeansPtr[i] *= inversedNRows;
         }
 
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        daal::threader_for(nBlocks, 1, [&](const size_t iBlock) {
             const size_t startRow   = iBlock * blockSize;
             const size_t finishRow  = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
             DAAL_INT numRowsInBlock = finishRow - startRow;
@@ -160,7 +159,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
             for (size_t i = 0; i < numRowsInBlock; ++i)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t id = 0; id < nDependentVariables; ++id)
                 {
@@ -190,7 +189,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
             for (size_t i = 0; i < numRowsInBlock; ++i)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < nFeatures; ++j)
                 {
@@ -209,7 +208,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
 
         if (soaPtr)
         {
-            daal::threader_for(nFeatures, nFeatures, [&](const size_t j) {
+            daal::threader_for(nFeatures, 1, [&](const size_t j) {
                 daal::internal::WriteColumns<algorithmFPType, cpu> xBD(xTrain.get(), j, 0, nRows);
                 DAAL_CHECK_BLOCK_STATUS_THR(xBD);
                 algorithmFPType * xPtr = xBD.get();
@@ -219,7 +218,7 @@ services::Status TrainBatchKernel<algorithmFPType, method, cpu>::compute(
         }
         else
         {
-            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+            daal::threader_for(nBlocks, 1, [&](const size_t iBlock) {
                 const size_t startRow   = iBlock * blockSize;
                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nRows : (iBlock + 1) * blockSize);
                 DAAL_INT numRowsInBlock = finishRow - startRow;

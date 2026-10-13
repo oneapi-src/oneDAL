@@ -105,7 +105,7 @@ enum ResultToComputeId
 };
 
 /**
-* \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+* \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
 */
 namespace interface1
 {
@@ -145,7 +145,7 @@ public:
     *
     * \return Status of computations
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /** @} */
@@ -153,7 +153,7 @@ public:
 } // namespace interface1
 
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -214,7 +214,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * in, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     using daal::algorithms::interface1::Result::check;
@@ -236,7 +236,7 @@ typedef services::SharedPtr<Result> ResultPtr;
 } // namespace interface2
 
 /**
- * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 3.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface3
 {
@@ -292,7 +292,7 @@ public:
      *
      * \return Status of computations
      */
-    virtual services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 } // namespace interface3
 

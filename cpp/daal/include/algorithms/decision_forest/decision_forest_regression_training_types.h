@@ -116,7 +116,7 @@ enum ResultEngineId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
+ * \brief Contains version 2.0 of the oneAPI Data Analytics Library interface
  */
 namespace interface2
 {
@@ -131,13 +131,13 @@ class DAAL_EXPORT Parameter : public daal::algorithms::Parameter, public daal::a
 {
 public:
     Parameter();
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 /* [Parameter source code] */
 } // namespace interface2
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface
  */
 namespace interface1
 {
@@ -178,7 +178,7 @@ public:
     * \param[in] method  Computation method
     * \return Status of checking
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /**
@@ -238,7 +238,7 @@ public:
      * \param[in] method  Computation method
      * \return Status of checking
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
     /**
      * Returns the engine updated after computations

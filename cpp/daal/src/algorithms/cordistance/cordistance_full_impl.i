@@ -21,7 +21,6 @@
 //--
 */
 #include "src/services/service_defines.h"
-using namespace daal::internal;
 
 namespace daal
 {
@@ -31,6 +30,9 @@ namespace correlation_distance
 {
 namespace internal
 {
+using namespace daal::internal;
+using namespace daal::services;
+
 template <typename algorithmFPType, CpuType cpu>
 services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTable)
 {
@@ -43,7 +45,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
     SafeStatus safeStat;
 
     /* compute major diagonal blocks of the distance matrix */
-    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
+    daal::threader_for(nBlocks, 1, [=, &safeStat](size_t k1) {
         DAAL_INT blockSize1 = blockSizeDefault;
         if (k1 == nBlocks - 1)
         {
@@ -66,58 +68,14 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
         algorithmFPType sum[blockSizeDefault], buf[blockSizeDefault * blockSizeDefault];
 
         /* compute sums for elements in each row of the block */
-        for (size_t i = 0; i < blockSize1; i++)
-        {
-            algorithmFPType s = (algorithmFPType)0.0;
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < p; j++)
-            {
-                s += x[i * p + j];
-            }
-            sum[i] = s;
-        }
+        sumByRows<algorithmFPType, cpu>(blockSize1, p, x, sum);
 
-        /* calculate sum^t * sum */
-        const algorithmFPType one(1.0);
-        const algorithmFPType zero(0.0);
-        algorithmFPType alpha = one, beta = zero;
-        char transa = 'N', transb = 'T';
-        DAAL_INT m = blockSize1, k = 1, nn = blockSize1;
-        DAAL_INT lda = m, ldb = nn, ldc = m;
-
-        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, sum, &lda, sum, &ldb, &beta, buf, &ldc);
-
-        /* calculate x * x^t - 1/p * sum^t * sum */
-        alpha  = one;
-        beta   = -one / (algorithmFPType)p;
-        transa = 'T';
-        transb = 'N';
-        m = blockSize1, k = p, nn = blockSize1;
-        lda = k, ldb = k, ldc = m;
-
-        BlasInst<algorithmFPType, cpu>::xxgemm(&transa, &transb, &m, &nn, &k, &alpha, x, &lda, x, &ldb, &beta, buf, &ldc);
-
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < blockSize1; i++)
-        {
-            if (buf[i * blockSize1 + i] > (algorithmFPType)0.0)
-            {
-                buf[i * blockSize1 + i] = (algorithmFPType)1.0 / daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(buf[i * blockSize1 + i]);
-            }
-        }
+        /* compute upper triangle of diagonal block of the correlation distance elements */
+        computeDiagonalBlock<algorithmFPType, cpu, true>(blockSize1, p, x, sum, buf);
 
         for (size_t i = 0; i < blockSize1; i++)
         {
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = i + 1; j < blockSize1; j++)
-            {
-                buf[i * blockSize1 + j] = 1.0 - buf[i * blockSize1 + j] * buf[i * blockSize1 + i] * buf[j * blockSize1 + j];
-            }
-        }
-
-        for (size_t i = 0; i < blockSize1; i++)
-        {
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD
             for (size_t j = i; j < blockSize1; j++)
             {
                 rr[i * n + j] = buf[i * blockSize1 + j];
@@ -127,7 +85,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
     DAAL_CHECK_SAFE_STATUS()
 
     /* compute off-diagonal blocks of the distance matrix */
-    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
+    daal::threader_for(nBlocks, 1, [=, &safeStat](size_t k1) {
         DAAL_INT blockSize1 = blockSizeDefault;
         if (k1 == nBlocks - 1)
         {
@@ -144,18 +102,9 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
         algorithmFPType sum1[blockSizeDefault];
 
         /* compute sums for elements in each row of the block x1 */
-        for (size_t i = 0; i < blockSize1; i++)
-        {
-            algorithmFPType s = (algorithmFPType)0.0;
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < p; j++)
-            {
-                s += x1[i * p + j];
-            }
-            sum1[i] = s;
-        }
+        sumByRows<algorithmFPType, cpu>(blockSize1, p, x1, sum1);
 
-        daal::threader_for(nBlocks - k1 - 1, nBlocks - k1 - 1, [=, &safeStat, &sum1](size_t k3) {
+        daal::threader_for(nBlocks - k1 - 1, 1, [=, &safeStat, &sum1](size_t k3) {
             DAAL_INT blockSize2 = blockSizeDefault;
             size_t k2           = k3 + k1 + 1;
             size_t nl = n, pl = p;
@@ -193,16 +142,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
             algorithmFPType sum2[blockSizeDefault];
 
             /* compute sums for elements in each row of the block x2 */
-            for (size_t i = 0; i < blockSize2; i++)
-            {
-                algorithmFPType s = (algorithmFPType)0.0;
-                PRAGMA_VECTOR_ALWAYS
-                for (size_t j = 0; j < pl; j++)
-                {
-                    s += x2[i * pl + j];
-                }
-                sum2[i] = s;
-            }
+            sumByRows<algorithmFPType, cpu>(blockSize2, p, x2, sum2);
 
             /* calculate sum1^t * sum2 */
             const algorithmFPType one(1.0);
@@ -230,7 +170,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
 
             for (size_t i = 0; i < blockSize1; i++)
             {
-                PRAGMA_VECTOR_ALWAYS
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < blockSize2; j++)
                 {
                     buf[i * blockSize2 + j] = 1.0 - buf[i * blockSize2 + j] * r[i * nl + (shift1 + i)] * diag[j];
@@ -239,7 +179,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
 
             for (size_t i = 0; i < blockSize1; i++)
             {
-                PRAGMA_VECTOR_ALWAYS
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < blockSize2; j++)
                 {
                     rr[i * nl + j] = buf[i * blockSize2 + j];
@@ -250,7 +190,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
     DAAL_CHECK_SAFE_STATUS()
 
     // copy upper triangular of r into lower triangular and unit diagonal
-    daal::threader_for(nBlocks, nBlocks, [=, &safeStat](size_t k1) {
+    daal::threader_for(nBlocks, 1, [=, &safeStat](size_t k1) {
         size_t blockSize1 = blockSizeDefault;
         if (k1 == nBlocks - 1)
         {
@@ -274,7 +214,7 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
             }
         }
 
-        daal::threader_for(nBlocks - k1 - 1, nBlocks - k1 - 1, [=, &safeStat](size_t k3) {
+        daal::threader_for(nBlocks - k1 - 1, 1, [=, &safeStat](size_t k3) {
             size_t k2 = k3 + k1 + 1;
             size_t nl = n;
             algorithmFPType *rr1, *rr2;
@@ -301,6 +241,139 @@ services::Status corDistanceFull(const NumericTable * xTable, NumericTable * rTa
                 }
             }
         });
+    });
+
+    return safeStat.detach();
+}
+
+template <typename algorithmFPType, CpuType cpu>
+services::Status corDistanceFull(const NumericTable * xTable, const NumericTable * yTable, NumericTable * rTable)
+{
+    size_t p         = xTable->getNumberOfColumns(); /* Dimension of input feature vector */
+    size_t nVectors1 = xTable->getNumberOfRows();    /* Number of input vectors in X */
+    size_t nVectors2 = yTable->getNumberOfRows();    /* Number of input vectors in Y */
+
+    size_t nBlocks1 = nVectors1 / blockSizeDefault;
+    nBlocks1 += (nBlocks1 * blockSizeDefault != nVectors1);
+
+    size_t nBlocks2 = nVectors2 / blockSizeDefault;
+    nBlocks2 += (nBlocks2 * blockSizeDefault != nVectors2);
+
+    SafeStatus safeStat;
+
+    /* Allocate yMean for all Y vectors before the loop */
+    TArray<algorithmFPType, cpu> yMeanArr(nVectors2);
+    algorithmFPType * yMean = yMeanArr.get();
+    DAAL_CHECK(yMean, ErrorMemoryAllocationFailed);
+
+    /* Compute means for all Y vectors before the loop */
+    for (size_t k2 = 0; k2 < nBlocks2; k2++)
+    {
+        DAAL_INT blockSize2 = blockSizeDefault;
+        if (k2 == nBlocks2 - 1)
+        {
+            blockSize2 = nVectors2 - k2 * blockSizeDefault;
+        }
+
+        size_t shift2 = k2 * blockSizeDefault;
+
+        /* read access to blockSize2 rows in input dataset Y */
+        ReadRows<algorithmFPType, cpu> yBlock(*const_cast<NumericTable *>(yTable), shift2, blockSize2);
+        DAAL_CHECK_BLOCK_STATUS(yBlock);
+        const algorithmFPType * y = yBlock.get();
+
+        for (size_t j = 0; j < blockSize2; j++)
+        {
+            yMean[shift2 + j] = 0.0;
+            for (size_t k = 0; k < p; k++)
+            {
+                yMean[shift2 + j] += y[j * p + k];
+            }
+            yMean[shift2 + j] /= p;
+        }
+    }
+
+    /* compute results for blocks of the distance matrix */
+    daal::threader_for(nBlocks1, 1, [=, &safeStat](size_t k1) {
+        DAAL_INT blockSize1 = blockSizeDefault;
+        if (k1 == nBlocks1 - 1)
+        {
+            blockSize1 = nVectors1 - k1 * blockSizeDefault;
+        }
+
+        /* read access to blockSize1 rows in input dataset X at k1*blockSizeDefault*p row */
+        ReadRows<algorithmFPType, cpu> xBlock(*const_cast<NumericTable *>(xTable), k1 * blockSizeDefault, blockSize1);
+        DAAL_CHECK_BLOCK_STATUS_THR(xBlock);
+        const algorithmFPType * x = xBlock.get();
+
+        /* write access to blockSize1 rows in output dataset */
+        WriteOnlyRows<algorithmFPType, cpu> rBlock(rTable, k1 * blockSizeDefault, blockSize1);
+        DAAL_CHECK_BLOCK_STATUS_THR(rBlock);
+        algorithmFPType * r = rBlock.get();
+
+        /* Compute means for rows in X block */
+        TArrayScalable<algorithmFPType, cpu> xMeanArr(blockSize1);
+        algorithmFPType * xMean = xMeanArr.get();
+        DAAL_CHECK_THR(xMean, ErrorMemoryAllocationFailed);
+
+        for (size_t i = 0; i < blockSize1; i++)
+        {
+            xMean[i] = 0.0;
+            for (size_t j = 0; j < p; j++)
+            {
+                xMean[i] += x[i * p + j];
+            }
+            xMean[i] /= p;
+        }
+
+        for (size_t k2 = 0; k2 < nBlocks2; k2++)
+        {
+            DAAL_INT blockSize2 = blockSizeDefault;
+            if (k2 == nBlocks2 - 1)
+            {
+                blockSize2 = nVectors2 - k2 * blockSizeDefault;
+            }
+
+            size_t shift2 = k2 * blockSizeDefault;
+
+            /* read access to blockSize2 rows in input dataset Y */
+            ReadRows<algorithmFPType, cpu> yBlock(*const_cast<NumericTable *>(yTable), shift2, blockSize2);
+            DAAL_CHECK_BLOCK_STATUS_THR(yBlock);
+            const algorithmFPType * y = yBlock.get();
+
+            for (size_t i = 0; i < blockSize1; i++)
+            {
+                for (size_t j = 0; j < blockSize2; j++)
+                {
+                    algorithmFPType numerator = 0.0;
+                    algorithmFPType xNorm     = 0.0;
+                    algorithmFPType yNorm     = 0.0;
+
+                    for (size_t k = 0; k < p; k++)
+                    {
+                        algorithmFPType x_centered = x[i * p + k] - xMean[i];
+                        algorithmFPType y_centered = y[j * p + k] - yMean[shift2 + j];
+
+                        numerator += x_centered * y_centered;
+                        xNorm += x_centered * x_centered;
+                        yNorm += y_centered * y_centered;
+                    }
+
+                    algorithmFPType denominator = xNorm * yNorm;
+                    if (denominator > 0.0)
+                    {
+                        r[i * nVectors2 + shift2 + j] = 1.0
+                                                        - numerator
+                                                              / (daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(xNorm)
+                                                                 * daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(yNorm));
+                    }
+                    else
+                    {
+                        r[i * nVectors2 + shift2 + j] = 1.0; // Maximum distance when no variance
+                    }
+                }
+            }
+        }
     });
 
     return safeStat.detach();

@@ -28,7 +28,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::DistributedContainer, distributed, step4Local, DAAL_FPTYPE, dbscan::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::internal::DistributedContainer, distributed, step4Local, DAAL_FPTYPE, dbscan::defaultDense)
 
 namespace dbscan
 {
@@ -37,7 +37,15 @@ namespace interface1
 using DistributedType = Distributed<step4Local, DAAL_FPTYPE, defaultDense>;
 
 template <>
-DistributedType::Distributed(size_t leftBlocks, size_t rightBlocks)
+void Distributed<step4Local, DAAL_FPTYPE, dbscan::defaultDense>::initialize()
+{
+    Analysis<distributed>::_ac =
+        new __DAAL_ALGORITHM_CONTAINER(distributed, internal::DistributedContainer, step4Local, DAAL_FPTYPE, dbscan::defaultDense)(&_env);
+    _in = &input;
+    _partialResult.reset(new PartialResultType());
+}
+template <>
+DAAL_EXPORT DistributedType::Distributed(size_t leftBlocks, size_t rightBlocks)
 {
     ParameterType * par = new ParameterType();
     par->leftBlocks     = leftBlocks;
@@ -48,7 +56,7 @@ DistributedType::Distributed(size_t leftBlocks, size_t rightBlocks)
 }
 
 template <>
-DistributedType::Distributed(const DistributedType & other) : input(other.input)
+DAAL_EXPORT DistributedType::Distributed(const DistributedType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

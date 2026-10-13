@@ -109,7 +109,7 @@ enum BinningStrategy
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface
+ * \brief Contains version 2.0 of the oneAPI Data Analytics Library interface
  */
 namespace interface2
 {
@@ -129,7 +129,7 @@ public:
     Parameter();
 
     size_t nTrees;                         /*!< Number of trees in the forest. Default is 10 */
-    double observationsPerTreeFraction;    /*!< Fraction of observations used for a training of one tree, 0 to 1.
+    double observationsPerTreeFraction;    /*!< Fraction of observations used for a training of one tree, greater than 0.
                                                   Default is 1 (sampling with replacement) */
     size_t featuresPerNode;                /*!< Number of features tried as possible splits per node.
                                                   If 0 then sqrt(p) for classification, p/3 for regression,

@@ -63,6 +63,13 @@ class Index(object):
                 raise KeyError(f'Cannot find "{query}"')
         return model
 
+    def find_all(self, query: str):
+        try:
+            models = self._find_inner_all(query)
+        except KeyError:
+            raise KeyError(f'Cannot find "{query}"')
+        return models
+
     @utils.return_dict
     def _initialize(self):
         index = self._parser.parse('index')
@@ -88,6 +95,21 @@ class Index(object):
             pass
         raise KeyError(f'Cannot find {name} inside {parent_name}')
 
+    def _find_inner_all(self, query):
+        parent_name, name = utils.split_compound_name(query)
+        model = self._index[parent_name].model
+        attrs_to_check = [ 'functions', 'typedefs', 'enum_classes' ]
+        try:
+            result = []
+            for attr in attrs_to_check:
+                for inner in getattr(model, attr):
+                    if inner.name == name:
+                        result.append(inner)
+            if result:
+                return result
+        except AttributeError:
+            pass
+        raise KeyError(f'Cannot find {name} inside {parent_name}')
 
 def index(doxygen_xml_dir: Text,
           name_transformer: NameTransformer = None,

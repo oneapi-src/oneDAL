@@ -47,6 +47,8 @@ namespace algorithms
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <typename DataType, CpuType cpu>
 class TlsMax : public daal::TlsMem<DataType, cpu, services::internal::ScalableCalloc<DataType, cpu> >
 {
@@ -79,7 +81,7 @@ struct xyType
     DataType y;
 };
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 struct MemoryCtxType
 {
     typedef xyType<DataType> xyDataType;
@@ -115,7 +117,7 @@ struct MemoryCtxType
         const DataType * xInit = xInitDataBlock.get();
         const DataType * yInit = yInitDataBlock.get();
 
-        PRAGMA_IVDEP
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < capacity; i++)
         {
@@ -133,7 +135,7 @@ struct MemoryCtxType
         DataType * xInit = xInitDataBlock.get();
         DataType * yInit = yInitDataBlock.get();
 
-        PRAGMA_IVDEP
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < _capacity; i++)
         {
@@ -185,7 +187,7 @@ struct TreeCtxType
     xyType * cent                        = nullptr;
 };
 
-template <typename IdxType, daal::CpuType cpu>
+template <typename IdxType, CpuType cpu>
 services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType & nElements, const IdxType & blockOfRows)
 {
     TlsMax<IdxType, cpu> maxTlsData(1);
@@ -194,7 +196,7 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
     const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
     SafeStatus safeStat;
-    daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+    daal::threader_for(nBlocks, 1, [&](IdxType iBlock) {
         const IdxType iStart = iBlock * sizeOfBlock;
         const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
         IdxType * localMax   = maxTlsData.local();
@@ -211,7 +213,7 @@ services::Status maxRowElementsImpl(const size_t * row, const IdxType N, IdxType
     return services::Status();
 }
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, DataType & radius, DataType & centerx, DataType & centery)
 {
     DAAL_CHECK_MALLOC(pos);
@@ -277,7 +279,7 @@ services::Status boundingBoxKernelImpl(xyType<DataType> * pos, const IdxType N, 
     return services::Status();
 }
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType> > & qTree, int level, IdxType * zOrder, IdxType * tOrder, uint64_t * mc, int * hist)
 {
     const int sh   = 54 - (level << 1);
@@ -372,7 +374,7 @@ inline void buildSubtree5(TreeCtxType<IdxType, xyType<DataType> > & qTree, int l
     for (int i = 0; i < 6; i++) qTree.layerSize[i] = qTree.layerOffs[i + 1] - qTree.layerOffs[i];
 }
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                          const DataType & radius, const DataType & centerx, const DataType & centery)
 {
@@ -452,8 +454,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     tlsHist1024.reduce([&](int * ptr) -> void {
         if (ptr == nullptr) return;
 
-        PRAGMA_VECTOR_ALWAYS
-        PRAGMA_VECTOR_ALIGNED
+        PRAGMA_OMP_SIMD_ARGS(aligned(mHist, ptr : DAAL_MALLOC_DEFAULT_ALIGNMENT))
         for (int i = 0; i < 1024; i++) mHist[i] += ptr[i];
 
         services::internal::service_free<int, cpu>(ptr);
@@ -516,7 +517,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
             constexpr IdxType sizeOfBlock = 1;
             const IdxType nBlocks         = bNodes;
 
-            daal::threader_for(nBlocks, nBlocks, [&](IdxType iSubTree) {
+            daal::threader_for(nBlocks, 1, [&](IdxType iSubTree) {
                 TArrayCalloc<int, cpu> histArr(3072);
                 int * hist = histArr.get();
                 DAAL_CHECK_MALLOC_THR(hist);
@@ -599,7 +600,7 @@ services::Status qTreeBuildingKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     return services::Status();
 }
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 services::Status summarizationKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree)
 {
     IdxType nThreads = threader_get_threads_number();
@@ -660,7 +661,7 @@ services::Status summarizationKernelImpl(MemoryCtxType<IdxType, DataType, cpu> &
     return services::Status();
 }
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem, TreeCtxType<IdxType, xyType<DataType> > & qTree,
                                      const DataType theta, const DataType eps, DataType & zNorm, const DataType & radius)
 {
@@ -787,7 +788,7 @@ services::Status repulsionKernelImpl(MemoryCtxType<IdxType, DataType, cpu> & mem
 }
 
 /* Generic template implementation of attractive kernel for all data types and various instruction set architectures */
-template <bool DivComp, typename IdxType, typename DataType, daal::CpuType cpu>
+template <bool DivComp, typename IdxType, typename DataType, CpuType cpu>
 struct AttractiveKernel
 {
     static services::Status impl(const DataType * val, const IdxType * col, const size_t * row, MemoryCtxType<IdxType, DataType, cpu> & mem,
@@ -816,7 +817,7 @@ struct AttractiveKernel
         const IdxType sizeOfBlock = services::internal::min<cpu, size_t>(256, N / nThreads + 1);
         const IdxType nBlocks     = N / sizeOfBlock + bool(N % sizeOfBlock);
 
-        daal::threader_for(nBlocks, nBlocks, [&](IdxType iBlock) {
+        daal::threader_for(nBlocks, 1, [&](IdxType iBlock) {
             const IdxType iStart = iBlock * sizeOfBlock;
             const IdxType iEnd   = services::internal::min<cpu, IdxType>(N, iStart + sizeOfBlock);
             DataType * logLocal  = logTlsData.local();
@@ -885,7 +886,7 @@ struct AttractiveKernel
     }
 };
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 services::Status integrationKernelImpl(const DataType eta, const DataType momentum, const DataType exaggeration,
                                        MemoryCtxType<IdxType, DataType, cpu> & mem, DataType & gradNorm, const DataType & zNorm, const IdxType N,
                                        const IdxType & blockOfRows)
@@ -934,7 +935,7 @@ services::Status integrationKernelImpl(const DataType eta, const DataType moment
     return services::Status();
 }
 
-template <typename IdxType, typename DataType, daal::CpuType cpu>
+template <typename IdxType, typename DataType, CpuType cpu>
 services::Status tsneGradientDescentImpl(const NumericTablePtr initTable, const CSRNumericTablePtr pTable, const NumericTablePtr sizeIterTable,
                                          const NumericTablePtr paramTable, const NumericTablePtr resultTable)
 {

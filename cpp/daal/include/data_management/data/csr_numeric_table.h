@@ -25,10 +25,9 @@
 #define __CSR_NUMERIC_TABLE_H__
 
 #include "services/base.h"
-#include "services/internal/buffer.h"
 
 #include "data_management/data/numeric_table.h"
-#include "data_management/data/data_serialize.h"
+#include "data_management/data/factory.h" // goes after numeric_table.h to avoid circular dependency
 #include "data_management/data/internal/conversion.h"
 
 namespace daal
@@ -52,13 +51,6 @@ public:
     /** \private */
     CSRBlockDescriptor();
 
-    /** \private */
-    ~CSRBlockDescriptor()
-    {
-        freeValuesBuffer();
-        freeRowsBuffer();
-    }
-
     /**
      *  Gets a pointer to the buffer
      *  \return Pointer to the block
@@ -69,90 +61,12 @@ public:
         {
             return (DataType *)_rawPtr;
         }
-        else if (_valuesBuffer)
-        {
-            return getValuesCachedHostSharedPtr().get();
-        }
         return _values_ptr.get();
     }
 
-    inline size_t * getBlockColumnIndicesPtr() const
-    {
-        if (_colsBuffer)
-        {
-            return getColsCachedHostSharedPtr().get();
-        }
-        return _cols_ptr.get();
-    }
+    inline size_t * getBlockColumnIndicesPtr() const { return _cols_ptr.get(); }
 
-    inline size_t * getBlockRowIndicesPtr() const
-    {
-        if (_rowsBuffer)
-        {
-            return getRowsCachedHostSharedPtr().get();
-        }
-        return _rows_ptr.get();
-    }
-
-    inline daal::services::internal::Buffer<DataType> getBlockValuesBuffer() const
-    {
-        if (_valuesBuffer)
-        {
-            return _valuesBuffer;
-        }
-        else if (_rawPtr)
-        {
-            services::Status status;
-            daal::services::internal::Buffer<DataType> buffer((DataType *)_rawPtr, _nvalues, status);
-            services::throwIfPossible(status);
-            return buffer;
-        }
-        else
-        {
-            services::Status status;
-            services::internal::Buffer<DataType> buffer(_values_ptr, _nvalues, status);
-            services::throwIfPossible(status);
-            return buffer;
-        }
-    }
-
-    inline daal::services::internal::Buffer<size_t> getBlockColumnIndicesBuffer() const
-    {
-        if (_colsBuffer)
-        {
-            return _colsBuffer;
-        }
-        else
-        {
-            services::Status status;
-            daal::services::internal::Buffer<size_t> buffer(_cols_ptr.get(), _nvalues, status);
-            services::throwIfPossible(status);
-            return buffer;
-        }
-    }
-
-    inline daal::services::internal::Buffer<size_t> getBlockRowIndicesBuffer() const
-    {
-        if (_rowsBuffer)
-        {
-            return _rowsBuffer;
-        }
-
-        else if (_rowsInternal)
-        {
-            services::Status status;
-            daal::services::internal::Buffer<size_t> buffer(_rowsInternal.get(), _nrows + 1, status);
-            services::throwIfPossible(status);
-            return buffer;
-        }
-        else
-        {
-            services::Status status;
-            daal::services::internal::Buffer<size_t> buffer(_rows_ptr.get(), _nrows + 1, status);
-            services::throwIfPossible(status);
-            return buffer;
-        }
-    }
+    inline size_t * getBlockRowIndicesPtr() const { return _rows_ptr.get(); }
 
     /**
      *  Gets a pointer to the buffer
@@ -164,48 +78,15 @@ public:
         {
             return services::SharedPtr<DataType>(services::reinterpretPointerCast<DataType, byte>(*_pPtr), (DataType *)_rawPtr);
         }
-        else if (_valuesBuffer)
-        {
-            services::Status status;
-            services::SharedPtr<DataType> hostSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-            return hostSharedPtr;
-        }
         else
         {
             return _values_ptr;
         }
     }
 
-    inline services::SharedPtr<size_t> getBlockColumnIndicesSharedPtr() const
-    {
-        if (_colsBuffer)
-        {
-            services::Status status;
-            services::SharedPtr<size_t> hostSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-            return hostSharedPtr;
-        }
-        else
-        {
-            return _cols_ptr;
-        }
-    }
+    inline services::SharedPtr<size_t> getBlockColumnIndicesSharedPtr() const { return _cols_ptr; }
 
-    inline services::SharedPtr<size_t> getBlockRowIndicesSharedPtr() const
-    {
-        if (_rowsBuffer)
-        {
-            services::Status status;
-            services::SharedPtr<size_t> hostSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-            return hostSharedPtr;
-        }
-        else
-        {
-            return _rows_ptr;
-        }
-    }
+    inline services::SharedPtr<size_t> getBlockRowIndicesSharedPtr() const { return _rows_ptr; }
 
     /**
      *  Returns the number of columns in the block
@@ -231,10 +112,6 @@ public:
             {
                 return _rows_ptr.get()[_nrows] - _rows_ptr.get()[0];
             }
-            else if (_valuesBuffer)
-            {
-                return _valuesBuffer.size();
-            }
         }
         return 0;
     }
@@ -246,7 +123,6 @@ public:
      */
     inline void setValuesPtr(DataType * ptr, size_t nValues)
     {
-        _hostValuesSharedPtr.reset();
         _values_ptr = services::SharedPtr<DataType>(ptr, services::EmptyDeleter());
         _nvalues    = nValues;
     }
@@ -257,7 +133,6 @@ public:
      */
     inline void setColumnIndicesPtr(size_t * ptr, size_t nValues)
     {
-        _hostColsSharedPtr.reset();
         _cols_ptr = services::SharedPtr<size_t>(ptr, services::EmptyDeleter());
         _nvalues  = nValues;
     }
@@ -268,7 +143,6 @@ public:
      */
     inline void setRowIndicesPtr(size_t * ptr, size_t nRows)
     {
-        _hostRowsSharedPtr.reset();
         _rows_ptr = services::SharedPtr<size_t>(ptr, services::EmptyDeleter());
         _nrows    = nRows;
     }
@@ -279,7 +153,6 @@ public:
      */
     inline void setValuesPtr(services::SharedPtr<DataType> ptr, size_t nValues)
     {
-        _hostValuesSharedPtr.reset();
         _values_ptr = ptr;
         _nvalues    = nValues;
     }
@@ -288,11 +161,10 @@ public:
      *  \param[in] pPtr     Pointer to the buffer
      *  \param[in] rawPtr   Pointer to the buffer
      *  \param[in] nValues  Number of values
+     *  \DAAL_DEPRECATED
      */
     inline void setValuesPtr(services::SharedPtr<byte> * pPtr, byte * rawPtr, size_t nValues)
     {
-        _hostValuesSharedPtr.reset();
-        _valuesBuffer.reset();
         _pPtr    = pPtr;
         _rawPtr  = rawPtr;
         _nvalues = nValues;
@@ -304,8 +176,6 @@ public:
      */
     inline void setColumnIndicesPtr(services::SharedPtr<size_t> ptr, size_t nValues)
     {
-        _hostColsSharedPtr.reset();
-        _colsBuffer.reset();
         _cols_ptr = ptr;
         _nvalues  = nValues;
     }
@@ -316,47 +186,8 @@ public:
      */
     inline void setRowIndicesPtr(services::SharedPtr<size_t> ptr, size_t nRows)
     {
-        _hostRowsSharedPtr.reset();
-        _rowsBuffer.reset();
         _rows_ptr = ptr;
         _nrows    = nRows;
-    }
-
-    /**
-     *  Sets values buffer to the table
-     *  \param[in] buffer Buffer object that contains the memory
-     */
-    inline void setValuesBuffer(const daal::services::internal::Buffer<DataType> & buffer)
-    {
-        _hostValuesSharedPtr.reset();
-        _valuesBuffer = buffer;
-        _pPtr         = NULL;
-        _rawPtr       = NULL;
-        _nvalues      = buffer.size();
-    }
-
-    /**
-     *  Sets cols indices buffer to the table
-     *  \param[in] buffer Buffer object that contains the memory
-     */
-    inline void setColumnIndicesBuffer(const daal::services::internal::Buffer<size_t> & buffer)
-    {
-        _hostColsSharedPtr.reset();
-        _cols_ptr.reset();
-        _colsBuffer = buffer;
-        _nvalues    = buffer.size();
-    }
-
-    /**
-     *  Sets row indices buffer to the table
-     *  \param[in] buffer Buffer object that contains the memory
-     */
-    inline void setRowIndicesBuffer(const daal::services::internal::Buffer<size_t> & buffer)
-    {
-        _hostRowsSharedPtr.reset();
-        _rowsInternal.reset();
-        _rowsBuffer = buffer;
-        _nrows      = buffer.size();
     }
 
     /**
@@ -369,13 +200,6 @@ public:
         _rwFlag     = 0;
         _pPtr       = NULL;
         _rawPtr     = NULL;
-        _hostValuesSharedPtr.reset();
-        _hostRowsSharedPtr.reset();
-        _hostColsSharedPtr.reset();
-
-        _valuesBuffer.reset();
-        _rowsBuffer.reset();
-        _colsBuffer.reset();
     }
 
     /**
@@ -387,10 +211,6 @@ public:
         if (newSize > _values_capacity)
         {
             freeValuesBuffer();
-            if (_valuesBuffer)
-            {
-                services::throwIfPossible(services::ErrorMethodNotImplemented);
-            }
 
             _valuesInternal = services::SharedPtr<DataType>((DataType *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
             if (_valuesInternal)
@@ -418,10 +238,6 @@ public:
         if (newSize > _rows_capacity)
         {
             freeRowsBuffer();
-            if (_rowsBuffer)
-            {
-                services::throwIfPossible(services::ErrorMethodNotImplemented);
-            }
 
             _rowsInternal = services::SharedPtr<size_t>((size_t *)daal::services::daal_malloc(newSize), services::ServiceDeleter());
             if (_rowsInternal)
@@ -444,9 +260,6 @@ public:
         _ncols      = nColumns;
         _rowsOffset = rowIdx;
         _rwFlag     = rwFlag;
-        _hostValuesSharedPtr.reset();
-        _hostRowsSharedPtr.reset();
-        _hostColsSharedPtr.reset();
     }
 
     inline size_t getRowsOffset() const { return _rowsOffset; }
@@ -458,14 +271,7 @@ protected:
      */
     void freeValuesBuffer()
     {
-        if (_valuesInternal)
-        {
-            _valuesInternal = services::SharedPtr<DataType>();
-        }
-        else if (_valuesBuffer)
-        {
-            _valuesBuffer.reset();
-        }
+        _valuesInternal  = services::SharedPtr<DataType>();
         _values_capacity = 0;
     }
 
@@ -476,40 +282,6 @@ protected:
     {
         _rowsInternal  = services::SharedPtr<size_t>();
         _rows_capacity = 0;
-        _rowsBuffer.reset();
-    }
-
-    inline services::SharedPtr<DataType> getValuesCachedHostSharedPtr() const
-    {
-        if (!_hostValuesSharedPtr)
-        {
-            services::Status status;
-            _hostValuesSharedPtr = _valuesBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-        }
-        return _hostValuesSharedPtr;
-    }
-
-    inline services::SharedPtr<size_t> getColsCachedHostSharedPtr() const
-    {
-        if (!_hostColsSharedPtr)
-        {
-            services::Status status;
-            _hostColsSharedPtr = _colsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-        }
-        return _hostColsSharedPtr;
-    }
-
-    inline services::SharedPtr<size_t> getRowsCachedHostSharedPtr() const
-    {
-        if (!_hostRowsSharedPtr)
-        {
-            services::Status status;
-            _hostRowsSharedPtr = _rowsBuffer.toHost((data_management::ReadWriteMode)_rwFlag, status);
-            services::throwIfPossible(status);
-        }
-        return _hostRowsSharedPtr;
     }
 
 private:
@@ -523,22 +295,14 @@ private:
     size_t _rowsOffset;
     int _rwFlag;
 
-    services::SharedPtr<DataType> _valuesInternal; /*<! Pointer to the buffer */
-    size_t _values_capacity;                       /*<! Buffer size in bytes */
+    services::SharedPtr<DataType> _valuesInternal; /*<! Pointer to the values buffer. */
+    size_t _values_capacity;                       /*<! Buffer size in bytes. */
 
-    services::SharedPtr<size_t> _rowsInternal; /*<! Pointer to the buffer */
-    size_t _rows_capacity;                     /*<! Buffer size in bytes */
+    services::SharedPtr<size_t> _rowsInternal; /*<! Pointer to the row indices buffer. */
+    size_t _rows_capacity;
 
     services::SharedPtr<byte> * _pPtr;
     byte * _rawPtr;
-
-    daal::services::internal::Buffer<DataType> _valuesBuffer;
-    daal::services::internal::Buffer<size_t> _rowsBuffer;
-    daal::services::internal::Buffer<size_t> _colsBuffer;
-
-    mutable services::SharedPtr<DataType> _hostValuesSharedPtr;
-    mutable services::SharedPtr<size_t> _hostRowsSharedPtr;
-    mutable services::SharedPtr<size_t> _hostColsSharedPtr;
 };
 
 /**
@@ -633,40 +397,8 @@ public:
     DECLARE_SERIALIZABLE_IMPL()
 
     DAAL_CAST_OPERATOR(CSRNumericTable)
-    /**
-     *  Constructor for an empty CSR Numeric Table
-     *  \DAAL_DEPRECATED_USE{ CSRNumericTable::create }
-     */
-    CSRNumericTable() : NumericTable(0, 0, DictionaryIface::equal), _indexing(oneBased)
-    {
-        _layout = csrArray;
-        this->_status |= setArrays<double>(0, 0, 0); //data type doesn't matter
-    }
 
-    /**
-     *  Constructor for a Numeric Table with user-allocated memory
-     *  \tparam   DataType        Type of values in the Numeric Table
-     *  \param[in]    ptr         Array of values in the CSR layout. Let ptr_size denote the size of an array ptr
-     *  \param[in]    colIndices  Array of column indices in the CSR layout. Values of indices are determined by the index base
-     *  \param[in]    rowOffsets  Array of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
-     *                            in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
-     *  \param[in]    nColumns    Number of columns in the corresponding dense table
-     *  \param[in]    nRows       Number of rows in the corresponding dense table
-     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
-     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
-     *  \DAAL_DEPRECATED_USE{ CSRNumericTable::create }
-     */
-    template <typename DataType>
-    CSRNumericTable(DataType * const ptr, size_t * colIndices = 0, size_t * rowOffsets = 0, size_t nColumns = 0, size_t nRows = 0,
-                    CSRIndexing indexing = oneBased)
-        : NumericTable(nColumns, nRows, DictionaryIface::equal), _indexing(indexing)
-    {
-        _layout = csrArray;
-        this->_status |= setArrays<DataType>(ptr, colIndices, rowOffsets);
-
-        _defaultFeature.setType<DataType>();
-        this->_status |= _ddict->setAllFeatures(_defaultFeature);
-    }
+    friend Creator<CSRNumericTable>;
 
     /**
      *  Constructs CSR numeric table with user-allocated memory
@@ -680,7 +412,7 @@ public:
      *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
      *  \param[out]   stat        Status of the numeric table construction
      *  \return CSR numeric table with user-allocated memory
-     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
+     *  \note Present version of oneAPI Data Analytics Library supports 1-based indexing only
      */
     template <typename DataType>
     static services::SharedPtr<CSRNumericTable> create(DataType * const ptr, size_t * colIndices = 0, size_t * rowOffsets = 0, size_t nColumns = 0,
@@ -689,31 +421,6 @@ public:
         return create<DataType>(services::SharedPtr<DataType>(ptr, services::EmptyDeleter()),
                                 services::SharedPtr<size_t>(colIndices, services::EmptyDeleter()),
                                 services::SharedPtr<size_t>(rowOffsets, services::EmptyDeleter()), nColumns, nRows, indexing, stat);
-    }
-
-    /**
-     *  Constructor for a Numeric Table with user-allocated memory
-     *  \tparam   DataType        Type of values in the Numeric Table
-     *  \param[in]    ptr         Array of values in the CSR layout. Let ptr_size denote the size of an array ptr
-     *  \param[in]    colIndices  Array of column indices in the CSR layout. Values of indices are determined by the index base
-     *  \param[in]    rowOffsets  Array of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
-     *                            in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
-     *  \param[in]    nColumns    Number of columns in the corresponding dense table
-     *  \param[in]    nRows       Number of rows in the corresponding dense table
-     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
-     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
-     *  \DAAL_DEPRECATED_USE{ CSRNumericTable::create }
-     */
-    template <typename DataType>
-    CSRNumericTable(const services::SharedPtr<DataType> & ptr, const services::SharedPtr<size_t> & colIndices,
-                    const services::SharedPtr<size_t> & rowOffsets, size_t nColumns, size_t nRows, CSRIndexing indexing = oneBased)
-        : NumericTable(nColumns, nRows, DictionaryIface::equal), _indexing(indexing)
-    {
-        _layout = csrArray;
-        this->_status |= setArrays<DataType>(ptr, colIndices, rowOffsets);
-
-        _defaultFeature.setType<DataType>();
-        this->_status |= _ddict->setAllFeatures(_defaultFeature);
     }
 
     /**
@@ -728,7 +435,7 @@ public:
      *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
      *  \param[out]   stat        Status of the numeric table construction
      *  \return       CSR numeric table with user-allocated memory
-     *  \note Present version of Intel(R) oneAPI Data Analytics Library supports 1-based indexing only
+     *  \note Present version of oneAPI Data Analytics Library supports 1-based indexing only
      */
     template <typename DataType>
     static services::SharedPtr<CSRNumericTable> create(const services::SharedPtr<DataType> & ptr, const services::SharedPtr<size_t> & colIndices,
@@ -738,9 +445,15 @@ public:
         DAAL_DEFAULT_CREATE_IMPL_EX(CSRNumericTable, ptr, colIndices, rowOffsets, nColumns, nRows, indexing);
     }
 
-    virtual ~CSRNumericTable() { freeDataMemoryImpl(); }
+    /**
+     *  The call below is qualified on purpose. During the execution of this destructor the dynamic
+     *  type of the object is already CSRNumericTable ([class.cdtor]/4), so an unqualified call
+     *  would resolve to the very same function; spelling it out only keeps the destructor free of
+     *  virtual calls, which GCC 13 mis-analyzes under -O3 -flto. See setArraysImpl() for details.
+     */
+    virtual ~CSRNumericTable() { CSRNumericTable::freeDataMemoryImpl(); }
 
-    virtual services::Status resize(size_t nrows) DAAL_C11_OVERRIDE { return setNumberOfRowsImpl(nrows); }
+    services::Status resize(size_t nrows) override { return setNumberOfRowsImpl(nrows); }
 
     /**
      *  Returns  pointers to a data set stored in the CSR layout
@@ -802,19 +515,7 @@ public:
     services::Status setArrays(DataType * const ptr, size_t * colIndices, size_t * rowOffsets, CSRIndexing indexing = oneBased)
     {
         freeDataMemoryImpl();
-
-        //if( ptr == 0 || colIndices == 0 || rowOffsets == 0 ) return services::Status(services::ErrorEmptyCSRNumericTable);
-
-        _ptr        = services::SharedPtr<byte>((byte *)ptr, services::EmptyDeleter());
-        _colIndices = services::SharedPtr<size_t>(colIndices, services::EmptyDeleter());
-        _rowOffsets = services::SharedPtr<size_t>(rowOffsets, services::EmptyDeleter());
-        _indexing   = indexing;
-
-        if (ptr != 0 && colIndices != 0 && rowOffsets != 0)
-        {
-            _memStatus = userAllocated;
-        }
-        return services::Status();
+        return setArraysImpl<DataType>(ptr, colIndices, rowOffsets, indexing);
     }
 
     /**
@@ -829,74 +530,62 @@ public:
                                const services::SharedPtr<size_t> & rowOffsets, CSRIndexing indexing = oneBased)
     {
         freeDataMemoryImpl();
-
-        //if( ptr == 0 || colIndices == 0 || rowOffsets == 0 ) return services::Status(services::ErrorEmptyCSRNumericTable);
-
-        _ptr        = services::reinterpretPointerCast<byte, DataType>(ptr);
-        _colIndices = colIndices;
-        _rowOffsets = rowOffsets;
-        _indexing   = indexing;
-
-        if (ptr && colIndices && rowOffsets)
-        {
-            _memStatus = userAllocated;
-        }
-        return services::Status();
+        return setArraysImpl<DataType>(ptr, colIndices, rowOffsets, indexing);
     }
 
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<double> & block) override
     {
         return getTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<float> & block) override
     {
         return getTBlock<float>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    services::Status getBlockOfRows(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, BlockDescriptor<int> & block) override
     {
         return getTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTBlock<double>(block); }
-    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTBlock<float>(block); }
-    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTBlock<int>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<double> & block) override { return releaseTBlock<double>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<float> & block) override { return releaseTBlock<float>(block); }
+    services::Status releaseBlockOfRows(BlockDescriptor<int> & block) override { return releaseTBlock<int>(block); }
 
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
-                                            BlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+                                            BlockDescriptor<double> & block) override
     {
         return getTFeature<double>(feature_idx, vector_idx, value_num, rwflag, block);
     }
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
-                                            BlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+                                            BlockDescriptor<float> & block) override
     {
         return getTFeature<float>(feature_idx, vector_idx, value_num, rwflag, block);
     }
     services::Status getBlockOfColumnValues(size_t feature_idx, size_t vector_idx, size_t value_num, ReadWriteMode rwflag,
-                                            BlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+                                            BlockDescriptor<int> & block) override
     {
         return getTFeature<int>(feature_idx, vector_idx, value_num, rwflag, block);
     }
 
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseTFeature<double>(block); }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseTFeature<float>(block); }
-    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseTFeature<int>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<double> & block) override { return releaseTFeature<double>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<float> & block) override { return releaseTFeature<float>(block); }
+    services::Status releaseBlockOfColumnValues(BlockDescriptor<int> & block) override { return releaseTFeature<int>(block); }
 
-    services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, CSRBlockDescriptor<double> & block) DAAL_C11_OVERRIDE
+    services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, CSRBlockDescriptor<double> & block) override
     {
         return getSparseTBlock<double>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, CSRBlockDescriptor<float> & block) DAAL_C11_OVERRIDE
+    services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, CSRBlockDescriptor<float> & block) override
     {
         return getSparseTBlock<float>(vector_idx, vector_num, rwflag, block);
     }
-    services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, CSRBlockDescriptor<int> & block) DAAL_C11_OVERRIDE
+    services::Status getSparseBlock(size_t vector_idx, size_t vector_num, ReadWriteMode rwflag, CSRBlockDescriptor<int> & block) override
     {
         return getSparseTBlock<int>(vector_idx, vector_num, rwflag, block);
     }
 
-    services::Status releaseSparseBlock(CSRBlockDescriptor<double> & block) DAAL_C11_OVERRIDE { return releaseSparseTBlock<double>(block); }
-    services::Status releaseSparseBlock(CSRBlockDescriptor<float> & block) DAAL_C11_OVERRIDE { return releaseSparseTBlock<float>(block); }
-    services::Status releaseSparseBlock(CSRBlockDescriptor<int> & block) DAAL_C11_OVERRIDE { return releaseSparseTBlock<int>(block); }
+    services::Status releaseSparseBlock(CSRBlockDescriptor<double> & block) override { return releaseSparseTBlock<double>(block); }
+    services::Status releaseSparseBlock(CSRBlockDescriptor<float> & block) override { return releaseSparseTBlock<float>(block); }
+    services::Status releaseSparseBlock(CSRBlockDescriptor<int> & block) override { return releaseSparseTBlock<int>(block); }
 
     /**
      *  Allocates memory for a data set
@@ -940,7 +629,7 @@ public:
     /**
      * \copydoc NumericTableIface::check
      */
-    virtual services::Status check(const char * description, bool checkDataAllocation = true) const DAAL_C11_OVERRIDE
+    services::Status check(const char * description, bool checkDataAllocation = true) const override
     {
         services::Status s;
         DAAL_CHECK_STATUS(s, data_management::NumericTable::check(description, checkDataAllocation));
@@ -961,24 +650,133 @@ protected:
     services::SharedPtr<size_t> _colIndices;
     services::SharedPtr<size_t> _rowOffsets;
 
+    /**
+     *  Stores the pointers to a CSR data set without releasing the previously stored ones.
+     *  Non-virtual and safe to call from a constructor body, unlike setArrays(), which starts
+     *  with a virtual freeDataMemoryImpl() call. The constructors below have nothing to release
+     *  (all three arrays are default-constructed and _memStatus is notAllocated at that point),
+     *  so they use this method directly.
+     *
+     *  This also keeps the constructors free of virtual calls, which GCC 13 mis-analyzes under
+     *  -O3 -flto: walking back from the call it takes the dynamic type from the inlined
+     *  NumericTable base constructor, concludes that a CSRNumericTable vtable slot has no
+     *  possible target, and replaces the call with __builtin_unreachable, deleting the rest of
+     *  the construction.
+     */
+    template <typename DataType>
+    services::Status setArraysImpl(DataType * const ptr, size_t * colIndices, size_t * rowOffsets, CSRIndexing indexing)
+    {
+        //if( ptr == 0 || colIndices == 0 || rowOffsets == 0 ) return services::Status(services::ErrorEmptyCSRNumericTable);
+
+        _ptr        = services::SharedPtr<byte>((byte *)ptr, services::EmptyDeleter());
+        _colIndices = services::SharedPtr<size_t>(colIndices, services::EmptyDeleter());
+        _rowOffsets = services::SharedPtr<size_t>(rowOffsets, services::EmptyDeleter());
+        _indexing   = indexing;
+
+        if (ptr != 0 && colIndices != 0 && rowOffsets != 0)
+        {
+            _memStatus = userAllocated;
+        }
+        return services::Status();
+    }
+
+    /**
+     *  Stores the pointers to a CSR data set without releasing the previously stored ones.
+     *  See the overload above.
+     */
+    template <typename DataType>
+    services::Status setArraysImpl(const services::SharedPtr<DataType> & ptr, const services::SharedPtr<size_t> & colIndices,
+                                   const services::SharedPtr<size_t> & rowOffsets, CSRIndexing indexing)
+    {
+        //if( ptr == 0 || colIndices == 0 || rowOffsets == 0 ) return services::Status(services::ErrorEmptyCSRNumericTable);
+
+        _ptr        = services::reinterpretPointerCast<byte, DataType>(ptr);
+        _colIndices = colIndices;
+        _rowOffsets = rowOffsets;
+        _indexing   = indexing;
+
+        if (ptr && colIndices && rowOffsets)
+        {
+            _memStatus = userAllocated;
+        }
+        return services::Status();
+    }
+
     template <typename DataType>
     CSRNumericTable(const services::SharedPtr<DataType> & ptr, const services::SharedPtr<size_t> & colIndices,
                     const services::SharedPtr<size_t> & rowOffsets, size_t nColumns, size_t nRows, CSRIndexing indexing, services::Status & st)
-        : NumericTable(nColumns, nRows, DictionaryIface::equal, st), _indexing(indexing)
+        : NumericTable(nColumns, nRows, DictionaryIface::equal, st)
     {
         _layout = csrArray;
-        st |= setArrays<DataType>(ptr, colIndices, rowOffsets);
+        st |= setArraysImpl<DataType>(ptr, colIndices, rowOffsets, indexing);
 
         _defaultFeature.setType<DataType>();
         st |= _ddict->setAllFeatures(_defaultFeature);
     }
 
-    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) DAAL_C11_OVERRIDE
+    /**
+     *  Constructor for a Numeric Table with user-allocated memory
+     *  \tparam   DataType        Type of values in the Numeric Table
+     *  \param[in]    ptr         Array of values in the CSR layout. Let ptr_size denote the size of an array ptr
+     *  \param[in]    colIndices  Array of column indices in the CSR layout. Values of indices are determined by the index base
+     *  \param[in]    rowOffsets  Array of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
+     *                            in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
+     *  \param[in]    nColumns    Number of columns in the corresponding dense table
+     *  \param[in]    nRows       Number of rows in the corresponding dense table
+     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
+     *  \note Present version of oneAPI Data Analytics Library supports 1-based indexing only
+     */
+    template <typename DataType>
+    CSRNumericTable(const services::SharedPtr<DataType> & ptr, const services::SharedPtr<size_t> & colIndices,
+                    const services::SharedPtr<size_t> & rowOffsets, size_t nColumns, size_t nRows, CSRIndexing indexing = oneBased)
+        : NumericTable(nColumns, nRows, DictionaryIface::equal)
+    {
+        _layout = csrArray;
+        this->_status |= setArraysImpl<DataType>(ptr, colIndices, rowOffsets, indexing);
+
+        _defaultFeature.setType<DataType>();
+        this->_status |= _ddict->setAllFeatures(_defaultFeature);
+    }
+
+    /**
+     *  Constructor for an empty CSR Numeric Table
+     */
+    CSRNumericTable() : NumericTable(0, 0, DictionaryIface::equal)
+    {
+        _layout = csrArray;
+        this->_status |= setArraysImpl<double>(0, 0, 0, oneBased); //data type doesn't matter
+    }
+
+    /**
+     *  Constructor for a Numeric Table with user-allocated memory
+     *  \tparam   DataType        Type of values in the Numeric Table
+     *  \param[in]    ptr         Array of values in the CSR layout. Let ptr_size denote the size of an array ptr
+     *  \param[in]    colIndices  Array of column indices in the CSR layout. Values of indices are determined by the index base
+     *  \param[in]    rowOffsets  Array of row indices in the CSR layout. Size of the array is nrow+1. The first element is 0/1
+     *                            in zero-/one-based indexing. The last element is ptr_size+0/1 in zero-/one-based indexing
+     *  \param[in]    nColumns    Number of columns in the corresponding dense table
+     *  \param[in]    nRows       Number of rows in the corresponding dense table
+     *  \param[in]    indexing    Indexing scheme used to access data in the CSR layout
+     *  \note Present version of oneAPI Data Analytics Library supports 1-based indexing only
+     */
+    template <typename DataType>
+    CSRNumericTable(DataType * const ptr, size_t * colIndices = 0, size_t * rowOffsets = 0, size_t nColumns = 0, size_t nRows = 0,
+                    CSRIndexing indexing = oneBased)
+        : NumericTable(nColumns, nRows, DictionaryIface::equal)
+    {
+        _layout = csrArray;
+        this->_status |= setArraysImpl<DataType>(ptr, colIndices, rowOffsets, indexing);
+
+        _defaultFeature.setType<DataType>();
+        this->_status |= _ddict->setAllFeatures(_defaultFeature);
+    }
+
+    services::Status allocateDataMemoryImpl(daal::MemType /*type*/ = daal::dram) override
     {
         return services::Status(services::ErrorMethodNotSupported);
     }
 
-    void freeDataMemoryImpl() DAAL_C11_OVERRIDE
+    void freeDataMemoryImpl() override
     {
         _ptr        = services::SharedPtr<byte>();
         _colIndices = services::SharedPtr<size_t>();
@@ -1021,7 +819,7 @@ protected:
     }
 
 public:
-    size_t getDataSize() DAAL_C11_OVERRIDE
+    size_t getDataSize() override
     {
         size_t nobs = getNumberOfRows();
         if (nobs > 0)
@@ -1052,9 +850,9 @@ protected:
         const NumericTableFeature & f = (*_ddict)[0];
         const int indexType           = f.indexType;
 
-        T * buffer;
-        T * castingBuffer;
-        T * location = (T *)(_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
+        T * buffer        = nullptr;
+        T * castingBuffer = nullptr;
+        T * location      = (T *)(_ptr.get() + (rowOffsets[idx] - 1) * f.typeSize);
 
         if (features::internal::getIndexNumType<T>() == indexType)
         {
@@ -1256,7 +1054,7 @@ protected:
         return services::Status();
     }
 
-    virtual services::Status setNumberOfColumnsImpl(size_t ncol) DAAL_C11_OVERRIDE
+    services::Status setNumberOfColumnsImpl(size_t ncol) override
     {
         _ddict->setNumberOfFeatures(ncol);
         _ddict->setAllFeatures(_defaultFeature);

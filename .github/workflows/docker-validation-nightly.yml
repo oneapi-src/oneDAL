@@ -1,3 +1,19 @@
+#===============================================================================
+# Copyright Contributors to the oneDAL Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
+
 name: docker-validation Nightly
 
 on:
@@ -34,10 +50,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Free disk space on runner
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+
+      - name: Docker cleanup before build
+        run: |
+          docker system prune -af
+          docker builder prune -af
+
       - name: Build docker image
         run: docker build . --file dev/docker/onedal-dev.Dockerfile --tag onedal-dev:latest
-      - name: Building oneDAL
-        run: docker run onedal-dev .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
+
+      - name: Building oneDAL (make)
+        run: |
+          docker run onedal-dev .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
+
       - name: Building oneDAL with bazel
-        run: docker run onedal-dev bazel build :release
+        run: |
+          mkdir -p ${{ github.workspace }}/bazel-cache
+
+          docker run \
+            -v ${{ github.workspace }}/bazel-cache:/root/.cache/bazel-disk \
+            onedal-dev sh -c "
+              # Use external disk cache
+              echo 'build --disk_cache=/root/.cache/bazel-disk' >> ~/.bazelrc
+              # In CI we build for avx2 only (override default "all" ISA release build).
+              # For a full release with all ISA variants, omit --cpu or use --cpu=all.
+              # The docker validation image does not provide icpx, so keep DPC++ disabled here.
+              bazel build :release --cpu=avx2 --release_dpc=false
+            "

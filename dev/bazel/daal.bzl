@@ -30,22 +30,29 @@ load("@onedal//dev/bazel/config:config.bzl",
 
 def daal_module(name, features=[], lib_tag="daal",
                 hdrs=[], srcs=[], auto=False,
-                local_defines=[], **kwargs):
+                local_defines=[], copts=[], visibility_hidden=True,
+                stdalloc=True, **kwargs):
     if auto:
-        auto_hdrs = native.glob(["**/*.h", "**/*.i"])
-        auto_srcs = native.glob(["**/*.cpp"])
+        auto_hdrs = native.glob(["**/*.h", "**/*.i"], allow_empty=True,)
+        auto_srcs = native.glob(["**/*.cpp"], allow_empty=True,)
     else:
         auto_hdrs = []
         auto_srcs = []
+    deps = kwargs.pop("deps", []) + select({
+        "@config//:stdalloc_enabled": [],
+        "@config//:stdalloc_disabled": [],
+        "//conditions:default": ["@config//:stdalloc_non_linux_error"],
+    })
     cc_module(
         name = name,
         lib_tag = lib_tag,
-        features = [ "c++11" ] + features,
+        features = [ "c++17" ] + features,
         cpu_defines = {
-            "sse2":       [ "DAAL_CPU=sse2"       ],
-            "sse42":      [ "DAAL_CPU=sse42"      ],
+            "sse2":       [ "DAAL_CPU=sse2"      ],
             "avx2":       [ "DAAL_CPU=avx2"       ],
             "avx512":     [ "DAAL_CPU=avx512"     ],
+            "sve":        [ "DAAL_CPU=sve"        ],
+            "rv64":       [ "DAAL_CPU=rv64"        ],
         },
         fpt_defines = {
             "f32": [ "DAAL_FPTYPE=float"  ],
@@ -53,14 +60,33 @@ def daal_module(name, features=[], lib_tag="daal",
         },
         hdrs = auto_hdrs + hdrs,
         srcs = auto_srcs + srcs,
-        local_defines = local_defines + select({
-            "@config//:assert_enabled": [
-                "DEBUG_ASSERT=1",
+        deps = deps,
+        copts = copts + (select({
+            "@platforms//os:windows": ["/utf-8"],
+            "//conditions:default": ["-fvisibility=hidden", "-fvisibility-inlines-hidden"],
+        }) if visibility_hidden else select({
+            "@platforms//os:windows": ["/utf-8"],
+            "//conditions:default": [],
+        })),
+        local_defines = select({
+            "@config//:assert_enabled": local_defines + ["__DAAL_IMPLEMENTATION", "DEBUG_ASSERT=1"],
+            "//conditions:default": local_defines + ["__DAAL_IMPLEMENTATION"],
+        }) + (select({
+            "@config//:stdalloc_enabled": ["USE_STD_ALLOC"],
+            "//conditions:default": [],
+        }) if stdalloc else []) + select({
+            "@config//:backend_ref": [
+                "DAAL_REF",
             ],
             "//conditions:default": [],
         }) + select({
-            "@config//:backend_ref": [
-                "DAAL_REF",
+            # Matches dev/make/deps.ref.mk RNG_OPENRNG: swaps the ref RNG's
+            # <random>-based shim for the OpenRNG (VSL-ABI-compatible)
+            # backend in src/externals/service_rng_ref.h. Gated on the ref
+            # backend as well, since that shim is the only consumer of this
+            # define and it is not compiled in an MKL build.
+            "@config//:rng_backend_openrng_ref": [
+                "OPENRNG_BACKEND",
             ],
             "//conditions:default": [],
         }),
@@ -74,10 +100,26 @@ def daal_static_lib(name, lib_tags=["daal"], **kwargs):
         **kwargs,
     )
 
-def daal_dynamic_lib(name, lib_tags=["daal"], **kwargs):
+_MKL_EXCLUDE_LIBS_FLAGS = select({
+    # Hide MKL static symbols from the dynamic lib's export table.
+    # --exclude-libs hides all symbols from the named archive, ensuring that
+    # MKL objects embedded via --whole-archive are not re-exported.
+    # This matches Make's behaviour (see dev/make/deps.mk MKL linkage).
+    # GNU ld only; not supported on Windows (MSVC) or macOS (Apple ld).
+    "@config//:backend_config_mkl_linux": [
+        "-Wl,--exclude-libs=libmkl_tbb_thread.a",
+        "-Wl,--exclude-libs=libmkl_core.a",
+        "-Wl,--exclude-libs=libmkl_intel_ilp64.a",
+    ],
+    "//conditions:default": [],
+})
+
+def daal_dynamic_lib(name, lib_tags=["daal", "mkl_embed"], **kwargs):
+    linkopts = kwargs.pop("linkopts", [])
     cc_dynamic_lib(
         name = name,
         lib_tags = lib_tags,
+        linkopts = linkopts + _MKL_EXCLUDE_LIBS_FLAGS,
         **kwargs,
     )
 
@@ -120,10 +162,6 @@ daal_generate_version = rule(
     },
 )
 
-def _get_tool_for_kernel_defines_patching(ctx):
-    return ctx.toolchains["@onedal//dev/bazel/toolchains:extra"] \
-        .extra_toolchain_info.patch_daal_kernel_defines
-
 def _get_disabled_cpus(ctx):
     cpu_info = ctx.attr._cpus[CpuInfo]
     all_cpus = sets.make(cpu_info.allowed)
@@ -136,17 +174,39 @@ def _declare_patched_kernel_defines(ctx):
     return ctx.actions.declare_file(patched_path)
 
 def _daal_patch_kernel_defines_impl(ctx):
-    disabled_cpus = _get_disabled_cpus(ctx)
+    """Comment out the `DAAL_KERNEL_<ISA>` defines of the disabled ISAs.
+
+    `cpp/daal/include/services/internal/daal_kernel_defines.h` enables every
+    CPU dispatch variant oneDAL can build; the ones `--cpu` leaves out have to
+    be removed from the header before it is compiled or released. The Makefile
+    does it with
+
+        sed -b -i -E -e 's/^#define DAAL_KERNEL_<ISA>\\b/$(sed.eol)/'
+
+    where `sed.eol` is empty on Linux and a lone CR on Windows, so that a
+    disabled define leaves behind an empty line with the platform's own line
+    ending while every other line is untouched. `expand_template` does exactly
+    that substitution, without a helper script: it rewrites the file at
+    execution time, so nothing has to read its contents during analysis.
+
+    The key spans the whole line, newlines included, so that it matches only a
+    bare `#define DAAL_KERNEL_<ISA>` like sed's `^...\\b` and never a longer
+    macro name or a comment. The header is `eol=lf` (see `.gitattributes`) and
+    no define sits on its first line. Each substitution keeps the trailing
+    newline, so adjacent disabled defines still match one after another.
+    """
+    disabled_cpus = sets.to_list(_get_disabled_cpus(ctx))
     kernel_defines = _declare_patched_kernel_defines(ctx)
-    ctx.actions.run(
-        executable = _get_tool_for_kernel_defines_patching(ctx),
-        arguments = [
-            ctx.file.src.path,
-            kernel_defines.path,
-            " ".join(sets.to_list(disabled_cpus)),
-        ],
-        inputs = [ctx.file.src],
-        outputs = [kernel_defines],
+    is_windows = ctx.target_platform_has_constraint(
+        ctx.attr._windows_constraint[platform_common.ConstraintValueInfo],
+    )
+    ctx.actions.expand_template(
+        template = ctx.file.src,
+        output = kernel_defines,
+        substitutions = {
+            "\n#define DAAL_KERNEL_{}\n".format(cpu.upper()): "\n\r\n" if is_windows else "\n\n"
+            for cpu in disabled_cpus
+        },
     )
     return [ DefaultInfo(files=depset([ kernel_defines ])) ]
 
@@ -158,6 +218,8 @@ daal_patch_kernel_defines = rule(
         "_cpus": attr.label(
             default = "@config//:cpu",
         ),
+        "_windows_constraint": attr.label(
+            default = "@platforms//os:windows",
+        ),
     },
-    toolchains = ["@onedal//dev/bazel/toolchains:extra"],
 )

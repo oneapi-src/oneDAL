@@ -36,16 +36,22 @@
     #include <random>
 
     // RNGs
-    #define __DAAL_BRNG_MT2203  (1 << 20) * 9 //VSL_BRNG_MT2203
-    #define __DAAL_BRNG_MT19937 (1 << 20) * 8 //VSL_BRNG_MT19937
-    #define __DAAL_BRNG_MCG59   (1 << 20) * 4 //VSL_BRNG_MCG59
+    #define __DAAL_BRNG_MT2203        (1 << 20) * 9  //VSL_BRNG_MT2203
+    #define __DAAL_BRNG_MT19937       (1 << 20) * 8  //VSL_BRNG_MT19937
+    #define __DAAL_BRNG_MCG59         (1 << 20) * 4  //VSL_BRNG_MCG59
+    #define __DAAL_BRNG_MRG32K3A      (1 << 20) * 3  //VSL_BRNG_MRG32K3A
+    #define __DAAL_BRNG_PHILOX4X32X10 (1 << 20) * 16 //VSL_BRNG_PHILOX4X32X10
 
     #define __DAAL_RNG_METHOD_UNIFORM_STD         0 //VSL_RNG_METHOD_UNIFORM_STD
     #define __DAAL_RNG_METHOD_UNIFORMBITS32_STD   4
-    #define __DAAL_RNG_METHOD_BERNOULLI_ICDF      0 //VSL_RNG_METHOD_BERNOULLI_ICDF
-    #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER  0 //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER
-    #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER2 1 //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER2
-    #define __DAAL_RNG_METHOD_GAUSSIAN_ICDF       2 //VSL_RNG_METHOD_GAUSSIAN_ICDF
+    #define __DAAL_RNG_METHOD_BERNOULLI_ICDF      0     //VSL_RNG_METHOD_BERNOULLI_ICDF
+    #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER  0     //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER
+    #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER2 1     //VSL_RNG_METHOD_GAUSSIAN_BOXMULLER2
+    #define __DAAL_RNG_METHOD_GAUSSIAN_ICDF       2     //VSL_RNG_METHOD_GAUSSIAN_ICDF
+
+    // Errors
+    #define __DAAL_LEAPFROG_METHOD_ERRCODE        -1002 // VSL_RNG_ERROR_LEAPFROG_UNSUPPORTED
+    #define __DAAL_SKIP_AHEAD_METHOD_ERRCODE      -1003 // VSL_RNG_ERROR_SKIPAHEAD_UNSUPPORTED
 
 namespace daal
 {
@@ -62,24 +68,24 @@ class StateIface
 {
 public:
     virtual ~StateIface() {}
-    virtual int uniformRNG(const size_t n, size_t * r, const size_t a, const size_t b, const int method) = 0;
-    virtual int uniformRNG(const size_t n, int * r, const int a, const int b, const int method) = 0;
-    virtual int uniformRNG(const size_t n, float * r, const float a, const float b, const int method) = 0;
-    virtual int uniformRNG(const size_t n, double * r, const double a, const double b, const int method) = 0;
-    virtual int gaussianRNG(const size_t n, float * r, const float a, const float sigma, const int method) = 0;
+    virtual int uniformRNG(const size_t n, size_t * r, const size_t a, const size_t b, const int method)      = 0;
+    virtual int uniformRNG(const size_t n, int * r, const int a, const int b, const int method)               = 0;
+    virtual int uniformRNG(const size_t n, float * r, const float a, const float b, const int method)         = 0;
+    virtual int uniformRNG(const size_t n, double * r, const double a, const double b, const int method)      = 0;
+    virtual int gaussianRNG(const size_t n, float * r, const float a, const float sigma, const int method)    = 0;
     virtual int gaussianRNG(const size_t n, double * r, const double a, const double sigma, const int method) = 0;
-    virtual int bernoulliRNG(const size_t n, int * r, const double p, const int method) = 0;
-    virtual int getSize() = 0;
-    virtual void clone(void * dest) const = 0;
-    virtual StateIface * clone() const = 0;
-    virtual void assign(const void * src) = 0;
-    virtual void discard(size_t nSkip) = 0;
+    virtual int bernoulliRNG(const size_t n, int * r, const double p, const int method)                       = 0;
+    virtual int getSize()                                                                                     = 0;
+    virtual void clone(void * dest) const                                                                     = 0;
+    virtual StateIface * clone() const                                                                        = 0;
+    virtual void assign(const void * src)                                                                     = 0;
+    virtual void discard(size_t nSkip)                                                                        = 0;
 };
 
 template <typename Gen = std::mt19937>
 class State : public StateIface
 {
-    using ThisType = State<Gen>;
+    using ThisType                       = State<Gen>;
     static constexpr unsigned int elSize = sizeof(unsigned int);
 
 public:
@@ -131,20 +137,20 @@ public:
     int getSize() final { return sizeof(ThisType); }
     void clone(void * dest) const final
     {
-        State * destState = static_cast<State *>(dest);
+        State * destState    = static_cast<State *>(dest);
         destState->_seedSize = _seedSize;
-        destState->_brngId = _brngId;
-        destState->_nSkip = _nSkip;
-        destState->_seed = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * destState->_seedSize);
+        destState->_brngId   = _brngId;
+        destState->_nSkip    = _nSkip;
+        destState->_seed     = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * destState->_seedSize);
         daal::services::daal_memcpy_s(destState->_seed, destState->_seedSize * elSize, _seed, _seedSize * elSize);
     }
     StateIface * clone() const final { return new ThisType(*this); }
     void assign(const void * src) final
     {
         const State * srcState = static_cast<const State *>(src);
-        _seedSize = srcState->_seedSize;
-        _brngId = srcState->_brngId;
-        _nSkip = srcState->_nSkip;
+        _seedSize              = srcState->_seedSize;
+        _brngId                = srcState->_brngId;
+        _nSkip                 = srcState->_nSkip;
         if (_seed)
         {
             daal::services::daal_free((void *)_seed);

@@ -24,13 +24,25 @@ CMPLRDIRSUFF.vc = _vc
 
 CORE.SERV.COMPILER.vc = generic
 
+OPTFLAGS_SUPPORTED := O1 O2 Ob Od Oi Os Ot Ox Oy
+
+ifneq (,$(filter $(OPTFLAG),$(OPTFLAGS_SUPPORTED)))
+else
+    $(error Invalid OPTFLAG '$(OPTFLAG)' for $(COMPILER). Supported: $(OPTFLAGS_SUPPORTED))
+endif
+
+-optlevel.vc = -$(OPTFLAG)
 -Zl.vc = -Zl
 -DEBC.vc = -DEBUG -Z7
 
-# Disable C4661 because of false positives
-COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX
+-asanstatic.vc =
+-asanshared.vc =
 
-link.dynamic.win.vc = /DEPENDENTLOADFLAG:0x2000
+# Disable C4661 because of false positives
+COMPILER.win.vc = cl $(if $(MSVC_RT_is_release),-MD, -MDd) -nologo -EHsc -wd4661 -WX ${CXXFLAGS}
+
+link.dynamic.win.vc = link /DEPENDENTLOADFLAG:0x2000 ${LDFLAGS}
+link.static.win.vc = lib
 
 p4_OPT.vc   =
 mc3_OPT.vc  =

@@ -34,15 +34,14 @@ struct graph_matching_ops_dispatcher {
     graph_matching_result<task_t> operator()(const Policy &policy,
                                              const Descriptor &descriptor,
                                              graph_matching_input<Graph, task_t> &input) const {
-        const auto &csr_target_topology =
-            dal::preview::detail::csr_topology_builder<Graph>()(input.get_target_graph());
-        const auto &csr_pattern_topology =
-            dal::preview::detail::csr_topology_builder<Graph>()(input.get_pattern_graph());
+        auto topology_builder = dal::preview::detail::csr_topology_builder<Graph>();
+        const auto &csr_target_topology = topology_builder(input.get_target_graph());
+        const auto &csr_pattern_topology = topology_builder(input.get_pattern_graph());
         const auto &vv_t = dal::detail::get_impl(input.get_target_graph()).get_vertex_values();
         const auto &ev_t = dal::detail::get_impl(input.get_target_graph()).get_edge_values();
-
         const auto &vv_p = dal::detail::get_impl(input.get_pattern_graph()).get_vertex_values();
         const auto &ev_p = dal::detail::get_impl(input.get_pattern_graph()).get_edge_values();
+
         static auto impl =
             get_backend<Policy>(descriptor, csr_target_topology, csr_pattern_topology, vv_t, ev_t);
 
@@ -66,7 +65,6 @@ struct graph_matching_ops {
     using graph_t = Graph;
     using input_t = graph_matching_input<graph_t, task_t>;
     using result_t = graph_matching_result<task_t>;
-    using descriptor_base_t = descriptor_base<task_t>;
 
     void check_preconditions(const Descriptor &desc, input_t &input) const {
         using msg = dal::detail::error_messages;

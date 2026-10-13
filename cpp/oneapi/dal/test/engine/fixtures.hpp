@@ -35,6 +35,16 @@ public:
     }
 #endif
 
+    table get_device_table(const dataframe& df, const table_id& id) {
+        // If test is running in data parallel mode, then the table should be created on device
+        // Otherwise, the table should be created on host
+#ifdef ONEDAL_DATA_PARALLEL
+        return df.get_table(this->get_policy(), id, sycl::usm::alloc::device);
+#else
+        return df.get_table(this->get_policy(), id);
+#endif
+    }
+
 private:
     DECLARE_TEST_POLICY(policy_);
 };
@@ -44,6 +54,14 @@ public:
     template <typename... Args>
     auto train(Args&&... args) {
         return oneapi::dal::test::engine::train(get_policy(), std::forward<Args>(args)...);
+    }
+
+    template <class Descriptor, class Parameters, typename... Args>
+    auto train_with_parameters(Parameters params, Descriptor descriptor, Args&&... args) {
+        return oneapi::dal::test::engine::train(get_policy(),
+                                                descriptor,
+                                                params,
+                                                std::forward<Args>(args)...);
     }
 
     template <typename... Args>
@@ -71,6 +89,14 @@ public:
     template <typename... Args>
     auto partial_train(Args&&... args) {
         return oneapi::dal::test::engine::partial_train(get_policy(), std::forward<Args>(args)...);
+    }
+
+    template <class Descriptor, class Parameters, typename... Args>
+    auto partial_train_with_parameters(Parameters params, Descriptor descriptor, Args&&... args) {
+        return oneapi::dal::test::engine::partial_train(get_policy(),
+                                                        descriptor,
+                                                        params,
+                                                        std::forward<Args>(args)...);
     }
 
     template <typename... Args>

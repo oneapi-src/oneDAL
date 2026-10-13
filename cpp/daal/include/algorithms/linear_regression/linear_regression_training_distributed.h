@@ -50,48 +50,6 @@ namespace interface1
  * @{
  */
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__LINEAR_REGRESSION__TRAINING__DISTRIBUTEDCONTAINER"></a>
- * \brief Class containing methods for linear regression model-based training in the distributed processing mode
- */
-template <ComputeStep step, typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer
-{};
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__LINEAR_REGRESSION__TRAINING__DISTRIBUTEDCONTAINER_STEP2MASTER_ALGORITHMFPTYPE_METHOD_CPU"></a>
- * \brief Class containing methods for linear regression model-based training
- * in the second step of the distributed processing mode
- */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class DistributedContainer<step2Master, algorithmFPType, method, cpu> : public TrainingContainerIface<distributed>
-{
-public:
-    /**
-     * Constructs a container for linear regression model-based training with a specified environment
-     * in the distributed processing mode
-     * \param[in] daalEnv   Environment object
-     */
-    DistributedContainer(daal::services::Environment::env * daalEnv);
-    /** Default destructor */
-    ~DistributedContainer();
-
-    /**
-     * Computes a partial result of linear regression model-based training
-     * in the second step of the distributed processing mode
-     *
-     * \return Status of computations
-     */
-    services::Status compute() DAAL_C11_OVERRIDE;
-    /**
-     * Computes the result of linear regression model-based training
-     * in the second step of the distributed processing mode
-     *
-     * \return Status of computations
-     */
-    services::Status finalizeCompute() DAAL_C11_OVERRIDE;
-};
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__LINEAR_REGRESSION__TRAINING__DISTRIBUTED"></a>
  * \brief Provides methods for linear regression model-based training in the distributed processing mode
  * <!-- \n<a href="DAAL-REF-LINEARREGRESSION-ALGORITHM">Linear regression algorithm description and usage models</a> -->
@@ -111,7 +69,7 @@ public:
  *      - \ref prediction::interface1::Batch "prediction::Batch" class
  */
 template <ComputeStep step, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = normEqDense>
-class Distributed : public Training<distributed>
+class DAAL_EXPORT Distributed : public Training<distributed>
 {};
 
 /**
@@ -145,7 +103,7 @@ public:
     typedef typename super::PartialResultType PartialResultType;
 
     /** Default constructor */
-    Distributed<step1Local, algorithmFPType, method>() {}
+    Distributed() {}
 
     /**
      * Constructs a linear regression training algorithm in the first step of the distributed processing mode
@@ -167,7 +125,7 @@ public:
     }
 
 protected:
-    virtual Distributed<step1Local, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
+    Distributed<step1Local, algorithmFPType, method> * cloneImpl() const override
     {
         return new Distributed<step1Local, algorithmFPType, method>(*this);
     }
@@ -203,7 +161,7 @@ public:
     typedef algorithms::linear_regression::training::PartialResult PartialResultType;
 
     /** Default constructor */
-    Distributed() { initialize(); }
+    Distributed();
 
     /**
      * Constructs a linear regression training algorithm in the second step of the distributed processing mode
@@ -211,19 +169,14 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Distributed(const Distributed<step2Master, algorithmFPType, method> & other) : parameter(other.parameter)
-    {
-        initialize();
-        input.set(partialModels, other.input.get(partialModels));
-    }
-
+    Distributed(const Distributed<step2Master, algorithmFPType, method> & other);
     ~Distributed() {}
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    int getMethod() const override { return (int)method; }
 
     /**
      * Registers user-allocated memory to store a partial result of linear regression model-based training
@@ -285,42 +238,34 @@ protected:
     PartialResultPtr _partialResult;
     ResultPtr _result;
 
-    virtual Distributed<step2Master, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
+    Distributed<step2Master, algorithmFPType, method> * cloneImpl() const override
     {
         return new Distributed<step2Master, algorithmFPType, method>(*this);
     }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         services::Status s = _result->allocate<algorithmFPType>(_pres, &parameter, method);
         _res               = _result.get();
         return s;
     }
 
-    services::Status allocatePartialResult() DAAL_C11_OVERRIDE
+    services::Status allocatePartialResult() override
     {
         services::Status s = _partialResult->allocate<algorithmFPType>(&input, &parameter, method);
         _pres              = _partialResult.get();
         return s;
     }
 
-    services::Status initializePartialResult() DAAL_C11_OVERRIDE { return services::Status(); }
+    services::Status initializePartialResult() override { return services::Status(); }
 
-    void initialize()
-    {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, DistributedContainer, step2Master, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
-        _partialResult.reset(new PartialResultType());
-        _result.reset(new ResultType());
-    }
+    void initialize();
 
 private:
     Distributed & operator=(const Distributed &);
 }; // class  : public Training
 /** @} */
 } // namespace interface1
-using interface1::DistributedContainer;
 using interface1::Distributed;
 
 } // namespace training

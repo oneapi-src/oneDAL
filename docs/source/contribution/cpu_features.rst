@@ -29,7 +29,6 @@ For each algorithm |short_name| provides several code paths for x86-64-compatibl
 Following extensions are currently supported:
 
 - Intel\ |reg|\  Streaming SIMD Extensions 2 (Intel\ |reg|\  SSE2)
-- Intel\ |reg|\  Streaming SIMD Extensions 4.2 (Intel\ |reg|\  SSE4.2)
 - Intel\ |reg|\  Advanced Vector Extensions 2 (Intel\ |reg|\  AVX2)
 - Intel\ |reg|\  Advanced Vector Extensions 512 (Intel\ |reg|\  AVX-512)
 
@@ -157,7 +156,7 @@ These files contain the definitions of one or several template classes that defi
 do the actual computations. Here is a variant of the ``Abc`` training algorithm kernel definition in the file
 `abc_classification_train_kernel.h`:
 
-.. include:: ../includes/cpu_features/abc-classification-train-kernel.rst
+.. include:: ../includes/cpu-features/abc-classification-train-kernel.rst
 
 Typical template parameters are:
 
@@ -176,11 +175,11 @@ These files contain the implementations of the computational functions defined i
 Here is a variant of ``method1`` implementation for ``Abc`` training algorithm that does not contain any
 instruction set specific code. The implementation is located in the file `abc_classification_train_method1_impl.i`:
 
-.. include:: ../includes/cpu_features/abc-classification-train-method1-impl.rst
+.. include:: ../includes/cpu-features/abc-classification-train-method1-impl.rst
 
 Although the implementation of the ``method1`` does not contain any instruction set specific code, it is
 expected that the developers leverage SIMD related macros available in |short_name|.
-For example, ``PRAGMA_IVDEP``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and other pragmas defined in
+For example, ``PRAGMA_FORCE_SIMD``, ``PRAGMA_VECTOR_ALWAYS``, ``PRAGMA_VECTOR_ALIGNED`` and other pragmas defined in
 `service_defines.h <https://github.com/uxlfoundation/oneDAL/blob/main/cpp/daal/src/services/service_defines.h>`_.
 This will guide the compiler to generate more efficient code for the target architecture.
 
@@ -193,7 +192,7 @@ For example, the AVX-512 specific code should be gated on the value ``__CPUID__(
 
 Then the implementation of the ``method2`` in the file `abc_classification_train_method2_impl.i` will look like:
 
-.. include:: ../includes/cpu_features/abc-classification-train-method2-impl.rst
+.. include:: ../includes/cpu-features/abc-classification-train-method2-impl.rst
 
 \*_fpt_cpu.cpp
 --------------
@@ -203,7 +202,7 @@ These files contain the instantiations of the template classes defined in the fi
 The instantiation of the ``Abc`` training algorithm kernel for ``method1`` is located in the file
 `abc_classification_train_method1_batch_fpt_cpu.cpp`:
 
-.. include:: ../includes/cpu_features/abc-classification-train-method1-fpt-cpu.rst
+.. include:: ../includes/cpu-features/abc-classification-train-method1-fpt-cpu.rst
 
 `_fpt_cpu.cpp` files are not compiled directly into object files. First, multiple copies of those files
 are made replacing the ``fpt``, which stands for 'floating point type', and ``cpu`` parts of the file name
@@ -220,14 +219,12 @@ The values for ``DAAL_FPTYPE`` macro replacement are ``float`` and ``double``, r
 The values for ``cpu`` file name part replacement are:
 
 - ``nrh`` for Intel\ |reg|\  SSE2 architecture, which stands for Northwood,
-- ``neh`` for Intel\ |reg|\  SSE4.2 architecture, which stands for Nehalem,
 - ``hsw`` for Intel\ |reg|\  AVX2 architecture, which stands for Haswell,
 - ``skx`` for Intel\ |reg|\  AVX-512 architecture, which stands for Skylake-X.
 
 The values for ``DAAL_CPU`` macro replacement are:
 
 - ``__sse2__`` for Intel\ |reg|\  SSE2 architecture,
-- ``__sse42__`` for Intel\ |reg|\  SSE4.2 architecture,
 - ``__avx2__`` for Intel\ |reg|\  AVX2 architecture,
 - ``__avx512__`` for Intel\ |reg|\  AVX-512 architecture.
 
@@ -278,8 +275,10 @@ file contains the compiler options for the GNU compiler for x86-64 architecture 
 Bazel
 -----
 
-For now, Bazel build is supported only for Linux x86-64 platform
-It provides ``cpu`` `option <https://github.com/uxlfoundation/oneDAL/tree/main/dev/bazel#bazel-options>`_
+Bazel build supports Linux x86-64 and regular CPU builds with the MSVC
+compiler on Windows x86-64. ICX and DPC++/SYCL Bazel support on Windows are
+tracked separately and are not enabled yet. Bazel provides the ``cpu``
+`option <https://github.com/uxlfoundation/oneDAL/tree/main/dev/bazel#bazel-options>`_
 that allows to specify the list of target architectural extensions.
 
 To add a new architectural extension into Bazel configuration, following steps should be done:

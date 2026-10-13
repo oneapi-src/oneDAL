@@ -51,13 +51,14 @@ void run(sycl::queue& q, const dal::table& x_train, const std::string& method_na
     std::cout << "Explained variances ratio:\n"
               << result_train.get_explained_variances_ratio() << std::endl;
 
+    std::cout << "Noise variance:\n" << result_train.get_noise_variance() << std::endl;
     const auto result_infer = dal::infer(q, pca_desc, result_train.get_model(), x_train);
 
     std::cout << "Transformed data:\n" << result_infer.get_transformed_data() << std::endl;
 }
 
 int main(int argc, char const* argv[]) {
-    const auto train_data_file_name = get_data_path("pca_normalized.csv");
+    const auto train_data_file_name = get_data_path("data/pca_normalized.csv");
 
     const auto x_train = dal::read<dal::table>(dal::csv::data_source{ train_data_file_name });
 

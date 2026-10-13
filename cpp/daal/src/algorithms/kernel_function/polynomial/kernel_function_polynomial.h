@@ -20,6 +20,7 @@
 
 #include "algorithms/algorithm.h"
 #include "data_management/data/numeric_table.h"
+#include "src/algorithms/algorithm_dispatch_container_batch.h"
 #include "src/algorithms/kernel_function/polynomial/kernel_function_types_polynomial.h"
 #include "algorithms/kernel_function/kernel_function.h"
 
@@ -33,7 +34,7 @@ namespace polynomial
 {
 namespace internal
 {
-template <typename algorithmFPType, Method method, CpuType cpu>
+template <typename algorithmFPType, Method method, daal::internal::CpuType cpu>
 class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
 {
 public:
@@ -41,7 +42,7 @@ public:
 
     ~BatchContainer();
 
-    virtual services::Status compute() DAAL_C11_OVERRIDE;
+    services::Status compute() override;
 };
 
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
@@ -57,15 +58,17 @@ public:
     ParameterType parameter; /*!< Parameter of the kernel function*/
     InputType input;         /*!< %Input data structure */
 
-    Batch() { initialize(); }
+    Batch();
 
-    Batch(const Batch<algorithmFPType, method> & other) : KernelIface(other), parameter(other.parameter), input(other.input) { initialize(); }
+    ~Batch();
 
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    Batch(const Batch<algorithmFPType, method> & other);
 
-    virtual InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    int getMethod() const override { return (int)method; }
 
-    virtual ParameterBase * getParameter() DAAL_C11_OVERRIDE { return &parameter; }
+    InputType * getInput() override { return &input; }
+
+    ParameterBase * getParameter() override { return &parameter; }
 
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
@@ -77,9 +80,9 @@ protected:
         _par                 = &parameter;
     }
 
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+    Batch<algorithmFPType, method> * cloneImpl() const override { return new Batch<algorithmFPType, method>(*this); }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
         _res               = _result.get();

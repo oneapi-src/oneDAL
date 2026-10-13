@@ -74,7 +74,7 @@ protected:
     {
         DAAL_ASSERT(nNewCandidates == 1);
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+        daal::threader_for(nBlocks, 1, [&](size_t iBlock) {
             safeStat |= _data.updateMinDistInBlock(aMinDistAcc, nBlocks, iBlock, 1, 0, nullptr, pNewCenters, aMinDist);
         });
         if (!safeStat) return safeStat.detach();
@@ -97,7 +97,7 @@ public:
 
 protected:
     virtual Status updateMinDist(size_t iFirstOfNewCandidates, const algorithmFPType * pNewCenters, size_t nNewCandidates, algorithmFPType * aMinDist,
-                                 algorithmFPType * aMinDistAcc, algorithmFPType & overallError, size_t nBlocks) DAAL_C11_OVERRIDE
+                                 algorithmFPType * aMinDistAcc, algorithmFPType & overallError, size_t nBlocks) override
     {
         WriteRows<int, cpu> closestClusterBD(_aLocalData[internal::closestCluster], 0, 1);
         DAAL_CHECK_BLOCK_STATUS(closestClusterBD);
@@ -107,7 +107,7 @@ protected:
         DAAL_CHECK(lastAddedCenterNorm2.get(), ErrorMemoryAllocationFailed);
 
         //calculate
-        daal::threader_for(nNewCandidates, nNewCandidates, [&](size_t iPt) {
+        daal::threader_for(nNewCandidates, 1, [&](size_t iPt) {
             const algorithmFPType * pCenter = pNewCenters + this->_data.dim * iPt;
             algorithmFPType val             = 0;
             for (size_t i = 0; i < this->_data.dim; ++i) val += pCenter[i] * pCenter[i];
@@ -324,8 +324,7 @@ services::Status KMeansInitStep3MasterKernel<method, algorithmFPType, cpu>::comp
         algorithmFPType * pTmp = aRngValues.get();
         size_t n               = 1;
         pTmp[0]                = pOutput[i].value;
-        for (size_t j = i + n; (j < outputSize) && (pOutput[j].key == key); pTmp[n++] = pOutput[j++].value)
-            ;
+        for (size_t j = i + n; (j < outputSize) && (pOutput[j].key == key); pTmp[n++] = pOutput[j++].value);
         s = createTableSingleRow<algorithmFPType, cpu>((*pOutputColl)[key], n, pTmp);
         if (!s) return s;
         i += n;

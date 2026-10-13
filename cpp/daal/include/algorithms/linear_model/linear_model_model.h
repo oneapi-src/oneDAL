@@ -43,7 +43,7 @@ namespace algorithms
 namespace linear_model
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -62,6 +62,11 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 {
     Parameter();
     Parameter(const Parameter & other);
+    Parameter & operator=(const Parameter & other);
+    /**
+     * NOTE: Coverity's rule-of-three violation cannot be fixed here as adding a destructor
+     * adds a new virtual function and breaks the ABI
+     */
     bool interceptFlag; /*!< Flag that indicates whether the intercept needs to be computed */
 };
 /* [Parameter source code] */

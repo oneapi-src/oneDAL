@@ -26,8 +26,38 @@ CMPLRDIRSUFF.clang = _clang
 
 CORE.SERV.COMPILER.clang = generic
 
+OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Ofast Os Oz Og
+
+ifneq (,$(filter $(OPTFLAG),$(OPTFLAGS_SUPPORTED)))
+else
+    $(error Invalid OPTFLAG '$(OPTFLAG)'. Supported: $(OPTFLAGS_SUPPORTED))
+endif
+
+ifeq ($(filter $(OPTFLAG),O0 Og),$(OPTFLAG))
+    -optlevel.clang = -$(OPTFLAG)
+else ifeq ($(OPTFLAG),Ofast)
+    -optlevel.clang = -O3 -ffast-math -D_FORTIFY_SOURCE=2
+else
+    -optlevel.clang = -$(OPTFLAG) -D_FORTIFY_SOURCE=2
+endif
+
 -Zl.clang =
+
 -DEBC.clang = -g
+
+-asanstatic.clang = -static-libasan
+-asanshared.clang = -shared-libasan
+
+# Warning options shared by every clang target. They must not live in
+# `-DEBC.clang`, since the top-level makefile expands that variable for debug
+# builds only (see `-DEBC` in the makefile), while `-Werror` below is always on.
+# `-Wno-pass-failed` is required because clang reports every vectorization
+# pragma it cannot honor (e.g. `omp simd reduction(max : ...)`) starting from
+# `-O1`, which `-Werror` then turns into a build failure.
+warn.opts.clang = -Werror \
+                  -Wno-empty-body \
+                  -Wreturn-type \
+                  -Wno-pass-failed
 
 pedantic.opts.clang = -pedantic \
                       -Wall \

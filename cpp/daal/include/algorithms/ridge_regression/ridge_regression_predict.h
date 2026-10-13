@@ -82,9 +82,11 @@ class Batch
  *      - \ref training::interface1::Batch "training::Batch" class
  *      - \ref training::interface1::Online "training::Online" class
  *      - \ref training::interface1::Distributed "training::Distributed" class
+ * \DAAL_DEPRECATED
  */
 template <typename algorithmFPType>
-class Batch<algorithmFPType, defaultDense> : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
+class DAAL_EXPORT Batch<algorithmFPType, defaultDense>
+    : public linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense>
 {
 public:
     typedef linear_model::prediction::Batch<algorithmFPType, linear_model::prediction::defaultDense> super;
@@ -95,8 +97,11 @@ public:
 
     InputType input; /*!< %Input data structure */
 
-    /** Default constructor */
-    Batch() { initialize(); }
+    /**
+     * Default constructor
+     * \DAAL_DEPRECATED
+     */
+    DAAL_DEPRECATED Batch() { initialize(); }
 
     /**
      * Constructs a ridge regression prediction algorithm by copying input objects
@@ -110,7 +115,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)defaultDense; }
+    int getMethod() const override { return (int)defaultDense; }
 
     /**
      * Returns the structure that contains the result of ridge regression model-based prediction
@@ -128,12 +133,12 @@ public:
         return services::SharedPtr<Batch<algorithmFPType, defaultDense> >(cloneImpl());
     }
 
-    virtual regression::prediction::Input * getInput() DAAL_C11_OVERRIDE { return &input; }
+    regression::prediction::Input * getInput() override { return &input; }
 
 protected:
-    virtual Batch<algorithmFPType, defaultDense> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, defaultDense>(*this); }
+    Batch<algorithmFPType, defaultDense> * cloneImpl() const override { return new Batch<algorithmFPType, defaultDense>(*this); }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         services::Status s = getResult()->template allocate<algorithmFPType>(this->_in, 0, 0);
         this->_res         = this->_result.get();
@@ -142,10 +147,8 @@ protected:
 
     void initialize()
     {
-        this->_ac  = new __DAAL_ALGORITHM_CONTAINER(batch, linear_model::prediction::BatchContainer, algorithmFPType,
-                                                    linear_model::prediction::defaultDense)(&(this->_env));
-        this->_in  = &input;
-        this->_par = NULL;
+        super::initialize();
+        this->_in = &input;
         this->_result.reset(new ResultType());
     }
 

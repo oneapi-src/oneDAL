@@ -29,6 +29,35 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kernel_function::rbf::BatchContainer, batch, DAAL_FPTYPE, kernel_function::rbf::fastCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kernel_function::rbf::internal::BatchContainer, batch, DAAL_FPTYPE, kernel_function::rbf::fastCSR)
+namespace kernel_function
+{
+namespace rbf
+{
+namespace interface1
+{
+template <>
+void Batch<DAAL_FPTYPE, kernel_function::rbf::fastCSR>::initialize()
+{
+    _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, kernel_function::rbf::fastCSR)(&_env);
+    _in  = &input;
+    _par = &parameter;
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, kernel_function::rbf::fastCSR>::Batch()
+{
+    initialize();
+}
+
+using BatchType = Batch<DAAL_FPTYPE, kernel_function::rbf::fastCSR>;
+
+template <>
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : KernelIface(other), parameter(other.parameter), input(other.input)
+{
+    initialize();
+}
+} // namespace interface1
+} // namespace rbf
+} // namespace kernel_function
 } // namespace algorithms
 } // namespace daal

@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::prediction::internal::BatchContainer, batch, DAAL_FPTYPE,
                                       decision_forest::classification::prediction::defaultDense)
 namespace decision_forest
 {
@@ -40,7 +40,15 @@ namespace prediction
 namespace interface3
 {
 template <>
-Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(size_t nClasses)
+void Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE,
+                                         decision_forest::classification::prediction::defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
@@ -48,8 +56,7 @@ Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::B
 
 using BatchType = Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, decision_forest::classification::prediction::defaultDense>::Batch(const BatchType & other)
-    : classifier::prediction::Batch(other), input(other.input)
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

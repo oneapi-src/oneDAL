@@ -1,4 +1,5 @@
 package(default_visibility = ["//visibility:public"])
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@onedal//dev/bazel:dal.bzl",
     "dal_test_suite",
     "dal_collect_test_suites",
@@ -14,23 +15,40 @@ load("@onedal//dev/bazel:daal.bzl",
 
 daal_module(
     name = "microvmlipp",
+    lib_tag = "mkl_embed",
     override_deps_lib_tag = True,
     deps = select({
         "@config//:backend_ref": [ ],
         "//conditions:default": [
-                                    "@mkl//:mkl_thr",
+                                    "@mkl//:mkl_core",
                                 ],
         }),
 )
 
 daal_module(
     name = "mathbackend_thread",
-    override_deps_lib_tag = True,
+    lib_tag = select({
+        "@config//:backend_ref": "daal",
+        "//conditions:default": "mkl_embed",
+    }),
+    override_deps_lib_tag = select({
+        "@config//:backend_ref": False,
+        "//conditions:default": True,
+    }),
+    # Matches dev/make/deps.ref.mk: RNG_OPENRNG links libopenrng.a alongside
+    # OpenBLAS. (The OPENRNG_BACKEND compile define is set for every
+    # daal_module in daal.bzl, since service_rng_ref.h is consumed by many
+    # compiled modules, not just this one.) Both are gated on
+    # rng_backend=openrng *and* backend_config=ref, matching where RNG_OPENRNG
+    # lives in Make.
     deps = select({
         "@config//:backend_ref": [ "@openblas//:openblas",
                                  ],
-        "//conditions:default": [ "@mkl//:mkl_thr",
+        "//conditions:default": [ "@mkl//:mkl_core",
                                 ],
+        }) + select({
+            "@config//:rng_backend_openrng_ref": [ "@openrng//:openrng" ],
+            "//conditions:default": [],
         }),
 )
 
@@ -41,8 +59,26 @@ daal_patch_kernel_defines(
 
 daal_module(
     name = "public_includes",
-    hdrs = glob(["include/**/*.h"], exclude=["**/daal_kernel_defines.h"]),
+    hdrs = glob([
+        "include/**/*.h",
+    ], exclude = [
+        "**/daal_kernel_defines.h",
+        "**/daal_win.h",
+    ]),
     includes = [ "include" ],
+)
+
+# Headers that ship under their generic name on one OS only. Make selects them
+# via `release.HEADERS.OSSPEC` and stages each one with the `_<os>` suffix
+# stripped, dropping the generic file from that platform's package. They stay
+# out of `public_includes` because the in-tree build always compiles against the
+# generic header; only the released copy differs.
+filegroup(
+    name = "os_specific_includes",
+    srcs = select({
+        "@platforms//os:windows": [ "include/daal_win.h" ],
+        "//conditions:default": [ ],
+    }),
 )
 
 daal_module(
@@ -63,6 +99,9 @@ daal_module(
                                   ":public_includes",
                                   "@mkl//:headers",
                                 ],
+        }) + select({
+            "@config//:rng_backend_openrng_ref": [ "@openrng//:headers" ],
+            "//conditions:default": [],
         }),
 )
 
@@ -109,6 +148,27 @@ daal_module(
     ],
 )
 
+# Windows-only shim that defines `_threaded_scalable_{malloc,free,...}`
+# and `_daal_static_threader_reduce` entry points, which delay-load
+# `onedal_thread.dll` at runtime. The Makefile pulls
+# `core_threading_win_dll.o` into the dynamic core on Windows only
+# (makefile:507-509). Linux resolves these symbols against
+# `libonedal_thread.so` at executable link, so the shim is unused there.
+# Each Windows DLL that holds DAAL algorithm code needs its own copy of
+# this shim (LNK2001 if missing, but separate output binaries never
+# collide on LNK1169 because each DLL gets its own .obj set).
+daal_module(
+    name = "services_win_dll_shim",
+    srcs = select({
+        "@platforms//os:windows": glob(["src/externals/**/*_win_dll.cpp"]),
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":service_headers",
+        ":threading_headers",
+    ],
+)
+
 daal_module(
     name = "data_management",
     hdrs = glob(["src/data_management/**/*.h", "src/data_management/**/*.i"]),
@@ -120,7 +180,11 @@ daal_module(
 
 daal_module(
     name = "threading_tbb",
-    srcs = glob(["src/threading/**/*.cpp"]),
+    srcs = glob(["src/threading/**/*.cpp"], exclude = ["src/threading/test/*.cpp"]),
+    # Match Make STDALLOC=yes: separately built threading objects keep TBB
+    # scalable allocation while core objects switch away from MKL allocation.
+    stdalloc = False,
+    visibility_hidden = False,
     local_defines = [
         "__TBB_NO_IMPLICIT_LINKAGE",
         "__TBB_LEGACY_MODE",
@@ -161,16 +225,12 @@ daal_module(
 daal_algorithms(
     name = "all_algorithms",
     algorithms = [
-        "adaboost",
-        "assocrules",
-        "brownboost",
         "cholesky",
         "classifier",
         "cordistance",
         "cosdistance",
         "covariance",
         "dbscan",
-        "decision_tree",
         "distributions",
         "dtrees",
         "dtrees/forest/classification",
@@ -178,6 +238,7 @@ daal_algorithms(
         "dtrees/gbt/regression",
         "dtrees/gbt/classification",
         "elastic_net",
+        "hdbscan",
         "em",
         "engines",
         "implicit_als",
@@ -188,38 +249,27 @@ daal_algorithms(
         "linear_model",
         "linear_regression",
         "logistic_regression",
-        "logitboost",
         "low_order_moments",
         "multiclassclassifier",
-        "naivebayes",
         "normalization/minmax",
         "normalization/zscore",
         "objective_function",
         "objective_function/cross_entropy_loss",
         "objective_function/logistic_loss",
         "objective_function/mse",
+        "objective_function/precomputed",
         "optimization_solver",
-        "optimization_solver/sgd",
         "optimization_solver/lbfgs",
-        "optimization_solver/adagrad",
-        "optimization_solver/saga",
         "optimization_solver/coordinate_descent",
-        "outlierdetection_bacon",
-        "outlierdetection_multivariate",
-        "outlierdetection_univariate",
         "pca",
-        "pca/metrics",
         "pca/transform",
         "pivoted_qr",
         "qr",
-        "quantiles",
         "regression",
         "ridge_regression",
-        "sorting",
-        "stump",
         "svd",
         "svm",
-        "weak_learner/inner",
+        "tsne",
     ],
 )
 
@@ -241,18 +291,34 @@ daal_static_lib(
     ],
 )
 
+exports_files([
+    "thread_dynamic.lds",
+])
+
 daal_dynamic_lib(
     name = "core_dynamic",
     lib_name = "onedal_core",
     deps = [
         ":core",
         ":all_algorithms",
-    ],
+    ] + select({
+        # MSVC requires all DLL symbols to be resolved at link time. On
+        # Windows the threading entry points come from
+        # `services_win_dll_shim` (which delay-loads onedal_thread.dll)
+        # rather than from `:threading_tbb` directly — pulling in
+        # threading_tbb here would duplicate every threading symbol with
+        # the shim and trigger LNK2005. Mirrors makefile:507-509: only
+        # `core_threading_win_dll.o` lands in the dynamic core; the real
+        # TBB-backed threading objects live in onedal_thread.dll.
+        "@platforms//os:windows": [":services_win_dll_shim"],
+        "//conditions:default": [],
+    }),
 )
 
 daal_dynamic_lib(
     name = "thread_dynamic",
     lib_name = "onedal_thread",
+    linker_scripts = [":thread_dynamic.lds"],
     deps = [
         ":threading_tbb",
     ],
@@ -302,14 +368,6 @@ filegroup(
     ],
 )
 
-dal_test_suite(
-    name = "unit_tests",
-    framework = "catch2",
-    srcs = glob([
-        "test/*.cpp",
-    ]),
-)
-
 dal_collect_test_suites(
     name = "tests",
     root = "@onedal//cpp/daal/src/algorithms",
@@ -317,6 +375,29 @@ dal_collect_test_suites(
         "dtrees/gbt/regression"
     ],
     tests = [
-        ":unit_tests",
+        "@onedal//cpp/daal/src/threading/test:tests",
     ],
+)
+
+sh_test(
+    name = "mkl_linkage_test",
+    srcs = ["//dev/bazel/tests:mkl_linkage_test.sh"],
+    data = [
+        ":core_static",
+        ":core_dynamic",
+    ],
+    # Only meaningful with MKL backend; skip for OpenBLAS/reference backend.
+    # Also Linux-only: uses GNU nm -D and .so outputs.
+    target_compatible_with = select({
+        "@config//:backend_ref": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }) + ["@platforms//os:linux"],
+)
+
+sh_test(
+    name = "isa_coverage_test",
+    srcs = ["@onedal//dev/bazel/tests:isa_coverage_test.sh"],
+    args = ["$(location :core_dynamic)"],
+    data = [":core_dynamic"],
+    target_compatible_with = ["@platforms//os:linux"],
 )

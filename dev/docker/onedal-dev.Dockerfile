@@ -14,14 +14,14 @@
 # limitations under the License.
 #===============================================================================
 
-FROM ubuntu:24.04@sha256:77d57fd89366f7d16615794a5b53e124d742404e20f035c22032233f1826bd6a
+FROM ubuntu:26.04@sha256:2260313b31c8c011cd2eebe728008efac1b3982be73eb71348ea2648d2c0e09b
 
 ARG workdirectory="/sources/oneDAL"
 WORKDIR ${workdirectory}
 
 #Env setup
 RUN apt-get update && \
-      apt-get -y install sudo wget gnupg git make python3-setuptools doxygen software-properties-common
+      apt-get -y install sudo wget gnupg git make python3-setuptools doxygen software-properties-common unzip zstd tar
 
 # Install miniconda
 ENV CONDA_DIR=/opt/conda
@@ -33,7 +33,7 @@ RUN wget --quiet \
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Installing environment for bazel
-RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64 && \
+RUN wget https://github.com/bazelbuild/bazelisk/releases/download/v1.29.0/bazelisk-linux-amd64 && \
     chmod 755 bazelisk-linux-amd64 && \
     mv bazelisk-linux-amd64 /usr/bin/bazel
 

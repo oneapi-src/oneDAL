@@ -42,21 +42,52 @@ public:
     train_parameters(train_parameters&&) = default;
     train_parameters(const train_parameters&) = default;
 
+    /// Linear regression training algorithm splits input data table into blocks of rows
+    /// to speedup the computations.
+    /// These API define the number of rows in the data block to be processed on CPU.
     std::int64_t get_cpu_macro_block() const;
     auto& set_cpu_macro_block(std::int64_t val) {
         set_cpu_macro_block_impl(val);
         return *this;
     }
 
+    /// Linear regression training algorithm splits input data table into blocks of rows
+    /// to speedup the computations.
+    /// These API define the number of rows in the data block to be processed on GPU.
     std::int64_t get_gpu_macro_block() const;
     auto& set_gpu_macro_block(std::int64_t val) {
         set_gpu_macro_block_impl(val);
         return *this;
     }
 
+    /// Maximum number of columns in the dataset to use blocked data processing on CPU.
+    /// Otherwise, the whole dataset is processed at once to compute the coefficients.
+    std::int64_t get_cpu_max_cols_batched() const;
+    auto& set_cpu_max_cols_batched(std::int64_t val) {
+        set_cpu_max_cols_batched_impl(val);
+        return *this;
+    }
+
+    /// Minimum number of rows in the dataset to use blocked data processing on CPU.
+    /// Otherwise, the whole dataset is processed at once to compute the coefficients.
+    std::int64_t get_cpu_small_rows_threshold() const;
+    auto& set_cpu_small_rows_threshold(std::int64_t val) {
+        set_cpu_small_rows_threshold_impl(val);
+        return *this;
+    }
+
+    std::int64_t get_cpu_small_rows_max_cols_batched() const;
+    auto& set_cpu_small_rows_max_cols_batched(std::int64_t val) {
+        set_cpu_small_rows_max_cols_batched_impl(val);
+        return *this;
+    }
+
 private:
     void set_cpu_macro_block_impl(std::int64_t val);
     void set_gpu_macro_block_impl(std::int64_t val);
+    void set_cpu_max_cols_batched_impl(std::int64_t val);
+    void set_cpu_small_rows_threshold_impl(std::int64_t val);
+    void set_cpu_small_rows_max_cols_batched_impl(std::int64_t val);
     dal::detail::pimpl<train_parameters_impl<Task>> impl_;
 };
 
@@ -88,6 +119,17 @@ public:
 
     train_input(const table& data);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~train_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    train_input(const train_input&);
+    train_input(train_input&&) noexcept;
+    train_input& operator=(const train_input&);
+    train_input& operator=(train_input&&) noexcept;
+
     /// The training set X
     /// @remark default = table{}
     const table& get_data() const;
@@ -109,6 +151,7 @@ public:
 protected:
     void set_data_impl(const table& data);
     void set_responses_impl(const table& responses);
+    static void swap(train_input<Task>& a, train_input<Task>& b) noexcept;
 
 private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
@@ -235,6 +278,20 @@ public:
     partial_train_input(const partial_train_result<Task>& prev,
                         const partial_train_input<Task>& input);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~partial_train_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    partial_train_input(const partial_train_input&);
+    partial_train_input(partial_train_input&&) noexcept;
+    partial_train_input& operator=(const partial_train_input&);
+    partial_train_input& operator=(partial_train_input&&) noexcept;
+
+    /// An $n_i \\times p$ table with the $i$-th block of training data, where each row stores one
+    /// feature vector.
+    /// @remark default = table{}
     const table& get_data() const {
         return train_input<Task>::get_data();
     }
@@ -244,7 +301,7 @@ public:
         return *this;
     }
 
-    /// Vector of responses y for the training set X
+    /// An $n_i \\times ny$ table with the responses for the $i$-th block of training data.
     /// @remark default = table{}
     const table& get_responses() const {
         return train_input<Task>::get_responses();
@@ -255,6 +312,8 @@ public:
         return *this;
     }
 
+    /// The previous partial train result.
+    /// @remark default = partial_train_result<Task>{}
     const partial_train_result<Task>& get_prev() const {
         return prev_;
     }
@@ -263,6 +322,9 @@ public:
         prev_ = value;
         return *this;
     }
+
+protected:
+    static void swap(partial_train_input<Task>& a, partial_train_input<Task>& b) noexcept;
 
 private:
     partial_train_result<Task> prev_;

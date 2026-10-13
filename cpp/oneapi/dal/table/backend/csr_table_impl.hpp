@@ -25,7 +25,12 @@
 namespace oneapi::dal::backend {
 
 class csr_table_impl : public detail::csr_table_template<csr_table_impl>,
-                       public ONEDAL_SERIALIZABLE(csr_table_id) {
+                       public ONEDAL_SERIALIZABLE(csr_table_id)
+#ifdef ONEDAL_DATA_PARALLEL
+        ,
+                       public detail::queue_provider_iface
+#endif
+{
 public:
     csr_table_impl()
             : col_count_(0),
@@ -39,7 +44,7 @@ public:
                    std::int64_t column_count,
                    data_type dtype,
                    sparse_indexing indexing)
-            : meta_(create_metadata(column_count, dtype)),
+            : meta_(create_metadata(column_count, dtype, data.get_alloc_kind())),
               data_(data),
               column_indices_(column_indices),
               row_offsets_(row_offsets),
@@ -56,6 +61,13 @@ public:
         if (data.get_count() != element_count * dtype_size) {
             throw dal::domain_error(error_msg::invalid_data_block_size());
         }
+
+#ifdef ONEDAL_DATA_PARALLEL
+        if (data.get_queue() != column_indices.get_queue() ||
+            data.get_queue() != row_offsets.get_queue()) {
+            throw dal::invalid_argument(error_msg::queues_of_arrays_do_not_match());
+        }
+#endif // ONEDAL_DATA_PARALLEL
 
         const std::int64_t* const row_offsets_ptr = row_offsets.get_data();
         if (!std::is_sorted(row_offsets_ptr, row_offsets_ptr + row_offsets.get_count())) {
@@ -84,7 +96,7 @@ public:
                    data_type dtype,
                    sparse_indexing indexing,
                    const std::vector<sycl::event>& dependencies)
-            : meta_(create_metadata(column_count, dtype)),
+            : meta_(create_metadata(column_count, dtype, data.get_alloc_kind())),
               data_(data),
               column_indices_(column_indices),
               row_offsets_(row_offsets),
@@ -119,7 +131,7 @@ public:
             throw dal::domain_error(error_msg::column_indices_gt_max_value());
         }
     }
-#endif
+#endif // ONEDAL_DATA_PARALLEL
 
     std::int64_t get_column_count() const override {
         return col_count_;
@@ -198,7 +210,7 @@ public:
                        data,
                        column_indices,
                        row_offsets,
-                       alloc_kind::host);
+                       alloc_kind::non_usm);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -234,12 +246,27 @@ public:
     }
 #endif
 
+#ifdef ONEDAL_DATA_PARALLEL
+    std::optional<sycl::queue> get_queue() const override {
+        return data_.get_queue();
+    }
+#endif
+
     void serialize(detail::output_archive& ar) const override {
         ar(meta_, data_, column_indices_, row_offsets_, col_count_, row_count_, layout_, indexing_);
     }
 
     void deserialize(detail::input_archive& ar) override {
         ar(meta_, data_, column_indices_, row_offsets_, col_count_, row_count_, layout_, indexing_);
+        // The allocation kind is not persisted in the archive; re-establish it
+        // from the deserialized data, which was materialized according to the
+        // deserialization context (queue/policy). The deserialized feature and
+        // data types are preserved as-is.
+        if (data_.get_count() > 0) {
+            meta_ = table_metadata{ meta_.get_data_types(),
+                                    meta_.get_feature_types(),
+                                    data_.get_alloc_kind() };
+        }
     }
 
 private:

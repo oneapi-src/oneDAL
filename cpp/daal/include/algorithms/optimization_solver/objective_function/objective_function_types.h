@@ -100,7 +100,7 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -120,10 +120,16 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     Parameter(const DAAL_UINT64 resultsToCompute = gradient);
 
     /**
-     * Constructs an Parameter by copying input objects and parameters of another Parameter
-     * \param[in] other An object to be used as the source to initialize object
+     * Constructs a Parameter by copying input objects and parameters of another Parameter
+     * \param[in] other An object to be used as the source object to initialize from
      */
     Parameter(const Parameter & other);
+
+    /**
+     * Assigns a Parameter by copying input objects and parameters of another Parameter
+     * \param[in] other An object to be used as the source object to copy from
+     */
+    Parameter & operator=(const Parameter & other);
 
     virtual ~Parameter() {}
 
@@ -143,6 +149,9 @@ public:
 
     /** Copy constructor */
     Input(const Input & other);
+
+    /** Assignment operator */
+    Input & operator=(const Input & other);
 
     /** Destructor */
     virtual ~Input() {}
@@ -168,7 +177,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /**
@@ -218,8 +227,7 @@ public:
     *
      * \return Status of computations
     */
-    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
-                                   int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     using daal::algorithms::interface1::Result::check;

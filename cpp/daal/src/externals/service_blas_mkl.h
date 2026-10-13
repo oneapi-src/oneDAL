@@ -25,6 +25,7 @@
 #define __SERVICE_BLAS_MKL_H__
 
 #include "services/daal_defines.h"
+#include "src/services/cpu_type.h"
 #include <mkl.h>
 
 #define __DAAL_MKLFN_CALL_BLAS(f_name, f_args) f_name f_args;
@@ -37,6 +38,8 @@ namespace internal
 {
 namespace mkl
 {
+using namespace daal::internal;
+
 template <typename fpType, CpuType cpu>
 struct MklBlas
 {};
@@ -50,14 +53,14 @@ struct MklBlas<double, cpu>
 {
     typedef DAAL_INT SizeType;
 
-    static void xsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, double * alpha, double * a, DAAL_INT * lda, double * beta, double * ata,
-                      DAAL_INT * ldata)
+    static void xsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const double * alpha, const double * a,
+                      const DAAL_INT * lda, const double * beta, double * ata, const DAAL_INT * ldata)
     {
         __DAAL_MKLFN_CALL_BLAS(dsyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
     }
 
-    static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, double * alpha, double * a, DAAL_INT * lda, double * beta, double * ata,
-                       DAAL_INT * ldata)
+    static void xxsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const double * alpha, const double * a,
+                       const DAAL_INT * lda, const double * beta, double * ata, const DAAL_INT * ldata)
     {
         int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL_BLAS(dsyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
@@ -144,6 +147,18 @@ struct MklBlas<double, cpu>
         mkl_set_num_threads_local(old_nthr);
         return res;
     }
+
+    static void xscal(const DAAL_INT * n, const double * a, double * x, const DAAL_INT * incx)
+    {
+        __DAAL_MKLFN_CALL_BLAS(dscal, ((const MKL_INT *)n, a, x, (const MKL_INT *)incx));
+    }
+
+    static double xasum(const DAAL_INT * n, const double * x, const DAAL_INT * incx)
+    {
+        double res;
+        __DAAL_MKLFN_CALL_RETURN_BLAS(dasum, ((const MKL_INT *)n, x, (const MKL_INT *)incx), res);
+        return res;
+    }
 };
 
 /*
@@ -155,14 +170,14 @@ struct MklBlas<float, cpu>
 {
     typedef DAAL_INT SizeType;
 
-    static void xsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * beta, float * ata,
-                      DAAL_INT * ldata)
+    static void xsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const float * alpha, const float * a,
+                      const DAAL_INT * lda, const float * beta, float * ata, const DAAL_INT * ldata)
     {
         __DAAL_MKLFN_CALL_BLAS(ssyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
     }
 
-    static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * beta, float * ata,
-                       DAAL_INT * ldata)
+    static void xxsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const float * alpha, const float * a,
+                       const DAAL_INT * lda, const float * beta, float * ata, const DAAL_INT * ldata)
     {
         int old_nthr = mkl_set_num_threads_local(1);
         __DAAL_MKLFN_CALL_BLAS(ssyrk, (uplo, trans, (MKL_INT *)p, (MKL_INT *)n, alpha, a, (MKL_INT *)lda, beta, ata, (MKL_INT *)ldata));
@@ -247,6 +262,18 @@ struct MklBlas<float, cpu>
         float res;
         __DAAL_MKLFN_CALL_RETURN_BLAS(sdot, ((MKL_INT *)n, x, (MKL_INT *)incx, y, (MKL_INT *)incy), res);
         mkl_set_num_threads_local(old_nthr);
+        return res;
+    }
+
+    static void xscal(const DAAL_INT * n, const float * a, float * x, const DAAL_INT * incx)
+    {
+        __DAAL_MKLFN_CALL_BLAS(sscal, ((const MKL_INT *)n, a, x, (const MKL_INT *)incx));
+    }
+
+    static float xasum(const DAAL_INT * n, const float * x, const DAAL_INT * incx)
+    {
+        float res;
+        __DAAL_MKLFN_CALL_RETURN_BLAS(sasum, ((const MKL_INT *)n, x, (const MKL_INT *)incx), res);
         return res;
     }
 };

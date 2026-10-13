@@ -14,12 +14,15 @@
 # limitations under the License.
 #===============================================================================
 
-load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler")
+load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_compiler", "detect_host_arch", "detect_target_arch")
 load("@onedal//dev/bazel/toolchains:cc_toolchain_lnx.bzl", "configure_cc_toolchain_lnx", "find_tool")
+load("@onedal//dev/bazel/toolchains:cc_toolchain_win.bzl", "configure_cc_toolchain_win")
 
 def _detect_requirements(repo_ctx):
     os_id = detect_os(repo_ctx)
     compiler_id = detect_compiler(repo_ctx, os_id)
+    host_arch_id = detect_host_arch(repo_ctx, os_id)
+    target_arch_id = detect_target_arch(repo_ctx, host_arch_id)
     dpc_compiler_id = "icpx"
     dpcc_path, dpcpp_found = find_tool(repo_ctx, dpc_compiler_id, mandatory = False)
     dpc_compiler_version = _detect_compiler_version(repo_ctx, dpcc_path) if dpcpp_found else "local"
@@ -31,8 +34,8 @@ def _detect_requirements(repo_ctx):
         libc_abi_version = "local",
         compiler_abi_version = "local",
 
-        host_arch_id = "intel64",
-        target_arch_id = "intel64",
+        host_arch_id = host_arch_id,
+        target_arch_id = target_arch_id,
 
         # TODO: Detect compiler version
         compiler_version = "local",
@@ -53,6 +56,7 @@ def _detect_compiler_version(repo_ctx, dpcc_path):
 def _configure_cc_toolchain(repo_ctx, reqs):
     configure_cc_toolchain_os = {
         "lnx": configure_cc_toolchain_lnx,
+        "win": configure_cc_toolchain_win,
     }[reqs.os_id]
     return configure_cc_toolchain_os(repo_ctx, reqs)
 
@@ -64,12 +68,13 @@ onedal_cc_toolchain = repository_rule(
     implementation = _onedal_cc_toolchain_impl,
     environ = [
         "CC",
+        "CXX",
         "PATH",
         "INCLUDE",
         "LIB",
+        # Opt-in switch for the Intel oneAPI Windows toolchain:
+        # ONEDAL_WIN_COMPILER=icx selects icx/icpx; anything else falls
+        # back to the rules_cc MSVC cl auto-config.
+        "ONEDAL_WIN_COMPILER",
     ],
 )
-
-def declare_onedal_cc_toolchain(name):
-    onedal_cc_toolchain(name = name)
-    native.register_toolchains("@{}//:all".format(name))

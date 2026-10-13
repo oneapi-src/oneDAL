@@ -54,6 +54,17 @@ public:
     compute_input(const table& data);
     compute_input(const table& data, const table& weights);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~compute_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    compute_input(const compute_input&);
+    compute_input(compute_input&&) noexcept;
+    compute_input& operator=(const compute_input&);
+    compute_input& operator=(compute_input&&) noexcept;
+
     /// An $n \\times p$ table with the training data, where each row stores one
     /// feature vector.
     /// @remark default = table{}
@@ -64,6 +75,8 @@ public:
         return *this;
     }
 
+    /// A $n \\times 1$ weights table, where $i$-th row stores the weight for the $i$-th training data sample.
+    /// @remark default = table{}
     const table& get_weights() const;
 
     auto& set_weights(const table& weights) {
@@ -74,6 +87,7 @@ public:
 protected:
     void set_data_impl(const table& data);
     void set_weights_impl(const table& weights);
+    static void swap(compute_input<Task>& a, compute_input<Task>& b) noexcept;
 
 private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
@@ -307,6 +321,20 @@ public:
                           const table& data,
                           const table& weights);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~partial_compute_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    partial_compute_input(const partial_compute_input&);
+    partial_compute_input(partial_compute_input&&) noexcept;
+    partial_compute_input& operator=(const partial_compute_input&);
+    partial_compute_input& operator=(partial_compute_input&&) noexcept;
+
+    /// An $n_i \\times p$ table with the $i$-th block of training data, where each row stores one
+    /// feature vector.
+    /// @remark default = table{}
     const table& get_data() const {
         return compute_input<Task>::get_data();
     }
@@ -316,6 +344,9 @@ public:
         return *this;
     }
 
+    /// A $n_i \\times 1$ weights table,
+    /// where $j$-th row stores the weight for the $j$-th training data sample.
+    /// @remark default = table{}
     const table& get_weights() const {
         return compute_input<Task>::get_weights();
     }
@@ -325,6 +356,8 @@ public:
         return *this;
     }
 
+    /// The previous partial compute result.
+    /// @remark default = partial_compute_result<Task>{}
     const partial_compute_result<Task>& get_prev() const {
         return prev_;
     }
@@ -333,6 +366,9 @@ public:
         prev_ = value;
         return *this;
     }
+
+protected:
+    static void swap(partial_compute_input<Task>& a, partial_compute_input<Task>& b) noexcept;
 
 private:
     partial_compute_result<Task> prev_;

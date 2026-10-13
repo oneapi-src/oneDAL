@@ -25,6 +25,38 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(distributions::normal::BatchContainer, batch, DAAL_FPTYPE, distributions::normal::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(distributions::normal::internal::BatchContainer, batch, DAAL_FPTYPE, distributions::normal::defaultDense)
+namespace distributions
+{
+namespace normal
+{
+namespace internal
+{
+using BatchType = Batch<DAAL_FPTYPE, distributions::normal::defaultDense>;
+
+template <>
+void BatchType::initialize()
+{
+    Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, distributions::normal::defaultDense)(&_env);
+    _in                  = &input;
+    _par                 = &parameter;
+    _result.reset(new ResultType());
+}
+
+template <>
+BatchType::Batch(DAAL_FPTYPE a, DAAL_FPTYPE sigma) : parameter(a, sigma)
+{
+    initialize();
+}
+
+template <>
+BatchType::Batch(const BatchType & other) : super(other), parameter(other.parameter)
+{
+    initialize();
+}
+
+} // namespace internal
+} // namespace normal
+} // namespace distributions
 } // namespace algorithms
 } // namespace daal

@@ -68,7 +68,7 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface
  */
 namespace interface1
 {
@@ -85,6 +85,7 @@ public:
      */
     Input(size_t nElements);
     Input(const Input & other);
+    Input & operator=(const Input & other);
 
     virtual ~Input() {}
 
@@ -128,14 +129,14 @@ protected:
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) override
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) override
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 
@@ -180,7 +181,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     using daal::algorithms::interface1::Result::check;
@@ -194,14 +195,14 @@ protected:
         return services::Status();
     }
 
-    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(data_management::InputDataArchive * arch) override
     {
         serialImpl<data_management::InputDataArchive, false>(arch);
 
         return services::Status();
     }
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) override
     {
         serialImpl<const data_management::OutputDataArchive, true>(arch);
 

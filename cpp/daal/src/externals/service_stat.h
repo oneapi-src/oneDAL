@@ -44,6 +44,11 @@ struct Statistics
     typedef typename _impl<fpType, cpu>::MethodType MethodType;
     typedef typename _impl<fpType, cpu>::ErrorType ErrorType;
 
+    static ErrorType xmeansOnePass(const fpType * data, SizeType nFeatures, SizeType nVectors, fpType * means)
+    {
+        return _impl<fpType, cpu>::xmeansOnePass(data, nFeatures, nVectors, means);
+    }
+
     static ErrorType xcp(fpType * data, SizeType nFeatures, SizeType nVectors, fpType * nPreviousObservations, fpType * sum, fpType * crossProduct,
                          MethodType method)
     {
@@ -109,9 +114,7 @@ struct Statistics
 
             fpType wsum = 0;
 
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            PRAGMA_ICC_NO16(omp simd reduction(+ : wsum))
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : wsum))
             for (size_t i = 0; i < nRows; i++)
             {
                 dataWeightCol[i] = weights[i] * dataCol[i];
@@ -122,7 +125,7 @@ struct Statistics
 
         // calculate W_all = sum of weights
         fpType sum_local = 0;
-        PRAGMA_ICC_NO16(omp simd reduction(+ : sum_local))
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : sum_local))
         for (size_t i = 0; i < nRows; i++)
         {
             sum_local += weights[i];
@@ -133,7 +136,7 @@ struct Statistics
         const fpType invSum = 1 / (sum);
 
         // calcultate weightd means from sums
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD
         for (size_t i = 0; i < nCols; i++)
         {
             weightedSum[i] = weightedSum[i] * invSum;

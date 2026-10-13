@@ -43,7 +43,7 @@ namespace multi_class_classifier
 namespace training
 {
 /**
- * \brief Contains version 2.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -52,33 +52,6 @@ namespace interface2
  * @ingroup multi_class_classifier_training
  * @{
  */
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__TRAINING__BATCHCONTAINER"></a>
- *  \brief Class containing methods to compute the results of multi-class classifier model-based training
- *
- * \tparam algorithmFPType  Data type to use in intermediate computations of the multi-class classifier, double or float
- * \tparam method           Computation method of the algprithm, \ref daal::algorithms::multi_class_classifier::training::Method
- */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class BatchContainer : public TrainingContainerIface<batch>
-{
-public:
-    /**
-     * Constructs a container for multi-class classifier model-based training with a specified environment
-     * in the batch processing mode
-     * \param[in] daalEnv   Environment object
-     */
-    BatchContainer(daal::services::Environment::env * daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
-    /**
-     * Computes the result of multi-class classifier model-based training in the batch processing mode
-     *
-     * \return Status of computation
-     */
-    services::Status compute() DAAL_C11_OVERRIDE;
-};
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__MULTI_CLASS_CLASSIFIER__TRAINING__BATCH"></a>
  * \brief Algorithm for the multi-class classifier model training
@@ -113,13 +86,13 @@ public:
      * Default constructor
      * \DAAL_DEPRECATED
      */
-    DAAL_DEPRECATED Batch() : parameter(0) { initialize(); }
+    DAAL_DEPRECATED Batch();
 
     /**
      * Default constructor
      * \param[in] nClasses                         Number of classes
      */
-    Batch(size_t nClasses) : parameter(nClasses) { initialize(); }
+    Batch(size_t nClasses);
 
     /**
      * Constructs multi-class classifier training algorithm by copying input objects and parameters
@@ -127,10 +100,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : classifier::training::Batch(other), parameter(other.parameter), input(other.input)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other);
 
     ~Batch() {}
 
@@ -138,13 +108,13 @@ public:
      * Get input objects for the multi-class classifier training algorithm
      * \return %Input objects for the multi-class classifier training algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    InputType * getInput() override { return &input; }
 
     /**
      * Returns method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    int getMethod() const override { return (int)method; }
 
     /**
      * Returns the structure that contains the training results of the multi-class classifier algorithm
@@ -155,7 +125,7 @@ public:
     /**
      * Resets the training results of the classification algorithm
      */
-    services::Status resetResult() DAAL_C11_OVERRIDE
+    services::Status resetResult() override
     {
         _result.reset(new ResultType());
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -171,9 +141,9 @@ public:
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+    Batch<algorithmFPType, method> * cloneImpl() const override { return new Batch<algorithmFPType, method>(*this); }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -182,20 +152,13 @@ protected:
         return s;
     }
 
-    void initialize()
-    {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
-        _result.reset(new ResultType());
-    }
+    void initialize();
 
 private:
     Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface2
-using interface2::BatchContainer;
 using interface2::Batch;
 
 } // namespace training

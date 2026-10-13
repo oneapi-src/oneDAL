@@ -41,6 +41,7 @@ MSG(unknown_status_code, "Unknown status code")
 MSG(unsupported_data_layout, "Unsupported data layout")
 MSG(unsupported_data_type, "Requested data type is not supported")
 MSG(unsupported_device_type, "Requested device type is not supported")
+MSG(sve_not_supported, "SVE is not supported by this CPU")
 MSG(small_data_block, "Data block size is smaller than expected")
 MSG(spmd_version_of_algorithm_is_not_implemented,
     "SPMD version of the algorithm is not implemented")
@@ -75,6 +76,12 @@ MSG(failed_to_compute_eigenvectors, "Failed to compute eigenvectors")
 MSG(failed_to_generate_random_numbers, "Failed to generate random numbers")
 
 /* Tables */
+MSG(alloc_kinds_of_chunks_do_not_match,
+    "Allocation kinds of the chunks in the chunked array do not match")
+MSG(alloc_kinds_of_arrays_do_not_match,
+    "Allocation kinds of the arrays the heterogeneous table is constructed from do not match")
+MSG(queues_of_arrays_do_not_match, "Queues of the arrays in the table do not match")
+MSG(queues_of_chunks_do_not_match, "Queues of the chunks in the chunked array do not match")
 MSG(allocated_memory_size_is_not_enough_to_copy_data,
     "Allocated memory size is not enough to copy the data")
 MSG(cannot_get_data_type_from_empty_metadata, "Cannot get data type from empty metadata")
@@ -137,6 +144,13 @@ MSG(edge_values_are_empty, "Edge values are empty")
 /* IO */
 MSG(file_not_found, "File not found")
 MSG(unsupported_read_mode, "Unsupported read mode")
+MSG(invalid_sparse_indexing,
+    "Invalid sparse indexing type. "
+    "Supported values are zero_based and one_based")
+MSG(invalid_csr_format,
+    "Invalid CSR format. "
+    "Expected three lines: row offsets, column indices, and non-zero elements")
+MSG(invalid_feature_count, "Invalid feature count")
 
 /* Serialization */
 MSG(object_is_not_serializable, "Object is not serializable")
@@ -146,7 +160,7 @@ MSG(archive_is_in_invalid_state,
     "serialization or deserialization was interupted by an exception")
 
 /* General algorithms */
-MSG(accuracy_threshold_lt_zero, "Accuracy_threshold is lower than zero")
+MSG(accuracy_threshold_lt_zero, "Accuracy threshold is lower than zero")
 MSG(class_count_leq_one, "Class count is lower than or equal to one")
 MSG(conv_tol_lt_zero, "Convergence tolerance is less than zero")
 MSG(input_data_is_empty, "Input data is empty")
@@ -187,6 +201,22 @@ MSG(kmeans_init_parallel_plus_dense_method_is_not_implemented_for_gpu,
 MSG(kmeans_init_plus_plus_dense_method_is_not_implemented_for_gpu,
     "K-Means init++ dense method is not implemented for GPU")
 MSG(objective_function_value_lt_zero, "Objective function value is lower than zero")
+
+/* HDBSCAN */
+MSG(hdbscan_metric_not_compatible_with_kd_tree,
+    "HDBSCAN cosine metric is not compatible with kd_tree and ball_tree methods")
+MSG(hdbscan_min_cluster_size_lt_two, "HDBSCAN min_cluster_size must be at least 2")
+MSG(hdbscan_min_samples_lt_one, "HDBSCAN min_samples must be at least 1")
+MSG(hdbscan_minkowski_degree_leq_zero, "HDBSCAN Minkowski degree must be greater than zero")
+MSG(hdbscan_kd_tree_method_is_not_implemented_for_gpu,
+    "HDBSCAN k-d tree method is not implemented for GPU")
+MSG(hdbscan_cluster_selection_epsilon_lt_zero,
+    "HDBSCAN cluster_selection_epsilon must be non-negative")
+MSG(hdbscan_max_cluster_size_lt_zero, "HDBSCAN max_cluster_size must be non-negative")
+MSG(hdbscan_alpha_leq_zero, "HDBSCAN alpha must be greater than zero")
+MSG(hdbscan_leaf_size_lt_one, "HDBSCAN leaf_size must be at least 1")
+MSG(hdbscan_distance_block_size_lt_zero,
+    "HDBSCAN distance_block_size must be non-negative (0 = auto)")
 
 /* k-NN */
 MSG(knn_kd_tree_method_is_not_implemented_for_gpu,
@@ -283,6 +313,10 @@ MSG(nu_svm_thunder_method_is_not_implemented_for_gpu,
 MSG(polynomial_kernel_is_not_implemented_for_gpu, "Polynomial kernel is not implemented for GPU")
 MSG(sigmoid_kernel_is_not_implemented_for_gpu, "Sigmoid kernel is not implemented for GPU")
 MSG(sigma_leq_zero, "Sigma lower than or equal to zero")
+MSG(svm_csr_table_is_not_implemented_for_gpu,
+    "SVM with sparse (CSR) data is not implemented for GPU")
+MSG(svm_multiclass_model_not_implemented_for_gpu,
+    "Input model carries multi-class support vectors, which is not implemented for GPU")
 MSG(svm_multiclass_not_implemented_for_gpu,
     "SVM with multiclass support is not implemented for GPU")
 MSG(svm_nu_classification_task_is_not_implemented_for_gpu,

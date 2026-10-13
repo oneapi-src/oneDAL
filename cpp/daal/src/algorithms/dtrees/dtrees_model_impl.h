@@ -130,11 +130,8 @@ struct TreeNodeSplit : public TreeNodeBase
         featureIdx       = featIdx;
         featureUnordered = bUnordered;
     }
-    virtual bool isSplit() const DAAL_C11_OVERRIDE { return true; }
-    virtual size_t numChildren() const DAAL_C11_OVERRIDE
-    {
-        return (kid[0] ? kid[0]->numChildren() + 1 : 0) + (kid[1] ? kid[1]->numChildren() + 1 : 0);
-    }
+    bool isSplit() const override { return true; }
+    size_t numChildren() const override { return (kid[0] ? kid[0]->numChildren() + 1 : 0) + (kid[1] ? kid[1]->numChildren() + 1 : 0); }
 };
 
 template <typename TResponseType>
@@ -152,8 +149,8 @@ struct TreeNodeLeaf : public TreeNodeBase
 
     virtual ~TreeNodeLeaf() {}
 
-    virtual bool isSplit() const DAAL_C11_OVERRIDE { return false; }
-    virtual size_t numChildren() const DAAL_C11_OVERRIDE { return 0; }
+    bool isSplit() const override { return false; }
+    size_t numChildren() const override { return 0; }
 };
 
 template <typename algorithmFPType>
@@ -359,10 +356,10 @@ void setProbabilities(const size_t treeId, const size_t nodeId, const size_t res
                       const double * const prob);
 
 template <typename ClassOrResponseType>
-static services::Status addLeafNodeInternal(const data_management::DataCollectionPtr & serializationData, const size_t treeId, const size_t parentId,
-                                            const size_t position, ClassOrResponseType response, double cover, size_t & res,
-                                            const data_management::DataCollectionPtr probTbl = data_management::DataCollectionPtr(),
-                                            const double * const prob = nullptr, const size_t nClasses = 0)
+services::Status addLeafNodeInternal(const data_management::DataCollectionPtr & serializationData, const size_t treeId, const size_t parentId,
+                                     const size_t position, ClassOrResponseType response, double cover, size_t & res,
+                                     const data_management::DataCollectionPtr probTbl = data_management::DataCollectionPtr(),
+                                     const double * const prob = nullptr, const size_t nClasses = 0)
 {
     const size_t noParent = static_cast<size_t>(-1);
     if (prob != nullptr)
@@ -490,6 +487,8 @@ public:
     bool reserve(const size_t nTrees);
     bool resize(const size_t nTrees);
     void clear();
+    // check if all allocated memory is valid
+    bool isValid() const;
 
     const data_management::DataCollection * serializationData() const { return _serializationData.get(); }
 
@@ -530,6 +529,7 @@ protected:
         {
             arch->setSharedPtrObj(_impurityTables);
             arch->setSharedPtrObj(_nNodeSampleTables);
+            arch->setSharedPtrObj(_probTbl);
         }
 
         if (onDeserialize) _nTree.set(_serializationData->size());

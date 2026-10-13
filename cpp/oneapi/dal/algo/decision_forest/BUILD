@@ -12,6 +12,9 @@ dal_module(
         "@onedal//cpp/oneapi/dal/algo/decision_forest/backend:model_impl",
         "@onedal//cpp/oneapi/dal/detail/parameters",
     ],
+    extra_deps = [
+        "@onedal//cpp/daal/src/algorithms/dtrees/forest:kernel",
+    ],
 )
 
 dal_module(
@@ -35,10 +38,9 @@ dal_module(
         "@onedal//cpp/oneapi/dal/backend/primitives:rng",
     ],
     extra_deps = [
-        "@onedal//cpp/daal/src/algorithms/decision_tree:kernel",
         "@onedal//cpp/daal/src/algorithms/dtrees/forest/classification:kernel",
         "@onedal//cpp/daal/src/algorithms/dtrees/forest/regression:kernel",
-    ]
+    ],
 )
 
 dal_test_suite(

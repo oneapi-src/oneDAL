@@ -54,7 +54,15 @@ void daal_free_buffers();
 DAAL_EXPORT daal::services::Environment * daal::services::Environment::getInstance()
 {
     static daal::services::Environment instance;
-    return &instance;
+    if (isInit)
+        return &instance;
+    else
+        return nullptr;
+}
+
+DAAL_EXPORT int daal::services::Environment::getStatus()
+{
+    return daal::services::internal::_internal_daal_GetStatus();
 }
 
 DAAL_EXPORT int daal::services::Environment::freeInstance()
@@ -96,7 +104,7 @@ DAAL_EXPORT int daal::services::Environment::setCpuId(int cpuid)
     {
         if (~size_t(0) == _env.cpuid)
         {
-            if (cpuid > daal::lastCpuType || cpuid < 0) return daal::services::ErrorCpuIsInvalid;
+            if (cpuid > daal::internal::lastCpuType || cpuid < daal::internal::firstCpuType) return daal::services::ErrorCpuIsInvalid;
 
             if (cpuid > host_cpuid)
             {
@@ -129,6 +137,8 @@ DAAL_EXPORT daal::services::Environment::Environment() : _schedulerHandle {}, _g
 {
     _env.cpuid_init_flag = false;
     _env.cpuid           = -1;
+    // Initialize the Environment to prevent from using it uninitialized
+    getCpuId();
 }
 
 DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : daal::services::Environment::Environment() {}
@@ -136,24 +146,34 @@ DAAL_EXPORT daal::services::Environment::Environment(const Environment & e) : da
 DAAL_EXPORT void daal::services::Environment::initNumberOfThreads()
 {
     if (isInit) return;
-        // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
-        // destruction of the calling thread.
-        // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
-        // instance, it blocks the calling thread until the completion of all worker
-        // threads that were implicitly created by the library.
+    // Initializes global oneapi::tbb::task_scheduler_handle object in oneDAL to prevent the unexpected
+    // destruction of the calling thread.
+    // When the oneapi::tbb::finalize function is called with an oneapi::tbb::task_scheduler_handle
+    // instance, it blocks the calling thread until the completion of all worker
+    // threads that were implicitly created by the library.
 #if defined(TARGET_X86_64)
     daal::setSchedulerHandle(&_schedulerHandle);
 #endif
     /* if HT enabled - set _numThreads to physical cores num */
-    if (daal::internal::ServiceInst::serv_get_ht())
+    const int htStatus = daal::internal::ServiceInst::serv_get_ht();
+    if (htStatus < 0)
     {
-        /* Number of cores = number of cpu packages * number of cores per cpu package */
-        int ncores = daal::internal::ServiceInst::serv_get_ncpus() * daal::internal::ServiceInst::serv_get_ncorespercpu();
+        // Failed to get the number of CPUs. Environment cannot be initialized
+        return;
+    }
+    else if (htStatus > 0)
+    {
+        const int ncpus = daal::internal::ServiceInst::serv_get_ncpus();
+        if (ncpus < 0)
+        {
+            // Failed to get the number of CPUs. Environment cannot be initialized
+            return;
+        }
 
         /*  Re-set number of threads if ncores is valid and different to _numThreads */
-        if ((ncores > 0) && (ncores < _daal_threader_get_max_threads()))
+        if ((ncpus > 0) && (ncpus < _daal_threader_get_max_threads()))
         {
-            daal::services::Environment::setNumberOfThreads(ncores);
+            daal::services::Environment::setNumberOfThreads(ncpus);
         }
     }
     isInit = true;

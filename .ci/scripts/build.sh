@@ -35,7 +35,10 @@ show_help() {
 --blas-dir:The BLAS installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
 --tbb-dir:The TBB installation directory to use to build oneDAL with in the case that the backend is given as `ref`. If the installation directory does not exist, attempts to build this from source
 --use-openrng:Set this to yes if openrng is to be used as RNG backend. Use this only with the `ref` backend.
+--openrng-dir:The directory in which openrng is installed. Only to be used with `ref` backend and `--use-openrng yes`.
 --sysroot:The sysroot to use, in the case that clang is used as the cross-compiler
+--debug:Set build debug mode flag
+--jobs:The number of parallel threads to use for oneDAL building
 '
 }
 
@@ -67,6 +70,9 @@ while [[ $# -gt 0 ]]; do
         --blas-dir)
         BLAS_INSTALL_DIR=$(readlink -f "$2")
         shift;;
+        --openrng-dir)
+        OPENRNG_INSTALL_DIR=$(readlink -f "$2")
+        shift;;
         --tbb-dir)
         TBB_INSTALL_DIR=$(readlink -f "$2")
         shift;;
@@ -75,6 +81,12 @@ while [[ $# -gt 0 ]]; do
         shift;;
         --use-openrng)
         use_openrng="$2"
+        shift;;
+        --debug)
+        use_debug="$2"
+        shift;;
+        --jobs)
+        jobs="$2"
         shift;;
         --help)
         show_help
@@ -128,7 +140,9 @@ else
 fi
 
 #setting build parallelization based on number of threads
-if [ "$(uname)" == "Linux" ]; then
+if [[ -n "${jobs}" ]]; then
+    make_op="-j${jobs}"
+elif [ "$(uname)" == "Linux" ]; then
     make_op="-j$(nproc --all)"
 else
     make_op="-j$(sysctl -n hw.physicalcpu)"
@@ -163,8 +177,14 @@ fi
 
 #main actions
 echo "Call env scripts"
-if [ "${backend_config}" == "mkl" ]; then
-    source /opt/intel/oneapi/mkl/latest/env/vars.sh
+if [ "${backend_config}" == "mkl" ] && [ -z "${MKLROOT}" ]; then
+    if [ ! -z "${CONDA_PREFIX}" ] && [ -d "${CONDA_PREFIX}/lib" ]; then
+        echo "Using MKL from conda environment..."
+        export MKLROOT="${CONDA_PREFIX}"
+    else
+        echo "Sourcing MKL env..."
+        source /opt/intel/oneapi/mkl/latest/env/vars.sh
+    fi
 elif [ "${backend_config}" == "ref" ] && [ ! -z "${BLAS_INSTALL_DIR}" ]; then
     export OPENBLASROOT="${BLAS_INSTALL_DIR}"
 elif [ "${backend_config}" == "ref" ]; then
@@ -190,16 +210,28 @@ elif [ "${backend_config}" == "ref" ]; then
         "${ONEDAL_DIR}"/.ci/env/openblas.sh "${openblas_options[@]}"
     fi
     export OPENBLASROOT="${ONEDAL_DIR}/__deps/openblas_${ARCH}"
-    if [ "${use_openrng}" == "yes" ]; then
-        echo "Sourcing ref(openrng) env"
-        if [ ! -d "${ONEDAL_DIR}"/__deps/openrng ]; then
-            echo "${ONEDAL_DIR}"/.ci/env/openrng.sh
-            "${ONEDAL_DIR}"/.ci/env/openrng.sh
-        fi
-        export OPENRNGROOT="${ONEDAL_DIR}"/__deps/openrng
-    fi
 else
     echo "Not supported backend env"
+fi
+
+echo "Sourcing ref(openrng) env"
+if [ "${backend_config}" == "ref" ] && [ "${use_openrng}" == "yes" ]; then
+    if [ ! -z "${OPENRNG_INSTALL_DIR}" ]; then
+        export OPENRNGROOT="${OPENRNG_INSTALL_DIR}"
+    elif [ "${ARCH}" != "arm" ]; then
+        echo "OpenRNG backend is currently only supported on ARM"
+        exit 1
+    elif [ ! -d "${ONEDAL_DIR}"/__deps/openrng ]; then
+        openrng_options=(--target-arch aarch64)
+        if [ "${cross_compile}" == "yes" ] ; then
+            openrng_options+=(--cross-compile --CC aarch64-linux-gnu-gcc --CXX aarch64-linux-gnu-g++)
+        fi
+        echo "${ONEDAL_DIR}"/.ci/env/openrng.sh "${openrng_options[@]}"
+        "${ONEDAL_DIR}"/.ci/env/openrng.sh "${openrng_options[@]}"
+        export OPENRNGROOT="${ONEDAL_DIR}/__deps/openrng"
+    else
+        export OPENRNGROOT="${ONEDAL_DIR}/__deps/openrng"
+    fi
 fi
 
 # TBB setup
@@ -245,6 +277,10 @@ fi
 
 if [ "${use_openrng}" == "yes" ]; then
     make_options+=(RNG_BACKEND=openrng)
+fi
+
+if [ -n "${use_debug}" ]; then
+    make_options+=(REQDBG="${use_debug}")
 fi
 
 echo "Calling make"

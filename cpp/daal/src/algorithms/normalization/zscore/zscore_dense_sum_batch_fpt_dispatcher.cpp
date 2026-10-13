@@ -26,7 +26,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::interface3::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::sumDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(normalization::zscore::internal::BatchContainer, batch, DAAL_FPTYPE, normalization::zscore::sumDense)
 } // namespace algorithms
 } // namespace daal
 
@@ -40,23 +40,27 @@ namespace zscore
 {
 namespace interface3
 {
-template <typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
-Batch<algorithmFPType, method>::Batch()
+template <>
+void Batch<DAAL_FPTYPE, normalization::zscore::sumDense>::initialize()
+{
+    Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, normalization::zscore::sumDense)(&_env);
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, normalization::zscore::sumDense>::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template <typename algorithmFPType, daal::algorithms::normalization::zscore::Method method>
-Batch<algorithmFPType, method>::Batch(const Batch & other) : BatchImpl(other)
+using BatchType = Batch<DAAL_FPTYPE, normalization::zscore::sumDense>;
+
+template <>
+DAAL_EXPORT BatchType::Batch(const Batch & other) : BatchImpl(other)
 {
     _par = new ParameterType(other.parameter());
     initialize();
 }
-template Batch<DAAL_FPTYPE, normalization::zscore::sumDense>::Batch();
-template Batch<DAAL_FPTYPE, normalization::zscore::defaultDense>::Batch();
-template Batch<DAAL_FPTYPE, normalization::zscore::sumDense>::Batch(const Batch &);
-template Batch<DAAL_FPTYPE, normalization::zscore::defaultDense>::Batch(const Batch &);
+
 } // namespace interface3
 } // namespace zscore
 } // namespace normalization

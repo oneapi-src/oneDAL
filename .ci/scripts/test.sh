@@ -30,8 +30,10 @@ function show_help_text {
 --conda-env:The Conda environment to load
 --build-system:The type of build to perform, e.g. cmake
 --backend:The backend C library to use. Must be one of [mkl, ref]
+--rng-backend:The RNG backend library to use. Must be one of [mkl, ref, openrng]
 --platform:Explicitly pass the platform. This is the same as is passed to the top-level oneDAL build script
 --cross-compile:Indicates whether cross-compilation is being performed
+--jobs:The number of parallel threads to use for test building
 '
 }
 
@@ -67,12 +69,20 @@ while [[ $# -gt 0 ]]; do
         backend="$2"
         shift
         ;;
+        --rng-backend)
+        rng_backend="$2"
+        shift
+        ;;
         --platform)
         platform="$2"
         shift
         ;;
         --cross-compile)
         cross_compile="yes"
+        ;;
+        --jobs)
+        jobs="$2"
+        shift
         ;;
         --help)
         show_help_text
@@ -107,6 +117,11 @@ fi
 
 build_system=${build_system:-cmake}
 backend=${backend:-mkl}
+if [ "${backend}" == "mkl" ]; then
+    rng_backend=mkl
+else
+    rng_backend=${rng_backend:-ref}
+fi
 
 if [ "${OS}" == "lnx" ]; then
     if [ -f /usr/share/miniconda/etc/profile.d/conda.sh ] ; then
@@ -133,7 +148,27 @@ else
     exit 1
 fi
 
-if [ "$(uname)" == "Linux" ]; then
+if [[ "${interface}" == *"/mpi" ]]; then
+    # The MPI samples launch every rank on the runner itself, so shared memory
+    # and tcp are the only fabrics they need. Some cloud runners (e.g. Azure
+    # VMs with a MANA paravirtualized NIC) nevertheless expose a device under
+    # /sys/class/infiniband, which Intel MPI's OFI autoselect picks up as a
+    # PSM3/verbs device. Opening the endpoint then fails ("Unable to create UD
+    # QP on mana_0") and MPI_Init aborts before the sample runs. Probing with
+    # fi_info does not distinguish those hosts: the provider enumerates fine
+    # and only the endpoint open fails. So pin libfabric to tcp instead, unless
+    # the caller has already selected a provider explicitly.
+    if [ -z "${FI_PROVIDER:-}" ]; then
+        export FI_PROVIDER=tcp
+        echo "Pinning libfabric to FI_PROVIDER=${FI_PROVIDER} for MPI ${TEST_KIND}"
+    else
+        echo "Keeping caller-provided FI_PROVIDER=${FI_PROVIDER} for MPI ${TEST_KIND}"
+    fi
+fi
+
+if [[ -n "${jobs}" ]]; then
+    make_op="-j${jobs}"
+elif [ "$(uname)" == "Linux" ]; then
     make_op="-j$(nproc --all)"
 else
     make_op="-j$(sysctl -n hw.physicalcpu)"
@@ -161,6 +196,11 @@ else
 fi
 
 interface=${interface:-daal/cpp}
+if [[ "${interface}" == "oneapi/dpc" ]]; then
+    echo "Interface oneapi/dpc detected — forcing dynamic linking only"
+    link_modes=(dynamic)
+fi
+
 pushd "${BUILD_DIR}/daal/latest/${TEST_KIND}/${interface}" || exit 1
 
 for link_mode in "${link_modes[@]}"; do
@@ -205,6 +245,11 @@ for link_mode in "${link_modes[@]}"; do
 
         if [ "${backend}" == "ref" ] ; then
             ref_backend="ON"
+            if [ "${rng_backend}" == "openrng" ]; then
+                openrng_backend="ON"
+            else
+                openrng_backend="OFF"
+            fi
         else
             ref_backend="OFF"
         fi
@@ -213,7 +258,8 @@ for link_mode in "${link_modes[@]}"; do
             -S .
             -G "Unix Makefiles"
             -DONEDAL_LINK="${link_mode}"
-            -DREF_BACKEND="${ref_backend}")
+            -DREF_BACKEND="${ref_backend}"
+            -DOPENRNG_BACKEND="${openrng_backend}")
 
         if [ "${cross_compile}" == "yes" ] ; then
             # Set the cmake toolchain file to set up the cross-compilation
@@ -271,6 +317,14 @@ for link_mode in "${link_modes[@]}"; do
         done
         # Go back from "Build" directory in case of samples testing
         [ "$TEST_KIND" = "samples" ] && cd ..
+
+        # ==========================
+        # Clean cache after each run
+        # ==========================
+        echo "Cleaning test cache..."
+        rm -rf Build CMakeCache.txt CMakeFiles _cmake_results
+        echo "Cache cleaned."
+
     else
         build_command="make ${make_op} ${l}${full_arch} mode=build compiler=${compiler}"
         echo "Building ${TEST_KIND} ${build_command}"

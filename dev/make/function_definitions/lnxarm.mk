@@ -20,6 +20,9 @@ ARCH_DIR_ONEDAL = arm
 _OS := lnx
 _IA := arm
 
+COMPILERs = gnu clang
+COMPILER ?= gnu
+
 include dev/make/function_definitions/arm.mk
 
 # Used as $(eval $(call set_daal_rt_deps))
@@ -30,7 +33,7 @@ define set_daal_rt_deps
   $$(eval daaldep.lnxarm.rt.seq := -lpthread $$(daaldep.lnxarm.rt.$$(COMPILER)) \
 	  	  $$(if $$(RNG_OPENRNG), $$(daaldep.rng_backend.lib)) \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
-  $$(eval daaldep.lnxarm.rt.dpc := -lpthread -lOpenCL \
+  $$(eval daaldep.lnxarm.rt.dpc := -lpthread \
           $$(if $$(COV.libia),$$(COV.libia)/libcov.a))
   $$(eval daaldep.lnxarm.threxport := export_lnxarm.$$(BACKEND_CONFIG).def)
 

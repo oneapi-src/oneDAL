@@ -40,6 +40,10 @@ DistributedInput<step2Master>::DistributedInput() : InputIface(lastMasterInputId
     Argument::set(partialResults, DataCollectionPtr(new DataCollection()));
 }
 
+DistributedInput<step2Master>::DistributedInput(const DistributedInput & other)                          = default;
+DistributedInput<step2Master> & DistributedInput<step2Master>::operator=(const DistributedInput & other) = default;
+DistributedInput<step2Master>::~DistributedInput()                                                       = default;
+
 size_t DistributedInput<step2Master>::getNumberOfFeatures() const
 {
     DataCollectionPtr collectionOfPartialResults = staticPointerCast<DataCollection, SerializationIface>(Argument::get(partialResults));
@@ -77,10 +81,7 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
     size_t nBlocks = collection->size();
     DAAL_CHECK_EX(nBlocks > 0, ErrorIncorrectNumberOfInputNumericTables, ArgumentName, partialResultsStr());
 
-    int packedLayouts = packed_mask;
-    int csrLayout     = (int)NumericTableIface::csrArray;
-    int crossProductUnexpectedLayout =
-        (int)NumericTableIface::csrArray | (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
+    constexpr int csrLayout = (int)NumericTableIface::csrArray;
 
     services::Status s;
     for (size_t j = 0; j < nBlocks; j++)
@@ -97,12 +98,12 @@ services::Status DistributedInput<step2Master>::check(const daal::algorithms::Pa
         /* Check partial cross-products */
         NumericTable * crossProductTable = static_cast<NumericTable *>(partialResult->get(crossProduct).get());
 
-        s |= checkNumericTable(crossProductTable, crossProductStr(), crossProductUnexpectedLayout, 0, nFeatures, nFeatures);
+        s |= checkNumericTable(crossProductTable, crossProductStr(), csrLayout, 0, nFeatures, nFeatures);
         if (!s) return s;
 
         /* Check partial sums */
         NumericTable * sumTable = static_cast<NumericTable *>(partialResult->get(sum).get());
-        s |= checkNumericTable(sumTable, sumStr(), packedLayouts, 0, nFeatures, 1);
+        s |= checkNumericTable(sumTable, sumStr(), csrLayout, 0, nFeatures, 1);
     }
     return s;
 }

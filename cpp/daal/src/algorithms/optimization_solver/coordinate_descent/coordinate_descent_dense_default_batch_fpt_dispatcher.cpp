@@ -25,7 +25,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::coordinate_descent::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::coordinate_descent::internal::BatchContainer, batch, DAAL_FPTYPE,
                                       optimization_solver::coordinate_descent::defaultDense)
 
 namespace optimization_solver
@@ -37,24 +37,33 @@ namespace interface1
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::coordinate_descent::defaultDense>;
 
 template <>
-BatchType::Batch(const sum_of_functions::BatchPtr & objectiveFunction)
+void Batch<DAAL_FPTYPE, optimization_solver::coordinate_descent::defaultDense>::initialize()
+{
+    Analysis<batch>::_ac =
+        new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, optimization_solver::coordinate_descent::defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT BatchType::Batch(const sum_of_functions::BatchPtr & objectiveFunction)
 {
     _par = new algorithms::optimization_solver::coordinate_descent::Parameter(objectiveFunction);
     initialize();
 }
 
 template <>
-BatchType::Batch(const BatchType & other) : iterative_solver::Batch(other), input(other.input)
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : iterative_solver::Batch(other), input(other.input)
 {
     _par = new algorithms::optimization_solver::coordinate_descent::Parameter(other.parameter());
     initialize();
 }
 
 template <>
-services::SharedPtr<BatchType> BatchType::create()
+services::SharedPtr<BatchType> DAAL_EXPORT BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());
 }
+
 } // namespace interface1
 } // namespace coordinate_descent
 } // namespace optimization_solver

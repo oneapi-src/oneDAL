@@ -28,8 +28,6 @@
 #include "data_management/data/csr_numeric_table.h"
 #include "data_management/data/merged_numeric_table.h"
 #include "data_management/data/row_merged_numeric_table.h"
-#include "data_management/data/symmetric_matrix.h"
-#include "data_management/data/matrix.h"
 #include "data_management/data/data_collection.h"
 #include "src/services/serialization_utils.h"
 
@@ -65,10 +63,8 @@ template class BlockDescriptor<double>;
     }
 
 #undef __DAAL_REGISTER_TEMPLATED_OBJECT
-#define __DAAL_REGISTER_TEMPLATED_OBJECT(CreatorName, ObjectName, ...)                                                     \
-    {                                                                                                                      \
-        __DAAL_ADD_TYPE(__DAAL_CREATOR_ARGUMENTS(CreatorName < ObjectName < __VA_ARGS__), __DAAL_CREATOR_ARGUMENTS(>> ())) \
-    }
+#define __DAAL_REGISTER_TEMPLATED_OBJECT(CreatorName, ObjectName, ...) \
+    { __DAAL_ADD_TYPE(__DAAL_CREATOR_ARGUMENTS(CreatorName < ObjectName < __VA_ARGS__), __DAAL_CREATOR_ARGUMENTS(>>())) }
 
 namespace interface1
 {
@@ -135,12 +131,6 @@ Factory::Factory() : _impl(nullptr)
     for (auto ptr = SerializationDesc::first(); ptr; ptr = ptr->next()) _impl->add(new DefaultCreator(ptr), true);
 
     __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, HomogenNumericTable, );
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, Matrix, );
-
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedSymmetricMatrix, NumericTableIface::upperPackedSymmetricMatrix, );
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedSymmetricMatrix, NumericTableIface::lowerPackedSymmetricMatrix, );
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedTriangularMatrix, NumericTableIface::upperPackedTriangularMatrix, );
-    __DAAL_REGISTER_TEMPLATED_OBJECT(Creator, PackedTriangularMatrix, NumericTableIface::lowerPackedTriangularMatrix, );
 
     registerObject(new Creator<CSRNumericTable>());
     registerObject(new Creator<AOSNumericTable>());

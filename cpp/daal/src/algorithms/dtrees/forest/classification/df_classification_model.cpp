@@ -214,29 +214,36 @@ services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * ar
     s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
     arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
 
-    if ((INTEL_DAAL_VERSION > COMPUTE_DAAL_VERSION(2020, 0, 0)))
-    {
-        arch->setSharedPtrObj(_probTbl);
-    }
-
     return s;
 }
 
 services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
-    auto s                = daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    const int daalVersion = COMPUTE_DAAL_VERSION(arch->getMajorVersion(), arch->getMinorVersion(), arch->getUpdateVersion());
-    s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch, daalVersion));
-    if ((daalVersion >= COMPUTE_DAAL_VERSION(2020, 0, 1)))
-    {
-        arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
-    }
-    if ((daalVersion > COMPUTE_DAAL_VERSION(2020, 0, 0)))
-    {
-        arch->setSharedPtrObj(_probTbl);
-    }
+    auto s = daal::algorithms::classifier::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
+    s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
+    arch->set(daal::algorithms::classifier::internal::ModelInternal::_nFeatures);
 
     return s;
+}
+
+void ModelImpl::copyModelCls(const ModelImpl & other, size_t idx, size_t global_count)
+{
+    if (idx == 0)
+    {
+        resize(global_count); // sets _nTree = 0
+        _nTree.set(global_count);
+    }
+    // copy data if source and target pointers are valid
+    if (isValid() && other.isValid())
+    {
+        for (size_t i = 0; i < other._nTree.get(); i++)
+        {
+            (*_serializationData)[idx + i] = (*other._serializationData)[i];
+            (*_impurityTables)[idx + i]    = (*other._impurityTables)[i];
+            (*_nNodeSampleTables)[idx + i] = (*other._nNodeSampleTables)[i];
+            (*_probTbl)[idx + i]           = (*other._probTbl)[i];
+        }
+    }
 }
 
 bool ModelImpl::add(const TreeType & tree, size_t nClasses, size_t iTree)
@@ -246,24 +253,21 @@ bool ModelImpl::add(const TreeType & tree, size_t nClasses, size_t iTree)
     const size_t nNode = tree.getNumberOfNodes();
 
     auto pTbl           = new DecisionTreeTable(nNode);
-    auto impTbl         = new HomogenNumericTable<double>(1, nNode, NumericTable::doAllocate);
-    auto nodeSamplesTbl = new HomogenNumericTable<int>(1, nNode, NumericTable::doAllocate);
-    auto probTbl        = new HomogenNumericTable<double>(DictionaryIface::equal, nNode, nClasses, NumericTable::doAllocate);
+    auto impTbl         = HomogenNumericTable<double>::create(1, nNode, NumericTable::doAllocate);
+    auto nodeSamplesTbl = HomogenNumericTable<int>::create(1, nNode, NumericTable::doAllocate);
+    auto probTbl        = HomogenNumericTable<double>::create(DictionaryIface::equal, nNode, nClasses, NumericTable::doAllocate);
 
     if (!pTbl || !impTbl || !nodeSamplesTbl || !probTbl)
     {
         delete pTbl;
-        delete impTbl;
-        delete nodeSamplesTbl;
-        delete probTbl;
         return false;
     }
 
-    tree.convertToTable(pTbl, impTbl, nodeSamplesTbl, probTbl, nClasses);
+    tree.convertToTable(pTbl, impTbl.get(), nodeSamplesTbl.get(), probTbl.get(), nClasses);
     (*_serializationData)[iTree].reset(pTbl);
-    (*_impurityTables)[iTree].reset(impTbl);
-    (*_nNodeSampleTables)[iTree].reset(nodeSamplesTbl);
-    (*_probTbl)[iTree].reset(probTbl);
+    (*_impurityTables)[iTree]    = impTbl;
+    (*_nNodeSampleTables)[iTree] = nodeSamplesTbl;
+    (*_probTbl)[iTree]           = probTbl;
     return true;
 }
 

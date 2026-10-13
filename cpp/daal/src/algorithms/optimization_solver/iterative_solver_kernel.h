@@ -65,7 +65,7 @@ void processByBlocks(size_t nRows, const F & processBlock, size_t minRowsNumInBl
     size_t nBlocks = nRows / minRowsNumInBlock;
     nBlocks += (nBlocks * minRowsNumInBlock != nRows);
 
-    daal::threader_for(nBlocks, nBlocks, [=](size_t block) {
+    daal::threader_for(nBlocks, 1, [=](size_t block) {
         const size_t nRowsInBlock = (block == nBlocks - 1) ? (nRows - block * minRowsNumInBlock) : minRowsNumInBlock;
         processBlock(block * minRowsNumInBlock, nRowsInBlock);
     });
@@ -94,8 +94,8 @@ public:
                 DAAL_CHECK_BLOCK_STATUS_THR(vecBD);
                 algorithmFPType * normPtr = normTls.local();
                 DAAL_CHECK_THR(normPtr, services::ErrorMemoryAllocationFailed);
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
-                PRAGMA_IVDEP
                 for (size_t j = 0; j < nRowsInBlock; j++)
                 {
                     *normPtr += vecLocal[j] * vecLocal[j];
@@ -117,7 +117,7 @@ public:
         res = 0;
         if (nElements < blockStartThreshold)
         {
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < nElements; j++)
             {

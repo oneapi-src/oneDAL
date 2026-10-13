@@ -16,7 +16,6 @@
 
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
-#include "oneapi/dal/algo/pca/backend/sign_flip.hpp"
 #include "oneapi/dal/detail/policy.hpp"
 #include "oneapi/dal/detail/common.hpp"
 #include "oneapi/dal/algo/pca/backend/gpu/train_kernel_svd_impl.hpp"
@@ -37,6 +36,7 @@ template <typename Float>
 struct train_kernel_gpu<Float, method::svd, task::dim_reduction> {
     result_t operator()(const context_gpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task::dim_reduction>& params,
                         const input_t& input) const {
         return train<Float>(ctx, desc, input);
     }

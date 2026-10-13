@@ -21,7 +21,7 @@
 //--
 */
 
-#include "src/externals/service_profiler.h"
+#include "src/services/service_profiler.h"
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"
 #include "src/algorithms/low_order_moments/low_order_moments_online_impl.i"
@@ -32,14 +32,13 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
-template class OnlineContainer<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;
-}
+
 namespace internal
 {
+template class OnlineContainer<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;
+
 template class DAAL_EXPORT LowOrderMomentsOnlineKernel<DAAL_FPTYPE, singlePassDense, DAAL_CPU>;
-}
+} // namespace internal
 } // namespace low_order_moments
 } // namespace algorithms
 } // namespace daal

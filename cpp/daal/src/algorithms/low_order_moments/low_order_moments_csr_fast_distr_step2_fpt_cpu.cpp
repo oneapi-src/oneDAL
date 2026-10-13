@@ -20,7 +20,7 @@
 //  Implementation of low order moments kernel.
 //--
 */
-#include "src/externals/service_profiler.h"
+#include "src/services/service_profiler.h"
 
 #include "src/algorithms/low_order_moments/low_order_moments_container.h"
 #include "src/algorithms/low_order_moments/low_order_moments_distributed_impl.i"
@@ -31,14 +31,13 @@ namespace algorithms
 {
 namespace low_order_moments
 {
-namespace interface1
-{
-template class DistributedContainer<step2Master, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
+
 namespace internal
 {
+template class DistributedContainer<step2Master, DAAL_FPTYPE, fastCSR, DAAL_CPU>;
+
 template class LowOrderMomentsDistributedKernel<DAAL_FPTYPE, fastCSR, DAAL_CPU>;
-}
+} // namespace internal
 } // namespace low_order_moments
 } // namespace algorithms
 } // namespace daal

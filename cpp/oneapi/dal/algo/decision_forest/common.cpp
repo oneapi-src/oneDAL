@@ -61,8 +61,13 @@ public:
     error_metric_mode error_metric_mode_value = error_metric_mode::none;
     infer_mode infer_mode_value = infer_mode::class_responses;
 
+    // The default engine has been switched from mt2203 to philox for GPU,
+    // as philox is more efficient in terms of performance on GPU architectures.
+    // Note: Due to this change, some conformance(not critical) tests might fail as a result.
+    engine_type df_engine_type = engine_type::philox4x32x10;
     bool memory_saving_mode = false;
     bool bootstrap = true;
+    bool local_trees_mode = false;
     splitter_mode splitter_mode_value = splitter_mode::best;
 
     variable_importance_mode variable_importance_mode_value = variable_importance_mode::none;
@@ -145,6 +150,11 @@ bool descriptor_base<Task>::get_memory_saving_mode() const {
 }
 
 template <typename Task>
+bool descriptor_base<Task>::get_local_trees_mode() const {
+    return impl_->local_trees_mode;
+}
+
+template <typename Task>
 bool descriptor_base<Task>::get_bootstrap() const {
     return impl_->bootstrap;
 }
@@ -180,9 +190,13 @@ std::int64_t descriptor_base<Task>::get_seed() const {
 }
 
 template <typename Task>
+engine_type descriptor_base<Task>::get_engine_type() const {
+    return impl_->df_engine_type;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_observations_per_tree_fraction_impl(double value) {
-    check_domain_cond((value > 0.0 && value <= 1.0),
-                      "observations_per_tree_fraction should be > 0.0 and <= 1.0");
+    check_domain_cond((value > 0.0), "observations_per_tree_fraction should be > 0.0");
     impl_->observations_per_tree_fraction = value;
 }
 
@@ -264,6 +278,11 @@ void descriptor_base<Task>::set_infer_mode_impl(infer_mode value) {
 }
 
 template <typename Task>
+void descriptor_base<Task>::set_local_trees_mode_impl(bool value) {
+    impl_->local_trees_mode = value;
+}
+
+template <typename Task>
 void descriptor_base<Task>::set_memory_saving_mode_impl(bool value) {
     impl_->memory_saving_mode = value;
 }
@@ -297,6 +316,11 @@ void descriptor_base<Task>::set_voting_mode_impl(voting_mode value) {
 template <typename Task>
 void descriptor_base<Task>::set_seed_impl(std::int64_t value) {
     impl_->seed = value;
+}
+
+template <typename Task>
+void descriptor_base<Task>::set_engine_type_impl(engine_type value) {
+    impl_->df_engine_type = value;
 }
 
 template class ONEDAL_EXPORT descriptor_base<task::classification>;

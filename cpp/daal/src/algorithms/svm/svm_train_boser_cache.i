@@ -28,7 +28,7 @@
 #include "src/externals/service_memory.h"
 #include "src/data_management/service_micro_table.h"
 #include "src/data_management/service_numeric_table.h"
-#include "src/externals/service_profiler.h"
+#include "src/services/service_profiler.h"
 #include "src/algorithms/svm/svm_train_cache.h"
 
 namespace daal
@@ -98,7 +98,7 @@ class SVMCacheImpl : public SVMCacheIface<boser, algorithmFPType, cpu>
 public:
     virtual ~SVMCacheImpl() {}
 
-    virtual size_t getDataRowIndex(size_t rowIndex) const DAAL_C11_OVERRIDE { return _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex; }
+    virtual size_t getDataRowIndex(size_t rowIndex) const override { return _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex; }
 
 protected:
     /**
@@ -175,28 +175,28 @@ public:
         return res;
     }
 
-    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) DAAL_C11_OVERRIDE
+    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) override
     {
         block = _cache.get() + rowIndex * _lineSize + startColIndex;
         return Status();
     }
 
     virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize, const algorithmFPType *& block1,
-                                   const algorithmFPType *& block2) DAAL_C11_OVERRIDE
+                                   const algorithmFPType *& block2) override
     {
         block1 = _cache.get() + rowIndex1 * _lineSize + startColIndex;
         block2 = _cache.get() + rowIndex2 * _lineSize + startColIndex;
         return Status();
     }
 
-    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) DAAL_C11_OVERRIDE;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) override;
 
     ~SVMCache() {}
 
 protected:
     Status init(const NumericTablePtr & xTable)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(CACHE.computeKernel);
+        DAAL_PROFILER_TASK(CACHE.computeKernel);
 
         Status s = super::init();
         if (!s) return s;
@@ -282,20 +282,20 @@ public:
         return res;
     }
 
-    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) DAAL_C11_OVERRIDE
+    virtual Status getRowBlock(size_t rowIndex, size_t startColIndex, size_t blockSize, const algorithmFPType *& block) override
     {
         return getRowBlockImpl(rowIndex, startColIndex, blockSize, 0, block);
     }
 
     virtual Status getTwoRowsBlock(size_t rowIndex1, size_t rowIndex2, size_t startColIndex, size_t blockSize, const algorithmFPType *& block1,
-                                   const algorithmFPType *& block2) DAAL_C11_OVERRIDE
+                                   const algorithmFPType *& block2) override
     {
         Status s = getRowBlockImpl(rowIndex1, startColIndex, blockSize, 0, block1);
         s |= getRowBlockImpl(rowIndex2, startColIndex, blockSize, blockSize, block2);
         return s;
     }
 
-    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) DAAL_C11_OVERRIDE;
+    virtual Status updateShrinkingRowIndices(size_t nActiveVectors, const char * I) override;
 
     ~SVMCache() {}
 
@@ -334,7 +334,7 @@ protected:
 
     Status getRowBlockImpl(size_t rowIndex, size_t startColIndex, size_t blockSize, size_t cacheOffset, const algorithmFPType *& block)
     {
-        DAAL_ITTNOTIFY_SCOPED_TASK(NOT_CACHE.computeKernel);
+        DAAL_PROFILER_TASK(NOT_CACHE.computeKernel);
 
         _cacheTable->setArray(_cache.get() + cacheOffset, _cacheTable->getNumberOfRows());
         _kernel->getParameter()->rowIndexY = _doShrinking ? _shrinkingRowIndices[rowIndex] : rowIndex;

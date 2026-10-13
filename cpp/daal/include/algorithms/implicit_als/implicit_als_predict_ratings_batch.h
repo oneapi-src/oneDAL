@@ -46,32 +46,6 @@ namespace interface1
  * @{
  */
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of the implicit ALS ratings prediction algorithm in the batch processing mode
- *
- * \tparam algorithmFPType  Data type to use in intermediate computations for implicit ALS model-based prediction, double or float
- * \tparam method           Implicit ALS prediction method, \ref Method
- */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class BatchContainer : public PredictionContainerIface
-{
-public:
-    /**
-     * Constructs a container for implicit ALS model-based ratings prediction with a specified environment
-     * in the batch processing mode
-     * \param[in] daalEnv   Environment object
-     */
-    BatchContainer(daal::services::Environment::env * daalEnv);
-    /** Default destructor */
-    ~BatchContainer();
-    /**
-     * Computes the result of implicit ALS model-based ratings prediction
-     * in the batch processing mode
-     */
-    services::Status compute() DAAL_C11_OVERRIDE;
-};
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__IMPLICIT_ALS__PREDICTION__RATINGS__BATCH"></a>
  *  \brief Predicts the results of the implicit ALS algorithm
  * <!-- \n<a href="DAAL-REF-IMPLICIT_ALS-ALGORITHM">Implicit ALS algorithm description and usage models</a> -->
@@ -83,7 +57,7 @@ public:
  *      - \ref Method Implicit ALS prediction methods
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Batch : public daal::algorithms::Prediction
+class DAAL_EXPORT Batch : public daal::algorithms::Prediction
 {
 public:
     typedef algorithms::implicit_als::prediction::ratings::Input InputType;
@@ -96,7 +70,7 @@ public:
     /**
      * Default constructor
      */
-    Batch() { initialize(); }
+    Batch();
 
     /**
      * Constructs an implicit ALS ratings prediction algorithm by copying input objects and parameters
@@ -104,7 +78,7 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
+    Batch(const Batch<algorithmFPType, method> & other);
 
     virtual ~Batch() {}
 
@@ -130,7 +104,7 @@ public:
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    int getMethod() const override { return (int)method; }
 
     /**
      * Returns a pointer to the newly allocated ALS ratings prediction algorithm with a copy of input objects
@@ -142,29 +116,22 @@ public:
 protected:
     ResultPtr _result;
 
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+    Batch<algorithmFPType, method> * cloneImpl() const override { return new Batch<algorithmFPType, method>(*this); }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, &parameter, (int)method);
         _res               = _result.get();
         return s;
     }
 
-    void initialize()
-    {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
-        _result.reset(new ResultType());
-    }
+    void initialize();
 
 private:
     Batch & operator=(const Batch &);
 };
 /** @} */
 } // namespace interface1
-using interface1::BatchContainer;
 using interface1::Batch;
 
 } // namespace ratings

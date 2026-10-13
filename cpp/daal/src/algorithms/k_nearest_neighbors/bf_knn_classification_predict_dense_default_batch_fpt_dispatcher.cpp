@@ -22,37 +22,42 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(bf_knn_classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(bf_knn_classification::prediction::internal::BatchContainer, batch, DAAL_FPTYPE,
                                       bf_knn_classification::prediction::defaultDense)
-
 namespace bf_knn_classification
 {
 namespace prediction
 {
 namespace interface1
 {
-template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
-Batch<algorithmFPType, method>::Batch() : classifier::prediction::Batch()
+
+template <>
+void Batch<DAAL_FPTYPE, defaultDense>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, defaultDense>::Batch() : classifier::prediction::Batch()
 {
     _par = new ParameterType();
     initialize();
 }
 
-template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
-Batch<algorithmFPType, method>::Batch(const Batch & other) : classifier::prediction::Batch(other), input(other.input)
-{
-    _par = new ParameterType(other.parameter());
-    initialize();
-}
-
-template <typename algorithmFPType, bf_knn_classification::prediction::Method method>
-Batch<algorithmFPType, method>::Batch(size_t nClasses)
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, defaultDense>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
 }
 
-template class Batch<DAAL_FPTYPE, defaultDense>;
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, defaultDense>::Batch(const Batch & other) : classifier::prediction::Batch(other), input(other.input)
+{
+    _par = new ParameterType(other.parameter());
+    initialize();
+}
 
 } // namespace interface1
 } // namespace prediction

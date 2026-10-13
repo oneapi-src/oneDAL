@@ -27,7 +27,41 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::training::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(linear_regression::training::internal::DistributedContainer, distributed, step2Master, DAAL_FPTYPE,
                                       linear_regression::training::qrDense)
+namespace linear_regression
+{
+namespace training
+{
+namespace interface1
+{
+using DistributedType = Distributed<step2Master, DAAL_FPTYPE, linear_regression::training::qrDense>;
+
+template <>
+void Distributed<step2Master, DAAL_FPTYPE, linear_regression::training::qrDense>::initialize()
+{
+    _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, internal::DistributedContainer, step2Master, DAAL_FPTYPE,
+                                          linear_regression::training::qrDense)(&_env);
+    _in  = &input;
+    _par = &parameter;
+    _partialResult.reset(new PartialResultType());
+    _result.reset(new ResultType());
 }
+template <>
+DAAL_EXPORT DistributedType::Distributed()
+{
+    initialize();
+}
+
+template <>
+DAAL_EXPORT DistributedType::Distributed(const DistributedType & other) : parameter(other.parameter)
+{
+    initialize();
+    input.set(partialModels, other.input.get(partialModels));
+}
+
+} // namespace interface1
+} // namespace training
+} // namespace linear_regression
+} // namespace algorithms
 } // namespace daal

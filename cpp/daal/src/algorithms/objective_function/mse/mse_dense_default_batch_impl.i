@@ -129,7 +129,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     result |= daal::services::internal::daal_memcpy_s(residualPtr, n * yDim * sizeof(algorithmFPType), Y,
                                                                       n * yDim * sizeof(algorithmFPType));
                     size_t compute_matrix = 0;
-                    PRAGMA_IVDEP
+                    PRAGMA_OMP_SIMD
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t i = 0; i < (nTheta + 1) * yDim; i++)
                     {
@@ -143,7 +143,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     {
                         if (soaPtr)
                         {
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                            daal::threader_for(nBlocks, 1, [&](const size_t iBlock) {
                                 const size_t startRow   = iBlock * blockSize;
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
                                 DAAL_INT localBlockSize = finishRow - startRow;
@@ -169,7 +169,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         }
                         else
                         {
-                            daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+                            daal::threader_for(nBlocks, 1, [&](const size_t iBlock) {
                                 const size_t startRow   = iBlock * blockSize;
                                 const size_t finishRow  = (iBlock + 1 == nBlocks ? nDataRows : (iBlock + 1) * blockSize);
                                 DAAL_INT localBlockSize = finishRow - startRow;
@@ -237,7 +237,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
 
                         tlsData.reduceTo(hessianDiagonalPtr, nTheta);
 
-                        PRAGMA_IVDEP
+                        PRAGMA_OMP_SIMD
                         PRAGMA_VECTOR_ALWAYS
                         for (size_t j = 0; j < nTheta; ++j)
                         {
@@ -278,7 +278,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         {
                             if (previousFeatureId == 0 && parameter->interceptFlag)
                             {
-                                PRAGMA_IVDEP
+                                PRAGMA_OMP_SIMD
                                 PRAGMA_VECTOR_ALWAYS
                                 for (size_t i = 0; i < nDataRows; i++) /*threader for*/
                                 {
@@ -305,7 +305,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     {
                         for (size_t i = 0; i < nDataRows; i++) /*threader for*/
                         {
-                            PRAGMA_IVDEP
+                            PRAGMA_OMP_SIMD
                             PRAGMA_VECTOR_ALWAYS
                             for (size_t ic = 0; ic < yDim; ic++) dotPtr[ic] += residualPtr[i * yDim + ic];
                         }
@@ -366,11 +366,11 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     XY.reset(dim * yDim);
                     XYPtr = XY.get();
 
-                    PRAGMA_IVDEP
+                    PRAGMA_OMP_SIMD
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t i = 0; i < dim * yDim; i++) XYPtr[i] = 0;
 
-                    PRAGMA_IVDEP
+                    PRAGMA_OMP_SIMD
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t i = 0; i < dim * dim; i++) gramMatrixPtr[i] = 0;
                     char uplo = 'L';
@@ -415,13 +415,13 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         });
                     }
                     tlsData.reduce([&](algorithmFPType * local) {
-                        PRAGMA_IVDEP
+                        PRAGMA_OMP_SIMD
                         PRAGMA_VECTOR_ALWAYS
                         for (size_t j = 0; j < dim * yDim; j++)
                         {
                             XYPtr[j] += local[j];
                         }
-                        PRAGMA_IVDEP
+                        PRAGMA_OMP_SIMD
                         PRAGMA_VECTOR_ALWAYS
                         for (size_t j = 0; j < dim * dim; j++)
                         {
@@ -431,7 +431,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                     const size_t dimension = dim;
                     for (size_t i = 0; i < dimension; i++)
                     {
-                        PRAGMA_IVDEP
+                        PRAGMA_OMP_SIMD
                         PRAGMA_VECTOR_ALWAYS
                         for (size_t j = i; j < dimension; j++) gramMatrixPtr[j * dim + i] = gramMatrixPtr[i * dim + j];
                     }
@@ -574,7 +574,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
                         }
                         tlsData.reduceTo(hessianDiagonalPtr, nTheta);
 
-                        PRAGMA_IVDEP
+                        PRAGMA_OMP_SIMD
                         PRAGMA_VECTOR_ALWAYS
                         for (size_t j = 0; j < nTheta; ++j)
                         {
@@ -706,7 +706,7 @@ inline services::Status MSEKernel<algorithmFPType, method, cpu>::compute(Numeric
         algorithmFPType globalMaxNorm = 0;
 
         TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        daal::threader_for(nBlocks, 1, [&](const size_t iBlock) {
             algorithmFPType & _maxNorm  = *tlsData.local();
             const size_t startRow       = iBlock * blockSize;
             const size_t finishRow      = (iBlock + 1 == nBlocks ? n : (iBlock + 1) * blockSize);

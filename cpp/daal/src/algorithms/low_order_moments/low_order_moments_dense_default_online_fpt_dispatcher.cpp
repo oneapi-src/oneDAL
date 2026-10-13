@@ -27,6 +27,35 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::OnlineContainer, online, DAAL_FPTYPE, low_order_moments::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(low_order_moments::internal::OnlineContainer, online, DAAL_FPTYPE, low_order_moments::defaultDense)
+namespace low_order_moments
+{
+namespace interface1
+{
+template <>
+void Online<DAAL_FPTYPE, low_order_moments::defaultDense>::initialize()
+{
+    Analysis<online>::_ac = new __DAAL_ALGORITHM_CONTAINER(online, internal::OnlineContainer, DAAL_FPTYPE, low_order_moments::defaultDense)(&_env);
+    _in                   = &input;
+    _par                  = &parameter;
+    _result.reset(new ResultType());
+    _partialResult.reset(new PartialResultType());
 }
+template <>
+DAAL_EXPORT Online<DAAL_FPTYPE, low_order_moments::defaultDense>::Online()
+{
+    initialize();
+}
+
+using OnlineType = Online<DAAL_FPTYPE, low_order_moments::defaultDense>;
+
+template <>
+DAAL_EXPORT OnlineType::Online(const OnlineType & other) : input(other.input), parameter(other.parameter)
+{
+    initialize();
+}
+
+} // namespace interface1
+} // namespace low_order_moments
+} // namespace algorithms
 } // namespace daal

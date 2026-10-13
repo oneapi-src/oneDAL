@@ -37,12 +37,14 @@ namespace covariance
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status CovarianceDenseBatchKernel<algorithmFPType, method, cpu>::compute(NumericTable * dataTable, NumericTable * covTable,
                                                                                    NumericTable * meanTable, const Parameter * parameter,
                                                                                    const Hyperparameter * hyperparameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(computeDenseBatch);
+    DAAL_PROFILER_TASK(CovarianceDenseBatchKernel::compute);
 
     algorithmFPType nObservations = 0.0;
 

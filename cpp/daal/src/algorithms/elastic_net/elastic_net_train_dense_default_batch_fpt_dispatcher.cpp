@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(elastic_net::training::BatchContainer, batch, DAAL_FPTYPE, elastic_net::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(elastic_net::training::internal::BatchContainer, batch, DAAL_FPTYPE, elastic_net::training::defaultDense)
 
 namespace elastic_net
 {
@@ -38,7 +38,14 @@ namespace training
 namespace interface1
 {
 template <>
-Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::Batch(const optimization_solver::iterative_solver::BatchPtr & solver)
+void Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, elastic_net::training::defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::Batch(const optimization_solver::iterative_solver::BatchPtr & solver)
 {
     _par = new ParameterType(solver);
     initialize();
@@ -46,7 +53,7 @@ Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::Batch(const optimizatio
 
 using BatchType = Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, elastic_net::training::defaultDense>::Batch(const BatchType & other) : input(other.input)
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

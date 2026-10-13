@@ -44,9 +44,23 @@ namespace ref
 {
 struct RefService
 {
-    static void * serv_malloc(size_t size, size_t alignment) { return aligned_alloc(alignment, size); }
+    static void * serv_malloc(size_t size, size_t alignment)
+    {
+#if defined(_MSC_VER)
+        return _aligned_malloc(size, alignment);
+#else
+        return aligned_alloc(alignment, size);
+#endif
+    }
 
-    static void serv_free(void * ptr) { free(ptr); }
+    static void serv_free(void * ptr)
+    {
+#if defined(_MSC_VER)
+        return _aligned_free(ptr);
+#else
+        free(ptr);
+#endif
+    }
 
     // TODO: Call of the function below in env_detect.cpp should be removed for alternative arch
     // Remove the method after that or replace with proper call from new backend library
@@ -99,8 +113,7 @@ struct RefService
     static size_t serv_strnlen_s(const char * src, size_t slen)
     {
         size_t i = 0;
-        for (; (i < slen) && (src[i] != '\0'); ++i)
-            ;
+        for (; (i < slen) && (src[i] != '\0'); ++i);
         return i;
     }
 
@@ -126,8 +139,7 @@ struct RefService
     static double serv_string_to_double(const char * nptr, char ** endptr)
     {
         const char * cur = nptr;
-        for (; isdigit(*cur) || *cur == '-' || *cur == 'e' || *cur == 'E' || *cur == '.'; ++cur)
-            ;
+        for (; isdigit(*cur) || *cur == '-' || *cur == 'e' || *cur == 'E' || *cur == '.'; ++cur);
         if (endptr) *endptr = const_cast<char *>(cur);
         size_t size = cur - nptr;
         // TODO replace with static buffer
@@ -145,8 +157,7 @@ struct RefService
     static int serv_string_to_int(const char * nptr, char ** endptr)
     {
         const char * cur = nptr;
-        for (; isdigit(*cur) || *cur == '-'; ++cur)
-            ;
+        for (; isdigit(*cur) || *cur == '-'; ++cur);
         if (endptr) *endptr = const_cast<char *>(cur);
         size_t size = cur - nptr;
         // TODO replace with static buffer

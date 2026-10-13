@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::prediction::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::classification::prediction::internal::BatchContainer, batch, DAAL_FPTYPE,
                                       gbt::classification::prediction::defaultDense)
 
 namespace gbt
@@ -41,7 +41,14 @@ namespace prediction
 namespace interface2
 {
 template <>
-Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t nClasses)
+void Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, gbt::classification::prediction::defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
@@ -49,7 +56,7 @@ Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(size_t 
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const BatchType & other)
+DAAL_EXPORT Batch<DAAL_FPTYPE, gbt::classification::prediction::defaultDense>::Batch(const BatchType & other)
     : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());

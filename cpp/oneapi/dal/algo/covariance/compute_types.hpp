@@ -42,14 +42,56 @@ public:
     compute_parameters(compute_parameters&&) = default;
     compute_parameters(const compute_parameters&) = default;
 
+    /// Covariance calculation splits input data table into blocks of rows when computing the
+    /// features' cross product to speed up the computations when the size of the data is below
+    /// the thresholds controlled by the other parameters here.
+    /// These API define the number of rows in the data block.
     std::int64_t get_cpu_macro_block() const;
     auto& set_cpu_macro_block(std::int64_t val) {
         set_cpu_macro_block_impl(val);
         return *this;
     }
 
+    /// Minimal number of data blocks to be processed by one thread for the cross product calculation.
+    std::int64_t get_cpu_grain_size() const;
+    auto& set_cpu_grain_size(std::int64_t val) {
+        set_cpu_grain_size_impl(val);
+        return *this;
+    }
+
+    /// Maximum number of columns of the input data for which the route splitting data into
+    /// blocks will be used. If there are more than this number of columns, it will use a
+    /// different route that does not divide the data into blocks.
+    std::int64_t get_cpu_max_cols_batched() const;
+    auto& set_cpu_max_cols_batched(std::int64_t val) {
+        set_cpu_max_cols_batched_impl(val);
+        return *this;
+    }
+
+    /// Maximum number of rows below which the criterion 'small_rows_max_cols_batched' will
+    /// apply. If the data has more than this number of rows, then 'small_rows_max_cols_batched'
+    /// will not apply to it.
+    std::int64_t get_cpu_small_rows_threshold() const;
+    auto& set_cpu_small_rows_threshold(std::int64_t val) {
+        set_cpu_small_rows_threshold_impl(val);
+        return *this;
+    }
+
+    /// Same criterion as 'max_cols_batched' controlling whether to use the non-batched route,
+    /// but applying only to cases where the number of rows is below 'small_rows_threshold'.
+    /// Note that the earlier 'max_cols_batched' always applies regardless of the number of rows.
+    std::int64_t get_cpu_small_rows_max_cols_batched() const;
+    auto& set_cpu_small_rows_max_cols_batched(std::int64_t val) {
+        set_cpu_small_rows_max_cols_batched_impl(val);
+        return *this;
+    }
+
 private:
     void set_cpu_macro_block_impl(std::int64_t val);
+    void set_cpu_grain_size_impl(std::int64_t val);
+    void set_cpu_max_cols_batched_impl(std::int64_t val);
+    void set_cpu_small_rows_threshold_impl(std::int64_t val);
+    void set_cpu_small_rows_max_cols_batched_impl(std::int64_t val);
     dal::detail::pimpl<compute_parameters_impl<Task>> impl_;
 };
 } // namespace v1
@@ -76,6 +118,17 @@ public:
     /// property value
     compute_input(const table& data);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~compute_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    compute_input(const compute_input&);
+    compute_input(compute_input&&) noexcept;
+    compute_input& operator=(const compute_input&);
+    compute_input& operator=(compute_input&&) noexcept;
+
     /// An $n \\times p$ table with the training data, where each row stores one
     /// feature vector.
     /// @remark default = table{}
@@ -88,6 +141,7 @@ public:
 
 protected:
     void set_data_impl(const table& value);
+    static void swap(compute_input<Task>& a, compute_input<Task>& b) noexcept;
 
 private:
     dal::detail::pimpl<detail::compute_input_impl<Task>> impl_;
@@ -207,6 +261,18 @@ public:
 
     partial_compute_input(const partial_compute_result<Task>& prev, const table& data);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~partial_compute_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    partial_compute_input(const partial_compute_input&);
+    partial_compute_input(partial_compute_input&&) noexcept;
+    partial_compute_input& operator=(const partial_compute_input&);
+    partial_compute_input& operator=(partial_compute_input&&) noexcept;
+
+    /// A $n \\times p$ table with the portion of the training data, where each row stores one feature vector.
     const table& get_data() const {
         return compute_input<Task>::get_data();
     }
@@ -216,6 +282,7 @@ public:
         return *this;
     }
 
+    /// Partial result from the previous step of the online covariance computation.
     const partial_compute_result<Task>& get_prev() const {
         return prev_;
     }
@@ -224,6 +291,9 @@ public:
         prev_ = value;
         return *this;
     }
+
+protected:
+    static void swap(partial_compute_input<Task>& a, partial_compute_input<Task>& b) noexcept;
 
 private:
     partial_compute_result<Task> prev_;

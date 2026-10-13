@@ -27,7 +27,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::training::BatchContainer, batch, DAAL_FPTYPE, gbt::regression::training::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(gbt::regression::training::internal::BatchContainer, batch, DAAL_FPTYPE,
+                                      gbt::regression::training::defaultDense)
 
 namespace gbt
 {
@@ -38,7 +39,14 @@ namespace training
 namespace interface1
 {
 template <>
-Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch()
+void Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, gbt::regression::training::defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch()
 {
     _par = new ParameterType();
     initialize();
@@ -46,7 +54,7 @@ Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch()
 
 using BatchType = Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, gbt::regression::training::defaultDense>::Batch(const BatchType & other) : input(other.input)
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

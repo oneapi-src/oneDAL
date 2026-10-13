@@ -37,7 +37,7 @@ class train_service_kernels {
     using context_t = train_context<Float, Index, Task>;
 
 public:
-    train_service_kernels(sycl::queue& q) : queue_(q){};
+    train_service_kernels(sycl::queue& q) : queue_(q) {};
     ~train_service_kernels() = default;
 
     std::uint64_t get_oob_rows_required_mem_size(Index row_count,
@@ -63,11 +63,7 @@ public:
                                              const pr::ndarray<Index, 1>& node_list,
                                              pr::ndarray<Index, 1>& tree_order,
                                              pr::ndarray<Index, 1>& tree_order_buf,
-                                             Index data_row_count,
-                                             Index data_selected_row_count,
-                                             Index data_column_count,
                                              Index node_count,
-                                             Index tree_count,
                                              const bk::event_vector& deps = {});
 
     sycl::event initialize_tree_order(pr::ndarray<Index, 1>& tree_order,

@@ -40,7 +40,7 @@ InputIface::InputIface(const InputIface & other) : daal::algorithms::Input(other
 
 Input::Input() : InputIface(lastInputDatasetId + 1) {};
 Input::Input(const Input & other) : InputIface(other) {}
-
+Input & Input::operator=(const Input & other) = default;
 /**
 * Returns the input object of the PCA algorithm
  * \param[in] id    Identifier of the input object
@@ -95,8 +95,7 @@ Status Input::check(const daal::algorithms::Parameter * par, int method) const
     Status s;
     if (_isCorrelation)
     {
-        int unexpectedLayouts = (int)NumericTableIface::upperPackedTriangularMatrix | (int)NumericTableIface::lowerPackedTriangularMatrix;
-        DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), correlationStr(), unexpectedLayouts));
+        DAAL_CHECK_STATUS(s, checkNumericTable(dataTable.get(), correlationStr()));
         DAAL_CHECK_EX(dataTable->getNumberOfColumns() == dataTable->getNumberOfRows(), ErrorNumericTableIsNotSquare, ArgumentName, correlationStr());
     }
     else

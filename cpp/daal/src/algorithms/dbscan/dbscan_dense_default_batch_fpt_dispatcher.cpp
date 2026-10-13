@@ -27,14 +27,21 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::BatchContainer, batch, DAAL_FPTYPE, dbscan::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(dbscan::internal::BatchContainer, batch, DAAL_FPTYPE, dbscan::defaultDense)
 
 namespace dbscan
 {
 namespace interface1
 {
 template <>
-Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(DAAL_FPTYPE epsilon, size_t minObservations)
+void Batch<DAAL_FPTYPE, dbscan::defaultDense>::initialize()
+{
+    Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, dbscan::defaultDense)(&_env);
+    _in                  = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(DAAL_FPTYPE epsilon, size_t minObservations)
 {
     _par = new ParameterType(epsilon, minObservations);
     initialize();
@@ -42,7 +49,7 @@ Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(DAAL_FPTYPE epsilon, size_t minO
 
 using BatchType = Batch<DAAL_FPTYPE, dbscan::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(const BatchType & other) : input(other.input)
+DAAL_EXPORT Batch<DAAL_FPTYPE, dbscan::defaultDense>::Batch(const BatchType & other) : input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

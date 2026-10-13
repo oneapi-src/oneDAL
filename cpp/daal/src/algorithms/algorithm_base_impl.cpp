@@ -24,7 +24,6 @@
 #include "algorithms/algorithm_base.h"
 #include "algorithms/algorithm_base_mode_impl.h"
 #include "src/algorithms/argument_storage.h"
-#include "src/services/service_algo_utils.h"
 
 #include "src/threading/service_thread_pinner.h"
 #include "src/services/service_topo.h"
@@ -54,6 +53,14 @@ algorithms::Argument::Argument(const size_t n) : _storage(new internal::Argument
 algorithms::Argument::Argument(const algorithms::Argument & other)
     : _storage(new internal::ArgumentStorage(*(internal::ArgumentStorage *)other._storage.get())), idx(0)
 {}
+
+algorithms::Argument & algorithms::Argument::operator=(const algorithms::Argument & other)
+{
+    if (this == &other) return *this;
+    _storage = data_management::DataCollectionPtr(new internal::ArgumentStorage(*(internal::ArgumentStorage *)other._storage.get()));
+    idx      = 0;
+    return *this;
+}
 
 const data_management::SerializationIfacePtr & algorithms::Argument::get(size_t index) const
 {
@@ -105,12 +112,6 @@ namespace services
 {
 namespace internal
 {
-services::HostAppIfacePtr getHostApp(algorithms::internal::ArgumentStorage & s)
-{
-    auto ext = s.getExtension(algorithms::internal::ArgumentStorage::hostApp);
-    DAAL_ASSERT(!ext.get() || dynamic_cast<services::HostAppIface *>(ext.get()));
-    return services::dynamicPointerCast<services::HostAppIface>(ext);
-}
 
 //service class that makes possible to access Input's storage
 class StorageAccessor : public daal::algorithms::Input
@@ -122,25 +123,6 @@ public:
     }
 };
 
-services::HostAppIfacePtr getHostApp(daal::algorithms::Input & inp)
-{
-    auto storage = StorageAccessor::get(inp);
-    if (storage) return internal::getHostApp(*storage);
-    return services::HostAppIfacePtr();
-}
-
-services::HostAppIface * hostApp(daal::algorithms::Input & inp)
-{
-    auto storage = StorageAccessor::get(inp);
-    return storage ? getHostApp(*storage).get() : nullptr;
-}
-
-void setHostApp(const services::SharedPtr<services::HostAppIface> & pHostApp, daal::algorithms::Input & inp)
-{
-    auto ptr = StorageAccessor::get(inp);
-    if (ptr) ptr->setExtension(algorithms::internal::ArgumentStorage::hostApp, pHostApp);
-}
-
 } //namespace internal
 } //namespace services
 
@@ -150,7 +132,8 @@ namespace interface1
 {
 
 AlgorithmContainerIfaceImpl::AlgorithmContainerIfaceImpl() = default;
-AlgorithmContainer<batch>::AlgorithmContainer()            = default;
+
+AlgorithmContainer<batch>::AlgorithmContainer() = default;
 
 template <ComputeMode mode>
 AlgorithmContainer<mode>::AlgorithmContainer() = default;
@@ -209,22 +192,10 @@ services::Status AlgorithmImpl<mode>::computeNoThrow()
     return s;
 }
 
-template <ComputeMode mode>
-services::HostAppIfacePtr AlgorithmImpl<mode>::hostApp()
-{
-    return this->_in ? services::internal::getHostApp(*this->_in) : services::HostAppIfacePtr();
-}
-
-template <ComputeMode mode>
-void AlgorithmImpl<mode>::setHostApp(const services::HostAppIfacePtr & pHost)
-{
-    if (this->_in) services::internal::setHostApp(pHost, *this->_in);
-}
-
 /**
  * Computes final results of the algorithm in the %batch mode without possibility of throwing an exception.
  */
-services::Status AlgorithmImpl<batch>::computeNoThrow()
+services::Status DAAL_EXPORT AlgorithmImpl<batch>::computeNoThrow()
 {
     this->setParameter();
 
@@ -269,17 +240,7 @@ services::Status AlgorithmImpl<batch>::computeNoThrow()
     return s;
 }
 
-services::HostAppIfacePtr AlgorithmImpl<batch>::hostApp()
-{
-    return this->_in ? services::internal::getHostApp(*this->_in) : services::HostAppIfacePtr();
-}
-
-void AlgorithmImpl<batch>::setHostApp(const services::HostAppIfacePtr & pHost)
-{
-    if (this->_in) services::internal::setHostApp(pHost, *this->_in);
-}
-
-template class interface1::AlgorithmImpl<online>;
-template class interface1::AlgorithmImpl<distributed>;
+template class DAAL_EXPORT interface1::AlgorithmImpl<online>;
+template class DAAL_EXPORT interface1::AlgorithmImpl<distributed>;
 } // namespace algorithms
 } // namespace daal

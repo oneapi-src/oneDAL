@@ -29,7 +29,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logistic_regression::prediction::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(logistic_regression::prediction::internal::BatchContainer, batch, DAAL_FPTYPE,
                                       logistic_regression::prediction::defaultDense)
 namespace logistic_regression
 {
@@ -38,7 +38,14 @@ namespace prediction
 namespace interface2
 {
 template <>
-Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(size_t nClasses)
+void Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, logistic_regression::prediction::defaultDense)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
@@ -46,7 +53,7 @@ Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(size_t 
 
 using BatchType = Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>;
 template <>
-Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(const BatchType & other)
+DAAL_EXPORT Batch<DAAL_FPTYPE, logistic_regression::prediction::defaultDense>::Batch(const BatchType & other)
     : classifier::prediction::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());

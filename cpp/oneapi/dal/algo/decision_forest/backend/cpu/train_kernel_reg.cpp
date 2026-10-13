@@ -16,7 +16,6 @@
 
 #include <daal/include/services/error_handling.h>
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_model_impl.h>
-#include <daal/src/services/service_algo_utils.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_batch.h>
 #include <daal/include/algorithms/decision_forest/decision_forest_regression_training_types.h>
 #include <daal/src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h>
@@ -35,21 +34,22 @@ using dal::backend::context_cpu;
 using model_t = model<task::regression>;
 using input_t = train_input<task::regression>;
 using result_t = train_result<task::regression>;
+using param_t = detail::train_parameters<task::regression>;
 using descriptor_t = detail::descriptor_base<task::regression>;
 
 namespace daal_df = daal::algorithms::decision_forest;
 namespace daal_df_reg_train = daal_df::regression::training;
 namespace interop = dal::backend::interop;
 
-template <typename Float, daal::CpuType Cpu>
+template <typename Float, daal::internal::CpuType Cpu>
 using reg_dense_kernel_t = daal_df_reg_train::internal::
     RegressionTrainBatchKernel<Float, daal_df_reg_train::defaultDense, Cpu>;
 
-template <typename Float, daal::CpuType Cpu>
+template <typename Float, daal::internal::CpuType Cpu>
 using reg_hist_kernel_t =
     daal_df_reg_train::internal::RegressionTrainBatchKernel<Float, daal_df_reg_train::hist, Cpu>;
 
-template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
+template <typename Float, template <typename, daal::internal::CpuType> typename CpuKernel>
 static result_t call_daal_kernel(const context_cpu& ctx,
                                  const descriptor_t& desc,
                                  const table& data,
@@ -159,15 +159,13 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     daal_df::regression::ModelPtr mptr =
         daal_df::regression::ModelPtr(new daal_df::regression::internal::ModelImpl(column_count));
 
-    interop::status_to_exception(
-        interop::call_daal_kernel<Float, CpuKernel>(ctx,
-                                                    daal::services::internal::hostApp(daal_input),
-                                                    daal_data.get(),
-                                                    daal_responses.get(),
-                                                    daal_weights.get(),
-                                                    *mptr,
-                                                    daal_result,
-                                                    daal_parameter));
+    interop::status_to_exception(interop::call_daal_kernel<Float, CpuKernel>(ctx,
+                                                                             daal_data.get(),
+                                                                             daal_responses.get(),
+                                                                             daal_weights.get(),
+                                                                             *mptr,
+                                                                             daal_result,
+                                                                             daal_parameter));
 
     /* extract results from daal objects */
     if (check_mask_flag(desc.get_error_metric_mode(), error_metric_mode::out_of_bag_error)) {
@@ -208,7 +206,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
     return res.set_model(dal::detail::make_private<model_t>(model_impl));
 }
 
-template <typename Float, template <typename, daal::CpuType> typename CpuKernel>
+template <typename Float, template <typename, daal::internal::CpuType> typename CpuKernel>
 static result_t train(const context_cpu& ctx, const descriptor_t& desc, const input_t& input) {
     return call_daal_kernel<Float, CpuKernel>(ctx,
                                               desc,
@@ -221,6 +219,7 @@ template <typename Float, typename Task>
 struct train_kernel_cpu<Float, method::dense, Task> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
         return train<Float, reg_dense_kernel_t>(ctx, desc, input);
     }
@@ -230,6 +229,7 @@ template <typename Float, typename Task>
 struct train_kernel_cpu<Float, method::hist, Task> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const param_t& params,
                         const input_t& input) const {
         return train<Float, reg_hist_kernel_t>(ctx, desc, input);
     }

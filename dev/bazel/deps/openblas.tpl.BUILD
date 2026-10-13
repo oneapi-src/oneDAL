@@ -1,5 +1,5 @@
 package(default_visibility = ["//visibility:public"])
-
+load("@rules_cc//cc:defs.bzl", "cc_library")
 cc_library(
     name = "headers",
     hdrs = glob(["include/**/*.h"]),
@@ -10,8 +10,7 @@ cc_library(
     name = "openblas_core",
     #srcs = glob(["lib/libopenblas*"]),
     srcs = [
-            "lib/libopenblas.a", 
-            "lib/libgfortran.a", 
+            "lib/libopenblas.a",
            ],
     linkopts = [
         "-lpthread",

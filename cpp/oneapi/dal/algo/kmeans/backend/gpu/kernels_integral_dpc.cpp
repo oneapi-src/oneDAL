@@ -96,7 +96,7 @@ sycl::event count_clusters(sycl::queue& queue,
                 sycl::atomic_ref<std::int32_t,
                                  sycl::memory_order::relaxed,
                                  sycl::memory_scope::device,
-                                 sycl::access::address_space::ext_intel_global_device_space>
+                                 sycl::access::address_space::global_space>
                     counter_atomic(counter_ptr[cl]);
                 counter_atomic.fetch_add(1);
             }
@@ -138,7 +138,7 @@ std::int64_t count_empty_clusters(sycl::queue& queue,
                 for (std::int64_t i = local_id; i < cluster_count; i += local_range) {
                     sum += counter_ptr[i] == 0;
                 }
-                sum = sycl::reduce_over_group(sg, sum, sycl::ext::oneapi::plus<std::int32_t>());
+                sum = sycl::reduce_over_group(sg, sum, sycl::plus<std::int32_t>());
                 if (local_id == 0) {
                     value_ptr[0] = sum;
                 }

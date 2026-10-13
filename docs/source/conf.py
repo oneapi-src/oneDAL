@@ -15,7 +15,7 @@
 #===============================================================================
 
 ##  Content:
-##     Intel(R) oneDAL configuration file for the Sphinx documentation builder
+##     oneDAL configuration file for the Sphinx documentation builder
 ##******************************************************************************
 
 # Configuration file for the Sphinx documentation builder.
@@ -37,7 +37,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'oneDAL'
-copyright = 'Intel Corporation' # pylint: disable=redefined-builtin
+copyright = 'contributors to the oneDAL project' # pylint: disable=redefined-builtin
 
 # The full version, including alpha/beta/rc tags
 # release = '2021'
@@ -61,7 +61,7 @@ substitutions = [
 
 # sys.path.insert(0, path_relative_to_repo_root('source/elements/oneDAL'))
 
-extensions = ['sphinx-prompt',
+extensions = ['sphinx_prompt',
               'sphinx_substitution_extensions',
               'sphinx.ext.extlinks',
               'sphinx_tabs.tabs',
@@ -96,7 +96,6 @@ extlinks = {
 html_static_path = ['_static']
 
 html_theme = 'sphinx_book_theme'
-html_logo = '_static/oneAPI-rgb-rev-100.png'
 html_favicon = '_static/favicons.png'
 
 # Theme options
@@ -106,17 +105,13 @@ html_theme_options = {
     'use_issues_button': True,
     'use_edit_page_button': True,
     'repository_branch': 'master',
-}
-
-html_theme_options = {
     "logo": {
         "text": "oneDAL Documentation",
-    }
+        "image_light": "_static/uxl-foundation-logo-horizontal-color.png",
+        "image_dark": "_static/uxl-foundation-logo-horizontal-white.png",
+    },
 }
 
-html_theme_options = {
-    "extra_footer": "<div><a href='https://www.intel.com/content/www/us/en/privacy/intel-cookie-notice.html' data-cookie-notice='true'>Cookies</a> <a href='https://www.intel.com/content/www/us/en/privacy/intel-privacy-notice.html'>| Privacy</a> <a data-wap_ref='dns' id='wap_dns' href='https://www.intel.com/content/www/us/en/privacy/intel-cookie- notice.html'>| Do Not Share My Personal Information</a> </div><div>&copy; Intel Corporation. Intel, the Intel logo, and other Intel marks are trademarks of Intel Corporation or its subsidiaries. Other names and brands may be claimed as the property of others. No license (express or implied, by estoppel or otherwise) to any intellectual property rights is granted by this document, with the sole exception that code included in this document is licensed subject to the Zero-Clause BSD open source license (OBSD), <a href='http://opensource.org/licenses/0BSD'>http://opensource.org/licenses/0BSD</a>. </div><br><div>oneDAL is licensed under Apache License Version 2.0. Refer to the <a href='https://github.com/uxlfoundation/oneDAL/blob/main/LICENSE'>LICENSE </a> file for the full license text and copyright notice.</div>"
-}
 
 # oneDAL project directory is needed for `dalapi` extension
 onedal_enable_listing = False
@@ -131,14 +126,18 @@ notfound_urls_prefix = '/oneDAL/'
 nitpick_ignore = [
     # top level namespace
     ('cpp:identifier', 'dal'),
+    ('cpp:identifier', 'base'),
     # method
     ('cpp:identifier', 'method'),
+    ('cpp:identifier', 'method::by_default'),
     ('cpp:identifier', 'Method'),
     # task
     ('cpp:identifier', 'task'),
     ('cpp:identifier', 'task::by_default'),
     ('cpp:identifier', 'Task'),
     # detail
+    ('cpp:identifier', 'dal::detail'),
+    ('cpp:identifier', 'dal::detail::empty_delete<T>'),
     ('cpp:identifier', 'detail'),
     ('cpp:identifier', 'detail::descriptor_base<>'),
     ('cpp:identifier', 'detail::descriptor_base<>::float_t'),
@@ -174,6 +173,16 @@ nitpick_ignore = [
     # chebyshev_distance
     ('cpp:identifier', 'chebyshev_distance'),
     ('cpp:identifier', 'chebyshev_distance::descriptor'),
+    # correlation_distance
+    ('cpp:identifier', 'correlation_distance'),
+    ('cpp:identifier', 'correlation_distance::descriptor'),
+    ('cpp:identifier', 'correlation_distance::compute_result'),
+    ('cpp:identifier', 'correlation_distance::compute_input'),
+    # cosine_distance
+    ('cpp:identifier', 'cosine_distance'),
+    ('cpp:identifier', 'cosine_distance::descriptor'),
+    ('cpp:identifier', 'cosine_distance::compute_result'),
+    ('cpp:identifier', 'cosine_distance::compute_input'),
     # kmeans
     ('cpp:identifier', 'kmeans'),
     ('cpp:identifier', 'kmeans::descriptor'),
@@ -319,6 +328,13 @@ nitpick_ignore = [
     ('cpp:identifier', 'oneapi::dal::dbscan::method'),
     ('cpp:identifier', 'oneapi::dal::dbscan::method::v1'),
     ('cpp:identifier', 'oneapi::dal::dbscan::method::v1::brute_force'),
+    # hdbscan
+    ('cpp:identifier', 'hdbscan'),
+    ('cpp:identifier', 'hdbscan::descriptor'),
+    ('cpp:identifier', 'hdbscan::compute_result'),
+    ('cpp:identifier', 'hdbscan::compute_input'),
+    ('cpp:identifier', 'degree'),
+    ('cpp:identifier', 'invalid_argument'),
     # common for algorithms
     ('cpp:identifier', 'result'),
     # common for result options
@@ -336,6 +352,8 @@ nitpick_ignore = [
     ('cpp:identifier', 'data_layout::unknown'),
     ('cpp:identifier', 'feature_type'),
     ('cpp:identifier', 'data_type'),
+    ('cpp:identifier', 'alloc_kind'),
+    ('cpp:identifier', 'alloc_kind::non_usm'),
     ('cpp:identifier', 'table_metadata'),
     ('cpp:identifier', 'mutable_data'),
     ('cpp:identifier', 'data'),
@@ -392,5 +410,32 @@ nitpick_ignore = [
     ('cpp:identifier', 'kind::induced'),
     ('cpp:identifier', 'kind::non_induced'),
     ('cpp:identifier', 'preview'),
-    ('cpp:identifier', 'connected_components')
+    ('cpp:identifier', 'connected_components'),
+
+    # sycl
+    ('cpp:identifier', 'event_vector'),
+    ('cpp:identifier', 'sycl'),
+    ('cpp:identifier', 'sycl::event'),
+    ('cpp:identifier', 'sycl::queue'),
+    ('cpp:identifier', 'sycl::range'),
+    ('cpp:identifier', 'sycl::usm'),
+    ('cpp:identifier', 'sycl::usm::alloc'),
+    ('cpp:identifier', 'sycl::usm::alloc::shared'),
+
+    # backend primitives - data management
+    ('cpp:identifier', 'array_t'),
+    ('cpp:identifier', 'axis_count'),
+    ('cpp:identifier', 'ndarray'),
+    ('cpp:identifier', 'ndindex<axis_count>'),
+    ('cpp:identifier', 'ndorder'),
+    ('cpp:identifier', 'ndorder::c'),
+    ('cpp:identifier', 'ndorder::f'),
+    ('cpp:identifier', 'ndshape'),
+    ('cpp:identifier', 'ndshape<new_axis_count>'),
+    ('cpp:identifier', 'ndview'),
+    ('cpp:identifier', 'order'),
+    ('cpp:identifier', 'sycl::range<1>'),
+    ('cpp:identifier', 'sycl::range<2>'),
+    ('cpp:identifier', 'shape_t'),
+    ('cpp:identifier', 'shared_t')
 ]

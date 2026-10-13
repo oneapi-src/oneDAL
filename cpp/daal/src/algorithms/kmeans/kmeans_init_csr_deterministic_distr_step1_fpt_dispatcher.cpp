@@ -27,7 +27,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::DistributedContainer, distributed, step1Local, DAAL_FPTYPE, kmeans::init::deterministicCSR)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(kmeans::init::internal::DistributedContainer, distributed, step1Local, DAAL_FPTYPE,
+                                      kmeans::init::deterministicCSR)
 
 namespace kmeans
 {
@@ -38,7 +39,14 @@ namespace interface2
 using DistributedType = Distributed<step1Local, DAAL_FPTYPE, kmeans::init::deterministicCSR>;
 
 template <>
-DistributedType::Distributed(size_t nClusters, size_t nRowsTotal, size_t offset)
+void DistributedType::initialize()
+{
+    Analysis<distributed>::_ac =
+        new __DAAL_ALGORITHM_CONTAINER(distributed, internal::DistributedContainer, step1Local, DAAL_FPTYPE, kmeans::init::deterministicCSR)(&_env);
+    _in = &input;
+}
+template <>
+DAAL_EXPORT DistributedType::Distributed(size_t nClusters, size_t nRowsTotal, size_t offset)
     : DistributedBase(new ParameterType(nClusters, offset)), parameter(*static_cast<ParameterType *>(_par))
 {
     initialize();
@@ -46,7 +54,7 @@ DistributedType::Distributed(size_t nClusters, size_t nRowsTotal, size_t offset)
 }
 
 template <>
-DistributedType::Distributed(const DistributedType & other)
+DAAL_EXPORT DistributedType::Distributed(const DistributedType & other)
     : DistributedBase(new ParameterType(other.parameter)), parameter(*static_cast<ParameterType *>(_par))
 {
     initialize();

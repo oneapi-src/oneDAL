@@ -28,7 +28,6 @@
 #include "data_management/data/numeric_table.h"
 #include "services/daal_defines.h"
 #include "data_management/data/homogen_numeric_table.h"
-#include "data_management/data/symmetric_matrix.h"
 
 namespace daal
 {
@@ -74,7 +73,7 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -109,7 +108,7 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  computation method
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /**
@@ -153,7 +152,7 @@ public:
     * \param[in] par     %Parameter of the algorithm
     * \param[in] method  Computation method
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     using daal::algorithms::interface1::Result::check;

@@ -72,10 +72,24 @@ public:
     }
 
     /**
+     * Copy constructor for a data feature
+     */
+    NumericTableFeature(const NumericTableFeature & f)
+    {
+        indexType      = f.indexType;
+        pmmlType       = f.pmmlType;
+        featureType    = f.featureType;
+        typeSize       = f.typeSize;
+        categoryNumber = f.categoryNumber;
+    }
+
+    /**
      *  Copy operator for a data feature
      */
     NumericTableFeature & operator=(const NumericTableFeature & f)
     {
+        if (this == &f) return *this;
+
         indexType      = f.indexType;
         pmmlType       = f.pmmlType;
         featureType    = f.featureType;
@@ -100,7 +114,7 @@ public:
     }
 
     /** \private */
-    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) override
     {
         serialImpl<InputDataArchive, false>(arch);
 
@@ -108,7 +122,7 @@ public:
     }
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) override
     {
         serialImpl<const OutputDataArchive, true>(arch);
 
@@ -128,7 +142,7 @@ public:
         return services::Status();
     }
 
-    DAAL_EXPORT virtual int getSerializationTag() const DAAL_C11_OVERRIDE { return SERIALIZATION_DATAFEATURE_NT_ID; }
+    DAAL_EXPORT int getSerializationTag() const override { return SERIALIZATION_DATAFEATURE_NT_ID; }
 
     features::IndexNumType getIndexType() const { return indexType; }
 };
@@ -158,7 +172,7 @@ class DAAL_EXPORT Dictionary : public SerializationIface, public DictionaryIface
 {
 public:
     static int serializationTag() { return SerializationTag; }
-    virtual int getSerializationTag() const DAAL_C11_OVERRIDE { return serializationTag(); }
+    int getSerializationTag() const override { return serializationTag(); }
 
     /**
      *  Constructor of a data dictionary
@@ -365,7 +379,7 @@ public:
     DAAL_DEPRECATED services::SharedPtr<services::KernelErrorCollection> getErrors() { return _errors; }
 
     /** \private */
-    services::Status serializeImpl(InputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status serializeImpl(InputDataArchive * arch) override
     {
         serialImpl<InputDataArchive, false>(arch);
 
@@ -373,7 +387,7 @@ public:
     }
 
     /** \private */
-    services::Status deserializeImpl(const OutputDataArchive * arch) DAAL_C11_OVERRIDE
+    services::Status deserializeImpl(const OutputDataArchive * arch) override
     {
         serialImpl<const OutputDataArchive, true>(arch);
 

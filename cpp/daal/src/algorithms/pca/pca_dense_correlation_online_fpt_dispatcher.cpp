@@ -29,6 +29,36 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::OnlineContainer, online, DAAL_FPTYPE, pca::correlationDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(pca::internal::OnlineContainer, online, DAAL_FPTYPE, pca::correlationDense)
+namespace pca
+{
+namespace interface1
+{
+
+template <>
+void Online<DAAL_FPTYPE, pca::correlationDense>::initialize()
+{
+    _ac  = new __DAAL_ALGORITHM_CONTAINER(online, internal::OnlineContainer, DAAL_FPTYPE, pca::correlationDense)(&_env);
+    _in  = &input;
+    _par = &parameter;
+    _partialResult.reset(new PartialResult<pca::correlationDense>());
+    _result.reset(new ResultType());
 }
+template <>
+DAAL_EXPORT Online<DAAL_FPTYPE, pca::correlationDense>::Online()
+{
+    initialize();
+}
+
+using OnlineType = Online<DAAL_FPTYPE, pca::correlationDense>;
+
+template <>
+DAAL_EXPORT OnlineType::Online(const OnlineType & other) : input(other.input), parameter(other.parameter)
+{
+    initialize();
+}
+
+} // namespace interface1
+} // namespace pca
+} // namespace algorithms
 } // namespace daal

@@ -26,72 +26,131 @@
 #define __SERVICE_DEFINES_H__
 
 #include <stdint.h>
-#include "services/env_detect.h"
+#include "services/daal_defines.h"
+#include "src/services/cpu_type.h"
 
-DAAL_EXPORT bool __daal_serv_cpu_extensions_available();
 DAAL_EXPORT int __daal_serv_cpu_detect(int);
+DAAL_EXPORT int daal_enabled_cpu_detect();
+DAAL_EXPORT DAAL_UINT64 daal_serv_cpu_feature_detect();
+
+/* ---------------------------------------------------------------------------
+ * Float32MatmulPrecision -- INTERNAL, experimental API.
+ *
+ * Precision hint for internal float32 matrix multiplications.
+ * This is a *hint*, not a hard override: the library decides which operations
+ * are eligible for reduced precision. Modelled after
+ * torch.set_float32_matmul_precision / jax_default_matmul_precision.
+ *
+ * Levels:
+ *
+ *   strict (default)
+ *     Always compute in the input dtype (float32 -> sgemm, float64 -> dgemm).
+ *     Full IEEE-754, bit-exact and reproducible across hardware generations.
+ *
+ *   allow_bf16
+ *     Allow oneDAL to use BF16 operands in operations where the library has
+ *     determined the accuracy impact is bounded and acceptable for the algorithm.
+ *     Currently: float32 Euclidean GEMM on AMX-BF16 hardware, dims >= 64.
+ *     Accumulation and output remain float32.
+ *     Falls back to sgemm silently on hardware without AMX-BF16.
+ *
+ *   require_bf16
+ *     Use BF16 operands for operations that have an implemented BF16 path and
+ *     can execute it on the current hardware. This is intended for experiments
+ *     and explicit user/frontend opt-in. Unsupported algorithms, unsupported
+ *     hardware, and allocation failures still fall back to the regular path.
+ *
+ * Activation:
+ *   env var:       ONEDAL_FLOAT32_MATMUL_PRECISION=ALLOW_BF16 or REQUIRE_BF16
+ *   programmatic:  daal_set_float32_matmul_precision(daal::internal::Float32MatmulPrecision::allow_bf16)
+ *                 or daal_set_float32_matmul_precision(daal::internal::Float32MatmulPrecision::require_bf16)
+ *
+ * NOTE: This API is internal and subject to change without notice.
+ *       Do not expose in public headers until the design is finalised.
+ * ----------------------------------------------------------------------- */
+namespace daal
+{
+namespace internal
+{
+enum Float32MatmulPrecision
+{
+    strict       = 0, /*!< Full float32, IEEE-754, bit-exact (default). */
+    allow_bf16   = 1, /*!< Allow BF16 operands where oneDAL deems accuracy impact acceptable.
+                       *   Accumulation and output remain float32. */
+    require_bf16 = 2, /*!< Use BF16 operands for supported operations on supported hardware.
+                       *   Accumulation and output remain float32. */
+};
+} // namespace internal
+} // namespace daal
+
+/* Hardware capability -- constant for the process lifetime. */
+bool daal_has_amx_bf16();
+/* Precision getter/setter -- no HW queries; operate on the stored hint only. */
+daal::internal::Float32MatmulPrecision daal_get_float32_matmul_precision();
+void daal_set_float32_matmul_precision(daal::internal::Float32MatmulPrecision p);
+inline bool daal_allow_amx_bf16_matmul()
+{
+    const daal::internal::Float32MatmulPrecision p = daal_get_float32_matmul_precision();
+    return daal_has_amx_bf16()
+           && (p == daal::internal::Float32MatmulPrecision::allow_bf16 || p == daal::internal::Float32MatmulPrecision::require_bf16);
+}
+
+inline bool daal_require_amx_bf16_matmul()
+{
+    return daal_has_amx_bf16() && daal_get_float32_matmul_precision() == daal::internal::Float32MatmulPrecision::require_bf16;
+}
 
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd);
 DAAL_EXPORT bool daal_check_is_intel_cpu();
 
 #if defined(TARGET_X86_64)
-    #define DAAL_BASE_CPU daal::sse2
+    #define DAAL_BASE_CPU daal::internal::sse2
 #elif defined(TARGET_ARM)
-    #define DAAL_BASE_CPU daal::sve
+    #define DAAL_BASE_CPU daal::internal::sve
 #elif defined(TARGET_RISCV64)
-    #define DAAL_BASE_CPU daal::rv64
+    #define DAAL_BASE_CPU daal::internal::rv64
 #endif
 
 #define DAAL_CHECK_CPU_ENVIRONMENT (daal_check_is_intel_cpu())
 
-#if defined(__INTEL_COMPILER)
+#define PRAGMA_TO_STR(ARGS)  _Pragma(#ARGS)
+#define PRAGMA_TO_STR_(ARGS) PRAGMA_TO_STR(ARGS)
+
+#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
     #define PRAGMA_IVDEP            _Pragma("ivdep")
     #define PRAGMA_NOVECTOR         _Pragma("novector")
-    #define PRAGMA_VECTOR_ALIGNED   _Pragma("vector aligned")
     #define PRAGMA_VECTOR_UNALIGNED _Pragma("vector unaligned")
-    #define PRAGMA_VECTOR_ALWAYS    _Pragma("vector always")
-    #define PRAGMA_ICC_TO_STR(ARGS) _Pragma(#ARGS)
-    #define PRAGMA_ICC_OMP(ARGS)    PRAGMA_ICC_TO_STR(omp ARGS)
-    #define PRAGMA_ICC_NO16(ARGS)   PRAGMA_ICC_TO_STR(ARGS)
-    #define DAAL_TYPENAME           typename
-#elif defined(__GNUC__)
-    #define PRAGMA_IVDEP
+    // TODO: Temporary workaround. icx fails to vectorize some loops in debug build on Windows or with gcov.
+    #if (defined(_MSC_VER) && defined(_DEBUG)) || defined(GCOV_BUILD)
+        #define PRAGMA_VECTOR_ALWAYS
+        #define PRAGMA_OMP_SIMD
+        #define PRAGMA_OMP_SIMD_ARGS(ARGS)
+    #else
+        #define PRAGMA_VECTOR_ALWAYS       _Pragma("vector always")
+        #define PRAGMA_OMP_SIMD            PRAGMA_TO_STR(omp simd)
+        #define PRAGMA_OMP_SIMD_ARGS(ARGS) PRAGMA_TO_STR_(omp simd ARGS)
+    #endif
+#elif defined(__GNUC__) || defined(__clang__)
+    #define PRAGMA_IVDEP _Pragma("ivdep")
     #define PRAGMA_NOVECTOR
-    #define PRAGMA_VECTOR_ALIGNED
     #define PRAGMA_VECTOR_UNALIGNED
     #define PRAGMA_VECTOR_ALWAYS
-    #define PRAGMA_ICC_TO_STR(ARGS)
-    #define PRAGMA_ICC_OMP(ARGS)
-    #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME typename
+    #define PRAGMA_OMP_SIMD            PRAGMA_TO_STR(omp simd)
+    #define PRAGMA_OMP_SIMD_ARGS(ARGS) PRAGMA_TO_STR_(omp simd ARGS)
 #elif defined(_MSC_VER)
-    #define PRAGMA_IVDEP
-    #define PRAGMA_NOVECTOR
-    #define PRAGMA_VECTOR_ALIGNED
+    #define PRAGMA_IVDEP    _Pragma("loop(ivdep)")
+    #define PRAGMA_NOVECTOR _Pragma("loop(no_vector)")
     #define PRAGMA_VECTOR_UNALIGNED
     #define PRAGMA_VECTOR_ALWAYS
-    #define PRAGMA_ICC_TO_STR(ARGS)
-    #define PRAGMA_ICC_OMP(ARGS)
-    #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME typename
+    #define PRAGMA_OMP_SIMD
+    #define PRAGMA_OMP_SIMD_ARGS(ARGS)
 #else
     #define PRAGMA_IVDEP
     #define PRAGMA_NOVECTOR
-    #define PRAGMA_VECTOR_ALIGNED
     #define PRAGMA_VECTOR_UNALIGNED
     #define PRAGMA_VECTOR_ALWAYS
-    #define PRAGMA_ICC_OMP(ARGS)
-    #define PRAGMA_ICC_NO16(ARGS)
-    #define DAAL_TYPENAME typename
-#endif
-
-#if defined __APPLE__ && defined __INTEL_COMPILER && (__INTEL_COMPILER == 1600)
-    #undef PRAGMA_ICC_TO_STR
-    #define PRAGMA_ICC_TO_STR(ARGS) _Pragma(#ARGS)
-    #undef PRAGMA_ICC_OMP
-    #define PRAGMA_ICC_OMP(ARGS) PRAGMA_ICC_TO_STR(ARGS)
-    #undef PRAGMA_ICC_NO16
-    #define PRAGMA_ICC_NO16(ARGS)
+    #define PRAGMA_OMP_SIMD
+    #define PRAGMA_OMP_SIMD_ARGS(ARGS)
 #endif
 
 #ifdef DEBUG_ASSERT
@@ -126,7 +185,6 @@ enum DataFormat
 /* CPU comparison macro */
 #if defined(TARGET_X86_64)
     #define __sse2__   (0)
-    #define __sse42__  (2)
     #define __avx2__   (4)
     #define __avx512__ (6)
 #elif defined(TARGET_ARM)
@@ -140,7 +198,6 @@ enum DataFormat
 
 #if defined(TARGET_X86_64)
     #define CPU_sse2   __sse2__
-    #define CPU_sse42  __sse42__
     #define CPU_avx2   __avx2__
     #define CPU_avx512 __avx512__
 #elif defined(TARGET_ARM)
@@ -273,60 +330,60 @@ typedef union
     double fp;
 } _daal_dp_union_t;
 
-#define IMPLEMENT_SERIALIZABLE_TAG(Class, Tag) \
-    int Class::serializationTag()              \
-    {                                          \
-        return Tag;                            \
-    }                                          \
-    int Class::getSerializationTag() const     \
-    {                                          \
-        return Class::serializationTag();      \
+#define IMPLEMENT_SERIALIZABLE_TAG(Class, Tag)         \
+    int DAAL_EXPORT Class::serializationTag()          \
+    {                                                  \
+        return Tag;                                    \
+    }                                                  \
+    int DAAL_EXPORT Class::getSerializationTag() const \
+    {                                                  \
+        return Class::serializationTag();              \
     }
 
 #define IMPLEMENT_SERIALIZABLE_TAG1T(Class, T1, Tag)            \
     template <>                                                 \
-    int Class<T1>::serializationTag()                           \
+    int DAAL_EXPORT Class<T1>::serializationTag()               \
     {                                                           \
         return features::internal::getIndexNumType<T1>() + Tag; \
     }                                                           \
     template <>                                                 \
-    int Class<T1>::getSerializationTag() const                  \
+    int DAAL_EXPORT Class<T1>::getSerializationTag() const      \
     {                                                           \
         return Class<T1>::serializationTag();                   \
     }
 
 #define IMPLEMENT_SERIALIZABLE_TAG1T_SPECIALIZATION(Class, TemplateClass, Tag) \
     template <>                                                                \
-    int Class<TemplateClass>::serializationTag()                               \
+    int DAAL_EXPORT Class<TemplateClass>::serializationTag()                   \
     {                                                                          \
         return Tag;                                                            \
     }                                                                          \
     template <>                                                                \
-    int Class<TemplateClass>::getSerializationTag() const                      \
+    int DAAL_EXPORT Class<TemplateClass>::getSerializationTag() const          \
     {                                                                          \
         return Class<TemplateClass>::serializationTag();                       \
     }
 
 #define IMPLEMENT_SERIALIZABLE_TAG2T(Class, T1, T2, Tag)        \
     template <>                                                 \
-    int Class<T1, T2>::serializationTag()                       \
+    int DAAL_EXPORT Class<T1, T2>::serializationTag()           \
     {                                                           \
         return features::internal::getIndexNumType<T2>() + Tag; \
     }                                                           \
     template <>                                                 \
-    int Class<T1, T2>::getSerializationTag() const              \
+    int DAAL_EXPORT Class<T1, T2>::getSerializationTag() const  \
     {                                                           \
         return Class<T1, T2>::serializationTag();               \
     }
 
-#define IMPLEMENT_SERIALIZABLE_TAG22(Class, T1, Tag) \
-    int Class<T1, Tag>::serializationTag()           \
-    {                                                \
-        return Tag;                                  \
-    }                                                \
-    int Class<T1, Tag>::getSerializationTag() const  \
-    {                                                \
-        return Class<T1, Tag>::serializationTag();   \
+#define IMPLEMENT_SERIALIZABLE_TAG22(Class, T1, Tag)            \
+    int DAAL_EXPORT Class<T1, Tag>::serializationTag()          \
+    {                                                           \
+        return Tag;                                             \
+    }                                                           \
+    int DAAL_EXPORT Class<T1, Tag>::getSerializationTag() const \
+    {                                                           \
+        return Class<T1, Tag>::serializationTag();              \
     }
 
 /* Maximal size of services::String */
@@ -334,7 +391,7 @@ typedef union
 
 #define COMPUTE_DAAL_VERSION(majorVersion, minorVersion, updateVersion) (majorVersion * 10000 + minorVersion * 100 + updateVersion)
 
-#if defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER)
+#if (defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER)) && defined(TARGET_X86_64)
     #include <immintrin.h>
     #define DAAL_PREFETCH_READ_T0(addr) _mm_prefetch((char *)addr, _MM_HINT_T0)
 #else

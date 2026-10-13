@@ -29,7 +29,12 @@
 namespace oneapi::dal::backend {
 
 class heterogen_table_impl : public detail::heterogen_table_template<heterogen_table_impl>,
-                             public ONEDAL_SERIALIZABLE(heterogen_table_id) {
+                             public ONEDAL_SERIALIZABLE(heterogen_table_id)
+#ifdef ONEDAL_DATA_PARALLEL
+        ,
+                             public detail::queue_provider_iface
+#endif
+{
     using data_t = dal::array<detail::chunked_array_base>;
 
 public:
@@ -47,10 +52,10 @@ public:
 
     std::int64_t get_row_count() const override {
         ONEDAL_ASSERT(validate());
-        if (get_column_count() == 0l)
-            return 0l;
-        auto dt = get_metadata().get_data_type(0l);
-        return detail::get_element_count(dt, data_[0l]);
+        if (get_column_count() == 0)
+            return 0;
+        auto dt = get_metadata().get_data_type(0);
+        return detail::get_element_count(dt, data_[0]);
     }
 
     std::int64_t get_column_count() const override {
@@ -72,7 +77,7 @@ public:
     void serialize(detail::output_archive& ar) const override {
         ar(this->meta_);
         const std::int64_t col_count = get_column_count();
-        for (std::int64_t col = 0l; col < col_count; ++col) {
+        for (std::int64_t col = 0; col < col_count; ++col) {
             const auto& raw = get_column(col);
             raw.serialize_impl(ar);
         }
@@ -86,12 +91,23 @@ public:
         }
 
         const std::int64_t col_count = get_column_count();
-        for (std::int64_t col = 0l; col < col_count; ++col) {
+        for (std::int64_t col = 0; col < col_count; ++col) {
             auto dt = get_metadata().get_data_type(col);
             detail::chunked_array_base raw;
             raw.deserialize_impl(dt, ar);
 
             set_column(col, dt, std::move(raw));
+        }
+
+        // The allocation kind is not persisted in the archive; re-establish it
+        // from the deserialized columns, which were materialized according to the
+        // deserialization context (queue/policy). All columns share one allocation
+        // kind (enforced on construction), so the first column is representative.
+        // The deserialized feature and data types are preserved as-is.
+        if (col_count > 0) {
+            meta_ = table_metadata{ meta_.get_data_types(),
+                                    meta_.get_feature_types(),
+                                    data_[0].get_alloc_kind() };
         }
     }
 
@@ -124,8 +140,8 @@ public:
             return true;
         }
 
-        const auto dt = get_metadata().get_data_type(0l);
-        const auto row_count = detail::get_element_count(dt, data_[0l]);
+        const auto dt = get_metadata().get_data_type(0);
+        const auto row_count = detail::get_element_count(dt, data_[0]);
 
         for (std::int64_t c = 1l; c < col_count; ++c) {
             const auto dt_col = get_metadata().get_data_type(c);
@@ -141,7 +157,7 @@ public:
 
     void reset_with_metadata(const table_metadata& meta) {
         const auto col_count = meta.get_feature_count();
-        if (std::int64_t{ 0l } < col_count) {
+        if (std::int64_t{ 0 } < col_count) {
             const detail::chunked_array_base empty;
             auto new_data = data_t::full(col_count, empty);
             auto raw_ptr = new_data.get_mutable_data();
@@ -157,7 +173,7 @@ public:
     void pull_rows_template(const detail::default_host_policy& policy,
                             array<T>& block,
                             const range& rows) const {
-        heterogen_pull_rows(policy, meta_, data_, block, rows, alloc_kind::host);
+        heterogen_pull_rows(policy, meta_, data_, block, rows, alloc_kind::non_usm);
     }
 
     template <typename T>
@@ -165,7 +181,7 @@ public:
                               array<T>& block,
                               std::int64_t column_index,
                               const range& rows) const {
-        heterogen_pull_column(policy, meta_, data_, block, column_index, rows, alloc_kind::host);
+        heterogen_pull_column(policy, meta_, data_, block, column_index, rows, alloc_kind::non_usm);
     }
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -186,6 +202,22 @@ public:
                               sycl::usm::alloc alloc) const {
         const alloc_kind req_alloc = alloc_kind_from_sycl(alloc);
         heterogen_pull_column(policy, meta_, data_, block, column_index, rows, req_alloc);
+    }
+#endif
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Returns the queue the table data is associated with. All the columns share
+    /// the same queue by construction, so the first one is representative. Returns
+    /// an empty optional when the table holds no column or when the data is not
+    /// associated with a queue.
+    std::optional<sycl::queue> get_queue() const override {
+        // The number of stored columns is used rather than the feature count: the
+        // two may disagree before the metadata is assigned.
+        if (data_.get_count() == 0l) {
+            return {};
+        }
+
+        return data_[0].get_queue();
     }
 #endif
 

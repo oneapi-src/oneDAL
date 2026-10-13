@@ -25,10 +25,32 @@ include dev/make/compiler_definitions/gnu.mk
 
 PLATs.gnu = lnx32e mac32e
 
-COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
-                    -Werror -Wreturn-type
+OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Os Ofast Og Oz
 
-link.dynamic.all.gnu = ${CXX} -m64
+LINKERS_SUPPORTED := bfd gold lld
+
+ifneq ($(LINKER),)
+    ifneq ($(filter $(LINKER),bfd gold lld),$(LINKER))
+        $(error Invalid LINKER '$(LINKER)'. Supported on Linux: bfd gold lld)
+    endif
+endif
+
+ifneq (,$(filter $(OPTFLAG),$(OPTFLAGS_SUPPORTED)))
+else
+    $(error Invalid OPTFLAG '$(OPTFLAG)' for $(COMPILER). Supported: $(OPTFLAGS_SUPPORTED))
+endif
+
+ifeq ($(filter $(OPTFLAG),O0 Og),$(OPTFLAG))
+    -optlevel.gnu = -$(OPTFLAG)
+else
+    -optlevel.gnu = -$(OPTFLAG) -D_FORTIFY_SOURCE=2
+endif
+
+COMPILER.all.gnu =  ${CXX} -m64 -fwrapv -fno-strict-overflow -fno-delete-null-pointer-checks \
+                    -Werror -Wreturn-type -fopenmp-simd ${CXXFLAGS}
+
+linker.ld.flag := $(if $(LINKER),-fuse-ld=$(LINKER),)
+link.dynamic.all.gnu = ${CXX} $(linker.ld.flag) -m64 ${LDFLAGS}
 
 pedantic.opts.lnx.gnu = $(pedantic.opts.all.gnu)
 pedantic.opts.mac.gnu = $(pedantic.opts.all.gnu)
@@ -39,4 +61,4 @@ link.dynamic.mac.gnu = $(link.dynamic.all.gnu)
 p4_OPT.gnu   = $(-Q)march=nocona
 mc3_OPT.gnu  = $(-Q)march=corei7
 avx2_OPT.gnu = $(-Q)march=haswell
-skx_OPT.gnu  = $(-Q)march=skylake
+skx_OPT.gnu  = $(-Q)march=skylake-avx512

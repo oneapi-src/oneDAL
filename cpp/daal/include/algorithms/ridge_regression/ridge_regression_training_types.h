@@ -101,7 +101,7 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface
  */
 namespace interface1
 {
@@ -136,7 +136,12 @@ class DAAL_EXPORT Input : public linear_model::training::Input, public InputIfac
 public:
     /** Default constructor */
     Input();
+
+    /** Copy constructor */
     Input(const Input & other);
+
+    /** Assignment operator */
+    Input & operator=(const Input & other);
 
     virtual ~Input() {}
 
@@ -158,13 +163,13 @@ public:
      * Returns the number of columns in the input data set
      * \return Number of columns in the input data set
      */
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfFeatures() const override;
 
     /**
     * Returns the number of dependent variables
     * \return Number of dependent variables
     */
-    size_t getNumberOfDependentVariables() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfDependentVariables() const override;
 
     /**
     * Checks an input object for the ridge regression algorithm
@@ -173,7 +178,7 @@ public:
     *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /**
@@ -251,7 +256,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
     /**
      * Checks a partial result of the ridge regression algorithm
@@ -260,7 +265,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     /** \private */
@@ -283,6 +288,9 @@ class DAAL_EXPORT DistributedInput<step2Master> : public daal::algorithms::Input
 public:
     DistributedInput();
     DistributedInput(const DistributedInput & other);
+    DistributedInput operator=(const DistributedInput & other);
+
+    virtual ~DistributedInput() {}
 
     /**
      * Gets an input object for ridge regression model-based training in the second step of the distributed processing mode
@@ -309,13 +317,13 @@ public:
      * Returns the number of columns in the input data set
      * \return Number of columns in the input data set
      */
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfFeatures() const override;
 
     /**
      * Returns the number of dependent variables
      * \return Number of dependent variables
      */
-    size_t getNumberOfDependentVariables() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfDependentVariables() const override;
 
     /**
      * Checks an input object for ridge regression model-based training in the second step
@@ -323,7 +331,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 };
 
 /**
@@ -381,7 +389,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
     /**
      * Checks the result of the ridge regression model-based training
@@ -391,7 +399,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     /** \private */

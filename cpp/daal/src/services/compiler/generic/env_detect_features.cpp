@@ -22,14 +22,29 @@
 //--
 */
 
-#include "services/env_detect.h"
 #include "services/daal_defines.h"
+#include "services/internal/daal_kernel_defines.h"
 
 #if defined(TARGET_X86_64)
     #include <immintrin.h>
-#elif defined(TARGET_ARM)
+
+    #if defined(__GNUC__) || (defined(__clang__) && !defined(_MSC_VER))
+        #include <cpuid.h> // __cpuidex
+    #endif
+
+#elif defined(TARGET_ARM) && defined(__linux__)
     #include <sys/auxv.h>
     #include <asm/hwcap.h>
+#elif defined(TARGET_ARM) && defined(_MSC_VER)
+    #include <windows.h>
+
+    #ifdef min
+        #undef min
+    #endif
+
+    #ifdef max
+        #undef max
+    #endif
 #elif defined(TARGET_RISCV64)
 // TODO: Include vector if and when we need to use some vector intrinsics in
 // here
@@ -54,10 +69,11 @@ void __daal_serv_CPUHasAVX512f_enable_it_mac();
 #if defined(TARGET_X86_64)
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 {
-    #if defined(_MSC_VER)
-    __cpuidex((int *)abcd, eax, ecx);
+    #if defined(_MSC_VER) || (defined(__clang__) && __clang_major__ > 18) || (defined(__GNUC__) && !defined(__clang__))
+    __cpuidex(reinterpret_cast<int *>(abcd), eax, ecx);
     #else
-    uint32_t ebx, edx;
+
+    uint32_t ebx = 0, edx = 0;
         #if defined(__i386__) && defined(__PIC__)
     /* in case of PIC under 32-bit EBX cannot be clobbered */
     __asm__("movl %%ebx, %%edi \n\t cpuid \n\t xchgl %%ebx, %%edi" : "=D"(ebx), "+a"(eax), "+c"(ecx), "=d"(edx));
@@ -69,6 +85,24 @@ void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
     abcd[2] = ecx;
     abcd[3] = edx;
     #endif
+}
+
+uint32_t __daal_internal_get_max_extension_support()
+{
+    // Running cpuid with a value other than eax=0 and 0x8000000 is an extension
+    // To check that a particular eax value is supported we need to check
+    // maximum extension that is supported by checking the value returned by
+    // cpuid when eax=0x80000000 is given.
+    uint32_t abcd[4];
+    run_cpuid(0x80000000, 0, abcd);
+    return abcd[0];
+}
+
+uint32_t daal_get_max_extension_support()
+{
+    // We cache the result in a static variable here.
+    static const uint32_t result = __daal_internal_get_max_extension_support();
+    return result;
 }
 
 bool __daal_internal_is_intel_cpu()
@@ -85,8 +119,21 @@ DAAL_EXPORT bool daal_check_is_intel_cpu()
     return result;
 }
 
+/// Check if the result of CPUID instruction contains the required mask.
+///
+/// \param eax          Input EAX register value passed to CPUID.
+/// \param ecx          Input ECX register value passed to CPUID.
+/// \param abcd_index   The index of the output register to check:
+///                     0 - EAX, 1 - EBX, 2 - ECX, 3 - EDX.
+/// \param mask         The bit mask to check in the output register.
+/// \return 1 if the mask is present in the output register, 0 otherwise.
 static int check_cpuid(uint32_t eax, uint32_t ecx, int abcd_index, uint32_t mask)
 {
+    if (daal_get_max_extension_support() < eax)
+    {
+        // need to check that the eax we run here is supported.
+        return 0;
+    }
     uint32_t abcd[4];
 
     run_cpuid(eax, ecx, abcd);
@@ -191,52 +238,144 @@ static int check_sse42_features()
     return 1;
 }
 
-DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
-{
-    return daal_check_is_intel_cpu();
-}
-
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
     #if defined(__APPLE__)
     __daal_serv_CPUHasAVX512f_enable_it_mac();
     #endif
+
     if (check_avx512_features() && daal_check_is_intel_cpu())
     {
-        return daal::avx512;
+        return daal::internal::avx512;
     }
 
     if (check_avx2_features())
     {
-        return daal::avx2;
+        return daal::internal::avx2;
     }
 
-    if (check_sse42_features())
-    {
-        return daal::sse42;
-    }
-
-    return daal::sse2;
+    return daal::internal::sse2;
 }
+
+int __daal_internal_enabled_cpu_detect()
+{
+    #ifdef DAAL_KERNEL_AVX512
+    if (check_avx512_features() && daal_check_is_intel_cpu())
+    {
+        return daal::internal::avx512;
+    }
+    #endif
+
+    #ifdef DAAL_KERNEL_AVX2
+    if (check_avx2_features())
+    {
+        return daal::internal::avx2;
+    }
+    #endif
+
+    return daal::internal::sse2;
+}
+
+DAAL_EXPORT int daal_enabled_cpu_detect()
+{
+    // We cache the result in a static variable here.
+    static const int result = __daal_internal_enabled_cpu_detect();
+    return result;
+}
+
+    /// Check if the CPU supports the specified feature
+    /// \param result   The result of the CPU feature detection of type DAAL_UINT64.
+    ///                 A combination of CPU features.
+    /// \param eax      Input EAX register value passed to CPUID.
+    /// \param ecx      Input ECX register value passed to CPUID.
+    /// \param abcd_id  The index of the output register to check:
+    ///                 0 - EAX, 1 - EBX, 2 - ECX, 3 - EDX.
+    /// \param bit      The bit position in the output register to check.
+    /// \param feature  The CPU feature to check of type CpuFeature.
+    #define DAAL_TEST_CPU_FEATURE(result, eax, ecx, abcd_id, bit, feature) \
+        if (check_cpuid(eax, ecx, abcd_id, (1 << bit)))                    \
+        {                                                                  \
+            result |= feature;                                             \
+        }
+
+/// Check if AMX-BF16 is available: CPUID(7,0).EDX[22] + XCR0[17:18] tile state enabled by OS.
+static int check_amx_bf16_features()
+{
+    /* CPUID.(EAX=07H, ECX=0H):EDX.AMX-BF16[bit 22]==1 */
+    if (!check_cpuid(7, 0, 3, (1 << 22)))
+    {
+        return 0;
+    }
+    /* XCR0[17:18] - XTILECFG and XTILEDATA must be set */
+    return check_xgetbv_xcr0_ymm(0x60000);
+}
+
+DAAL_UINT64 __daal_internal_serv_cpu_feature_detect()
+{
+    DAAL_UINT64 result = daal::internal::CpuFeature::unknown;
+    if (!daal_check_is_intel_cpu())
+    {
+        return result;
+    }
+
+    if (check_avx512_features())
+    {
+        DAAL_TEST_CPU_FEATURE(result, 7, 1, 0, 5, daal::internal::CpuFeature::avx512_bf16);
+        DAAL_TEST_CPU_FEATURE(result, 7, 0, 2, 11, daal::internal::CpuFeature::avx512_vnni);
+        if (check_amx_bf16_features())
+        {
+            result |= daal::internal::CpuFeature::amx_bf16;
+        }
+    }
+    DAAL_TEST_CPU_FEATURE(result, 1, 0, 2, 7, daal::internal::CpuFeature::sstep);
+    DAAL_TEST_CPU_FEATURE(result, 6, 0, 0, 1, daal::internal::CpuFeature::tb);
+    DAAL_TEST_CPU_FEATURE(result, 6, 0, 0, 14, daal::internal::CpuFeature::tb3);
+
+    return result;
+}
+
+    #undef DAAL_TEST_CPU_FEATURE
+
+DAAL_EXPORT DAAL_UINT64 daal_serv_cpu_feature_detect()
+{
+    // We cache the result in a static variable here.
+    static const DAAL_UINT64 result = __daal_internal_serv_cpu_feature_detect();
+    return result;
+}
+
+bool daal_has_amx_bf16()
+{
+    return (daal_serv_cpu_feature_detect() & daal::internal::CpuFeature::amx_bf16) != 0;
+}
+
 #elif defined(TARGET_ARM)
 static bool check_sve_features()
 {
+    #if defined(__linux__)
     unsigned long hwcap = getauxval(AT_HWCAP);
-
     return (hwcap & HWCAP_SVE) != 0;
-}
-
-DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
-{
-    return 0;
+    #else
+    return IsProcessorFeaturePresent(PF_ARM_SVE_INSTRUCTIONS_AVAILABLE);
+    #endif
 }
 
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
     if (check_sve_features())
     {
-        return daal::sve;
+        return daal::internal::sve;
     }
+    return -1;
+}
+
+DAAL_EXPORT int daal_enabled_cpu_detect()
+{
+    #ifdef DAAL_KERNEL_SVE
+    if (check_sve_features())
+    {
+        return daal::internal::sve;
+    }
+    #endif
     return -1;
 }
 
@@ -249,15 +388,26 @@ bool daal_check_is_intel_cpu()
 {
     return false;
 }
-#elif defined(TARGET_RISCV64)
-DAAL_EXPORT bool __daal_serv_cpu_extensions_available()
+
+DAAL_EXPORT DAAL_UINT64 daal_serv_cpu_feature_detect()
 {
-    return 0;
+    return daal::internal::CpuFeature::unknown;
 }
 
+bool daal_has_amx_bf16()
+{
+    return false;
+}
+
+#elif defined(TARGET_RISCV64)
 DAAL_EXPORT int __daal_serv_cpu_detect(int enable)
 {
-    return daal::rv64;
+    return daal::internal::rv64;
+}
+
+DAAL_EXPORT int daal_enabled_cpu_detect()
+{
+    return daal::internal::rv64;
 }
 
 void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
@@ -266,6 +416,16 @@ void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t * abcd)
 }
 
 bool daal_check_is_intel_cpu()
+{
+    return false;
+}
+
+DAAL_EXPORT DAAL_UINT64 daal_serv_cpu_feature_detect()
+{
+    return daal::internal::CpuFeature::unknown;
+}
+
+bool daal_has_amx_bf16()
 {
     return false;
 }

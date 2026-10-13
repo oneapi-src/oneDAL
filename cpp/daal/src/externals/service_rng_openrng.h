@@ -25,12 +25,18 @@
 #define __DAAL_BRNG_MT2203                    VSL_BRNG_MT2203
 #define __DAAL_BRNG_MT19937                   VSL_BRNG_MT19937
 #define __DAAL_BRNG_MCG59                     VSL_BRNG_MCG59
+#define __DAAL_BRNG_MRG32K3A                  VSL_BRNG_MRG32K3A
+#define __DAAL_BRNG_PHILOX4X32X10             VSL_BRNG_PHILOX4X32X10
 #define __DAAL_RNG_METHOD_UNIFORM_STD         VSL_RNG_METHOD_UNIFORM_STD
 #define __DAAL_RNG_METHOD_UNIFORMBITS32_STD   0
 #define __DAAL_RNG_METHOD_BERNOULLI_ICDF      VSL_RNG_METHOD_BERNOULLI_ICDF
 #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER  VSL_RNG_METHOD_GAUSSIAN_BOXMULLER
 #define __DAAL_RNG_METHOD_GAUSSIAN_BOXMULLER2 VSL_RNG_METHOD_GAUSSIAN_BOXMULLER2
 #define __DAAL_RNG_METHOD_GAUSSIAN_ICDF       VSL_RNG_METHOD_GAUSSIAN_ICDF
+
+// Erros
+#define __DAAL_LEAPFROG_METHOD_ERRCODE   VSL_RNG_ERROR_LEAPFROG_UNSUPPORTED
+#define __DAAL_SKIP_AHEAD_METHOD_ERRCODE VSL_RNG_ERROR_SKIPAHEAD_UNSUPPORTED
 
 namespace daal
 {
@@ -238,56 +244,16 @@ template <CpuType cpu>
 class BaseRNG : public BaseRNGIface<cpu>
 {
 public:
-    BaseRNG(const unsigned int seed, const int brngId) : _stream(0), _seed(nullptr), _seedSize(0), _brngId(brngId)
+    BaseRNG(const unsigned int seed, const int brngId) : _stream(0) { vslNewStreamEx(&_stream, (openrng_int_t)brngId, 1, &seed); }
+
+    BaseRNG(const size_t n, const unsigned int * seed, const int brngId = __DAAL_BRNG_MT19937) : _stream(0)
     {
-        services::Status s = allocSeeds(1);
-        if (s)
-        {
-            _seed[0]    = seed;
-            int errcode = 0;
-            errcode     = vslNewStreamEx(&_stream, (openrng_int_t)brngId, 1, &seed);
-        }
+        vslNewStreamEx(&_stream, (openrng_int_t)brngId, (openrng_int_t)n, seed);
     }
 
-    BaseRNG(const size_t n, const unsigned int * seed, const int brngId = __DAAL_BRNG_MT19937)
-        : _stream(0), _seed(nullptr), _seedSize(0), _brngId(brngId)
-    {
-        services::Status s = allocSeeds(n);
-        if (s)
-        {
-            if (seed)
-            {
-                for (size_t i = 0; i < n; i++)
-                {
-                    _seed[i] = seed[i];
-                }
-            }
-            int errcode = 0;
-            errcode     = vslNewStreamEx(&_stream, (openrng_int_t)brngId, (openrng_int_t)n, seed);
-        }
-    }
+    BaseRNG(const BaseRNG<cpu> & other) : _stream(0) { vslCopyStream(&_stream, other._stream); }
 
-    BaseRNG(const BaseRNG<cpu> & other) : _stream(0), _seed(nullptr), _seedSize(other._seedSize), _brngId(other._brngId)
-    {
-        services::Status s = allocSeeds(_seedSize);
-        if (s)
-        {
-            for (size_t i = 0; i < _seedSize; i++)
-            {
-                _seed[i] = other._seed[i];
-            }
-            int errcode = 0;
-            errcode     = vslNewStreamEx(&_stream, _brngId, _seedSize, _seed);
-            if (!errcode) errcode = vslCopyStreamState(_stream, other._stream);
-        }
-    }
-
-    ~BaseRNG()
-    {
-        daal::services::daal_free((void *)_seed);
-        int errcode = 0;
-        errcode     = vslDeleteStream(&_stream);
-    }
+    ~BaseRNG() { vslDeleteStream(&_stream); }
 
     int getStateSize() const
     {
@@ -327,20 +293,8 @@ public:
 
     void * getState() { return _stream; }
 
-protected:
-    services::Status allocSeeds(const size_t n)
-    {
-        _seedSize = n;
-        _seed     = (unsigned int *)daal::services::daal_malloc(sizeof(unsigned int) * n);
-        DAAL_CHECK_MALLOC(_seed);
-        return services::Status();
-    }
-
 private:
     void * _stream;
-    unsigned int * _seed;
-    size_t _seedSize;
-    const int _brngId;
 };
 
 /*

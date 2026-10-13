@@ -20,7 +20,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-template <typename Float, typename BinaryOp, typename UnaryOp, int f, int b>
+template <typename Float, typename AccT, typename BinaryOp, typename UnaryOp, int f, int b>
 class reduction_kernel {
     static_assert(f > 0);
     static_assert(b > 0);
@@ -45,7 +45,7 @@ public:
               lstride_{ lstride } {}
 
     void operator()(sycl::nd_item<2> it) const {
-        Float accs[folding];
+        AccT accs[folding];
         for (std::int32_t i = 0; i < folding; ++i) {
             accs[i] = BinaryOp::init_value;
         }
@@ -83,7 +83,12 @@ private:
     const std::int32_t lstride_;
 };
 
-template <typename Float, typename BinaryOp, typename UnaryOp, int folding, int block_size>
+template <typename Float,
+          typename AccT,
+          typename BinaryOp,
+          typename UnaryOp,
+          int folding,
+          int block_size>
 sycl::event reduction_impl(sycl::queue& queue,
                            const Float* input,
                            Float* output,
@@ -93,8 +98,9 @@ sycl::event reduction_impl(sycl::queue& queue,
                            const BinaryOp& binary,
                            const UnaryOp& unary,
                            const event_vector& deps) {
-    constexpr auto max_folding = reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::max_folding;
-    using kernel_t = reduction_kernel<Float, BinaryOp, UnaryOp, folding, block_size>;
+    constexpr auto max_folding =
+        reduction_rm_cw_atomic<Float, AccT, BinaryOp, UnaryOp>::max_folding;
+    using kernel_t = reduction_kernel<Float, AccT, BinaryOp, UnaryOp, folding, block_size>;
     constexpr auto bl = kernel_t::block;
     const auto n_blocks = height / bl + bool(height % bl);
     const auto wg = std::min<std::int64_t>(device_max_wg_size(queue), width);
@@ -116,28 +122,29 @@ sycl::event reduction_impl(sycl::queue& queue,
     }
 
     if constexpr ((max_folding >= folding) && (folding > 1)) {
-        return reduction_impl<Float, BinaryOp, UnaryOp, folding - 1, block_size>(queue,
-                                                                                 input,
-                                                                                 output,
-                                                                                 width,
-                                                                                 stride,
-                                                                                 height,
-                                                                                 binary,
-                                                                                 unary,
-                                                                                 deps);
+        return reduction_impl<Float, AccT, BinaryOp, UnaryOp, folding - 1, block_size>(queue,
+                                                                                       input,
+                                                                                       output,
+                                                                                       width,
+                                                                                       stride,
+                                                                                       height,
+                                                                                       binary,
+                                                                                       unary,
+                                                                                       deps);
     }
     else {
-        return reduction_rm_cw_naive<Float, BinaryOp, UnaryOp>{
+        return reduction_rm_cw_naive<Float, AccT, BinaryOp, UnaryOp>{
             queue
         }(input, output, width, stride, height, binary, unary, deps);
     }
 };
 
-template <typename Float, typename BinaryOp, typename UnaryOp>
-reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::reduction_rm_cw_atomic(sycl::queue& q) : q_(q) {}
+template <typename Float, typename AccT, typename BinaryOp, typename UnaryOp>
+reduction_rm_cw_atomic<Float, AccT, BinaryOp, UnaryOp>::reduction_rm_cw_atomic(sycl::queue& q)
+        : q_(q) {}
 
-template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
+template <typename Float, typename AccT, typename BinaryOp, typename UnaryOp>
+sycl::event reduction_rm_cw_atomic<Float, AccT, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     std::int64_t width,
@@ -147,6 +154,11 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps,
     const bool override_init) const {
+    throw unimplemented(dal::detail::error_messages::method_not_implemented());
+
+    /*
+    TODO: This implementation contains a bug that prevents it from working correctly.
+          It is commented out to avoid compilation errors, but it should be fixed in the future.
     event_vector new_deps{ deps };
     if (override_init) {
         auto view = ndview<Float, 1>::wrap(output, { width });
@@ -162,10 +174,11 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
                                                                                  unary,
                                                                                  new_deps);
     return res;
+    */
 }
 
-template <typename Float, typename BinaryOp, typename UnaryOp>
-sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
+template <typename Float, typename AccT, typename BinaryOp, typename UnaryOp>
+sycl::event reduction_rm_cw_atomic<Float, AccT, BinaryOp, UnaryOp>::operator()(
     const Float* input,
     Float* output,
     std::int64_t width,
@@ -174,15 +187,19 @@ sycl::event reduction_rm_cw_atomic<Float, BinaryOp, UnaryOp>::operator()(
     const UnaryOp& unary,
     const event_vector& deps,
     const bool override_init) const {
-    return this->
-    operator()(input, output, width, height, width, binary, unary, deps, override_init);
+    return this
+        ->operator()(input, output, width, height, width, binary, unary, deps, override_init);
 }
 
-#define INSTANTIATE(F, B, U) template class reduction_rm_cw_atomic<F, B, U>;
+#define INSTANTIATE(F, A, B, U) template class reduction_rm_cw_atomic<F, A, B, U>;
 
-#define INSTANTIATE_FLOAT(B, U)                \
-    INSTANTIATE(double, B<double>, U<double>); \
-    INSTANTIATE(float, B<float>, U<float>);
+#define INSTANTIATE_FLOAT(B, U)                        \
+    INSTANTIATE(double, double, B<double>, U<double>); \
+    INSTANTIATE(float, float, B<float>, U<float>);
+
+#define INSTANTIATE_BOOL(B, U)                     \
+    INSTANTIATE(double, bool, B<bool>, U<double>); \
+    INSTANTIATE(float, bool, B<bool>, U<float>);
 
 INSTANTIATE_FLOAT(min, identity)
 INSTANTIATE_FLOAT(min, abs)
@@ -196,8 +213,10 @@ INSTANTIATE_FLOAT(sum, identity)
 INSTANTIATE_FLOAT(sum, abs)
 INSTANTIATE_FLOAT(sum, square)
 
-INSTANTIATE_FLOAT(logical_or, isinfornan)
-INSTANTIATE_FLOAT(logical_or, isinf)
+INSTANTIATE_BOOL(logical_or, isinfornan)
+INSTANTIATE_BOOL(logical_or, isinf)
+
+#undef INSTANTIATE_BOOL
 
 #undef INSTANTIATE_FLOAT
 

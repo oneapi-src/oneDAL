@@ -27,6 +27,33 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(svd::BatchContainer, batch, DAAL_FPTYPE, svd::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(svd::internal::BatchContainer, batch, DAAL_FPTYPE, svd::defaultDense)
+namespace svd
+{
+namespace interface1
+{
+template <>
+void Batch<DAAL_FPTYPE, svd::defaultDense>::initialize()
+{
+    Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, svd::defaultDense)(&_env);
+    _in                  = &input;
+    _par                 = &parameter;
 }
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, svd::defaultDense>::Batch()
+{
+    initialize();
+}
+
+using BatchType = Batch<DAAL_FPTYPE, svd::defaultDense>;
+
+template <>
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : input(other.input), parameter(other.parameter)
+{
+    initialize();
+}
+
+} // namespace interface1
+} // namespace svd
+} // namespace algorithms
 } // namespace daal

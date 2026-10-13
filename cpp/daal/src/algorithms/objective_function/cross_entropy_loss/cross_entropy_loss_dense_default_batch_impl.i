@@ -24,7 +24,7 @@
 #include "src/externals/service_math.h"
 #include "src/services/service_utils.h"
 #include "src/services/service_environment.h"
-#include "src/externals/service_profiler.h"
+#include "src/services/service_profiler.h"
 
 #include "src/algorithms/objective_function/common/objective_function_utils.i"
 
@@ -61,8 +61,6 @@ static void applyBetaImpl(const algorithmFPType * x, const algorithmFPType * bet
         BlasInst<algorithmFPType, cpu>::xxgemm(&trans, &notrans, &m, &n, &k, &one, beta + 1, &ldb, x, &k, &zero, xb, &m);
     if (bIntercept)
     {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nRows; ++i)
         {
             for (size_t j = 0; j < nClasses; ++j)
@@ -85,7 +83,8 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
                                                                    size_t nCols, algorithmFPType * const softmaxSums,
                                                                    const algorithmFPType * const yLocal)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(softmax);
+    DAAL_PROFILER_TASK(softmax);
+    constexpr algorithmFPType one(1.0);
 
     const algorithmFPType expThreshold = daal::internal::MathInst<algorithmFPType, cpu>::vExpThreshold();
     if (softmaxSums != nullptr)
@@ -97,20 +96,21 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
         const algorithmFPType * const pArg = arg + iRow * nCols;
         algorithmFPType * const pRes       = res + iRow * nCols;
         algorithmFPType maxArg             = pArg[0];
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD_ARGS(reduction(max : maxArg))
         for (size_t i = 1; i < nCols; ++i)
         {
-            if (maxArg < pArg[i]) maxArg = pArg[i];
+            maxArg = pArg[i] > maxArg ? pArg[i] : maxArg;
         }
-        PRAGMA_IVDEP
+
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < nCols; ++i)
         {
             pRes[i] = pArg[i] - maxArg;
             /* make all values less than threshold as threshold value
             to fix slow work on vExp on large negative inputs */
-            if (pRes[i] < expThreshold) pRes[i] = expThreshold;
+            const algorithmFPType isLessThanThreshold(pRes[i] < expThreshold);
+            pRes[i] = isLessThanThreshold * expThreshold + (one - isLessThanThreshold) * pRes[i];
         }
     }
     daal::internal::MathInst<algorithmFPType, cpu>::vExp(nRows * nCols, res, res);
@@ -119,15 +119,14 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
         for (size_t iRow = 0; iRow < nRows; ++iRow)
         {
             algorithmFPType * const pRes = res + iRow * nCols;
-            algorithmFPType sum(0.);
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            algorithmFPType sum(0.0);
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : sum))
             for (size_t i = 0; i < nCols; ++i)
             {
                 sum += pRes[i];
             }
             sum = static_cast<algorithmFPType>(1.) / sum;
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < nCols; ++i)
             {
@@ -143,14 +142,13 @@ void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmax(const algorit
         {
             algorithmFPType * const pRes = res + iRow * nCols;
             algorithmFPType sum(0.);
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : sum))
             for (size_t i = 0; i < nCols; ++i)
             {
                 sum += pRes[i];
             }
             sum = static_cast<algorithmFPType>(1.) / sum;
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < nCols; ++i)
             {
@@ -164,13 +162,13 @@ template <typename algorithmFPType, Method method, CpuType cpu>
 void CrossEntropyLossKernel<algorithmFPType, method, cpu>::softmaxThreaded(const algorithmFPType * arg, algorithmFPType * res, size_t nRows,
                                                                            size_t nCols)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(softmaxThreaded);
+    DAAL_PROFILER_TASK(softmaxThreaded);
 
     const size_t nRowsInBlockDefault = 500;
     const size_t nRowsInBlock        = services::internal::getNumElementsFitInMemory(services::internal::getL1CacheSize() * 0.8,
                                                                                      nCols * sizeof(algorithmFPType), nRowsInBlockDefault);
     const size_t nDataBlocks         = nRows / nRowsInBlock + !!(nRows % nRowsInBlock);
-    daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
+    daal::threader_for(nDataBlocks, 1, [&](size_t iBlock) {
         const size_t iStartRow       = iBlock * nRowsInBlock;
         const size_t nRowsToProcess  = (iBlock == nDataBlocks - 1) ? nRows - iBlock * nRowsInBlock : nRowsInBlock;
         const algorithmFPType * pArg = arg + iStartRow * nCols;
@@ -279,7 +277,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         TlsMem<algorithmFPType, cpu, services::internal::ScalableCalloc<algorithmFPType, cpu> > tlsData(lipschitzConstant->getNumberOfRows());
         SafeStatus safeStat;
-        daal::threader_for(nBlocks, nBlocks, [&](const size_t iBlock) {
+        daal::threader_for(nBlocks, 1, [&](const size_t iBlock) {
             algorithmFPType & _maxNorm = *tlsData.local();
             const size_t startRow      = iBlock * blockSize;
             const size_t finishRow     = (iBlock + 1 == nBlocks ? n : (iBlock + 1) * blockSize);
@@ -291,7 +289,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             {
                 curentNorm = 0;
 
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < p; j++)
                 {
@@ -344,7 +342,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
     if (valueNT || gradientNT || hessianNT)
     {
         SafeStatus safeStat;
-        daal::threader_for(nDataBlocks, nDataBlocks, [&](size_t iBlock) {
+        daal::threader_for(nDataBlocks, 1, [&](size_t iBlock) {
             const size_t iStartRow      = iBlock * nRowsInBlock;
             const size_t nRowsToProcess = (iBlock == nDataBlocks - 1) ? n - iBlock * nRowsInBlock : nRowsInBlock;
 
@@ -360,7 +358,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
             //f = X*b + b0
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(applyBeta);
+                DAAL_PROFILER_TASK(applyBeta);
                 applyBeta(xLocal, b, fPtrLocal, nRowsToProcess, nClasses, p, interceptFlag);
             }
 
@@ -381,7 +379,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
             if (valueNT)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy.computeValueResult);
+                DAAL_PROFILER_TASK(crossEntropy.computeValueResult);
 
                 algorithmFPType * const logP = tlsLogP.local();
                 DAAL_CHECK_THR(logP, services::ErrorMemoryAllocationFailed);
@@ -397,7 +395,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             }
             if (gradientNT)
             {
-                DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
+                DAAL_PROFILER_TASK(applyGradient);
 
                 algorithmFPType * const g = grads.get() + iBlock * nBeta;
 
@@ -453,7 +451,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         if (valueNT)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(crossEntropy.computeValueResult);
+            DAAL_PROFILER_TASK(crossEntropy.computeValueResult);
 
             WriteRows<algorithmFPType, cpu> vr(valueNT, 0, 1);
             DAAL_CHECK_BLOCK_STATUS(vr);
@@ -499,7 +497,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
 
         if (gradientNT)
         {
-            DAAL_ITTNOTIFY_SCOPED_TASK(applyGradient);
+            DAAL_PROFILER_TASK(applyGradient);
             WriteRows<algorithmFPType, cpu> gr(gradientNT, 0, nBeta);
             DAAL_CHECK_BLOCK_STATUS(gr);
             algorithmFPType * const g              = gr.get();
@@ -541,7 +539,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::doCompute
             const auto hSize                      = nBeta * nBeta;
             TlsSum<algorithmFPType, cpu> tlsData(hSize);
             SafeStatus safeStat;
-            daal::threader_for(n, n, [&](size_t i) {
+            daal::threader_for(n, 1, [&](size_t i) {
                 ReadRows<algorithmFPType, cpu> xr(const_cast<NumericTable *>(dataNT), i, 1);
                 DAAL_CHECK_BLOCK_STATUS_THR(xr);
                 const algorithmFPType * const x = xr.get();
@@ -581,7 +579,7 @@ services::Status CrossEntropyLossKernel<algorithmFPType, method, cpu>::compute(N
                                                                                NumericTable * nonSmoothTermValue, NumericTable * proximalProjection,
                                                                                NumericTable * lipschitzConstant, Parameter * parameter)
 {
-    DAAL_ITTNOTIFY_SCOPED_TASK(CrossEntropyLossKernel.compute);
+    DAAL_PROFILER_TASK(CrossEntropyLossKernel.compute);
 
     const size_t nRows                                = dataNT->getNumberOfRows();
     const daal::data_management::NumericTable * ntInd = parameter->batchIndices.get();

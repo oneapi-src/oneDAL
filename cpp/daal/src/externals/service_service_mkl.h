@@ -29,6 +29,9 @@
 #include <mkl.h>
 #include <mkl_service.h>
 #include <string.h>
+#ifdef USE_STD_ALLOC
+    #include <cstdlib>
+#endif
 
 namespace daal
 {
@@ -38,9 +41,26 @@ namespace mkl
 {
 struct MklService
 {
-    static void * serv_malloc(size_t size, size_t alignment) { return MKL_malloc(size, alignment); }
+    static void * serv_malloc(size_t size, size_t alignment)
+    {
+#ifndef USE_STD_ALLOC
+        return MKL_malloc(size, alignment);
+#else
+        if (size < alignment) size = alignment;
+        const size_t mod = size % alignment;
+        if (mod) size += alignment - mod;
+        return std::aligned_alloc(alignment, size);
+#endif
+    }
 
-    static void serv_free(void * ptr) { MKL_free(ptr); }
+    static void serv_free(void * ptr)
+    {
+#ifndef USE_STD_ALLOC
+        MKL_free(ptr);
+#else
+        std::free(ptr);
+#endif
+    }
 
     static void serv_free_buffers() { MKL_Free_Buffers(); }
 
@@ -62,19 +82,40 @@ struct MklService
         // return memmove_s(dest, destSize, src, smax);
     }
 
-    static int serv_get_ht() { return (serv_get_ncorespercpu() > 1 ? 1 : 0); }
+    static int serv_get_ht()
+    {
+        const int ncorespercpu = serv_get_ncorespercpu();
+        if (ncorespercpu < 0)
+        {
+            // Failed to get the number of cores per CPU.
+            return -1;
+        }
+        return (ncorespercpu > 1 ? 1 : 0);
+    }
 
     static int serv_get_ncpus()
     {
-        unsigned int ncores = daal::services::internal::_internal_daal_GetProcessorCoreCount();
+        if (daal::services::internal::_internal_daal_GetStatus() != 0)
+        {
+            // CPU topology initialization failed;
+            return -1;
+        }
+        const unsigned int ncores = daal::services::internal::_internal_daal_GetProcessorCoreCount();
         return (ncores ? ncores : 1);
     }
 
     static int serv_get_ncorespercpu()
     {
-        unsigned int nlogicalcpu = daal::services::internal::_internal_daal_GetProcessorCoreCount();
-        unsigned int ncpus       = serv_get_ncpus();
-        return (ncpus > 0 && nlogicalcpu > 0 && nlogicalcpu > ncpus ? nlogicalcpu / ncpus : 1);
+        if (daal::services::internal::_internal_daal_GetStatus() != 0)
+        {
+            // CPU topology initialization failed;
+            return -1;
+        }
+        const unsigned int nlogicalcpu = daal::services::internal::_internal_daal_GetSysLogicalProcessorCount();
+        const unsigned int ncpus       = serv_get_ncpus();
+        // On hybrid systems, return 2 in case of hyper-threading enabled at least on some cores,
+        // 1 otherwise
+        return (ncpus > 0 && nlogicalcpu > 0 && nlogicalcpu > ncpus ? (nlogicalcpu - ncpus + 1) / ncpus : 1);
     }
 
     // TODO: The real call should be delegated to a backend library if the option is supported
@@ -100,8 +141,7 @@ struct MklService
     static double serv_string_to_double(const char * nptr, char ** endptr)
     {
         const char * cur = nptr;
-        for (; isdigit(*cur) || *cur == '-' || *cur == 'e' || *cur == 'E' || *cur == '.'; ++cur)
-            ;
+        for (; isdigit(*cur) || *cur == '-' || *cur == 'e' || *cur == 'E' || *cur == '.'; ++cur);
         if (endptr) *endptr = const_cast<char *>(cur);
         size_t size = cur - nptr;
         // TODO replace with static buffer
@@ -119,8 +159,7 @@ struct MklService
     static int serv_string_to_int(const char * nptr, char ** endptr)
     {
         const char * cur = nptr;
-        for (; isdigit(*cur) || *cur == '-'; ++cur)
-            ;
+        for (; isdigit(*cur) || *cur == '-'; ++cur);
         if (endptr) *endptr = const_cast<char *>(cur);
         size_t size = cur - nptr;
         // TODO replace with static buffer

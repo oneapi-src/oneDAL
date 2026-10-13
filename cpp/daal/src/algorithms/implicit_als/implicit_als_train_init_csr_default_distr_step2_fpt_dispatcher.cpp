@@ -28,7 +28,43 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::training::init::DistributedContainer, distributed, step2Local, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(implicit_als::training::init::internal::DistributedContainer, distributed, step2Local, DAAL_FPTYPE,
                                       implicit_als::training::init::fastCSR)
+namespace implicit_als
+{
+namespace training
+{
+namespace init
+{
+namespace interface1
+{
+using DistributedType = Distributed<step2Local, DAAL_FPTYPE, implicit_als::training::init::fastCSR>;
+
+template <>
+void DistributedType::initialize()
+{
+    _ac  = new __DAAL_ALGORITHM_CONTAINER(distributed, internal::DistributedContainer, step2Local, DAAL_FPTYPE,
+                                          implicit_als::training::init::fastCSR)(&_env);
+    _in  = &input;
+    _par = NULL;
+    _partialResult.reset(new PartialResultType());
 }
+template <>
+DAAL_EXPORT DistributedType::Distributed()
+{
+    initialize();
+}
+
+template <>
+DAAL_EXPORT DistributedType::Distributed(const DistributedType & other)
+{
+    initialize();
+    input.set(inputOfStep2FromStep1, other.input.get(inputOfStep2FromStep1));
+}
+
+} // namespace interface1
+} // namespace init
+} // namespace training
+} // namespace implicit_als
+} // namespace algorithms
 } // namespace daal

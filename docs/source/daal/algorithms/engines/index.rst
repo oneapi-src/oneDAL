@@ -37,8 +37,7 @@ For more details, see :ref:`algorithms`.
      - Pointer to the numeric table of size :math:`n \times p`.
 
        This input can be an object of any class derived from ``NumericTable``
-       except ``CSRNumericTable``, ``PackedSymmetricMatrix``, ``PackedTriangularMatrix``,
-       and ``MergedNumericTable`` when it holds one of the above table types.
+       except ``CSRNumericTable`` and ``MergedNumericTable`` when it holds one of the above table types.
 
 .. rubric:: Algorithm Output
 
@@ -109,6 +108,8 @@ These methods are represented with member functions of classes that represent fu
 .. toctree::
     :maxdepth: 1
 
-    mt19937.rst
     mcg59.rst
+    mt19937.rst
     mt2203.rst
+    mrg32k3a.rst
+    philox4x32x10.rst

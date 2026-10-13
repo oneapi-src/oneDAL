@@ -43,7 +43,7 @@ namespace algorithms
 namespace implicit_als
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface
  */
 namespace interface1
 {
@@ -74,7 +74,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     double lambda;              /*!< Regularization parameter */
     double preferenceThreshold; /*!< Threshold used to define preference values */
 
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 /* [Parameter source code] */
 

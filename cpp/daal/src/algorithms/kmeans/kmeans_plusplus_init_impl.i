@@ -198,8 +198,7 @@ public:
         for (size_t iRow = 0u; iRow < nRowsToProcess; iRow++)
         {
             algorithmFPType dist2 = algorithmFPType(0);
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : dist2))
             for (size_t i = 0u; i < dim; i++)
             {
                 dist2 += (pData[iRow * dim + i] - pLastAddedCenter[i]) * (pData[iRow * dim + i] - pLastAddedCenter[i]);
@@ -224,7 +223,7 @@ public:
         const algorithmFPType * pData = ntDataBD.get();
         algorithmFPType res(0.);
 
-        PRAGMA_IVDEP
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < dim; ++i)
         {
@@ -638,7 +637,7 @@ template <typename algorithmFPType, CpuType cpu, typename DataHelper>
 Status TaskPlusPlusBatchBase<algorithmFPType, cpu, DataHelper>::updateMinDist(const algorithmFPType * aWeights, size_t nTrials)
 {
     SafeStatus safeStat;
-    daal::threader_for(_nBlocks, _nBlocks, [=, &safeStat](size_t iBlock) {
+    daal::threader_for(_nBlocks, 1, [=, &safeStat](size_t iBlock) {
         safeStat |=
             _data.updateMinDistInBlock(_aMinDistAcc.get(), _nBlocks, iBlock, nTrials, _trialBest, aWeights, _lastAddedCenter.get(), _aMinDist.get());
     });
@@ -679,20 +678,20 @@ void TaskPlusPlusBatch<algorithmFPType, cpu, DataHelper>::calcCenter(size_t iClu
 
     // search best candidate from nTrials
     algorithmFPType bestMinInertia = daal::services::internal::MaxVal<algorithmFPType>::get();
-    size_t iTialBest               = 0u;
+    size_t iTrialBest              = 0u;
 
     for (size_t iTrials = 0u; iTrials < this->_nTrials; iTrials++)
     {
-        algorithmFPType newInersia = this->_overallError[iTrials];
+        algorithmFPType newInertia = this->_overallError[iTrials];
 
-        if (newInersia < bestMinInertia)
+        if (newInertia < bestMinInertia)
         {
-            bestMinInertia = newInersia;
-            iTialBest      = iTrials;
+            bestMinInertia = newInertia;
+            iTrialBest     = iTrials;
         }
     }
 
-    this->_trialBest = iTialBest;
+    this->_trialBest = iTrialBest;
 }
 
 template <typename algorithmFPType, CpuType cpu>
@@ -730,7 +729,7 @@ size_t TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::samplePoints(siz
         this->generateProbabilities(_nCandidates, nPt);
     }
     //sample each point independently
-    daal::threader_for(nPt, nPt, [=](size_t iPt) {
+    daal::threader_for(nPt, 1, [=](size_t iPt) {
         const size_t iCandidate     = _nCandidates + iPt;
         algorithmFPType probability = this->_aProbability.get()[iCandidate];
         aPt[iPt]                    = this->findSample(this->overallError() * probability);
@@ -962,7 +961,7 @@ size_t TaskParallelPlusBatch<algorithmFPType, cpu, DataHelper>::calcCenters(size
 {
     const size_t nPt = samplePoints(nRequired, aCenters, iRound);
     //copy points in parallel
-    daal::threader_for(nPt, nPt, [=](size_t iPt) {
+    daal::threader_for(nPt, 1, [=](size_t iPt) {
         const size_t iRow = aCenters[iPt];
         this->_lastAddedCenterNorm2.get()[iPt] =
             algorithmFPType(0.5) * this->_data.copyOneRowCalcSumSq(iRow, this->_lastAddedCenter.get() + iPt * this->_data.dim);

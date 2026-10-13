@@ -1,4 +1,4 @@
-/** file data_management_utils.cpp */
+/** file data_conversion.cpp */
 /*******************************************************************************
 * Copyright 2014 Intel Corporation
 *
@@ -21,7 +21,7 @@
 //--
 */
 
-#include "services/internal/daal_kernel_defines.h"
+#include "src/services/internal/daal_internal_kernel_defines.h"
 #include "src/externals/service_dispatch.h"
 #include "src/data_management/data_conversion_cpu.h"
 #include "data_management/data/internal/conversion.h"
@@ -42,7 +42,9 @@ static bool tryToCopyFuncAVX512(const size_t nrows, const size_t ncols, void * d
 
     if (!ptr)
     {
-        int cpuid = (int)daal::services::Environment::getInstance()->getCpuId();
+        daal::services::Environment * env = daal::services::Environment::getInstance();
+        if (!env) return false; // Environment not initialized
+        int cpuid = (int)env->getCpuId();
 
         switch (cpuid)
         {
@@ -99,31 +101,27 @@ DAAL_EXPORT void vectorAssignValueToArray(T * const dataPtr, const size_t n, con
 DAAL_REGISTER_WITH_HOMOGEN_NT_TYPES(DAAL_REGISTER_VECTOR_ASSIGN)
 
 #undef DAAL_TABLE_UP_ENTRY
-#define DAAL_TABLE_UP_ENTRY(F, T)            \
-    {                                        \
-        F<T, float>, F<T, double>, F<T, int> \
-    }
+#define DAAL_TABLE_UP_ENTRY(F, T) { F<T, float>, F<T, double>, F<T, int> }
 
 #undef DAAL_TABLE_DOWN_ENTRY
-#define DAAL_TABLE_DOWN_ENTRY(F, T)          \
-    {                                        \
-        F<float, T>, F<double, T>, F<int, T> \
-    }
+#define DAAL_TABLE_DOWN_ENTRY(F, T) { F<float, T>, F<double, T>, F<int, T> }
 
 #undef DAAL_CONVERT_UP_TABLE
-#define DAAL_CONVERT_UP_TABLE(F)                                                                                                          \
-    {                                                                                                                                     \
-        DAAL_TABLE_UP_ENTRY(F, float), DAAL_TABLE_UP_ENTRY(F, double), DAAL_TABLE_UP_ENTRY(F, int), DAAL_TABLE_UP_ENTRY(F, unsigned int), \
-            DAAL_TABLE_UP_ENTRY(F, DAAL_INT64), DAAL_TABLE_UP_ENTRY(F, DAAL_UINT64), DAAL_TABLE_UP_ENTRY(F, char),                        \
-            DAAL_TABLE_UP_ENTRY(F, unsigned char), DAAL_TABLE_UP_ENTRY(F, short), DAAL_TABLE_UP_ENTRY(F, unsigned short),                 \
+#define DAAL_CONVERT_UP_TABLE(F)                                                                                            \
+    {                                                                                                                       \
+        DAAL_TABLE_UP_ENTRY(F, float),          DAAL_TABLE_UP_ENTRY(F, double),        DAAL_TABLE_UP_ENTRY(F, int),         \
+        DAAL_TABLE_UP_ENTRY(F, unsigned int),   DAAL_TABLE_UP_ENTRY(F, DAAL_INT64),    DAAL_TABLE_UP_ENTRY(F, DAAL_UINT64), \
+        DAAL_TABLE_UP_ENTRY(F, char),           DAAL_TABLE_UP_ENTRY(F, unsigned char), DAAL_TABLE_UP_ENTRY(F, short),       \
+        DAAL_TABLE_UP_ENTRY(F, unsigned short),                                                                             \
     }
 
 #undef DAAL_CONVERT_DOWN_TABLE
-#define DAAL_CONVERT_DOWN_TABLE(F)                                                                                                                \
-    {                                                                                                                                             \
-        DAAL_TABLE_DOWN_ENTRY(F, float), DAAL_TABLE_DOWN_ENTRY(F, double), DAAL_TABLE_DOWN_ENTRY(F, int), DAAL_TABLE_DOWN_ENTRY(F, unsigned int), \
-            DAAL_TABLE_DOWN_ENTRY(F, DAAL_INT64), DAAL_TABLE_DOWN_ENTRY(F, DAAL_UINT64), DAAL_TABLE_DOWN_ENTRY(F, char),                          \
-            DAAL_TABLE_DOWN_ENTRY(F, unsigned char), DAAL_TABLE_DOWN_ENTRY(F, short), DAAL_TABLE_DOWN_ENTRY(F, unsigned short),                   \
+#define DAAL_CONVERT_DOWN_TABLE(F)                                                                                                \
+    {                                                                                                                             \
+        DAAL_TABLE_DOWN_ENTRY(F, float),          DAAL_TABLE_DOWN_ENTRY(F, double),        DAAL_TABLE_DOWN_ENTRY(F, int),         \
+        DAAL_TABLE_DOWN_ENTRY(F, unsigned int),   DAAL_TABLE_DOWN_ENTRY(F, DAAL_INT64),    DAAL_TABLE_DOWN_ENTRY(F, DAAL_UINT64), \
+        DAAL_TABLE_DOWN_ENTRY(F, char),           DAAL_TABLE_DOWN_ENTRY(F, unsigned char), DAAL_TABLE_DOWN_ENTRY(F, short),       \
+        DAAL_TABLE_DOWN_ENTRY(F, unsigned short),                                                                                 \
     }
 
 template <typename T>

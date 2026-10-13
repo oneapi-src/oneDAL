@@ -27,6 +27,32 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(covariance::BatchContainer, batch, DAAL_FPTYPE, covariance::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(covariance::internal::BatchContainer, batch, DAAL_FPTYPE, covariance::defaultDense)
+
+namespace covariance
+{
+namespace interface1
+{
+using BatchType = Batch<DAAL_FPTYPE, covariance::defaultDense>;
+
+template <>
+void BatchType::initialize()
+{
+    this->_ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, covariance::defaultDense)(&_env);
 }
+template <>
+DAAL_EXPORT BatchType::Batch()
+{
+    initialize();
+}
+
+template <>
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : BatchImpl(other)
+{
+    initialize();
+}
+
+} // namespace interface1
+} // namespace covariance
+} // namespace algorithms
 } // namespace daal

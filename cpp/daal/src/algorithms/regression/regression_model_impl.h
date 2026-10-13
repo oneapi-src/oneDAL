@@ -62,14 +62,16 @@ public:
     ModelImpl(size_t nFeatures = 0) : ImplType(nFeatures) {}
 
     void setNumberOfFeatures(size_t nFeatures) { ImplType::setNumberOfFeatures(nFeatures); }
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE { return ImplType::getNumberOfFeatures(); }
+    size_t getNumberOfFeatures() const override { return ImplType::getNumberOfFeatures(); }
 
 protected:
     template <typename Archive, bool onDeserialize>
     services::Status serialImpl(Archive * arch)
     {
-        auto s = regression::Model::serialImpl<Archive, onDeserialize>(arch);
-        return s.add(ModelInternal::serialImpl<Archive, onDeserialize>(arch));
+        regression::Model::serialImpl<Archive, onDeserialize>(arch);
+        arch->set(ImplType::_nFeatures);
+
+        return services::Status();
     }
 };
 

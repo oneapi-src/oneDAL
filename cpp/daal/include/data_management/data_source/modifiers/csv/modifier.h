@@ -33,7 +33,7 @@ namespace modifiers
 namespace csv
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -125,13 +125,13 @@ public:
      * Default implementation of interface method
      * \param config  The configuration of the modifier
      */
-    virtual void initialize(Config & /*config*/) DAAL_C11_OVERRIDE {}
+    void initialize(Config & /*config*/) override {}
 
     /**
      * Default implementation of interface method
      * \param config  The configuration of the modifier
      */
-    virtual void finalize(Config & /*config*/) DAAL_C11_OVERRIDE {}
+    void finalize(Config & /*config*/) override {}
 };
 typedef services::SharedPtr<FeatureModifier> FeatureModifierPtr;
 

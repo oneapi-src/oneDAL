@@ -16,9 +16,10 @@
 *******************************************************************************/-->
 # Bazel Guide
 ## Install Bazel on Linux
-1. Download Bazelisk
+1. Download Bazelisk. `.ci/env/bazelisk.sh` does the same with a pinned
+   version and a checksum check, and is what CI runs.
    ```sh
-   wget -O bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.18.0/bazelisk-linux-amd64
+   wget -O bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.29.0/bazelisk-linux-amd64
    ```
    > Note: If you are using proxy don't forget to set
    `http_proxy` and `https_proxy` environment variables
@@ -43,6 +44,46 @@
    bazel --version
    ```
 
+## Install Bazel on Windows
+Windows Bazel support covers the regular C++/CPU build with the MSVC compiler
+and release DPC++/SYCL artifact builds with the Intel(R) oneAPI DPC++ Compiler.
+Running DPC++ examples and tests on Windows still needs separate device/runtime
+validation.
+
+1. Install Visual Studio 2022 Build Tools with the MSVC x64 C++ toolchain.
+
+2. Download Bazelisk for Windows and put it into a directory on `PATH`, or keep
+   it in the repository root as `bazelisk.exe`. `.ci/env/bazelisk.ps1` does this
+   with a pinned version and a checksum check, and is what CI runs.
+   ```bat
+   set BAZELISK_VERSION=v1.29.0
+   curl.exe -L -o bazelisk.exe https://github.com/bazelbuild/bazelisk/releases/download/%BAZELISK_VERSION%/bazelisk-windows-amd64.exe
+   bazelisk.exe version
+   ```
+
+3. Before running Bazel build, test, or analysis commands on Windows, set
+   `BAZEL_SH` to a Bash executable. Git for Windows is sufficient.
+   ```bat
+   set BAZEL_SH=C:\Program Files\Git\bin\bash.exe
+   ```
+
+4. Run Bazel from a Visual Studio Developer Command Prompt, or initialize the
+   MSVC environment explicitly before invoking Bazel.
+   ```bat
+   call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=amd64 -host_arch=amd64
+   bazelisk.exe build //:release --verbose_failures
+   ```
+
+5. For tests that run executables linked with MKL/TBB, make the downloaded
+   runtime DLLs visible through `PATH` and pass the environment to Bazel tests.
+   Bazel downloads these dependencies into its external repository cache.
+   ```bat
+   for /f "delims=" %i in ('bazelisk.exe info output_base') do set BAZEL_OUTPUT_BASE=%i
+   set PATH=%BAZEL_OUTPUT_BASE%\external\+mkl_repo+mkl\bin;%BAZEL_OUTPUT_BASE%\external\+tbb_repo+tbb\bin;%PATH%
+
+   bazelisk.exe test //cpp/daal/src/algorithms/dtrees/gbt/regression:test_gbt_regression_model_builder_unit_host --verbose_failures --test_output=errors
+   ```
+
 ### Compiler choice
 Be default our build system configures Bazel to use Intel(R) C++ Compiler
 in case of normal C++ code and Intel(R) oneAPI DPC++ Compiler in case of
@@ -54,6 +95,32 @@ The C++ compiler can be forcibly changed using environment variable `CC`.
 export CC=gcc
 bazel <bazel-command> ... # Will use GCC for normal C++ code
 ```
+
+### Prebuilt dependency roots
+Each prebuilt dependency is described by its own file in `dev/bazel/deps/`: an
+environment variable that points at a local installation, and the archives to
+fall back on when that variable is not set. `MODULE.bazel` only names the
+repositories.
+
+| Dependency        | Environment variable | Fallback archives |
+| ----------------- | -------------------- | ----------------- |
+| `@mkl`            | `MKLROOT`            | yes               |
+| `@tbb`            | `TBBROOT`            | yes               |
+| `@mpi`            | `MPIROOT`            | yes               |
+| `@ccl`            | `CCL_ROOT`           | yes               |
+| `@dpl`            | `DPL_ROOT`           | yes               |
+| `@openmp`         | `GOMPROOT`           | yes               |
+| `@openblas`       | `OPENBLASROOT`       | no                |
+| `@openrng`        | `OPENRNGROOT`        | no                |
+| `@onedal_release` | `DALROOT`            | no                |
+
+The dependencies without fallback archives are only resolvable through their
+variable and fail the build with an explicit message when it is unset.
+
+These variables are watched, so setting, changing or unsetting one re-fetches
+the repository on the next Bazel command rather than on the next server
+restart. Sourcing `setvars.sh` in a shell that already has a warm Bazel server
+therefore repoints `@mkl` and `@tbb` at the oneAPI installation immediately.
 
 ## Common Bazel commands
 The most used Bazel commands are `build`, `test` and `run`.
@@ -108,7 +175,7 @@ The most used Bazel commands are `build`, `test` and `run`.
   `dbg` and `fastbuild`. \
   Possible values:
    - `opt` _(default)_ compiles everything with optimizations `-O2`.
-   - `dbg` enables `-g`, `-O0` compiler switches and **assertions**.
+   - `dbg` enables `-g`, `-O1` compiler switches and **assertions**.
    - `fastbuild` optimizes build time, no optimizations, no debug information.
      Useful when one introduces massive changes and wants to check whether they
      break the build.
@@ -160,19 +227,19 @@ The most used Bazel commands are `build`, `test` and `run`.
 
 - `--cpu` CPU instruction sets to compile library for. \
   Possible values:
-  - `auto` _(default)_ Automatically detects highest available instruction set
-    on the local machine. If detection failed, uses `avx2`.
+  - `auto` _(default)_ Automatically detects the highest instruction set
+    available on the local machine and builds it together with the `sse2`
+    dispatch baseline, which is always included on x86.
   - `modern` Compiles for `sse2`, `avx2`, `avx512`.
   - `all` Compiles for all instruction sets listed below.
-  - Any comma-separated combination of the following values:
+  - Any space-separated combination of the following values:
     - `sse2`
-    - `sse42`
     - `avx2`
     - `avx512`
 
    Example:
    ```sh
-   bazel test --cpu="avx2,avx512" //cpp/oneapi/dal:tests
+   bazel test --cpu="avx2 avx512" //cpp/oneapi/dal:tests
    ```
 
 - `--test_external_datasets` A switch that enables
@@ -225,14 +292,148 @@ The most used Bazel commands are `build`, `test` and `run`.
   bazel test --test_disable_fp64 //cpp/oneapi/dal/algo/pca:tests
   ```
 
+- `--stdalloc` Selects standard-library aligned allocation for DAAL core
+  objects. Disabled by default and supported only for Linux targets.
+
+  Example:
+  ```sh
+  bazel build //cpp/daal:core_static --stdalloc=true
+  ```
+
 ## Build recipes for oneDAL
+### Build release artifacts
+- To build the Bazel release artifacts, run:
+  ```sh
+  bazel build //:release
+  ```
+  This automatically builds all required ISA variants (SSE2, AVX2, AVX-512) and includes DPC++ libraries by default.
+
+  The release tree is placed under `bazel-bin/release/daal/latest`, matching the layout of
+  oneDAL release directories such as `__release_lnx/daal/latest`. The main outputs are in the
+  same subdirectories: headers under `include`, libraries under `lib/intel64`, environment
+  setup under `env/vars.sh`, and pkg-config metadata under `lib/pkgconfig/onedal.pc`.
+
+  - To build for a specific CPU architecture only (useful for speeding up CI), use `--cpu`:
+    ```sh
+    bazel build //:release --cpu=avx2
+    ```
+  - To disable building DPC++ libraries, use `--release_dpc=false`:
+    ```sh
+    bazel build //:release --release_dpc=false
+    ```
+
+- On Windows, run from the Visual Studio Developer Command Prompt described
+  above:
+  ```bat
+  bazelisk.exe build //:release --verbose_failures
+  ```
+
+  The resulting release tree is under `bazel-bin/release/daal/latest`.
+
+#### Windows MSVC runtime (`-MD` / `-MDd`)
+
+On Windows the CRT flavour is selected independently of `--config=dbg`, matching
+the Makefile's split between `MSVC_RUNTIME_VERSION` and `REQDBG`. A debug-CRT
+build appends `d` to every library name — `onedal_cored.lib`,
+`onedal_cored.4.dll`, `onedal_cored_dll.lib` — exactly as the Make build does,
+so both flavours can share one release tree.
+
+```bat
+:: Release CRT (-MD), unsuffixed names. This is the default.
+bazelisk.exe build //:release
+
+:: Debug CRT (-MDd), `d`-suffixed names, `_debug` TBB variants.
+bazelisk.exe build //:release --config=mdd
+
+:: Both flavours merged into one release tree, in a single command.
+bazelisk.exe build //:release_all
+```
+
+`--config=mdd` is orthogonal to `--config=dbg`: combine them
+(`--config=mdd --config=dbg`) for a debug-CRT build that also carries debug
+info and assertions. `//:release_all` pins the runtime internally, so passing
+`--config=mdd` alongside it has no effect.
+
+Two constraints worth knowing before reaching for the debug runtime:
+
+- It is implemented for the Intel oneAPI **icx** toolchain only. The `cl`
+  fallback (`ONEDAL_WIN_COMPILER=cl` or `CC=cl`, see [Compiler
+  choice](#compiler-choice)) delegates to rules_cc's MSVC auto-config, which
+  does not define the `msvc_runtime_debug` feature, so `--config=mdd` there
+  fails during analysis with an explanatory message rather than silently
+  building against the wrong CRT.
+- Always select it through `--config=mdd`. It sets two things that have to
+  agree — the `msvc_runtime_debug` toolchain feature, which selects `-MDd`,
+  and the `@config//:msvc_runtime` build setting, which dependency `select()`s
+  read. Passing either half alone (`--features=msvc_runtime_debug` or
+  `--msvc_runtime=debug`) is rejected during analysis, because it would
+  compile against one CRT while naming libraries and picking dependencies for
+  the other.
+
+`//:release_all` takes the libraries under `lib/intel64` and `redist/intel64`
+from both builds; everything else — headers, datasets, examples, env scripts,
+CMake config — comes from the release-CRT build, since those are identical
+between flavours. The pkg-config files describe the release CRT; debug-CRT
+consumers should use `oneDALConfig.cmake`, which appends its own
+`DAL_DEBUG_SUFFIX` based on `CMAKE_BUILD_TYPE`.
+
+The debug-CRT build requires the `tbb12_debug` / `tbbmalloc_debug` libraries and
+MKL's `mkl_tbb_threadd` in the layouts being used; the oneAPI BaseKit ships all
+of them.
+
+CI builds `//:release` in both flavours on every pull request and checks the
+resulting names, but `//:release_all` is only analysed there
+(`--nobuild`): building it means building the whole Windows release twice,
+which does not fit alongside the two single-flavour builds in one hosted job.
+The `WindowsBazelReleaseAll` job builds it and verifies the merged tree, and it
+runs on manual or scheduled pipeline runs rather than per pull request.
+
+On non-Windows platforms both the `mdd` config and `//:release_all` are no-ops.
+Note that `//:release_all` then forwards the `//:release` tree unchanged instead
+of copying it — copying would dereference the `.so` version symlinks — so its
+output stays at `bazel-bin/release/daal/latest`, not `bazel-bin/release_all/...`.
+Scripts that need a fixed path should use `//:release` on those platforms.
+
+### Release validation and platform helpers
+
+Nightly CI builds Make and Bazel releases on both Linux and Windows, then uses
+`dev/release_tests/compare_release_trees.py` at check level 4 to compare their
+package trees, metadata, and exported symbols. On Linux level 4 additionally
+compares each shared library's `DT_NEEDED` list and undefined dynamic symbols,
+and checks that a runtime the Make release stages in a sibling component tree
+(such as `<release>/tbb/latest/lib`) is shipped by the Bazel release as well: a
+library whose exports match but whose recorded dependencies do not cannot be
+loaded by a consumer. Linux invokes the comparator
+directly; Windows uses `.ci/scripts/compare_windows_release.ps1`. Windows also
+runs `.ci/scripts/test_bazel_release_cmake_example.ps1` to verify that a CMake
+consumer can build and run against the Bazel package.
+
+Other Windows-specific helpers are `.ci/env/bazelisk.ps1`, the PowerShell
+counterpart of the Bazelisk installer, and
+`dev/bazel/toolchains/tools/dpc_link_win.ps1`, which keeps the Intel compiler
+driver in DPC++ link actions while moving large object lists to a response
+file. Each script contains detailed usage and maintenance comments.
+
+When package contents change, update the Bazel packaging rules or the common
+comparator rather than hiding differences in a platform wrapper. The same goes
+for the build itself: prefer a Bazel action to a helper script. The scripts that
+remain are listed in `dev/bazel/TODO.md` together with what each of them is
+waiting on.
+
 ### Run oneAPI examples
 - To run all oneAPI C++ example use the following commands:
   ```sh
   bazel test //examples/oneapi/cpp:all
   ```
 
-- To run all oneAPI DPC++ examples ... It's not implemented yet...
+- On Windows, start with HOST example smoke builds:
+  ```bat
+  bazelisk.exe build //examples/oneapi/cpp:basic_statistics_dense_batch_host //examples/daal/cpp:low_order_moms_dense_batch_host --verbose_failures
+  ```
+
+- Running all oneAPI DPC++ examples is not implemented yet. Windows release
+  artifact builds can include DPC++ libraries, but Windows DPC++ example/test
+  execution still needs separate device/runtime validation.
 
 ### Run oneAPI tests
 - To run all test use the following commands:
@@ -371,5 +572,288 @@ dal_test_suite(
      bazel test --test_link_mode=release_dynamic //cpp/oneapi/dal:tests
      ```
 
-## What is missing in this guide
-- How to get make-like release structure
+## Standard-library allocator
+
+For Linux DAAL core objects, this is equivalent to the allocator-selection
+part of Make `STDALLOC=yes`:
+
+```sh
+bazel build //:release --stdalloc=true
+```
+
+The option is disabled by default. When enabled, Bazel defines
+`USE_STD_ALLOC` only while compiling DAAL core objects, switching the MKL
+allocation wrappers to `std::aligned_alloc` and `std::free`. It intentionally
+does not define the macro for the separately built `threading_tbb` objects;
+this matches the current Make target-specific flag scope, so the threading
+library continues to use TBB scalable allocation.
+
+The setting rejects every non-Linux target because this allocator path is
+currently supported only on Linux. It controls allocator selection only. Make
+builds with `COMPILER=icx STDALLOC=yes` additionally pass
+`-static-libstdc++`; `--stdalloc=true` does not change Bazel link options.
+
+## Debug and Sanitizer Builds
+
+### Debug build with assertions
+
+Equivalent to Make `REQDBG=yes` — adds debug symbols, enables `DEBUG_ASSERT`
+and `ONEDAL_ENABLE_ASSERT`:
+
+```sh
+bazel build //:release --config=dbg
+bazel test //cpp/oneapi/dal:tests --config=dbg
+```
+
+### Debug symbols only (no assertion checks)
+
+Equivalent to Make `REQDBG=symbols`:
+
+```sh
+bazel build //:release --config=dbg-symbols
+```
+
+> Note: DPC++ targets can be built with debug/sanitizer configurations when
+> the selected compiler/runtime supports them. Debug builds of
+> `libonedal_dpc.so` may still produce excessive debug information and very long
+> link times.
+
+#### Sanitized DPC++ builds
+
+DPC++ libraries can be combined with sanitizers (ASan, TSAN, UBSan) when the
+DPC++ runtime supports them. Use `--release_dpc=True` alongside the sanitizer config:
+
+```sh
+bazel build //:release --config=asan --release_dpc=True --cpu=all
+bazel test //cpp/oneapi/dal:tests --config=ubsan --release_dpc=True
+```
+
+### AddressSanitizer (ASan)
+
+Equivalent to Make `REQSAN=address`. Sanitizers do not automatically enable assertions or unoptimized debug builds. It is highly recommended to combine them with `--config=dbg` (for full debug + assertions) or `--enable_assert=True`:
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=asan --config=dbg
+```
+
+For static libasan linkage (equivalent to Make `REQSAN=static`):
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=asan-static --config=dbg
+```
+
+### LeakSanitizer (LSan)
+
+Equivalent to Make `REQSAN=leak`. This configuration is for Linux non-DPC++ targets
+with a compiler that supports LeakSanitizer. Do not use it for DPC++ targets;
+DPC++ device compilation does not support LSan. Windows ICX does not support it.
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=lsan
+```
+
+### ThreadSanitizer (TSan)
+
+Equivalent to Make `REQSAN=thread`:
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=tsan
+```
+
+### UndefinedBehaviorSanitizer (UBSan)
+
+Equivalent to Make `REQSAN=undefined`:
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=ubsan
+```
+
+### MemorySanitizer (MSan)
+
+Equivalent to Make `REQSAN=memory`. Requires a Clang/LLVM toolchain and lld;
+GCC does not support MSan. The `msan` config enables
+`-fsanitize-memory-track-origins` for better origin diagnostics and passes
+`--linkopt=-fuse-ld=lld` for the linker.
+
+Bazel applies the sanitizer flags to the oneDAL build, but it does not make the
+rest of the toolchain and dependencies (for example `libstdc++`) MSan-instrumented.
+Uninstrumented dependencies can produce false positives or incomplete reports;
+use an MSan-instrumented sysroot/runtime when investigating MSan findings.
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=msan
+```
+
+### Type Sanitizer
+
+The `type` config enables Clang TypeSanitizer and adds
+`-fsanitize-recover=all` so the runtime can report multiple findings in one run.
+GCC and ICPX do not support TypeSanitizer.
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=type
+```
+
+
+---
+
+## Release Build
+
+Build the full release artifact with all ISA variants (sse2, avx2, avx512):
+
+```sh
+bazel build //:release --cpu=all
+```
+
+By default, `--cpu=auto` builds the baseline `sse2` variant plus the detected
+host ISA. Use `--cpu=all` for full release coverage, or set a specific ISA to
+restrict coverage (e.g., for faster CI):
+
+```sh
+bazel build //:release --cpu=avx2
+```
+
+To include DPC++ libraries:
+
+```sh
+bazel build //:release --config=release-dpc --cpu=all
+```
+
+---
+
+### Standard Library Assertions
+
+To enable GNU libstdc++ assertions (e.g., `std::vector` bounds checking),
+inject the preprocessor macro via `--cxxopt` (C++-only flag):
+
+```sh
+bazel test //cpp/oneapi/dal:tests --config=dbg --cxxopt=-D_GLIBCXX_DEBUG
+```
+
+This applies only when the build uses GNU libstdc++ headers (for example GCC,
+or ICX configured to use libstdc++). If ICX is configured to use libc++ (default
+on some systems), this flag will have no effect. It is not portable to non-GNU
+standard library implementations.
+
+---
+
+## Custom Compiler and Linker Flags
+
+Equivalent to Make `COPT` / `CXXFLAGS`. Use `--copt` for C and C++ flags, `--cxxopt` for C++-only flags, and `--linkopt` for linker flags:
+
+```sh
+# Override optimization level (C and C++)
+bazel build //:release --copt=-O2
+
+# C++-only preprocessor/language flags
+bazel build //:release --cxxopt=-std=c++17
+
+# Add a linker flag
+bazel build //:release --linkopt=-Wl,--as-needed
+```
+
+Bazel combines repeated `--copt`, `--cxxopt`, and `--linkopt` values from named
+configs and user-provided flags. For example, `--config=dbg-symbols --copt=-O2`
+keeps the config's `-g` flag and also passes the user `-O2` flag. If flags
+conflict, the compiler/toolchain decides how to interpret the final option list,
+so users should avoid conflicting custom flags unless that behavior is intended.
+
+Avoid `-march=native` for release artifacts: oneDAL relies on runtime CPU
+feature dispatching and portable baseline objects. Native architecture flags are
+appropriate only for local experiments where the artifact will run on the same
+machine.
+
+To make flags permanent for your local environment, add them to `~/.bazelrc`:
+
+```
+# ~/.bazelrc (user-local, not committed)
+build --copt=-your-c-and-cxx-flag
+build --cxxopt=-your-cxx-only-flag
+build --linkopt=-your-link-flag
+```
+
+---
+
+## Parameter library layout
+
+Bazel mirrors Make's `BUILD_PARAMETERS_LIB` switch with the typed
+`--build_parameters_lib=auto|yes|no` setting:
+
+- `auto` (default) builds separate `libonedal_parameters` and
+  `libonedal_parameters_dpc` libraries on non-Windows targets, and folds those
+  objects into `onedal`/`onedal_dpc` on Windows.
+- `yes` selects the separate host and DPC parameter libraries on non-Windows
+  targets. It is unsupported on Windows and fails during analysis with a diagnostic.
+- `no` folds the host and DPC parameter modules into the corresponding main
+  libraries and omits separate parameter libraries from `//:release`.
+
+For example:
+
+```
+bazel build //:release --build_parameters_lib=no
+```
+
+Consumer metadata follows the produced package: the generated CMake config and
+pkg-config files name `onedal_parameters` only in the separate layout, and the
+prebuilt-release repository rule decides which parameter libraries to expose by
+looking for them in the package rather than by reading its metadata.
+
+CI uses `dev/bazel/tests/parameters_layout_test.sh` for analysis-only checks of
+configured release outputs, host/DPC dependency separation, folded-target
+rejection, and Windows value validation. It does not build DPC binaries.
+`dev/release_tests/parameters_layout_consumer_test.sh` separately builds and
+runs host static and dynamic consumers through packaged CMake, pkg-config, and
+Bazel metadata for the folded layout. Both take `bazel` from `PATH`; set `BAZEL`
+to run them against a specific binary, such as a downloaded `bazelisk`.
+
+## Make → Bazel Flag Reference
+
+| Make option                    | Bazel equivalent                                             | Notes                                                                      |
+|--------------------------------|--------------------------------------------------------------|----------------------------------------------------------------------------|
+| `BUILD_PARAMETERS_LIB=yes\|no` | `--build_parameters_lib=yes\|no`                             | `auto` keeps non-Windows `yes` / Windows `no`; Windows `yes` unsupported   |
+| `REQDBG=yes`                   | `--config=dbg`                                               | Debug symbols + assertions                                                 |
+| `REQDBG=symbols`               | `--config=dbg-symbols`                                       | Debug symbols only                                                         |
+| `REQSAN=address`               | `--config=asan`                                              | AddressSanitizer                                                           |
+| `REQSAN=static`                | `--config=asan-static`                                       | ASan with static libasan                                                   |
+| `REQSAN=leak`                  | `--config=lsan`                                              | LeakSanitizer; Linux host builds only; compiler support required           |
+| `REQSAN=thread`                | `--config=tsan`                                              | ThreadSanitizer                                                            |
+| `REQSAN=undefined`             | `--config=ubsan`                                             | UBSan                                                                      |
+| `REQSAN=memory`                | `--config=msan`                                              | MemorySanitizer (Clang/LLVM + lld; instrumented dependencies recommended)  |
+| `REQSAN=type`                  | `--config=type`                                              | TypeSanitizer; Clang-only; GCC/ICPX unsupported                            |
+| `STDALLOC=yes`                  | `--stdalloc=true`                                            | Allocator-selection equivalent for Linux DAAL core objects; threading objects unchanged. Make ICX also adds `-static-libstdc++` |
+| `COMPILER=gnu`                 | `CC=gcc bazel build ...`                                     | Override compiler via `CC` env                                             |
+| `OPTFLAG=O2`                   | `--copt=-O2`                                                 | Override optimization level                                                |
+| `COPT=-flag`                   | `--copt=-flag` (C+C++) / `--cxxopt=-flag` (C++ only)         | Arbitrary compiler flag                                                    |
+| `PLAT=<isa>`                   | `--cpu=<isa>`                                                | ISA selection                                                              |
+| Full CPU ISA release coverage  | `bazel build //:release --cpu=all`                           | Build all supported CPU ISA variants                                       |
+| `MSVC_RUNTIME_VERSION=release` | `<default>`                                                  | Windows release CRT (`-MD`); unsuffixed library names                      |
+| `MSVC_RUNTIME_VERSION=debug`   | `--config=mdd`                                               | Windows debug CRT (`-MDd`); `d`-suffixed library names                     |
+| Both runtimes in one tree      | `bazel build //:release_all`                                 | Windows only; equals `//:release` elsewhere                                |
+| `PLAT=lnxarm`                  | `--platforms=@config//:linux_aarch64 CC=aarch64-linux-gnu-gcc`| Cross-compile to Linux AArch64 (ref backend only)                          |
+| `PLAT=lnxriscv64`              | `--platforms=@config//:linux_riscv64 CC=riscv64-linux-gnu-gcc`| Cross-compile to Linux RISC-V64 (ref backend only)                         |
+| `RNG_BACKEND=openrng`          | `--rng_backend=openrng --backend_config=ref`                  | Use OpenRNG instead of the ref RNG (ref backend only; needs `OPENRNGROOT`) |
+
+## Cross-compiling to ARM/RISC-V
+
+AArch64 and RISC-V64 are only supported with the `ref` backend (`--backend_config=ref`),
+matching the Makefile's `PLAT=lnxarm`/`PLAT=lnxriscv64`. Both ship a single fixed
+ISA variant (SVE / RVGC) — there is no runtime CPU dispatch like on x86.
+
+```sh
+# AArch64
+CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ \
+  bazel build --platforms=@config//:linux_aarch64 --backend_config=ref \
+  //cpp/daal:core_dynamic
+
+# RISC-V64
+CC=riscv64-linux-gnu-gcc CXX=riscv64-linux-gnu-g++ \
+  bazel build --platforms=@config//:linux_riscv64 --backend_config=ref \
+  //cpp/daal:core_dynamic
+```
+
+`OPENBLASROOT` must point at an OpenBLAS install built for the target arch (see
+`.ci/env/openblas.sh`). To use the OpenRNG backend instead of the ref RNG (currently
+validated on ARM), also set `--rng_backend=openrng` and point `OPENRNGROOT` at an
+OpenRNG install built with `.ci/env/openrng.sh`. `--rng_backend=openrng` only takes
+effect together with `--backend_config=ref`; it is silently ignored on the MKL
+backend, whose build never compiles the ref RNG shim that OpenRNG replaces.

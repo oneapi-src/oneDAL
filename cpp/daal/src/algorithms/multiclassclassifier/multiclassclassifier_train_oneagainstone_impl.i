@@ -31,6 +31,7 @@
 #include "src/threading/threading.h"
 #include "src/algorithms/service_sort.h"
 #include "src/algorithms/service_error_handling.h"
+#include "src/algorithms/svm/svm_train_result.h"
 #include "src/externals/service_blas.h"
 
 namespace daal
@@ -47,15 +48,11 @@ using namespace daal::internal;
 using namespace daal::services::internal;
 using namespace daal::data_management;
 using namespace daal::services;
-using namespace multi_class_classifier::internal;
-using namespace svm::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
-services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::compute(const NumericTable * xTable,
-                                                                                               const NumericTable * yTable,
-                                                                                               const NumericTable * wTable,
-                                                                                               daal::algorithms::Model * m, SvmModel * svmModel,
-                                                                                               const KernelParameter & par)
+services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType, cpu>::compute(
+    const NumericTable * xTable, const NumericTable * yTable, const NumericTable * wTable, daal::algorithms::Model * m,
+    svm::internal::ModelImpl * svmModel, const KernelParameter & par)
 {
     Status s;
 
@@ -133,7 +130,7 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
     DAAL_CHECK_MALLOC(originalIndicesMap.get());
     size_t * const originalIndicesMapData = originalIndicesMap.get();
 
-    daal::threader_for(nModels, nModels, [&](size_t imodel) {
+    daal::threader_for(nModels, 1, [&](size_t imodel) {
         const size_t iClass = classIndicesData[imodel];
         const size_t jClass = classIndicesData[imodel + nModels];
 
@@ -179,9 +176,14 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
                 isSVData[originalIndex]    = true;
             }
             auto biasesTable = svmModel->getBiases();
-            WriteOnlyColumns<algorithmFPType, cpu> mtBiases(biasesTable.get(), 0, imodel, 1);
+            WriteOnlyColumns<double, cpu> mtBiases(biasesTable.get(), 0, imodel, 1);
             DAAL_CHECK_BLOCK_STATUS_THR(mtBiases);
             *mtBiases.get() = svmModelPtr->getBias();
+
+            auto iterationsTable = svmModel->getNumberOfIterations();
+            WriteOnlyColumns<int, cpu> mtIterations(iterationsTable.get(), 0, imodel, 1);
+            DAAL_CHECK_BLOCK_STATUS_THR(mtIterations);
+            *mtIterations.get() = svmModelPtr->getNumberOfIterations()->getValue<int>(0, 0);
         }
     });
     lsTask.reduce([=, &safeStat](TSubTask * local) { delete local; });
@@ -238,17 +240,17 @@ services::Status MultiClassClassifierTrainKernel<oneAgainstOne, algorithmFPType,
             }
             DAAL_ASSERT(inxSV == nSV);
         }
-        NumericTablePtr coeffOutTable = svmModel->getCoefficients();
+        NumericTablePtr coeffOutTable = svmModel->getClassificationCoefficients();
         DAAL_CHECK_STATUS(s, coeffOutTable->resize(nSV));
 
-        using SvmResultTask = SaveResultTask<algorithmFPType, cpu>;
+        using SvmResultTask = svm::training::internal::SaveResultTask<algorithmFPType, cpu>;
         DAAL_CHECK_STATUS(s, SvmResultTask::setSVByIndices(xTable, supportIndicesTable, svmModel->getSupportVectors()));
         WriteOnlyRows<algorithmFPType, cpu> mtCoefficientsOut(coeffOutTable.get(), 0, coeffOutTable->getNumberOfRows());
         DAAL_CHECK_BLOCK_STATUS(mtCoefficientsOut);
         algorithmFPType * const coefficientsOut = mtCoefficientsOut.get();
         services::internal::service_memset<algorithmFPType, cpu>(coefficientsOut, algorithmFPType(0),
                                                                  coeffOutTable->getNumberOfRows() * coeffOutTable->getNumberOfColumns());
-        daal::threader_for(nModels, nModels, [&](size_t imodel) {
+        daal::threader_for(nModels, 1, [&](size_t imodel) {
             const size_t iClass = classIndicesData[imodel];
             const size_t jClass = classIndicesData[imodel + nModels];
 
@@ -337,9 +339,14 @@ Status SubTaskDense<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures
         originalIndicesMap[nRows] = ix;
         _mtX.next(ix, 1);
         DAAL_CHECK_BLOCK_STATUS(_mtX);
-        PRAGMA_IVDEP
+        const algorithmFPType * x = _mtX.get();
+        algorithmFPType * subsetX = this->_subsetX.get();
+        PRAGMA_OMP_SIMD
         PRAGMA_VECTOR_ALWAYS
-        for (size_t jx = 0; jx < nFeatures; jx++) this->_subsetX.get()[nRows * nFeatures + jx] = _mtX.get()[jx];
+        for (size_t jx = 0; jx < nFeatures; jx++)
+        {
+            subsetX[nRows * nFeatures + jx] = x[jx];
+        }
         this->_subsetY[nRows] = label;
         if (this->_weights)
         {
@@ -362,14 +369,14 @@ Status SubTaskCSR<algorithmFPType, cpu>::copyDataIntoSubtable(size_t nFeatures, 
         originalIndicesMap[nRows] = ix;
         _mtX.next(ix, 1);
         DAAL_CHECK_BLOCK_STATUS(_mtX);
-        const size_t nNonZeroValuesInRow = _mtX.rows()[1] - _mtX.rows()[0];
-        const size_t * colIndices        = _mtX.cols();
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        const size_t nNonZeroValuesInRow  = _mtX.rows()[1] - _mtX.rows()[0];
+        const size_t * colIndices         = _mtX.cols();
+        const algorithmFPType * mtXValues = _mtX.values();
+        algorithmFPType * subsetXData     = this->_subsetX.get();
         for (size_t jx = 0; jx < nNonZeroValuesInRow; ++jx, ++dataIndex)
         {
-            this->_subsetX.get()[dataIndex] = _mtX.values()[jx];
-            _colIndicesX[dataIndex]         = colIndices[jx];
+            subsetXData[dataIndex]  = mtXValues[jx];
+            _colIndicesX[dataIndex] = colIndices[jx];
         }
         _rowOffsetsX[nRows + 1] = _rowOffsetsX[nRows] + nNonZeroValuesInRow;
         this->_subsetY[nRows]   = label;

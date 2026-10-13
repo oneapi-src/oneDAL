@@ -69,7 +69,7 @@ struct copy_converter_impl {
             backend::copy(out, inp, count);
         }
         else {
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (std::int64_t i = 0l; i < count; ++i) {
                 out[i] = static_cast<out_t>(inp[i]);
@@ -81,8 +81,7 @@ struct copy_converter_impl {
                             std::int64_t out_stride,
                             const inp_t* inp,
                             std::int64_t count) {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD
         for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t out_offset = i * out_stride;
             out[out_offset] = static_cast<out_t>(inp[i]);
@@ -94,8 +93,7 @@ struct copy_converter_impl {
                             const inp_t* inp,
                             std::int64_t inp_stride,
                             std::int64_t count) {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD
         for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t inp_offset = i * inp_stride;
             out[i] = static_cast<out_t>(inp[inp_offset]);
@@ -110,7 +108,7 @@ struct copy_converter_impl {
         // Let's trust compiler to decide if the loop should be
         // vectorized or not. It can be suboptimal if strides are
         // too large
-        PRAGMA_IVDEP
+        PRAGMA_OMP_SIMD
         for (std::int64_t i = 0l; i < count; ++i) {
             const std::int64_t out_offset = i * out_stride;
             const std::int64_t inp_offset = i * inp_stride;
@@ -138,23 +136,20 @@ void copy_convert(const detail::host_policy& policy,
     auto block_size = propose_block_size<CpuType, OutType, InpType>(policy);
     const auto block_size_s = detail::integral_cast<std::size_t>(block_size);
 
-    detail::threader_for_blocked_size(
-        count_s,
-        block_size_s,
-        [=](std::size_t f, std::size_t l) -> void {
-            const auto first = detail::integral_cast<std::int64_t>(f);
-            const auto last = detail::integral_cast<std::int64_t>(l);
-            const std::int64_t count = last - first;
+    detail::threader_for_blocked(count_s, block_size_s, [=](std::size_t f, std::size_t l) -> void {
+        const auto first = detail::integral_cast<std::int64_t>(f);
+        const auto last = detail::integral_cast<std::int64_t>(l);
+        const std::int64_t count = last - first;
 
-            const InpType* const off_inp_ptr = inp_ptr + inp_str * first;
-            OutType* const off_out_ptr = out_ptr + out_str * first;
+        const InpType* const off_inp_ptr = inp_ptr + inp_str * first;
+        OutType* const off_out_ptr = out_ptr + out_str * first;
 
-            copy_converter_impl<CpuType, OutType, InpType>::run(off_out_ptr,
-                                                                out_str,
-                                                                off_inp_ptr,
-                                                                inp_str,
-                                                                count);
-        });
+        copy_converter_impl<CpuType, OutType, InpType>::run(off_out_ptr,
+                                                            out_str,
+                                                            off_inp_ptr,
+                                                            inp_str,
+                                                            count);
+    });
 }
 
 template <typename CpuType>
@@ -169,7 +164,7 @@ void copy_convert(const detail::host_policy& policy,
     const std::int64_t row_count = shape.first;
     const std::int64_t col_count = shape.second;
 
-    detail::threader_for_int64(row_count, [&](std::int64_t i) -> void {
+    detail::threader_for(row_count, 1, [&](std::int64_t i) -> void {
         auto* out_raw_ptr = out_ptrs[i];
         const auto* inp_raw_ptr = inp_ptrs[i];
 

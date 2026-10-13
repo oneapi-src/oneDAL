@@ -151,16 +151,16 @@ public:
     }
 
     bool isInitialized() const { return !!_aBestSplitIdxBuf.get(); }
-    virtual services::Status run(gbt::internal::GbtDecisionTree *& pRes, HomogenNumericTable<double> *& pTblImp,
-                                 HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree,
+    virtual services::Status run(gbt::internal::GbtDecisionTree *& pRes, services::SharedPtr<HomogenNumericTable<double> > & pTblImp,
+                                 services::SharedPtr<HomogenNumericTable<int> > & pTblSmplCnt, size_t iTree,
                                  GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF);
 
-    virtual services::Status run(gbt::internal::GbtDecisionTree *& pRes, HomogenNumericTable<double> *& pTblImp,
-                                 HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree) DAAL_C11_OVERRIDE
+    virtual services::Status run(gbt::internal::GbtDecisionTree *& pRes, services::SharedPtr<HomogenNumericTable<double> > & pTblImp,
+                                 services::SharedPtr<HomogenNumericTable<int> > & pTblSmplCnt, size_t iTree) override
     {
         return services::Status();
     }
-    virtual services::Status init() DAAL_C11_OVERRIDE
+    virtual services::Status init() override
     {
         _aBestSplitIdxBuf.reset(_ctx.nSamples() * 2);
         _aSample.reset(_ctx.nSamples());
@@ -278,7 +278,7 @@ protected:
             localG = localH = 0;
             if (aSampleToF)
             {
-                PRAGMA_VECTOR_ALWAYS
+                PRAGMA_OMP_SIMD_ARGS(reduction(+ : localG, localH))
                 for (size_t i = start; i < end; i++)
                 {
                     localG += pgh[aSampleToF[i]].g;
@@ -287,7 +287,7 @@ protected:
             }
             else
             {
-                PRAGMA_VECTOR_ALWAYS
+                PRAGMA_OMP_SIMD_ARGS(reduction(+ : localG, localH))
                 for (size_t i = start; i < end; i++)
                 {
                     localG += pgh[i].g;
@@ -372,8 +372,9 @@ void TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::buildNode(Ta
 
 template <typename algorithmFPType, typename RowIndexType, typename BinIndexType, CpuType cpu>
 services::Status TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::run(gbt::internal::GbtDecisionTree *& pRes,
-                                                                                    HomogenNumericTable<double> *& pTblImp,
-                                                                                    HomogenNumericTable<int> *& pTblSmplCnt, size_t iTree,
+                                                                                    services::SharedPtr<HomogenNumericTable<double> > & pTblImp,
+                                                                                    services::SharedPtr<HomogenNumericTable<int> > & pTblSmplCnt,
+                                                                                    size_t iTree,
                                                                                     GlobalStorages<algorithmFPType, BinIndexType, cpu> & GH_SUMS_BUF)
 {
     _tree.destroy();
@@ -381,7 +382,7 @@ services::Status TreeBuilder<algorithmFPType, RowIndexType, BinIndexType, cpu>::
     DAAL_CHECK_MALLOC(nd);
 
     _tree.reset(nd, false);
-    services::Status status = gbt::internal::ModelImpl::treeToTable(_tree, &pRes, &pTblImp, &pTblSmplCnt, _ctx.nFeatures());
+    services::Status status = gbt::internal::ModelImpl::treeToTable(_tree, &pRes, pTblImp, pTblSmplCnt, _ctx.nFeatures());
     DAAL_CHECK_STATUS_VAR(status)
 
     if (_ctx.isBagging() && _tree.top()) _ctx.updateOOB(iTree, _tree);

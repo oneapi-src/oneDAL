@@ -44,36 +44,6 @@ namespace interface1
  * @{
  */
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__QR__ONLINECONTAINER"></a>
- * \brief Provides methods to run implementations of the QR decomposition algorithm in the online processing mode.
- *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the QR decomposition algorithm, double or float
- * \tparam method           Computation method, \ref daal::algorithms::qr::Method
- *
- */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class OnlineContainer : public daal::algorithms::AnalysisContainerIface<online>
-{
-public:
-    /**
-     * Constructs a container for the QR decomposition algorithm with a specified environment
-     * in the online processing mode
-     * \param[in] daalEnv   Environment object
-     */
-    OnlineContainer(daal::services::Environment::env * daalEnv);
-    /** Default destructor */
-    virtual ~OnlineContainer();
-    /**
-     * Computes a partial result of the QR decomposition algorithm in the online processing mode
-     */
-    virtual services::Status compute() DAAL_C11_OVERRIDE;
-    /**
-     * Computes the result of the QR decomposition algorithm in the online processing mode
-     */
-    virtual services::Status finalizeCompute() DAAL_C11_OVERRIDE;
-};
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__QR__ONLINE"></a>
  * \brief Computes the results of the QR decomposition algorithm in the online processing mode.
  * <!-- \n<a href="DAAL-REF-QR-ALGORITHM">QR decomposition algorithm description and usage models</a> -->
@@ -85,7 +55,7 @@ public:
  *      - \ref Method   Computation methods for the QR decomposition algorithm
  */
 template <typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
-class Online : public daal::algorithms::Analysis<online>
+class DAAL_EXPORT Online : public daal::algorithms::Analysis<online>
 {
 public:
     typedef OnlinePartialResult PartialResult;
@@ -99,7 +69,7 @@ public:
     InputType input;         /*!< Input object */
     ParameterType parameter; /*!< QR parameters */
 
-    Online() { initialize(); }
+    Online();
 
     /**
      * Constructs a QR decomposition algorithm by copying input objects and parameters
@@ -107,13 +77,13 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Online(const Online<algorithmFPType, method> & other) : input(other.input), parameter(other.parameter) { initialize(); }
+    Online(const Online<algorithmFPType, method> & other);
 
     /**
     * Returns method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    int getMethod() const override { return (int)method; }
 
     /**
      * Returns the structure that contains the results of the QR decomposition algorithm
@@ -161,9 +131,9 @@ public:
     services::SharedPtr<Online<algorithmFPType, method> > clone() const { return services::SharedPtr<Online<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Online<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Online<algorithmFPType, method>(*this); }
+    Online<algorithmFPType, method> * cloneImpl() const override { return new Online<algorithmFPType, method>(*this); }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         _result.reset(new ResultType());
         services::Status s = _result->allocate<algorithmFPType>(_pres, 0, 0);
@@ -171,7 +141,7 @@ protected:
         return s;
     }
 
-    virtual services::Status allocatePartialResult() DAAL_C11_OVERRIDE
+    services::Status allocatePartialResult() override
     {
         _partialResult.reset(new PartialResultType());
         services::Status s = _partialResult->allocate<algorithmFPType>(_in, 0, 0);
@@ -179,19 +149,14 @@ protected:
         return s;
     }
 
-    virtual services::Status initializePartialResult() DAAL_C11_OVERRIDE
+    services::Status initializePartialResult() override
     {
         services::Status s = _partialResult->initialize<algorithmFPType>(_in, 0, 0);
         _pres              = _partialResult.get();
         return s;
     }
 
-    void initialize()
-    {
-        Analysis<online>::_ac = new __DAAL_ALGORITHM_CONTAINER(online, OnlineContainer, algorithmFPType, method)(&_env);
-        _in                   = &input;
-        _par                  = &parameter;
-    }
+    void initialize();
 
 private:
     PartialResultPtr _partialResult;
@@ -201,7 +166,6 @@ private:
 };
 /** @} */
 } // namespace interface1
-using interface1::OnlineContainer;
 using interface1::Online;
 
 } // namespace qr

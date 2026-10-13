@@ -26,9 +26,6 @@
 #include "src/externals/service_rng.h"
 #include "src/data_management/service_numeric_table.h"
 
-static const int leapfrogMethodErrcode  = -1002;
-static const int skipAheadMethodErrcode = -1003;
-
 namespace daal
 {
 namespace algorithms
@@ -39,6 +36,8 @@ namespace mt19937
 {
 namespace internal
 {
+using namespace daal::internal;
+
 template <CpuType cpu, typename algorithmFPType = DAAL_ALGORITHM_FP_TYPE, Method method = defaultDense>
 class BatchImpl : public algorithms::engines::mt19937::interface1::Batch<algorithmFPType, method>, public algorithms::engines::internal::BatchBaseImpl
 {
@@ -47,50 +46,47 @@ public:
     typedef algorithms::engines::internal::BatchBaseImpl super2;
     BatchImpl(size_t seed = 777) : baseRng(seed, __DAAL_BRNG_MT19937), super2(seed) {}
 
-    void * getState() DAAL_C11_OVERRIDE { return baseRng.getState(); }
+    void * getState() override { return baseRng.getState(); }
 
-    int getStateSize() const DAAL_C11_OVERRIDE { return baseRng.getStateSize(); }
+    int getStateSize() const override { return baseRng.getStateSize(); }
 
-    services::Status saveStateImpl(byte * dest) const DAAL_C11_OVERRIDE
+    services::Status saveStateImpl(byte * dest) const override
     {
         DAAL_CHECK(!baseRng.saveState((void *)dest), ErrorIncorrectErrorcodeFromGenerator);
         return services::Status();
     }
 
-    services::Status loadStateImpl(const byte * src) DAAL_C11_OVERRIDE
+    services::Status loadStateImpl(const byte * src) override
     {
         DAAL_CHECK(!baseRng.loadState((const void *)src), ErrorIncorrectErrorcodeFromGenerator);
         return services::Status();
     }
 
-    services::Status leapfrogImpl(size_t threadNum, size_t nThreads) DAAL_C11_OVERRIDE
+    services::Status leapfrogImpl(size_t threadNum, size_t nThreads) override
     {
         int errcode = baseRng.leapfrog(threadNum, nThreads);
         services::Status s;
-        if (errcode == leapfrogMethodErrcode)
+        if (errcode == __DAAL_LEAPFROG_METHOD_ERRCODE)
             s.add(ErrorLeapfrogUnsupported);
         else if (errcode)
             s.add(ErrorIncorrectErrorcodeFromGenerator);
         return s;
     }
 
-    services::Status skipAheadImpl(size_t nSkip) DAAL_C11_OVERRIDE
+    services::Status skipAheadImpl(size_t nSkip) override
     {
         int errcode = baseRng.skipAhead(nSkip);
         services::Status s;
-        if (errcode == skipAheadMethodErrcode)
+        if (errcode == __DAAL_SKIP_AHEAD_METHOD_ERRCODE)
             s.add(ErrorSkipAheadUnsupported);
         else if (errcode)
             s.add(ErrorIncorrectErrorcodeFromGenerator);
         return s;
     }
 
-    virtual BatchImpl<cpu, algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE
-    {
-        return new BatchImpl<cpu, algorithmFPType, method>(*this);
-    }
+    BatchImpl<cpu, algorithmFPType, method> * cloneImpl() const override { return new BatchImpl<cpu, algorithmFPType, method>(*this); }
 
-    bool hasSupport(engines::internal::ParallelizationTechnique technique) const DAAL_C11_OVERRIDE
+    bool hasSupport(engines::internal::ParallelizationTechnique technique) const override
     {
         switch (technique)
         {

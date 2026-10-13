@@ -151,14 +151,41 @@ void ModelImpl::traverseBFS(size_t iTree, tree_utils::regression::TreeNodeVisito
 
 services::Status ModelImpl::serializeImpl(data_management::InputDataArchive * arch)
 {
-    auto s = RegressionImplType::serialImpl<data_management::InputDataArchive, false>(arch);
-    return s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
+    auto s = daal::algorithms::regression::Model::serialImpl<data_management::InputDataArchive, false>(arch);
+    s.add(ImplType::serialImpl<data_management::InputDataArchive, false>(arch));
+    arch->set(daal::algorithms::regression::internal::ModelInternal::_nFeatures);
+
+    return s;
 }
 
 services::Status ModelImpl::deserializeImpl(const data_management::OutputDataArchive * arch)
 {
-    auto s = RegressionImplType::serialImpl<const data_management::OutputDataArchive, true>(arch);
-    return s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
+    auto s = daal::algorithms::regression::Model::serialImpl<const data_management::OutputDataArchive, true>(arch);
+    s.add(ImplType::serialImpl<const data_management::OutputDataArchive, true>(arch));
+    arch->set(RegressionImplType::_nFeatures);
+
+    return s;
+}
+
+void ModelImpl::copyModelReg(const ModelImpl & other, size_t idx, size_t global_count)
+{
+    if (idx == 0)
+    {
+        resize(global_count); // sets _nTree = 0
+        _nTree.set(global_count);
+    }
+    // copy data if source and target pointers are valid
+    if (isValid() && other.isValid())
+    {
+        for (size_t i = 0; i < other._nTree.get(); i++)
+        {
+            auto probtbl                   = HomogenNumericTable<>::create(0, 0, NumericTable::doNotAllocate);
+            (*_serializationData)[idx + i] = (*other._serializationData)[i];
+            (*_impurityTables)[idx + i]    = (*other._impurityTables)[i];
+            (*_nNodeSampleTables)[idx + i] = (*other._nNodeSampleTables)[i];
+            (*_probTbl)[idx + i]           = probtbl;
+        }
+    }
 }
 
 bool ModelImpl::add(const TreeType & tree, size_t nClasses, size_t iTree)
@@ -168,25 +195,22 @@ bool ModelImpl::add(const TreeType & tree, size_t nClasses, size_t iTree)
     const size_t nNode = tree.getNumberOfNodes();
 
     auto pTbl           = new DecisionTreeTable(nNode);
-    auto impTbl         = new HomogenNumericTable<double>(1, nNode, NumericTable::doAllocate);
-    auto nodeSamplesTbl = new HomogenNumericTable<int>(1, nNode, NumericTable::doAllocate);
-    auto probTbl        = new HomogenNumericTable<double>(0, 0, NumericTable::doAllocate);
+    auto impTbl         = HomogenNumericTable<double>::create(1, nNode, NumericTable::doAllocate);
+    auto nodeSamplesTbl = HomogenNumericTable<int>::create(1, nNode, NumericTable::doAllocate);
+    auto probTbl        = HomogenNumericTable<double>::create(0, 0, NumericTable::doAllocate);
 
     if (!pTbl || !impTbl || !nodeSamplesTbl || !probTbl)
     {
         delete pTbl;
-        delete impTbl;
-        delete nodeSamplesTbl;
-        delete probTbl;
         return false;
     }
 
-    tree.convertToTable(pTbl, impTbl, nodeSamplesTbl, probTbl, 0);
+    tree.convertToTable(pTbl, impTbl.get(), nodeSamplesTbl.get(), probTbl.get(), 0);
 
     (*_serializationData)[iTree].reset(pTbl);
-    (*_impurityTables)[iTree].reset(impTbl);
-    (*_nNodeSampleTables)[iTree].reset(nodeSamplesTbl);
-    (*_probTbl)[iTree].reset(probTbl);
+    (*_impurityTables)[iTree]    = impTbl;
+    (*_nNodeSampleTables)[iTree] = nodeSamplesTbl;
+    (*_probTbl)[iTree]           = probTbl;
 
     return true;
 }

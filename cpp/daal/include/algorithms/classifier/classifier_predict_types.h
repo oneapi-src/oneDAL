@@ -82,7 +82,7 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -120,7 +120,7 @@ public:
      * Returns the number of rows in the input data set
      * \return Number of rows in the input data set
      */
-    size_t getNumberOfRows() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfRows() const override;
 
     /**
      * Returns the input Numeric Table object in the prediction stage of the classification algorithm
@@ -155,7 +155,7 @@ public:
      * \param[in] parameter Pointer to the structure of the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 
 protected:
     services::Status checkImpl(const daal::algorithms::Parameter * parameter) const;
@@ -163,7 +163,7 @@ protected:
 } // namespace interface1
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -209,7 +209,7 @@ public:
      * \param[in] parameter Pointer to the algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const override;
 
 protected:
     using daal::algorithms::Result::check;

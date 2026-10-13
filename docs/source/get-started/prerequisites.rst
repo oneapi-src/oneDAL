@@ -21,14 +21,14 @@ Before You Begin
 ~~~~~~~~~~~~~~~~
 
 |short_name| is located in :file:`<install_dir>/dal` directory where :file:`<install_dir>`
-is the directory in which |base_tk| was installed.
+is the directory in which oneAPI components are installed, typically ``/opt/intel/oneapi/``.
 
 The current version of |short_name| with
 SYCL is available for Linux\* and Windows\* 64-bit operating systems. The
 prebuilt |short_name| libraries can be found in the :file:`<install_dir>/dal/<version>/redist`
 directory.
 
-The dependencies needed to build examples with SYCL extensions:
+The following dependencies are required in order to build the |short_name| examples with SYCL extensions:
 
 - |dpcpp_comp|_ 2021.1 release or later (for support)
 - OpenCL™ runtime 1.2 or later (to run the SYCL runtime)

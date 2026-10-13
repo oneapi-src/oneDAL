@@ -151,6 +151,9 @@ sycl::event assign_clusters(sycl::queue& q,
 
     sycl::event transpose_event = transpose(q, centroids, centroids_transposed, deps);
 
+    // Workaround to sparse K-means abort on PVC.
+    transpose_event.wait();
+
     // Compute dot products of each data point and each cluster centroid:
     // -2 * (x_i, c_j) term in the distances calculation
     auto dist_event = pr::gemm(q,
@@ -161,6 +164,9 @@ sycl::event assign_clusters(sycl::queue& q,
                                Float(-2.0),
                                Float(0),
                                { transpose_event });
+
+    // Workaround to sparse K-means abort on PVC.
+    dist_event.wait();
 
     // Select min_j (D_ij) and idxmin_j (D_ij),
     // where min_j (D_ij) == min_j (|| c_j ||^2 - 2 * (x_i, c_j)$),
@@ -234,11 +240,20 @@ sycl::event update_centroids(sycl::queue& q,
     const auto num_clusters = centroids.get_dimension(0);
 
     ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, num_clusters, column_count);
-    const auto centroids_elem_count = num_clusters * column_count;
-    ONEDAL_ASSERT_MUL_OVERFLOW(std::int64_t, centroids_elem_count, sizeof(Float));
-    const auto centroids_num_bytes = centroids_elem_count * sizeof(Float);
 
-    auto clean_event = q.memset(centroids_ptr, 0, centroids_num_bytes, deps);
+    // Only the rows that are recomputed below are zeroed: an empty cluster keeps the centroid it
+    // had on entry, which is what the empty-cluster handling downstream falls back to when it
+    // declines to relocate the cluster (see `fill_empty_clusters`). A blanket memset of the whole
+    // buffer would leave such a cluster sitting at the origin instead.
+    auto clean_event = q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(bk::make_range_2d(num_clusters, column_count), [=](sycl::id<2> id) {
+            if (counts_ptr[id[0]] == 0) {
+                return;
+            }
+            centroids_ptr[id[0] * column_count + id[1]] = Float(0);
+        });
+    });
 
     const auto row_block =
         std::min<std::int32_t>(bk::device_max_wg_size(q) * 8, bk::down_pow2(row_count));
@@ -268,7 +283,7 @@ sycl::event update_centroids(sycl::queue& q,
             for (std::int64_t col_idx = local_id; col_idx < column_count; col_idx += col_block) {
                 local_centroid_ptr[col_idx] = 0;
             }
-            it.barrier();
+            sycl::group_barrier(it.get_group());
             for (std::int64_t row_idx = row_shift; row_idx < row_count; row_idx += row_block) {
                 if (resp_ptr[row_idx] == static_cast<std::int32_t>(cluster_id)) {
                     // Do computations only in case the workitem corresponds to this data row's centroid id
@@ -282,7 +297,7 @@ sycl::event update_centroids(sycl::queue& q,
                     }
                 }
             }
-            it.barrier();
+            sycl::group_barrier(it.get_group());
             // Update global sums of observations by adding up all the local sums
             if (local_id == 0) {
                 for (std::int64_t col_idx = 0; col_idx < column_count; ++col_idx) {

@@ -25,7 +25,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::lbfgs::BatchContainer, batch, DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::lbfgs::internal::BatchContainer, batch, DAAL_FPTYPE,
+                                      optimization_solver::lbfgs::defaultDense)
 
 namespace optimization_solver
 {
@@ -33,13 +34,36 @@ namespace lbfgs
 {
 namespace interface2
 {
+template <>
+void Batch<DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense>::initialize()
+{
+    Analysis<batch>::_ac =
+        new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense)(&_env);
+    _par = &parameter;
+    _in  = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT Batch<DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense>::Batch(const sum_of_functions::BatchPtr & objectiveFunction)
+    : parameter(objectiveFunction)
+{
+    initialize();
+}
+
 using BatchType = Batch<DAAL_FPTYPE, optimization_solver::lbfgs::defaultDense>;
 
 template <>
-services::SharedPtr<BatchType> BatchType::create()
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : iterative_solver::Batch(other), input(other.input), parameter(other.parameter)
+{
+    initialize();
+}
+
+template <>
+services::SharedPtr<BatchType> DAAL_EXPORT BatchType::create()
 {
     return services::SharedPtr<BatchType>(new BatchType());
 }
+
 } // namespace interface2
 } // namespace lbfgs
 } // namespace optimization_solver

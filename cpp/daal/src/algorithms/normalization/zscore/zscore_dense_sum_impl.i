@@ -52,7 +52,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
     algorithmFPType invNm1 = algorithmFPType(1.0) / (algorithmFPType(nVectors) - algorithmFPType(1.0));
 
     /* Compute means from sums */
-    PRAGMA_IVDEP
+    PRAGMA_OMP_SIMD
     PRAGMA_VECTOR_ALWAYS
     for (size_t j = 0; j < nFeatures; j++)
     {
@@ -76,7 +76,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
 
     SafeStatus safeStat;
     /* Compute partial unscaled variances for each block */
-    daal::threader_for(numBlocks, numBlocks, [&](int iBlock) {
+    daal::threader_for(numBlocks, 1, [&](int iBlock) {
         algorithmFPType * pVariances = tls_data.local();
         DAAL_CHECK_THR(pVariances, ErrorMemoryAllocationFailed);
 
@@ -89,7 +89,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
 
         for (size_t i = 0; i < _nRows; i++)
         {
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < nFeatures; j++)
             {
@@ -103,7 +103,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
     tls_data.reduce([&](algorithmFPType * pVariances) {
         if (pVariances)
         {
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < nFeatures; j++)
             {
@@ -114,7 +114,7 @@ Status ZScoreKernel<algorithmFPType, sumDense, cpu>::computeMeanVariance_thr(Num
     });
     /* Convert array of variances to unbiased */
 
-    PRAGMA_IVDEP
+    PRAGMA_OMP_SIMD
     PRAGMA_VECTOR_ALWAYS
     for (size_t j = 0; j < nFeatures; j++)
     {

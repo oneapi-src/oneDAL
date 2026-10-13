@@ -16,11 +16,24 @@
 
 #pragma once
 
+// TODO: Clean up this redefinition and import the defines globally.
+#if defined(__x86_64__) || defined(__x86_64) || defined(__amd64) || defined(_M_AMD64)
+#define TARGET_X86_64
+#endif
+
+#if defined(__ARM_ARCH) || defined(__aarch64__)
+#define TARGET_ARM
+#endif
+
+#if defined(__riscv) && (__riscv_xlen == 64)
+#define TARGET_RISCV64
+#endif
+
 #include <cstdint>
 #include <utility>
 
+#ifdef __ONEDAL_ENABLE_EXPORT__
 #if defined(_WIN32) || defined(_WIN64)
-#ifdef __ONEDAL_ENABLE_DLL_EXPORT__
 #define __ONEDAL_IMPORT_IMPL __declspec(dllimport)
 #define __ONEDAL_EXPORT_IMPL __declspec(dllexport)
 #ifdef INVERT_EXPORT_IMPORT
@@ -30,8 +43,10 @@
 #define ONEDAL_EXPORT __ONEDAL_EXPORT_IMPL
 #define ONEDAL_IMPORT __ONEDAL_IMPORT_IMPL
 #endif // defined(INVERT_EXPORT_IMPORT)
-#endif // __ONEDAL_ENABLE_DLL_EXPORT__
+#else
+#define ONEDAL_EXPORT __attribute__((visibility("default")))
 #endif // defined(_WIN32) || defined(_WIN64)
+#endif // __ONEDAL_ENABLE_EXPORT__
 
 #ifndef ONEDAL_EXPORT
 #define ONEDAL_EXPORT
@@ -112,12 +127,24 @@ public:
     std::int64_t end_idx;
 };
 
+/// Specifies the kind of memory allocation for a pointer.
+enum class alloc_kind : std::uint8_t {
+    non_usm /// Non-USM pointer allocated on host
+#ifdef ONEDAL_DATA_PARALLEL
+    ,
+    usm_host, /// USM pointer allocated by sycl::alloc_host
+    usm_device, /// USM pointer allocated by sycl::alloc_device
+    usm_shared /// USM pointer allocated by sycl::alloc_shared
+#endif
+};
+
 } // namespace v1
 
 using v1::byte_t;
 using v1::base;
 using v1::data_type;
 using v1::range;
+using v1::alloc_kind;
 
 } // namespace oneapi::dal
 

@@ -1,4 +1,18 @@
-# Copyright contributors to the oneDAL project
+#===============================================================================
+# Copyright Contributors to the oneDAL Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#===============================================================================
 # C/C++ with GCC
 # Build your C/C++ project with GCC using make.
 # Add steps that publish test results, save build artifacts, deploy, and more:
@@ -22,14 +36,27 @@ pr:
     exclude:
     - docs
     - .ci/pipeline/docs.yml
+    # Changes that cannot affect the library build or tests.
+    # Only PR builds are filtered; pushes to main keep the trigger above.
+    - '**/*.md'
+    - dev/agent_evals
+    - conda-recipe
+    - .github
+    - third-party-programs.txt
 
 variables:
-  OPENBLAS_VERSION : 'v0.3.27'
-  TBB_VERSION : 'v2021.10.0'
-  VM_IMAGE : 'ubuntu-22.04'
-  SYSROOT_OS: 'jammy'
-  WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/b380d914-366b-4b77-a74a-05e3c38b3514/intel-oneapi-base-toolkit-2025.0.0.882_offline.exe'
-  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel'
+  OPENBLAS_VERSION : 'v0.3.34'
+  TBB_VERSION : 'v2023.1.0'
+  VM_IMAGE : 'ubuntu-24.04'
+  WIN_VM_IMAGE : 'windows-2022'
+  SYSROOT_OS: 'noble'
+  PY_VERSION: '3.14'
+  SKL_VERSION: '1.8'
+  # Link to latest version can be taken from basekit download page:
+  # https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit-download.html
+  # Check section 'Install through a Command Line':
+  WINDOWS_BASEKIT_URL: 'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/4144bec3-82ce-4672-bd71-5c93a79cd5e7/intel-oneapi-toolkit-2026.1.0.191_offline.exe'
+  WINDOWS_DPCPP_COMPONENTS: 'intel.oneapi.win.cpp-dpcpp-common:intel.oneapi.win.mkl.devel:intel.oneapi.win.tbb.devel:intel.oneapi.win.dpl'
 
 resources:
   repositories:
@@ -45,17 +72,17 @@ jobs:
     vmImage: '$(VM_IMAGE)'
   steps:
     - script: |
-        .ci/env/apt.sh clang-format
-        .ci/env/editorconfig-checker.sh
+        set -euo pipefail
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pre-commit
       displayName: 'Install Dependencies'
     - script: |
-        .ci/scripts/clang-format.sh
-      displayName: 'clang-format check'
-      failOnStderr: true
-    - script: |
-        editorconfig-checker
-      displayName: 'editorconfig-checker'
-      failOnStderr: true
+        set -euo pipefail
+        source venv/bin/activate
+        pre-commit run --all-files --show-diff-on-failure
+      displayName: 'pre-commit checks'
 
 - job: 'LinuxMakeGNU_MKL'
   timeoutInMinutes: 0
@@ -67,7 +94,7 @@ jobs:
   steps:
   - script: |
       .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
+    displayName: 'apt-get install'
   - script: |
       .ci/env/apt.sh mkl
     displayName: 'mkl installation'
@@ -77,7 +104,7 @@ jobs:
     displayName: 'System info'
   - script: |
       source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --conda-env ci-env
+      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal
     displayName: 'make daal'
   - script: |
       source /opt/intel/oneapi/setvars.sh
@@ -104,9 +131,16 @@ jobs:
       .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build-system cmake
     displayName: 'oneapi/cpp examples'
   - script: |
+      .ci/env/apt.sh miniforge
+    displayName: 'conda install'
+  - script: |
       source /opt/intel/oneapi/setvars.sh
       .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build-system cmake
     displayName: 'daal/cpp/mpi samples'
+  - script: |
+      source /opt/intel/oneapi/setvars.sh
+      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp/mpi --conda-env ci-env --build-system cmake
+    displayName: 'oneapi/cpp/mpi samples'
   - script: |
       deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
       tree -h -I include __nuget/inteldal*/
@@ -120,186 +154,22 @@ jobs:
     condition: failed()
     continueOnError: true
 
-- job: 'LinuxMakeGNU_OpenBLAS_ARM'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_gnu'
-    platform.type : 'lnxarm'
-    OPENBLAS_CACHE_DIR: $(Pipeline.Workspace)/openblas-aarch64-gnu
-    TBB_CACHE_DIR: $(Pipeline.Workspace)/tbb-aarch64-gnu
-  pool:
-    vmImage: '$(VM_IMAGE)'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/env/apt.sh gnu-cross-compilers aarch64
-    displayName: 'arm-compiler installation'
-  - script: |
-      .ci/env/apt.sh qemu-apt
-    displayName: 'qemu-emulation installation'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - task: Cache@2
-    inputs:
-      key: '"gcc" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
-      path: $(OPENBLAS_CACHE_DIR)
-      cacheHitVar: OPENBLAS_RESTORED
-  - script: |
-      .ci/env/openblas.sh --target ARMV8 --host-compiler gcc --compiler aarch64-linux-gnu-gcc --cflags -march=armv8-a+sve --cross-compile --target-arch aarch64 --prefix $(OPENBLAS_CACHE_DIR) --version $(OPENBLAS_VERSION)
-    displayName: 'Build OpenBLAS'
-    condition: ne(variables.OPENBLAS_RESTORED, 'true')
-  - task: Cache@2
-    inputs:
-      key: '"gcc" | "aarch64" | "tbb" | "$(TBB_VERSION)" | "$(VM_IMAGE)"'
-      path: $(TBB_CACHE_DIR)
-      cacheHitVar: TBB_RESTORED
-  - script: |
-      .ci/env/tbb.sh --cross-compile --toolchain-file $(Build.Repository.LocalPath)/.ci/env/arm-gnu-crosscompile-toolchain.cmake --target-arch aarch64 --prefix $(TBB_CACHE_DIR) --version $(TBB_VERSION)
-    displayName: 'Build oneTBB'
-    condition: ne(variables.TBB_RESTORED, 'true')
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target daal --backend-config ref --conda-env ci-env --cross-compile --plat lnxarm --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations sve --target onedal_c --backend-config ref --cross-compile --plat lnxarm --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) ARM OpenBLAS gnu build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      export QEMU_LD_PREFIX=/usr/aarch64-linux-gnu
-      export QEMU_CPU="max,sve-default-vector-length=256"
-      export TBBROOT=$(TBB_CACHE_DIR)
-      export ARCH_ONEDAL=aarch64
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
-    displayName: 'daal/cpp examples'
-  - script: |
-      export QEMU_LD_PREFIX=/usr/aarch64-linux-gnu
-      export QEMU_CPU="max,sve-default-vector-length=256"
-      export TBBROOT=$(TBB_CACHE_DIR)
-      export ARCH_ONEDAL=aarch64
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
-    displayName: 'oneapi/cpp examples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
-
-- job: 'LinuxMakeLLVM_OpenBLAS_ARM'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_clang'
-    platform.type : 'lnxarm'
-    OPENBLAS_CACHE_DIR : $(Pipeline.Workspace)/openblas-aarch64-clang
-    TBB_CACHE_DIR : $(Pipeline.Workspace)/tbb-aarch64-clang
-    SYSROOT_CACHE_DIR: $(Pipeline.Workspace)/sysroot-aarch64
-  pool:
-    vmImage: '$(VM_IMAGE)'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/env/apt.sh gnu-cross-compilers aarch64
-    displayName: 'arm-compiler installation'
-  - script: |
-      .ci/env/apt.sh llvm-version 18
-    displayName: 'llvm 18 installation'
-  - script: |
-      .ci/env/apt.sh qemu-apt
-    displayName: 'qemu-emulation installation'
-  - task: Cache@2
-    inputs:
-      key: '"aarch64" | "sysroot" | "$(SYSROOT_OS)"'
-      path: $(SYSROOT_CACHE_DIR)
-      cacheHitVar: SYSROOT_RESTORED
-  - script: |
-      .ci/env/apt.sh build-sysroot $(Pipeline.Workspace) arm64 $(SYSROOT_OS) sysroot-aarch64
-    displayName: 'build aarch64 sysroot'
-    condition: ne(variables.SYSROOT_RESTORED, 'true')
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - task: Cache@2
-    inputs:
-      key: '"clang" | "18" | "aarch64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
-      path: $(OPENBLAS_CACHE_DIR)
-      cacheHitVar: OPENBLAS_RESTORED
-  - script: |
-      .ci/env/openblas.sh --target ARMV8 --host-compiler gcc --compiler clang --target-arch arm --cflags -march=armv8-a+sve --cross-compile --prefix $(OPENBLAS_CACHE_DIR) --sysroot $(SYSROOT_CACHE_DIR) --version $(OPENBLAS_VERSION)
-    displayName: 'Build OpenBLAS'
-    condition: ne(variables.OPENBLAS_RESTORED, 'true')
-  - task: Cache@2
-    inputs:
-      key: '"clang" | "aarch64" | "tbb" | "$(TBB_VERSION)" | "$(VM_IMAGE)"'
-      path: $(TBB_CACHE_DIR)
-      cacheHitVar: TBB_RESTORED
-  - script: |
-      export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
-      .ci/env/tbb.sh --cross-compile --toolchain-file $(Build.Repository.LocalPath)/.ci/env/arm-clang-crosscompile-toolchain.cmake --target-arch aarch64 --prefix $(TBB_CACHE_DIR) --version $(TBB_VERSION)
-    displayName: 'Build oneTBB'
-    condition: ne(variables.TBB_RESTORED, 'true')
-  - script: |
-      .ci/scripts/build.sh --compiler clang --optimizations sve --target daal --backend-config ref --conda-env ci-env --cross-compile --plat lnxarm --sysroot $(SYSROOT_CACHE_DIR) --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --compiler clang --optimizations sve --target onedal_c --backend-config ref --cross-compile --plat lnxarm --sysroot $(SYSROOT_CACHE_DIR) --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) ARM OpenBLAS LLVM build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      export QEMU_LD_PREFIX=$(SYSROOT_CACHE_DIR)
-      export QEMU_CPU="max,sve-default-vector-length=256"
-      export TBBROOT=$(TBB_CACHE_DIR)
-      export ARCH_ONEDAL=aarch64
-      export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
-    displayName: 'daal/cpp examples'
-  - script: |
-      export QEMU_LD_PREFIX=$(SYSROOT_CACHE_DIR)
-      export QEMU_CPU="max,sve-default-vector-length=256"
-      export TBBROOT=$(TBB_CACHE_DIR)
-      export ARCH_ONEDAL=aarch64
-      export ONEDAL_SYSROOT=$(SYSROOT_CACHE_DIR)
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build-system cmake --platform lnxarm --cross-compile --backend ref
-    displayName: 'oneapi/cpp examples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
-
 - job: 'LinuxMakeLLVM_OpenBLAS_rv64'
   timeoutInMinutes: 0
   variables:
     release.dir: '__release_lnx_clang'
     platform.type : 'lnxriscv64'
-    OPENBLAS_VERSION : 'v0.3.27'
+    OPENBLAS_VERSION : 'v0.3.34'
     OPENBLAS_CACHE_DIR : $(Pipeline.Workspace)/openblas-riscv64-clang
-    TBB_VERSION : 'v2021.10.0'
+    TBB_VERSION : 'v2023.1.0'
     TBB_CACHE_DIR : $(Pipeline.Workspace)/tbb-riscv64-clang
     SYSROOT_CACHE_DIR: $(Pipeline.Workspace)/sysroot-riscv64
   pool:
-    vmImage: 'ubuntu-22.04'
+    vmImage: 'ubuntu-24.04'
   steps:
   - script: |
       .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
+    displayName: 'apt-get install'
   - script: |
       .ci/env/apt.sh gnu-cross-compilers riscv64
     displayName: 'riscv64-compiler installation'
@@ -307,11 +177,11 @@ jobs:
       .ci/env/apt.sh llvm-version 18
     displayName: 'llvm 18 installation'
   - script: |
-      .ci/env/apt.sh qemu-deb
+      .ci/env/apt.sh qemu-apt
     displayName: 'qemu-emulation installation'
   - task: Cache@2
     inputs:
-      key: '"riscv64" | "sysroot"'
+      key: '"riscv64" | "sysroot" | "$(SYSROOT_OS)"'
       path: $(SYSROOT_CACHE_DIR)
       cacheHitVar: SYSROOT_RESTORED
   - script: |
@@ -323,7 +193,7 @@ jobs:
     displayName: 'System info'
   - task: Cache@2
     inputs:
-      key: '"clang" | "riscv64" | "openblas" | "$(OPENBLAS_VERSION)" | "ILP64"'
+      key: '"clang" | "riscv64" | "openblas" | "$(OPENBLAS_VERSION)" | "ILP64" | "$(SYSROOT_OS)"'
       path: $(OPENBLAS_CACHE_DIR)
       cacheHitVar: OPENBLAS_RESTORED
   - script: |
@@ -332,7 +202,7 @@ jobs:
     condition: ne(variables.OPENBLAS_RESTORED, 'true')
   - task: Cache@2
     inputs:
-      key: '"clang" | "riscv64" | "tbb" | "$(TBB_VERSION)"'
+      key: '"clang" | "riscv64" | "tbb" | "$(TBB_VERSION)" | "$(SYSROOT_OS)"'
       path: $(TBB_CACHE_DIR)
       cacheHitVar: TBB_RESTORED
   - script: |
@@ -341,7 +211,7 @@ jobs:
     displayName: 'Build oneTBB'
     condition: ne(variables.TBB_RESTORED, 'true')
   - script: |
-      .ci/scripts/build.sh --compiler clang --optimizations rv64 --target daal --backend-config ref --conda-env ci-env --cross-compile --plat lnxriscv64 --sysroot $(SYSROOT_CACHE_DIR) --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
+      .ci/scripts/build.sh --compiler clang --optimizations rv64 --target daal --backend-config ref --cross-compile --plat lnxriscv64 --sysroot $(SYSROOT_CACHE_DIR) --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
     displayName: 'make daal'
   - script: |
       .ci/scripts/build.sh --compiler clang --optimizations rv64 --target onedal_c --backend-config ref --cross-compile --plat lnxriscv64 --sysroot $(SYSROOT_CACHE_DIR) --blas-dir $(OPENBLAS_CACHE_DIR) --tbb-dir $(TBB_CACHE_DIR)
@@ -376,110 +246,6 @@ jobs:
     condition: failed()
     continueOnError: true
 
-- job: 'LinuxMakeGNU_OpenBLAS_x86'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx_gnu'
-    platform.type : 'lnx32e'
-    OPENBLAS_CACHE_DIR: $(Pipeline.Workspace)/openblas-x86_64-gnu
-  pool:
-    vmImage: '$(VM_IMAGE)'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - task: Cache@2
-    inputs:
-      key: '"gcc" | "x86_64" | "openblas" | "$(OPENBLAS_VERSION)" | "$(VM_IMAGE)" | "ILP64"'
-      path: $(OPENBLAS_CACHE_DIR)
-      cacheHitVar: OPENBLAS_RESTORED
-  - script: |
-      .ci/env/openblas.sh --target-arch x86_64 --prefix $(OPENBLAS_CACHE_DIR) --version $(OPENBLAS_VERSION)
-    displayName: 'Build OpenBLAS'
-    condition: ne(variables.OPENBLAS_RESTORED, 'true')
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target daal --backend-config ref --conda-env ci-env --blas-dir $(OPENBLAS_CACHE_DIR)
-    displayName: 'make daal'
-  - script: |
-      .ci/scripts/build.sh --compiler gnu --optimizations avx2 --target onedal_c --backend-config ref --blas-dir $(OPENBLAS_CACHE_DIR)
-    displayName: 'make onedal_c'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) OpenBLAS build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface daal/cpp --build-system cmake --backend ref
-    displayName: 'daal/cpp examples'
-  - script: |
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler gnu --interface oneapi/cpp --build-system cmake --backend ref
-    displayName: 'oneapi/cpp examples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-    continueOnError: true
-
-- job: 'LinuxMakeDPCPP'
-  timeoutInMinutes: 0
-  variables:
-    release.dir: '__release_lnx'
-    platform.type : 'lnx32e'
-  pool:
-    vmImage: '$(VM_IMAGE)'
-  steps:
-  - script: |
-      .ci/env/apt.sh dev-base
-    displayName: 'apt-get and conda install'
-  - script: |
-      .ci/env/apt.sh dpcpp
-    displayName: 'dpcpp installation'
-  - script: |
-      .ci/env/apt.sh mkl
-    displayName: 'mkl installation'
-  - script: |
-      source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/describe_system.sh
-    displayName: 'System info'
-  - script: |
-      source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target daal --conda-env ci-env
-    displayName: 'make daal'
-  - script: |
-      source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/build.sh --compiler icx  --optimizations avx2 --target onedal_dpc
-    displayName: 'make onedal_dpc'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) DPC build'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Upload build artifacts'
-    continueOnError: true
-  - script: |
-      source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface daal/cpp --build-system cmake
-    displayName: 'daal/cpp examples'
-  - script: |
-      source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/test.sh --test-kind examples --build-dir $(release.dir) --compiler clang --interface oneapi/cpp --build-system cmake
-    displayName: 'oneapi/cpp examples'
-  - script: |
-      source /opt/intel/oneapi/setvars.sh
-      .ci/scripts/test.sh --test-kind samples --build-dir $(release.dir) --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build-system cmake
-    displayName: 'daal/cpp/mpi samples'
-  - task: PublishPipelineArtifact@1
-    inputs:
-      artifactName: '$(platform.type) DPC fail'
-      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
-    displayName: 'Uploading on fail'
-    condition: failed()
-
 - job: 'LinuxBazel'
   timeoutInMinutes: 0
   pool:
@@ -491,10 +257,17 @@ jobs:
     BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
   steps:
   - script: |
+      .ci/env/apt.sh opencl
+    displayName: 'install opencl'
+  - script: |
+      .ci/env/apt.sh mkl
+    displayName: 'mkl installation'
+  - script: |
       # sourcing done to set bazel version value from script
       source .ci/env/bazelisk.sh
       echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}"
     displayName: 'install-bazel'
+
   - script: |
       .ci/scripts/describe_system.sh
     displayName: 'System info'
@@ -524,17 +297,185 @@ jobs:
       # Display oneDAL build configuration
       bazel build @config//:dump
       echo
-      cat bazel-bin/external/config/config.json
+      cat bazel-bin/external/+declare_onedal_config+config/config.json
       echo
     displayName: 'bazel-configure'
+
   - script: |
-      bazel build :release
+      set -euo pipefail
+
+      for config in dbg dbg-symbols asan asan-static lsan tsan ubsan msan type; do
+        echo "Checking Bazel config: ${config}"
+        bazel build --nobuild :release --config="${config}"
+      done
+
+      echo "Checking Bazel config: release-dpc"
+      bazel build --nobuild :release --config=release-dpc --cpu=all
+
+      echo "Checking Bazel config: stdalloc"
+      bazel build --nobuild :release --stdalloc=true --release_dpc=false
+
+      # Analysis-only: validates configured release outputs, host/DPC dependency
+      # separation, folded-target rejection, and the Windows unsupported value.
+      dev/bazel/tests/parameters_layout_test.sh
+
+      echo "Checking Bazel config: dev"
+      bazel build --nobuild //cpp/oneapi/dal:tests --config=dev
+    displayName: 'Bazel config smoke checks'
+
+  - script: |
+      set -euo pipefail
+      # This step is the largest consumer of disk in the job -- a second full
+      # release under a different configuration, plus a packaged consumer that
+      # builds through CMake, pkg-config and Bazel. The agent starts at over 95%
+      # of / in use, and a link that runs out of space reports nothing but
+      # `collect2: error: ld returned 1 exit status`, so account for the space
+      # here rather than diagnosing it several steps later.
+      report_disk() {
+        echo "Disk ${1} the folded consumer smoke:"
+        df -h /
+        # Both of these matter and only one is reclaimed between steps. The
+        # output base under ~/.cache/bazel goes away at the next `Clean Bazel
+        # cache (expunge)`; the --disk_cache directory does not -- `clean` has
+        # no effect on it and `bazel-cache-limit` only trims it, at 4Gb, once
+        # the whole job is over.
+        du -sh "${HOME}/.cache/bazel" 2>/dev/null || true
+        du -sh "${BAZEL_CACHE_DIR:-}" 2>/dev/null || true
+      }
+      report_disk before
+      # Build with the same environment as the other Bazel steps. `setvars.sh`
+      # exports `MKLROOT`, which `mkl_repo` declares in `environ`, so sourcing it
+      # before the build would repoint `@mkl` at the oneAPI installation and
+      # invalidate the dependency for this step only.
+      #
+      # `--disk_cache=` disables the shared cache that `~/.bazelrc` points at
+      # (written in the `bazel-configure` step above) for this build alone.
+      # Nothing will ever reuse these artifacts: this is a one-off validation
+      # under a configuration no other step builds, so the entries share nothing
+      # with the default configuration and only occupy the cache for the rest of
+      # the job -- `bazel clean --expunge` cannot reclaim them, since it clears
+      # the output base and not a disk cache. Worth keeping on its own terms; it
+      # is not, as first assumed, the cause of the `cpp-tests-thread-dev` link
+      # failures, which persist with 4.6Gb free.
+      bazel build :release --release_dpc=false --build_parameters_lib=no --disk_cache=
+      # The CMake and pkg-config consumers resolve oneMKL/TBB through the same
+      # oneAPI environment as an installed package user. `setvars.sh` reads
+      # optional variables such as `OCL_ICD_FILENAMES` unguarded, so `nounset`
+      # has to be relaxed while it runs.
+      set +u
+      source /opt/intel/oneapi/setvars.sh
+      set -u
+      DALROOT="$(pwd)/bazel-bin/release/daal/latest" \
+        dev/release_tests/parameters_layout_consumer_test.sh \
+        "$(pwd)/bazel-bin/release/daal/latest" "$(pwd)"
+      report_disk after
+    displayName: 'Folded parameter-layout packaged consumer smoke'
+
+  - script: |
+      bazel build :release --release_dpc=false
     displayName: 'release'
+
+  - script: |
+      echo "Move Bazel release output to standalone directory"
+      rm -rf standalone_release
+      mkdir -p standalone_release
+
+      # Move instead of copy to save disk
+      mv bazel-bin/release/* standalone_release/
+
+      # Expose DALROOT for subsequent tasks
+      echo "##vso[task.setvariable variable=DALROOT]$(pwd)/standalone_release/daal/latest"
+      # The release root holds the sibling runtime components as well
+      # (`tbb/latest/lib`), which a consumer of the package needs to load the
+      # released libraries, so the artifact is published from here rather than
+      # from DALROOT. `LinuxReleaseCompare` reads this artifact; the comparison
+      # it runs today looks only inside `daal/latest`, but publishing the whole
+      # package is what lets it grow a check for the sibling components.
+      echo "##vso[task.setvariable variable=RELEASEROOT]$(pwd)/standalone_release"
+    displayName: 'Prepare standalone release directory'
+
+  - script: |
+      set -eu
+      # The staged sibling components are what make the package loadable outside
+      # a Bazel runfiles tree, and until now nothing looked at them: the
+      # `LinuxReleaseCompare` job compares `daal/latest` alone, so an empty,
+      # renamed or mis-versioned `tbb/latest/lib` would ship green. Assert that
+      # the directory is populated and that every oneTBB soname the released
+      # libraries record is satisfied by a file the package itself carries --
+      # which is also the version check, since the recorded soname holds the
+      # major version. A full Make-vs-Bazel comparison of the recorded
+      # dependencies and the staged components is a separate change.
+      cd "$(RELEASEROOT)"
+      status=0
+      for pattern in 'libtbb.so.*' 'libtbbmalloc.so.*'; do
+        # shellcheck disable=SC2086
+        if [ -z "$(find tbb/latest/lib -maxdepth 1 -name "$pattern" -print -quit)" ]; then
+          echo "ERROR: no $pattern staged in tbb/latest/lib"
+          status=1
+        fi
+      done
+      for lib in daal/latest/lib/intel64/*.so.[0-9]*; do
+        needed=$(readelf -d "$lib" | awk '/\(NEEDED\)/ { gsub(/[][]/, "", $NF); print $NF }')
+        for soname in $needed; do
+          case "$soname" in
+            libtbb*) ;;
+            *) continue ;;
+          esac
+          found=""
+          for dir in daal/latest/lib/intel64 tbb/latest/lib; do
+            if [ -e "$dir/$soname" ]; then
+              found="$dir/$soname"
+              break
+            fi
+          done
+          if [ -z "$found" ]; then
+            echo "ERROR: $lib records $soname, which the package does not ship"
+            status=1
+          else
+            echo "OK: $(basename "$lib") -> $found"
+          fi
+        done
+      done
+      exit $status
+    displayName: 'Check staged runtime dependencies'
+
   - task: PublishPipelineArtifact@1
     inputs:
       artifactName: '$(platform.type) Bazel build'
-      targetPath: '$(Build.Repository.LocalPath)/bazel-bin/release'
+      targetPath: '$(RELEASEROOT)'
     displayName: 'Upload build artifacts'
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
+      bazel test //cpp/daal:mkl_linkage_test \
+                  --test_env DALROOT
+    displayName: 'Check mkl symbols'
+
+  - script: |
+      bazel test //cpp/daal:isa_coverage_test \
+                 --cpu=all
+    displayName: 'Check ISA coverage'
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
+      bazel test //examples/daal/cpp:all \
+                 --test_link_mode=dev \
+                 --test_thread_mode=par
+    displayName: 'daal-cpp-examples-thread-dev'
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
   - script: |
       bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=dev \
@@ -542,29 +483,165 @@ jobs:
     displayName: 'cpp-examples-thread-dev'
 
   - script: |
-      export DALROOT=`pwd`/bazel-bin/release/daal/latest
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
+      bazel test //examples/daal/cpp:all \
+                 --test_link_mode=release_static \
+                 --test_thread_mode=par \
+                 --test_env DALROOT
+    displayName: 'daal-cpp-examples-thread-release-static'
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
       bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=release_static \
-                 --test_thread_mode=par
+                 --config=host \
+                 --test_thread_mode=par \
+                 --test_env DALROOT
     displayName: 'cpp-examples-thread-release-static'
 
   - script: |
-      export DALROOT=`pwd`/bazel-bin/release/daal/latest
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
+      . "$(DALROOT)/env/vars.sh"
+      # The released libraries now record DT_NEEDED for oneTBB, and those
+      # entries are resolved against `LD_LIBRARY_PATH` and the RUNPATH of the
+      # library that holds them -- not against the test executable's RUNPATH
+      # into runfiles, which applies only to the executable's own direct
+      # dependencies. `daal/latest/env/vars.sh` adds the oneDAL lib directory
+      # alone, exactly as the Make package's does, so the sibling component the
+      # package ships is added here. This is what sourcing oneTBB's own
+      # `vars.sh` does in an installed oneAPI layout, and the mirror of the
+      # `+tbb_repo+tbb\bin` entry the Windows steps below put on `PATH`.
+      export LD_LIBRARY_PATH="$(RELEASEROOT)/tbb/latest/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+      bazel test //examples/daal/cpp:all \
+                 --test_link_mode=release_dynamic \
+                 --test_thread_mode=par \
+                 --test_env DALROOT \
+                 --test_env LD_LIBRARY_PATH
+    displayName: 'daal-cpp-examples-thread-release-dynamic'
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
+      . "$(DALROOT)/env/vars.sh"
+      # See the previous release-dynamic step for why the staged oneTBB
+      # directory has to be on `LD_LIBRARY_PATH`.
+      export LD_LIBRARY_PATH="$(RELEASEROOT)/tbb/latest/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
       bazel test //examples/oneapi/cpp:all \
                  --test_link_mode=release_dynamic \
-                 --test_thread_mode=par
+                 --test_thread_mode=par \
+                 --test_env DALROOT \
+                 --test_env LD_LIBRARY_PATH
     displayName: 'cpp-examples-thread-release-dynamic'
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
 
   - script: |
       bazel test //cpp/daal:tests
     displayName: 'daal-tests-algorithms'
 
   - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+      # `clean --expunge` clears the output base and leaves the --disk_cache
+      # directory alone, so by itself it reclaims nothing of the ~4.5Gb sitting
+      # there, and the step below -- which links 112 debug-mode test binaries and
+      # is the largest consumer in the job -- gets only ~4.6Gb to work with.
+      # Reclaiming here takes that to ~9.1Gb.
+      #
+      # This is not on its own enough; see `--disk_cache=` on that step, without
+      # which it refills the cache as it builds and fills / anyway. Both are
+      # needed: this frees the space, that stops it being spent twice.
+      #
+      # Dropped here rather than at the first expunge of this sequence so the
+      # example suites above keep their cache hits -- without them they rebuild
+      # oneDAL from scratch six times over, which is a much larger cost than the
+      # one step below losing its own.
+      #
+      # And this costs nothing at all: at 4.5Gb the cache is already over the 4Gb
+      # BAZEL_CACHE_MAX_SIZE_KB ceiling, so `bazel-cache-limit` deletes it at the
+      # end of every run regardless. This only moves that deletion to the point
+      # where the space is needed instead of after the step that needed it.
+      if [ -d "${BAZEL_CACHE_DIR:-}" ]; then
+        echo "Reclaiming Bazel disk cache: $(du -sh "${BAZEL_CACHE_DIR}" | cut -f1)"
+        rm -rf "${BAZEL_CACHE_DIR}"
+        mkdir -p "${BAZEL_CACHE_DIR}"
+      fi
+      df -h /
+    displayName: 'Clean Bazel cache (expunge)'
+
+  - script: |
+      # This step fills / and dies, on a target that moves between runs --
+      # correlation_distance, covariance, linear_regression, pca, louvain over
+      # five builds, always exactly one of 112, and for five of them with nothing
+      # from ld but `collect2: error: ld returned 1 exit status`, because that is
+      # all ld says when it cannot write. With enough headroom to get further,
+      # Bazel names it:
+      #
+      #   WARNING: Remote Cache: No space left on device
+      #   BulkTransferException: No space left on device
+      #
+      # "Remote Cache" there is the `--disk_cache` from `~/.bazelrc`. So this step
+      # needs room for two copies of everything it produces: the output base, and
+      # a cache entry for each action. Emptying the cache beforehand does not
+      # help, since the step immediately refills it -- with 9.1Gb free it still
+      # reached 100% and 16Mb.
+      #
+      # `--disk_cache=` drops the second copy. Nothing is lost: the step above
+      # empties the cache, so there are no entries left to hit either way, and
+      # these outputs are of no use to anything downstream -- this is the last
+      # build in the job.
+      free -m
+      df -h /
+      du -sh "${BAZEL_CACHE_DIR:-}" 2>/dev/null || true
       bazel test //cpp/oneapi/dal:tests \
                  --config=host \
                  --test_link_mode=dev \
-                 --test_thread_mode=par
+                 --test_thread_mode=par \
+                 --disk_cache= \
+                 --verbose_failures
     displayName: 'cpp-tests-thread-dev'
+
+  - script: |
+      # Only reached when a step above failed, so it costs nothing on a green
+      # run. It stays in because the failure mode it reports on is silent: the
+      # step above exhausted `/` six times, and neither `ld` nor a sandbox copy
+      # says so -- the log showed only `collect2: error: ld returned 1 exit
+      # status` against a different target each run. `df` is the line that
+      # names it. `free -m` and the kernel OOM grep are kept because they are
+      # what ruled out memory pressure, which the same symptom also fits.
+      echo '=== disk ==='
+      df -h /
+      du -sh "${BAZEL_CACHE_DIR:-}" 2>/dev/null || true
+      echo '=== memory ==='
+      free -m
+      echo '=== kernel OOM records ==='
+      sudo dmesg 2>/dev/null | grep -iE 'killed process|out of memory|oom-kill' | tail -20 \
+        || echo '(none, or dmesg not readable)'
+    displayName: 'Diagnose test link failure'
+    condition: failed()
+
+  - script: |
+      echo "Cleaning Bazel cache before running example or tests"
+      bazel clean --expunge
+    displayName: 'Clean Bazel cache (expunge)'
 
   - script: |
       # Clear cache if its size exceeds some predefined value
@@ -591,6 +668,400 @@ jobs:
       fi
     displayName: 'bazel-cache-limit'
 
+- job: 'LinuxBazelGNU_OpenBLAS_rv64'
+  timeoutInMinutes: 0
+  variables:
+    OPENBLAS_VERSION : 'v0.3.34'
+    OPENBLAS_CACHE_DIR : $(Pipeline.Workspace)/openblas-riscv64-clang
+    SYSROOT_CACHE_DIR: $(Pipeline.Workspace)/sysroot-riscv64
+  pool:
+    vmImage: 'ubuntu-24.04'
+  steps:
+  - script: |
+      .ci/env/apt.sh dev-base
+    displayName: 'apt-get install'
+  - script: |
+      .ci/env/apt.sh gnu-cross-compilers riscv64
+    displayName: 'riscv64-compiler installation'
+  - script: |
+      .ci/env/apt.sh llvm-version 18
+    displayName: 'llvm 18 installation'
+  - script: |
+      # sourcing done to set bazel version value from script
+      source .ci/env/bazelisk.sh
+      echo "##vso[task.setvariable variable=BAZEL_VERSION]${BAZEL_VERSION}"
+    displayName: 'install-bazel'
+  - script: |
+      .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - task: Cache@2
+    inputs:
+      key: '"riscv64" | "sysroot" | "$(SYSROOT_OS)"'
+      path: $(SYSROOT_CACHE_DIR)
+      cacheHitVar: SYSROOT_RESTORED
+  - script: |
+      .ci/env/apt.sh build-sysroot $(Pipeline.Workspace) riscv64 $(SYSROOT_OS) sysroot-riscv64
+    displayName: 'Build riscv64 sysroot'
+    condition: ne(variables.SYSROOT_RESTORED, 'true')
+  - task: Cache@2
+    inputs:
+      key: '"clang" | "riscv64" | "openblas" | "$(OPENBLAS_VERSION)" | "ILP64" | "$(SYSROOT_OS)"'
+      path: $(OPENBLAS_CACHE_DIR)
+      cacheHitVar: OPENBLAS_RESTORED
+  - script: |
+      # Build OpenBLAS with clang + the riscv64 sysroot, matching
+      # LinuxMakeLLVM_OpenBLAS_rv64 (same cache key => shared cache hit). The
+      # gnu riscv64 cross-gcc on the ubuntu-24.04 image is gcc-13, which lacks
+      # the RVV segment intrinsics (vfloat32m4x2_t, __riscv_vlseg2e32_v_f32m4x2)
+      # that OpenBLAS' RISCV64_ZVL128B kernels use, so it cannot build them.
+      .ci/env/openblas.sh --target RISCV64_ZVL128B --host-compiler gcc --compiler clang --target-arch riscv64 --cross-compile --prefix $(OPENBLAS_CACHE_DIR) --sysroot $(SYSROOT_CACHE_DIR) --version $(OPENBLAS_VERSION)
+    displayName: 'Build OpenBLAS'
+    condition: ne(variables.OPENBLAS_RESTORED, 'true')
+  - script: |
+      export CC=riscv64-linux-gnu-gcc
+      export CXX=riscv64-linux-gnu-g++
+      export OPENBLASROOT=$(OPENBLAS_CACHE_DIR)
+      bazel build --platforms=@config//:linux_riscv64 --backend_config=ref \
+        //cpp/daal:core_dynamic //cpp/oneapi/dal:dynamic
+    displayName: 'bazel build (riscv64 cross)'
+  - script: |
+      set -euo pipefail
+      for lib in bazel-bin/cpp/daal/libonedal_core.so bazel-bin/cpp/oneapi/dal/libonedal.so; do
+        file "${lib}"
+        readelf -h "${lib}" | grep -q "RISC-V" || { echo "##vso[task.logissue type=error]${lib} is not a RISC-V ELF"; exit 1; }
+      done
+    displayName: 'Verify RISC-V ELF output'
+
+- job: 'LinuxReleaseCompare'
+  dependsOn:
+  - LinuxMakeGNU_MKL
+  - LinuxBazel
+  pool:
+    vmImage: '$(VM_IMAGE)'
+  steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: 'lnx32e build'
+      path: '$(Pipeline.Workspace)/make'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: 'lnx32e Bazel build'
+      path: '$(Pipeline.Workspace)/bazel'
+  - script: |
+      python3 dev/release_tests/compare_release_trees.py \
+        --platform linux \
+        --make "$(Pipeline.Workspace)/make/daal/latest" \
+        --bazel "$(Pipeline.Workspace)/bazel/daal/latest"
+    displayName: 'Compare Make and Bazel release trees'
+
+- job: 'WindowsBazel'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win_bazel_icx'
+    platform.type : 'win32e'
+    BAZELISK_VERSION: 'v1.28.1'
+    BAZELISK_EXE: '$(Build.Repository.LocalPath)\bazelisk.exe'
+    BAZEL_CACHE_DIR: '$(Pipeline.Workspace)\.bazel-cache'
+    BAZEL_CACHE_MAX_SIZE_KB: 4194304 # Size in kilobytes ~ 4Gb
+    BAZEL_OUTPUT_USER_ROOT: 'C:\b'
+  pool:
+    vmImage: '$(WIN_VM_IMAGE)'
+  steps:
+  - script: .ci/scripts/install_basekit.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: 'Install oneAPI Base Toolkit'
+  - powershell: |
+      $ErrorActionPreference = "Stop"
+      $url = "https://github.com/bazelbuild/bazelisk/releases/download/$(BAZELISK_VERSION)/bazelisk-windows-amd64.exe"
+      Invoke-WebRequest -Uri $url -OutFile "$(BAZELISK_EXE)"
+      & "$(BAZELISK_EXE)" version
+    displayName: 'install-bazel'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      bash .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - task: Cache@2
+    inputs:
+      # Commit ID is added to a cache key. Caches are immutable by design,
+      # so we always need to change a key to upload the last version
+      # of the Bazel cache. Cache lookup is based on `restoreKeys` option.
+      key: '"$(BAZELISK_VERSION)" | "$(Agent.OS)" | "v1" | "$(Build.SourceVersion)"'
+      restoreKeys: |
+        "$(BAZELISK_VERSION)" | "$(Agent.OS)" | "v1"
+      path: $(BAZEL_CACHE_DIR)
+    displayName: 'bazel-cache'
+  - script: |
+      if not exist "$(BAZEL_CACHE_DIR)" mkdir "$(BAZEL_CACHE_DIR)"
+      if not exist "$(BAZEL_OUTPUT_USER_ROOT)" mkdir "$(BAZEL_OUTPUT_USER_ROOT)"
+      set "BAZEL_CACHE_DIR_FWD=$(BAZEL_CACHE_DIR)"
+      set "BAZEL_CACHE_DIR_FWD=%BAZEL_CACHE_DIR_FWD:\=/%"
+      echo build --disk_cache=%BAZEL_CACHE_DIR_FWD% --cpu=avx2> "%USERPROFILE%\.bazelrc"
+      echo ##vso[task.setvariable variable=BAZEL_SH]C:\Program Files\Git\bin\bash.exe
+      echo ##vso[task.setvariable variable=BAZEL_JOBS]%NUMBER_OF_PROCESSORS%
+    displayName: 'bazel-configure'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" build @config//:validate_build_parameters_lib --build_parameters_lib=yes > build_parameters_lib_yes.log 2>&1
+      if not errorlevel 1 (
+        type build_parameters_lib_yes.log
+        echo ERROR: Windows --build_parameters_lib=yes unexpectedly succeeded
+        exit /b 1
+      )
+      findstr /C:"--build_parameters_lib=yes is not supported on Windows" build_parameters_lib_yes.log >NUL || (
+        type build_parameters_lib_yes.log
+        echo ERROR: expected Windows parameter-library diagnostic was not found
+        exit /b 1
+      )
+    displayName: 'Reject separate parameter libraries on Windows'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" shutdown
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" build //:release --verbose_failures --jobs=$(BAZEL_JOBS)
+    displayName: 'release'
+  - script: |
+      rmdir /S /Q "$(release.dir)" 2>NUL
+      mkdir "$(release.dir)"
+      xcopy /E /I /Y "bazel-bin\release" "$(release.dir)" >NUL
+      echo ##vso[task.setvariable variable=DALROOT]$(Build.Repository.LocalPath)\$(release.dir)\daal\latest
+    displayName: 'Prepare standalone release directory'
+  # The Windows package stages oneTBB the way Make does: the DLLs the released
+  # libraries load under `tbb\latest\bin\vc_mt` and the import libraries a
+  # consumer links against under `tbb\latest\lib\vc_mt` (releasetbb.LIBS_Y and
+  # releasetbb.LIBS_A, makefile:277-279). Nothing else in this job looks at
+  # them -- the release comparison is rooted at `daal\latest` -- so assert the
+  # four files are present, or a dropped `dep_runtime` entry ships green.
+  - script: |
+      set staged=$(release.dir)\tbb\latest
+      for %%f in (tbb12.dll tbbmalloc.dll) do (
+        if not exist "%staged%\bin\vc_mt\%%f" (
+          echo ERROR: missing tbb\latest\bin\vc_mt\%%f
+          exit /b 1
+        )
+        echo OK: tbb\latest\bin\vc_mt\%%f
+      )
+      for %%f in (tbb12.lib tbbmalloc.lib) do (
+        if not exist "%staged%\lib\vc_mt\%%f" (
+          echo ERROR: missing tbb\latest\lib\vc_mt\%%f
+          exit /b 1
+        )
+        echo OK: tbb\latest\lib\vc_mt\%%f
+      )
+    displayName: 'Check staged runtime dependencies'
+  # Debug MSVC runtime (Make MSVC_RUNTIME_VERSION=debug): checks that the
+  # `-MDd` build links and that its libraries land under the `d`-suffixed
+  # names, so an MD and an MDd release can share one tree. Built after the
+  # release tree above is copied out, since it reuses bazel-bin/release.
+  # Analysis-only check of both MSVC-runtime configurations, ahead of the MDd
+  # build below. The debug runtime is driven by two settings that have to
+  # agree — the `msvc_runtime_debug` toolchain feature and the
+  # `@config//:msvc_runtime` build setting — and a mismatch is reported during
+  # analysis (see `_msvc_runtime_is_debug` in dev/bazel/cc.bzl). `--nobuild`
+  # surfaces that in seconds rather than after a full icx compile, and also
+  # proves the //:release_all transitions are well-formed.
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" build //:release --config=mdd --nobuild --verbose_failures || exit /b 1
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" build //:release_all --nobuild --verbose_failures || exit /b 1
+    displayName: 'analyze-msvc-runtime-configs'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      rem Clear the staged tree the MD build left behind. Bazel only replaces
+      rem the files the current build declares, so onedal_core.lib and friends
+      rem would still sit next to onedal_cored.lib and the name check below
+      rem could not tell a leftover from a library that failed to pick up the
+      rem `d` suffix. The MD tree itself is already copied out to
+      rem $(release.dir), and the deleted outputs are re-staged on demand.
+      if exist "bazel-bin\release\daal" rmdir /S /Q "bazel-bin\release\daal"
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" shutdown
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" build //:release --config=mdd --verbose_failures --jobs=$(BAZEL_JOBS)
+    displayName: 'release-mdd'
+  - powershell: |
+      $ErrorActionPreference = "Stop"
+      $root = "bazel-bin\release\daal\latest"
+      $libDir = Join-Path $root "lib\intel64"
+      $redistDir = Join-Path $root "redist\intel64"
+      if (-not (Test-Path $libDir)) { throw "Missing directory: $libDir" }
+      # Read the ABI major from the same constant the build uses, so an ABI bump
+      # does not have to be repeated here to keep this check honest.
+      $configBzl = "dev\bazel\config\config.bzl"
+      $majorMatch = Select-String -Path $configBzl -Pattern '^_BINARY_MAJOR\s*=\s*"(\d+)"'
+      if (-not $majorMatch) { throw "Could not read _BINARY_MAJOR from $configBzl" }
+      $major = $majorMatch.Matches[0].Groups[1].Value
+      Write-Host "ABI major from ${configBzl}: $major"
+      # The full set of debug-runtime artifacts, matching what the Make build
+      # produces for MSVC_RUNTIME_VERSION=debug (makefile:337-347, 962-970).
+      # The DPC++ library is included because `--release_dpc` defaults to True
+      # (dev/bazel/config/config.tpl.BUILD) and this job does not turn it off,
+      # so //:release ships `onedal_dpc` through `:release_dpc_windows` in
+      # //BUILD. Only the dynamic flavour: Windows gets no static DPC library
+      # and no parameters libraries at all, so `onedal_dpcd.lib` and
+      # `onedal_parameters_dpcd.lib` are absent by design, in both CRT flavours.
+      $expectedLib = @("onedal_cored.lib", "onedal_threadd.lib", "onedald.lib",
+                       "onedal_cored_dll.lib", "onedal_cored_dll.$major.lib",
+                       "onedald_dll.lib", "onedald_dll.$major.lib",
+                       "onedal_dpcd_dll.lib", "onedal_dpcd_dll.$major.lib")
+      $expectedRedist = @("onedal_cored.$major.dll", "onedal_threadd.$major.dll",
+                          "onedald.$major.dll", "onedal_dpcd.$major.dll")
+      $missing = @()
+      $missing += $expectedLib | Where-Object { -not (Test-Path (Join-Path $libDir $_)) }
+      $missing += $expectedRedist | Where-Object { -not (Test-Path (Join-Path $redistDir $_)) }
+      # The import library for the threading DLL is deliberately not shipped,
+      # mirroring the Make package (release.bzl _THREAD_STEMS).
+      $unexpected = @("onedal_core.lib", "onedal_thread.lib", "onedal.lib",
+                      "onedal_dpc_dll.lib", "onedal_threadd_dll.lib") |
+          Where-Object { Test-Path (Join-Path $libDir $_) }
+      if ($missing -or $unexpected) {
+          Write-Host "lib\intel64:"
+          Get-ChildItem $libDir | ForEach-Object { Write-Host "  $($_.Name)" }
+          if (Test-Path $redistDir) {
+              Write-Host "redist\intel64:"
+              Get-ChildItem $redistDir | ForEach-Object { Write-Host "  $($_.Name)" }
+          }
+          if ($missing) { Write-Host "MISSING: $($missing -join ', ')" }
+          if ($unexpected) { Write-Host "UNEXPECTED: $($unexpected -join ', ')" }
+          throw "Debug-runtime release tree does not match the expected name set."
+      }
+      Write-Host "Debug-runtime library names OK."
+    displayName: 'Verify debug-runtime library names'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) Bazel icx build'
+      targetPath: '$(DALROOT)'
+    displayName: 'Upload build artifacts'
+    continueOnError: true
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      "$(VSDEVCMD)" -arch=amd64 -host_arch=amd64
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" info output_base > output_base.txt
+      set /p OUTPUT_BASE=<output_base.txt
+      set "OUTPUT_BASE=%OUTPUT_BASE:/=\%"
+      set TEST_PATH=$(DALROOT)\redist\intel64;$(DALROOT)\lib\intel64;%OUTPUT_BASE%\external\+mkl_repo+mkl\bin;%OUTPUT_BASE%\external\+tbb_repo+tbb\bin;%PATH%
+      set PATH=%TEST_PATH%
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" shutdown
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" test //examples/daal/cpp:all --test_link_mode=release_dynamic --test_thread_mode=par --test_env=DALROOT "--test_env=PATH=%TEST_PATH%" --verbose_failures --jobs=$(BAZEL_JOBS)
+    displayName: 'daal-cpp-examples-thread-release-dynamic'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      "$(VSDEVCMD)" -arch=amd64 -host_arch=amd64
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" info output_base > output_base.txt
+      set /p OUTPUT_BASE=<output_base.txt
+      set "OUTPUT_BASE=%OUTPUT_BASE:/=\%"
+      set TEST_PATH=$(DALROOT)\redist\intel64;$(DALROOT)\lib\intel64;%OUTPUT_BASE%\external\+mkl_repo+mkl\bin;%OUTPUT_BASE%\external\+tbb_repo+tbb\bin;%PATH%
+      set PATH=%TEST_PATH%
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" shutdown
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" test //examples/oneapi/cpp:all --config=host --test_link_mode=release_dynamic --test_thread_mode=par --test_env=DALROOT "--test_env=PATH=%TEST_PATH%" --verbose_failures --jobs=$(BAZEL_JOBS)
+    displayName: 'cpp-examples-thread-release-dynamic'
+  - powershell: |
+      $ErrorActionPreference = "Stop"
+      if (Test-Path "$(BAZEL_CACHE_DIR)\cache-clean-timestamp") {
+          Write-Host ""
+          Write-Host "Last time the cache is cleaned:"
+          Get-Content "$(BAZEL_CACHE_DIR)\cache-clean-timestamp"
+          Write-Host ""
+      }
+
+      $cacheSizeKb = 0
+      if (Test-Path "$(BAZEL_CACHE_DIR)") {
+          $cacheBytes = (Get-ChildItem "$(BAZEL_CACHE_DIR)" -Recurse -Force -ErrorAction SilentlyContinue |
+              Measure-Object -Property Length -Sum).Sum
+          if ($null -eq $cacheBytes) {
+              $cacheBytes = 0
+          }
+          $cacheSizeKb = [int64]($cacheBytes / 1KB)
+      }
+      $cacheSizeMb = [int64]($cacheSizeKb / 1KB)
+      Write-Host "Bazel cache dir is $(BAZEL_CACHE_DIR)"
+      Write-Host "Bazel cache size is ${cacheSizeMb}Mb"
+      if ($cacheSizeKb -ge [int64]"$(BAZEL_CACHE_MAX_SIZE_KB)") {
+          Write-Host "Run cache cleanup..."
+          Write-Host "Current cache directory content:"
+          Get-ChildItem "$(BAZEL_CACHE_DIR)" -Force | Select-Object -ExpandProperty Name
+          Write-Host "--------------------------------"
+          Write-Host "Remove cache directory"
+          Remove-Item "$(BAZEL_CACHE_DIR)" -Recurse -Force
+          New-Item "$(BAZEL_CACHE_DIR)" -ItemType Directory -Force | Out-Null
+          Write-Host "Write timestamp to the cache"
+          Get-Date | Out-File "$(BAZEL_CACHE_DIR)\cache-clean-timestamp"
+          Write-Host "Current cache directory content:"
+          Get-ChildItem "$(BAZEL_CACHE_DIR)" -Force | Select-Object -ExpandProperty Name
+          Write-Host "--------------------------------"
+      }
+      else {
+          Write-Host "No need for cleanup"
+      }
+    displayName: 'bazel-cache-limit'
+
+# Both MSVC runtimes merged into a single release tree by one command
+# (`//:release_all`), which exercises the transitions in release.bzl rather
+# than the plain single-flavour path.
+#
+# Deliberately NOT part of the pull-request run: it builds the whole Windows
+# release twice, and adding that to `WindowsBazel` — which already builds MD
+# and MDd — pushed that job past the six-hour hosted-agent limit and lost the
+# agent mid-compile. The PR run keeps the cheap
+# `bazel build //:release_all --nobuild` analysis check, which catches a
+# malformed transition in seconds; this job validates the staged output and
+# runs on manual or scheduled pipeline runs only.
+- job: 'WindowsBazelReleaseAll'
+  condition: in(variables['Build.Reason'], 'Manual', 'Schedule')
+  timeoutInMinutes: 0
+  variables:
+    platform.type : 'win32e'
+    BAZELISK_VERSION: 'v1.28.1'
+    BAZELISK_EXE: '$(Build.Repository.LocalPath)\bazelisk.exe'
+    BAZEL_CACHE_DIR: '$(Pipeline.Workspace)\.bazel-cache'
+    BAZEL_OUTPUT_USER_ROOT: 'C:\b'
+  pool:
+    vmImage: '$(WIN_VM_IMAGE)'
+  steps:
+  - script: .ci/scripts/install_basekit.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: 'Install oneAPI Base Toolkit'
+  - powershell: |
+      $ErrorActionPreference = "Stop"
+      $url = "https://github.com/bazelbuild/bazelisk/releases/download/$(BAZELISK_VERSION)/bazelisk-windows-amd64.exe"
+      Invoke-WebRequest -Uri $url -OutFile "$(BAZELISK_EXE)"
+      & "$(BAZELISK_EXE)" version
+    displayName: 'install-bazel'
+  - task: Cache@2
+    inputs:
+      key: '"$(BAZELISK_VERSION)" | "$(Agent.OS)" | "v1" | "$(Build.SourceVersion)"'
+      restoreKeys: |
+        "$(BAZELISK_VERSION)" | "$(Agent.OS)" | "v1"
+      path: $(BAZEL_CACHE_DIR)
+    displayName: 'bazel-cache'
+  - script: |
+      if not exist "$(BAZEL_CACHE_DIR)" mkdir "$(BAZEL_CACHE_DIR)"
+      if not exist "$(BAZEL_OUTPUT_USER_ROOT)" mkdir "$(BAZEL_OUTPUT_USER_ROOT)"
+      set "BAZEL_CACHE_DIR_FWD=$(BAZEL_CACHE_DIR)"
+      set "BAZEL_CACHE_DIR_FWD=%BAZEL_CACHE_DIR_FWD:\=/%"
+      echo build --disk_cache=%BAZEL_CACHE_DIR_FWD% --cpu=avx2> "%USERPROFILE%\.bazelrc"
+      echo ##vso[task.setvariable variable=BAZEL_SH]C:\Program Files\Git\bin\bash.exe
+      echo ##vso[task.setvariable variable=BAZEL_JOBS]%NUMBER_OF_PROCESSORS%
+    displayName: 'bazel-configure'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      "$(BAZELISK_EXE)" --output_user_root="$(BAZEL_OUTPUT_USER_ROOT)" build //:release_all --verbose_failures --jobs=$(BAZEL_JOBS)
+    displayName: 'release-all'
+  - powershell: |
+      $ErrorActionPreference = "Stop"
+      $libDir = "bazel-bin\release_all\daal\latest\lib\intel64"
+      if (-not (Test-Path $libDir)) {
+          throw "Combined release tree is missing: $libDir"
+      }
+      # Both flavours must be present side by side, and the shared
+      # runtime-independent files must not have been duplicated away.
+      $expected = @("onedal_core.lib", "onedal_cored.lib",
+                    "onedal_thread.lib", "onedal_threadd.lib",
+                    "onedal.lib", "onedald.lib",
+                    "onedal_core_dll.lib", "onedal_cored_dll.lib")
+      $missing = $expected | Where-Object { -not (Test-Path (Join-Path $libDir $_)) }
+      if ($missing) {
+          Write-Host "Files present in ${libDir}:"
+          Get-ChildItem $libDir | ForEach-Object { Write-Host "  $($_.Name)" }
+          throw "Combined release tree is missing: $($missing -join ', ')"
+      }
+      Write-Host "Combined MD + MDd release tree OK."
+    displayName: 'Verify combined release tree'
+
 - job: LinuxSklearnex
   dependsOn: LinuxMakeGNU_MKL
   timeoutInMinutes: 0
@@ -607,12 +1078,12 @@ jobs:
   strategy:
     matrix:
       Python311:
-        PYTHON_VERSION: '3.11'
-        SKLEARN_VERSION: '1.5'
+        PYTHON_VERSION: '$(PY_VERSION)'
+        SKLEARN_VERSION: '$(SKL_VERSION)'
   steps:
   - checkout: none
   - script: |
-      git clone https://github.com/uxlfoundation/scikit-learn-intelex.git .
+      git clone --depth 1 https://github.com/uxlfoundation/scikit-learn-intelex.git .
     displayName: 'Clone sklearnex'
   - task: DownloadPipelineArtifact@2
     inputs:
@@ -638,14 +1109,14 @@ jobs:
     release.dir: '__release_win_vc'
     platform.type : 'win32e'
   pool:
-    vmImage: 'windows-2022'
+    vmImage: '$(WIN_VM_IMAGE)'
   steps:
   - script: .ci/scripts/install_basekit.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
     displayName: Install oneAPI Base Toolkit
   - script: |
       set PATH=C:\msys64\usr\bin;%PATH%
       pip install cpufeature
-      pacman -S -y --noconfirm zip dos2unix tree
+      pacman -S -y --noconfirm zip tree
     displayName: 'pacman'
   - script: |
       call %TEMP%\oneapi\setvars.bat --force
@@ -664,6 +1135,12 @@ jobs:
       artifactName: '$(platform.type) build'
       targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
     displayName: 'Upload build artifacts'
+    continueOnError: true
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: 'oneDAL scripts'
+      targetPath: '$(Build.Repository.LocalPath)/.ci/scripts'
+    displayName: 'Upload environment artifacts'
     continueOnError: true
   - script: |
       call %TEMP%\oneapi\setvars.bat --force
@@ -688,3 +1165,136 @@ jobs:
     displayName: 'Uploading on fail'
     condition: failed()
     continueOnError: true
+
+
+- job: 'WindowsMakeIntel'
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win'
+    platform.type : 'win32e'
+  pool:
+    vmImage: '$(WIN_VM_IMAGE)'
+  steps:
+  - script: .ci/scripts/install_basekit.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: Install oneAPI Base Toolkit
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      pip install cpufeature
+      pacman -S -y --noconfirm zip tree
+    displayName: 'pacman'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      bash .ci/scripts/describe_system.sh
+    displayName: 'System info'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      .\.ci\scripts\build.bat daal icx avx2
+    displayName: 'make daal'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      .\.ci\scripts\build.bat onedal_dpc icx avx2
+    displayName: 'make onedal_dpc'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) icx build'
+      targetPath: '$(Build.Repository.LocalPath)/$(release.dir)'
+    displayName: 'Upload Intel build artifacts'
+    continueOnError: true
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      .\.ci\scripts\test.bat daal\cpp lib icx cmake
+      .\.ci\scripts\test.bat daal\cpp dll icx cmake
+    displayName: 'daal/cpp examples'
+  - script: |
+      call %TEMP%\oneapi\setvars.bat --force
+      .\.ci\scripts\test.bat oneapi\cpp lib icx cmake
+      .\.ci\scripts\test.bat oneapi\cpp dll icx cmake
+    displayName: 'oneapi/cpp examples'
+  - script: |
+      set PATH=C:\msys64\usr\bin;%PATH%
+      bash deploy/nuget/prepare_dal_nuget.sh --release-dir $(release.dir) --build-nupkg yes
+      tree -h -I include __nuget/inteldal*/
+      ls -lh __nuget/inteldal*.nupkg
+    displayName: 'nuget pkg'
+
+- job: 'WindowsReleaseCompare'
+  dependsOn:
+  - WindowsMakeIntel
+  - WindowsBazel
+  pool:
+    vmImage: '$(WIN_VM_IMAGE)'
+  steps:
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: 'win32e icx build'
+      path: '$(Pipeline.Workspace)\make'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: 'win32e Bazel icx build'
+      path: '$(Pipeline.Workspace)\bazel'
+  - powershell: |
+      # `read_windows_exports` shells out to dumpbin, which is not on PATH in a
+      # job that installs no toolchain. vswhere ships on every hosted image and
+      # reports the MSVC bin directory without pinning a Visual Studio version.
+      $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+      # Collect every match first. Piping a native command into
+      # `Select-Object -First 1` closes the pipe early, which kills vswhere and
+      # leaves $LASTEXITCODE non-zero -- the Azure PowerShell task then fails the
+      # step even though the path was found. Sorting descending also picks the
+      # newest MSVC toolset instead of whichever the image lists first.
+      $found = @(& $vswhere -latest -products * `
+        -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+        -find 'VC\Tools\MSVC\*\bin\HostX64\x64\dumpbin.exe')
+      if ($LASTEXITCODE -ne 0 -or $found.Count -eq 0) {
+          Write-Error 'dumpbin.exe not found on this image'; exit 1
+      }
+      $dumpbin = ($found | Sort-Object -Descending)[0]
+      $dir = Split-Path -Parent $dumpbin
+      Write-Host "Using dumpbin from $dir"
+      Write-Host "##vso[task.prependpath]$dir"
+    displayName: 'Locate MSVC dumpbin'
+  - powershell: |
+      python dev/release_tests/compare_release_trees.py `
+        --platform windows `
+        --check-level 4 `
+        --make "$(Pipeline.Workspace)\make\daal\latest" `
+        --bazel "$(Pipeline.Workspace)\bazel"
+    displayName: 'Compare Make and Bazel release trees'
+
+
+- job: WindowsSklearnex
+  dependsOn: WindowsMakeVC
+  timeoutInMinutes: 0
+  variables:
+    release.dir: '__release_win_vc'
+    platform.type: 'win32e'
+    DALROOT: '$(Pipeline.Workspace)\daal\latest'
+    TBBROOT: '%TEMP%\oneapi\tbb\latest'
+  pool:
+    vmImage: '$(WIN_VM_IMAGE)'
+    maxParallel: 2
+  strategy:
+    matrix:
+      Python311:
+        PYTHON_VERSION: '$(PY_VERSION)'
+        SKLEARN_VERSION: '$(SKL_VERSION)'
+  steps:
+  - checkout: none
+  - script: |
+      git clone --depth 1 https://github.com/uxlfoundation/scikit-learn-intelex.git .
+    displayName: 'Clone sklearnex'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: 'oneDAL scripts'
+      path: '$(Build.Repository.LocalPath)\.ci\env'
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: '$(platform.type) build'
+      path: $(Pipeline.Workspace)
+  - script: .ci\env\install_basekit.bat $(WINDOWS_BASEKIT_URL) $(WINDOWS_DPCPP_COMPONENTS)
+    displayName: 'TBB installation'
+  - template: .ci/pipeline/build-and-test-win.yml@sklearnex
+  - task: PublishPipelineArtifact@1
+    inputs:
+      artifactName: '$(platform.type) sklearnex build'
+      targetPath: '$(Build.Repository.LocalPath)/build'

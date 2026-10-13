@@ -41,6 +41,12 @@
     #define TARGET_RISCV64
 #endif
 
+#if !defined(TARGET_X86_64)
+    #ifndef DAAL_CPU_TOPO_DISABLED
+        #define DAAL_CPU_TOPO_DISABLED
+    #endif
+#endif
+
 #if (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && !defined(SYCL_LANGUAGE_VERSION)
     #define DAAL_INTEL_CPP_COMPILER
 #endif
@@ -50,23 +56,17 @@
     #define __int64 long long int
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
-    #ifdef __DAAL_IMPLEMENTATION
+#ifdef __DAAL_IMPLEMENTATION
+    #if defined(_WIN32) || defined(_WIN64)
         #define DAAL_EXPORT __declspec(dllexport)
     #else
-        #define DAAL_EXPORT
+        #define DAAL_EXPORT __attribute__((visibility("default")))
     #endif
 #else
     #define DAAL_EXPORT
 #endif
 
-#if (defined(__INTEL_CXX11_MODE__) || __cplusplus > 199711L)
-    #define DAAL_C11_OVERRIDE override
-#else
-    #define DAAL_C11_OVERRIDE
-#endif
-
-/* Intel(R) oneDAL 64-bit integer types */
+/* oneDAL 64-bit integer types */
 #if !(defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)) && defined(_MSC_VER)
     #define DAAL_INT64  __int64
     #define DAAL_UINT64 unsigned __int64
@@ -129,13 +129,13 @@
 #endif
 
 /**
- *  Intel(R) oneAPI Data Analytics Library namespace
+ *  oneAPI Data Analytics Library namespace
  */
 namespace daal
 {
 /**
 * <a name="DAAL-ENUM-COMPUTEMODE"></a>
-* Computation modes of Intel(R) oneAPI Data Analytics Library (oneDAL) algorithms
+* Computation modes of oneAPI Data Analytics Library (oneDAL) algorithms
 */
 enum ComputeMode
 {
@@ -203,6 +203,7 @@ struct IsSameType<U, U>
 };
 
 const size_t DAAL_MALLOC_DEFAULT_ALIGNMENT = 64;
+const size_t DAAL_DEFAULT_ALIGNMENT_MASK   = DAAL_MALLOC_DEFAULT_ALIGNMENT - 1;
 
 const int SERIALIZATION_HOMOGEN_NT_ID             = 1000;
 const int SERIALIZATION_AOS_NT_ID                 = 3000;
@@ -485,6 +486,17 @@ const int SERIALIZATION_DBSCAN_DISTRIBUTED_PARTIAL_RESULT_STEP13_ID = 121310;
     #define DAAL_ASSERT(cond)
     #define DAAL_ASSERT_DECL(var)
 #endif
+
+#define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION_BOOL(type, op1, op2, result) \
+    {                                                                      \
+        result = false;                                                    \
+        if (!(0 == (op1)) && !(0 == (op2)))                                \
+        {                                                                  \
+            volatile type r = (op1) * (op2);                               \
+            r /= (op1);                                                    \
+            if (!(r == (op2))) result = true;                              \
+        }                                                                  \
+    }
 
 #define DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(type, op1, op2)                                     \
     {                                                                                             \

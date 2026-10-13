@@ -119,12 +119,13 @@ constexpr bool is_valid_task_v = dal::detail::is_one_of_v<Task,
                                                           task::nu_regression>;
 
 template <typename Method, typename Task>
-constexpr bool is_valid_method_task_combination = dal::detail::is_one_of_v<Method, method::smo>
-    &&dal::detail::is_one_of_v<Task, task::regression>;
+constexpr bool is_valid_method_task_combination = dal::detail::is_one_of_v<Method, method::smo> &&
+                                                  dal::detail::is_one_of_v<Task, task::regression>;
 
 template <typename Method, typename Task>
-constexpr bool is_valid_method_nu_task_combination = dal::detail::is_one_of_v<Method, method::smo>
-    &&dal::detail::is_one_of_v<Task, task::nu_classification, task::nu_regression>;
+constexpr bool is_valid_method_nu_task_combination =
+    dal::detail::is_one_of_v<Method, method::smo> &&
+    dal::detail::is_one_of_v<Task, task::nu_classification, task::nu_regression>;
 
 template <typename Kernel>
 constexpr bool is_valid_kernel_v =
@@ -454,6 +455,49 @@ public:
         return *this;
     }
 
+    /// The number of iterations performed by the SVM training algorithm
+    const table &get_iteration_counts() const;
+
+    auto &set_iteration_counts(const table &value) {
+        set_iteration_counts_impl(value);
+        return *this;
+    }
+
+    /// The number of classes.
+    /// Used with :expr:`task::classification` and
+    /// :expr:`task::nu_classification`.
+    /// @invariant :expr:`class_count >= 2`
+    /// @remark default = 2
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    std::int64_t get_class_count() const {
+        return get_class_count_impl();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto &set_class_count(std::int64_t value) {
+        set_class_count_impl(value);
+        return *this;
+    }
+
+    /// A $1 \\times class_count$ table holding the number of support vectors
+    /// per class. Required for restoring a multi-class one-vs-one model
+    /// through public setters: support vectors and coefficients in the
+    /// aggregated model are stored in row-blocks grouped by class in the
+    /// same order as this table. Every count must be at least one and they
+    /// must sum to the row count of :expr:`support_vectors`. Used with
+    /// :expr:`task::classification` and :expr:`task::nu_classification`.
+    /// @remark default = table{}
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    const table &get_n_support_per_class() const {
+        return get_n_support_per_class_impl();
+    }
+
+    template <typename T = Task, typename = detail::enable_if_classification_t<T>>
+    auto &set_n_support_per_class(const table &value) {
+        set_n_support_per_class_impl(value);
+        return *this;
+    }
+
     /// The first unique value in class labels.
     /// Used with :expr:`task::classification` and
     /// :expr:`task::nu_classification`.
@@ -505,8 +549,13 @@ protected:
     void set_coeffs_impl(const table &);
     void set_bias_impl(double);
     void set_biases_impl(const table &);
+    void set_iteration_counts_impl(const table &);
     void set_first_class_response_impl(std::int64_t);
     void set_second_class_response_impl(std::int64_t);
+    void set_class_count_impl(std::int64_t);
+    std::int64_t get_class_count_impl() const;
+    void set_n_support_per_class_impl(const table &);
+    const table &get_n_support_per_class_impl() const;
 
 private:
     void serialize(dal::detail::output_archive &ar) const;

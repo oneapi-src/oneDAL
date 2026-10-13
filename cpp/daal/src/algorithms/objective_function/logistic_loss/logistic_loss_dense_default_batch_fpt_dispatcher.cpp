@@ -25,7 +25,7 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::logistic_loss::interface2::BatchContainer, batch, DAAL_FPTYPE,
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(optimization_solver::logistic_loss::internal::BatchContainer, batch, DAAL_FPTYPE,
                                       optimization_solver::logistic_loss::defaultDense)
 namespace optimization_solver
 {
@@ -33,17 +33,24 @@ namespace logistic_loss
 {
 namespace interface2
 {
-using BatchType = Batch<DAAL_FPTYPE, optimization_solver::logistic_loss::defaultDense>;
+using BatchType = Batch<DAAL_FPTYPE, defaultDense>;
 
 template <>
-BatchType::Batch(size_t numberOfTerms) : sum_of_functions::Batch(numberOfTerms, &input, new ParameterType(numberOfTerms))
+void Batch<DAAL_FPTYPE, defaultDense>::initialize()
+{
+    Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, defaultDense)(&_env);
+    _in                  = &input;
+    _par                 = sumOfFunctionsParameter;
+}
+template <>
+DAAL_EXPORT BatchType::Batch(size_t numberOfTerms) : sum_of_functions::Batch(numberOfTerms, &input, new ParameterType(numberOfTerms))
 {
     initialize();
     _par = sumOfFunctionsParameter;
 }
 
 template <>
-BatchType::Batch(const BatchType & other)
+DAAL_EXPORT BatchType::Batch(const BatchType & other)
     : sum_of_functions::Batch(other.parameter().numberOfTerms, &input, new ParameterType(other.parameter())), input(other.input)
 {
     initialize();
@@ -51,7 +58,7 @@ BatchType::Batch(const BatchType & other)
 }
 
 template <>
-services::SharedPtr<BatchType> BatchType::create(size_t numberOfTerms)
+services::SharedPtr<BatchType> DAAL_EXPORT BatchType::create(size_t numberOfTerms)
 {
     return services::SharedPtr<BatchType>(new BatchType(numberOfTerms));
 }

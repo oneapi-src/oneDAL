@@ -211,6 +211,11 @@ const table& model<Task>::get_biases() const {
 }
 
 template <typename Task>
+const table& model<Task>::get_iteration_counts() const {
+    return impl_->iteration_counts;
+}
+
+template <typename Task>
 std::int64_t model<Task>::get_support_vector_count() const {
     return impl_->support_vectors.get_row_count();
 }
@@ -246,6 +251,11 @@ void model<Task>::set_biases_impl(const table& value) {
 }
 
 template <typename Task>
+void model<Task>::set_iteration_counts_impl(const table& value) {
+    impl_->iteration_counts = value;
+}
+
+template <typename Task>
 void model<Task>::set_first_class_response_impl(std::int64_t value) {
     impl_->first_class_response = value;
 }
@@ -253,6 +263,29 @@ void model<Task>::set_first_class_response_impl(std::int64_t value) {
 template <typename Task>
 void model<Task>::set_second_class_response_impl(std::int64_t value) {
     impl_->second_class_response = value;
+}
+
+template <typename Task>
+std::int64_t model<Task>::get_class_count_impl() const {
+    return impl_->class_count;
+}
+
+template <typename Task>
+void model<Task>::set_class_count_impl(std::int64_t value) {
+    if (value <= 1) {
+        throw domain_error(dal::detail::error_messages::class_count_leq_one());
+    }
+    impl_->class_count = value;
+}
+
+template <typename Task>
+const table& model<Task>::get_n_support_per_class_impl() const {
+    return impl_->n_support_per_class;
+}
+
+template <typename Task>
+void model<Task>::set_n_support_per_class_impl(const table& value) {
+    impl_->n_support_per_class = value;
 }
 
 template <typename Task>

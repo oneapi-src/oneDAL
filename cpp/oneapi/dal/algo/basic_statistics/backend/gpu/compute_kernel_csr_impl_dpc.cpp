@@ -126,9 +126,8 @@ sycl::event compute_kernel_csr_impl<Float>::finalize_for_distr(
 }
 
 template <typename Float>
-result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
-                                                    const descriptor_t& desc,
-                                                    const input_t& input) {
+csr_stats<Float> compute_kernel_csr_impl<Float>::compute_stats(const bk::context_gpu& ctx,
+                                                               const input_t& input) {
     auto queue = ctx.get_queue();
     const auto table = input.get_data();
     ONEDAL_ASSERT(table.get_kind() == csr_table::kind());
@@ -137,7 +136,6 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
     const bool distr_mode = comm.get_rank_count() > 1;
     const auto column_count = csr_tdata.get_column_count();
     const auto row_count = csr_tdata.get_row_count();
-    auto result_options = desc.get_result_options();
     const auto nonzero_count = csr_tdata.get_non_zero_count();
     auto [csr_data, column_indices, row_offsets] =
         csr_accessor<const Float>(csr_tdata).pull(queue,
@@ -189,7 +187,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             local_buf[stat::sum] = Float(0);
             local_buf[stat::sum2] = Float(0);
             local_buf[stat::sum2_cent] = Float(0);
-            item.barrier(sycl::access::fence_space::local_space);
+            sycl::group_barrier(item.get_group());
             for (std::int64_t idx = 0; idx < n_items_per_work; ++idx) {
                 auto data_idx = data_ofs + local_id * n_items_per_work + idx;
                 if (data_idx >= nonzero_count) {
@@ -224,7 +222,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                     col_sum2.fetch_add(val * val);
                 }
             }
-            item.barrier(sycl::access::fence_space::local_space);
+            sycl::group_barrier(item.get_group());
             if ((local_id + col_ofs) >= column_count) {
                 return;
             }
@@ -292,7 +290,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                 result_data_ptr[stat::sum * column_count + col_ofs + local_id] / row_count;
             row_counter_buf[local_id] = 0;
             work_group_buf[local_id] = Float(0);
-            item.barrier(sycl::access::fence_space::local_space);
+            sycl::group_barrier(item.get_group());
             // Merge results of first order moments
             for (std::int64_t idx = 0; idx < n_items_per_work; ++idx) {
                 auto data_idx = data_ofs + local_id * n_items_per_work + idx;
@@ -317,7 +315,7 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
                     row_counter_at.fetch_add(1);
                 }
             }
-            item.barrier(sycl::access::fence_space::local_space);
+            sycl::group_barrier(item.get_group());
             if ((local_id + col_ofs) >= column_count) {
                 return;
             }
@@ -354,13 +352,8 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
             if (row_count != cur_row_count) {
                 auto cur_min = result_data_ptr[stat::min * column_count + col_idx];
                 auto cur_max = result_data_ptr[stat::max * column_count + col_idx];
-#if __SYCL_COMPILER_VERSION >= 20240715
                 result_data_ptr[stat::min * column_count + col_idx] = Float(sycl::fmin(cur_min, 0));
                 result_data_ptr[stat::max * column_count + col_idx] = Float(sycl::fmax(cur_max, 0));
-#else
-                result_data_ptr[stat::min * column_count + col_idx] = sycl::min<Float>(cur_min, 0);
-                result_data_ptr[stat::max * column_count + col_idx] = sycl::max<Float>(cur_max, 0);
-#endif
                 cur_sum2_cent += Float(row_count - cur_row_count) * mean_val * mean_val;
             }
             result_data_ptr[stat::sum2_cent * column_count + col_idx] = cur_sum2_cent;
@@ -378,7 +371,24 @@ result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
     if (distr_mode) {
         second_merge_event = finalize_for_distr(queue, comm, result_data, input, { merge_event });
     }
-    return get_result(queue, result_data, result_options, { second_merge_event });
+    // The first- and second-order kernels read `csr_data` / `column_indices` and are only
+    // enqueued here, so those arrays go back to the caller rather than dying with this
+    // frame -- see `csr_stats`.
+    return { std::move(result_data),
+             second_merge_event,
+             std::move(csr_data),
+             std::move(column_indices),
+             std::move(row_offsets) };
+}
+
+template <typename Float>
+result_t compute_kernel_csr_impl<Float>::operator()(const bk::context_gpu& ctx,
+                                                    const descriptor_t& desc,
+                                                    const input_t& input) {
+    auto queue = ctx.get_queue();
+    // `computed` stays alive across `get_result`, which is what awaits the kernels.
+    const auto computed = compute_stats(ctx, input);
+    return get_result(queue, computed.stats, desc.get_result_options(), { computed.event });
 }
 
 template class compute_kernel_csr_impl<float>;

@@ -44,30 +44,6 @@ namespace interface3
  * @ingroup kdtree_knn_classification_training
  * @{
  */
-
-/**
- * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__BATCHCONTAINER"></a>
- * \brief Class containing methods for KD-tree based kNN model-based training using algorithmFPType precision arithmetic
- */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class BatchContainer : public TrainingContainerIface<batch>
-{
-public:
-    /**
-     * Constructs a container for KD-tree based kNN model-based training with a specified environment in the batch processing mode
-     * \param[in] daalEnv   Environment object
-     */
-    BatchContainer(daal::services::Environment::env * daalEnv);
-
-    /** Default destructor */
-    ~BatchContainer();
-
-    /**
-     * Computes the result of KD-tree based kNN model-based training in the batch processing mode
-     */
-    services::Status compute() DAAL_C11_OVERRIDE;
-};
-
 /**
  * <a name="DAAL-CLASS-ALGORITHMS__KDTREE_KNN_CLASSIFICATION__TRAINING__BATCH"></a>
  * \brief Provides methods for KD-tree based kNN model-based training in the batch processing mode
@@ -96,8 +72,10 @@ public:
     ParameterType parameter; /*!< \ref interface3::Parameter "Parameters" of the algorithm */
     InputType input;         /*!< %Input objects of the algorithm */
 
-    /** Default constructor */
-    Batch() { initialize(); }
+    /**
+     * Default constructor
+     */
+    Batch();
 
     /**
      * Constructs a KD-tree based kNN training algorithm by copying input objects
@@ -105,32 +83,25 @@ public:
      * \param[in] other Algorithm to use as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : classifier::training::Batch(other), parameter(other.parameter), input(other.input)
-    {
-        initialize();
-    }
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /**
      * Constructs a KD-tree based kNN training algorithm with nClasses parameter
      * \param[in] nClasses   number of classes
-    */
-    Batch(size_t nClasses)
-    {
-        parameter.nClasses = nClasses;
-        initialize();
-    }
+     */
+    Batch(size_t nClasses);
 
     /**
      * Get input objects for KD-tree based kNN model-based training algorithm
      * \return %Input objects for KD-tree based kNN model-based training algorithm
      */
-    InputType * getInput() DAAL_C11_OVERRIDE { return &input; }
+    InputType * getInput() override { return &input; }
 
     /**
      * Returns the method of the algorithm
      * \return Method of the algorithm
      */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    int getMethod() const override { return (int)method; }
 
     /**
      * Returns the structure that contains the result of KD-tree based kNN model-based training
@@ -141,7 +112,7 @@ public:
     /**
      * Resets the results of KD-tree based kNN model training algorithm
      */
-    services::Status resetResult() DAAL_C11_OVERRIDE
+    services::Status resetResult() override
     {
         _result.reset(new ResultType());
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -158,9 +129,9 @@ public:
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+    Batch<algorithmFPType, method> * cloneImpl() const override { return new Batch<algorithmFPType, method>(*this); }
 
-    services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         const ResultPtr res = getResult();
         DAAL_CHECK(_result, services::ErrorNullResult);
@@ -169,13 +140,7 @@ protected:
         return s;
     }
 
-    void initialize()
-    {
-        _ac  = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in  = &input;
-        _par = &parameter;
-        _result.reset(new ResultType());
-    }
+    void initialize();
 
 private:
     Batch & operator=(const Batch &);
@@ -184,7 +149,6 @@ private:
 /** @} */
 } // namespace interface3
 
-using interface3::BatchContainer;
 using interface3::Batch;
 
 } // namespace training

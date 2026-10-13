@@ -24,7 +24,7 @@
 #include "oneapi/dal/backend/memory.hpp"
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/table/homogen.hpp"
-#include "oneapi/dal/backend/primitives/rng/rng_engine.hpp"
+#include "oneapi/dal/backend/primitives/rng/host_engine.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
 namespace oneapi::dal::preview::connected_components::backend {
@@ -90,13 +90,16 @@ std::int32_t most_frequent_element(const std::atomic<std::int32_t> *components,
                                    const std::int64_t &samples_count = 1024) {
     std::int32_t *rnd_vertex_ids = allocate(vertex_allocator, samples_count);
 
-    dal::backend::primitives::engine eng;
-    dal::backend::primitives::rng<std::int32_t> rn_gen;
-    rn_gen.uniform(samples_count, rnd_vertex_ids, eng.get_state(), 0, vertex_count);
+    dal::backend::primitives::host_engine eng;
+    dal::backend::primitives::uniform<std::int32_t>(samples_count,
+                                                    rnd_vertex_ids,
+                                                    eng,
+                                                    0,
+                                                    vertex_count);
 
     std::int32_t *root_sample_counts = allocate(vertex_allocator, vertex_count);
 
-    dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+    dal::detail::threader_for(vertex_count, 1, [&](std::int64_t u) {
         root_sample_counts[u] = 0;
     });
 
@@ -140,20 +143,20 @@ struct afforest {
             destroy_delete<atomic_type, atomic_value_allocator_type>(vertex_count,
                                                                      atomic_value_allocator));
 
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+        dal::detail::threader_for(vertex_count, 1, [&](std::int32_t u) {
             new (components + u) atomic_type(u);
         });
 
         const std::int32_t neighbors_round = 2;
 
         for (std::int32_t i = 0; i < neighbors_round; ++i) {
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+            dal::detail::threader_for(vertex_count, 1, [&](std::int32_t u) {
                 if (i < t.get_vertex_degree(u)) {
                     link<Cpu>(u, t.get_vertex_neighbors_begin(u)[i], components);
                 }
             });
 
-            dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t v) {
+            dal::detail::threader_for(vertex_count, 1, [&](std::int32_t v) {
                 compress<Cpu>(v, components);
             });
         }
@@ -161,7 +164,7 @@ struct afforest {
         const std::int32_t sample_comp =
             most_frequent_element<Cpu>(components, vertex_count, vertex_allocator);
 
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t u) {
+        dal::detail::threader_for(vertex_count, 1, [&](std::int32_t u) {
             if (components[u] != sample_comp) {
                 if (t.get_vertex_degree(u) >= neighbors_round) {
                     for (auto v = t.get_vertex_neighbors_begin(u) + neighbors_round;
@@ -173,7 +176,7 @@ struct afforest {
             }
         });
 
-        dal::detail::threader_for(vertex_count, vertex_count, [&](std::int32_t v) {
+        dal::detail::threader_for(vertex_count, 1, [&](std::int32_t v) {
             compress<Cpu>(v, components);
         });
 

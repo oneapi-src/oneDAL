@@ -51,7 +51,18 @@ public:
     /// @param dtypes The data types of the features. Assigned into the :literal:`data_type` property.
     /// @param ftypes The feature types. Assigned into the :literal:`feature_type` property.
     /// @pre :expr:`dtypes.get_count() == ftypes.get_count()`
-    table_metadata(const dal::array<data_type>& dtypes, const dal::array<feature_type>& ftypes);
+    [[deprecated]] table_metadata(const dal::array<data_type>& dtypes,
+                                  const dal::array<feature_type>& ftypes);
+
+    /// Creates the metadata instance from external information about the data types and the
+    /// feature types.
+    /// @param dtypes The data types of the features. Assigned into the :literal:`data_type` property.
+    /// @param ftypes The feature types. Assigned into the :literal:`feature_type` property.
+    /// @param kind The allocation kind for the table data.
+    /// @pre :expr:`dtypes.get_count() == ftypes.get_count()`
+    table_metadata(const dal::array<data_type>& dtypes,
+                   const dal::array<feature_type>& ftypes,
+                   const alloc_kind kind);
 
     /// The number of features that metadata contains information about
     /// @invariant :literal:`feature_count >= 0`
@@ -68,6 +79,9 @@ public:
 
     /// Get feature types in bulk
     const dal::array<feature_type>& get_feature_types() const;
+
+    /// Returns the kind of memory allocation for the table's data.
+    alloc_kind get_alloc_kind() const;
 
 private:
     void serialize(detail::output_archive& ar) const;
@@ -96,6 +110,10 @@ public:
     /// Swaps the implementation of this object and another one.
     table& operator=(table&&);
 
+    /// Destroys the table instance and releases the associated implementation.
+    /// TODO: Enable ~table in next major release
+    //virtual ~table() = default;
+
     /// Indicates whether a table contains non-zero number of rows and columns.
     bool has_data() const noexcept;
 
@@ -120,6 +138,13 @@ public:
     /// The layout of the data within the table
     /// @remark default = :expr:`data_layout::unknown`
     data_layout get_data_layout() const;
+
+#ifdef ONEDAL_DATA_PARALLEL
+    /// Returns the SYCL queue the table data is associated with.
+    /// If the table data is not associated with a queue,
+    /// returns an empty :literal:`std::optional` object.
+    std::optional<sycl::queue> get_queue() const;
+#endif
 
 protected:
     explicit table(detail::table_iface* impl) : impl_(impl) {}

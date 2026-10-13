@@ -25,7 +25,7 @@ namespace detail::v1 {
 template <typename Task>
 class train_input_impl : public base {
 public:
-    train_input_impl() : data(table()){};
+    train_input_impl() : data(table()) {};
     train_input_impl(const table& data, const table& responses = table{})
             : data(data),
               responses(responses) {}
@@ -56,6 +56,9 @@ template <typename Task>
 struct train_parameters_impl : public base {
     std::int64_t cpu_macro_block = 8'192l;
     std::int64_t gpu_macro_block = 16'384l;
+    std::int64_t cpu_max_cols_batched = 4'096l;
+    std::int64_t cpu_small_rows_threshold = 10'000l;
+    std::int64_t cpu_small_rows_max_cols_batched = 1'024l;
 };
 
 template <typename Task>
@@ -81,6 +84,36 @@ void train_parameters<Task>::set_gpu_macro_block_impl(std::int64_t val) {
     impl_->gpu_macro_block = val;
 }
 
+template <typename Task>
+std::int64_t train_parameters<Task>::get_cpu_max_cols_batched() const {
+    return impl_->cpu_max_cols_batched;
+}
+
+template <typename Task>
+void train_parameters<Task>::set_cpu_max_cols_batched_impl(std::int64_t val) {
+    impl_->cpu_max_cols_batched = val;
+}
+
+template <typename Task>
+std::int64_t train_parameters<Task>::get_cpu_small_rows_threshold() const {
+    return impl_->cpu_small_rows_threshold;
+}
+
+template <typename Task>
+void train_parameters<Task>::set_cpu_small_rows_threshold_impl(std::int64_t val) {
+    impl_->cpu_small_rows_threshold = val;
+}
+
+template <typename Task>
+std::int64_t train_parameters<Task>::get_cpu_small_rows_max_cols_batched() const {
+    return impl_->cpu_small_rows_max_cols_batched;
+}
+
+template <typename Task>
+void train_parameters<Task>::set_cpu_small_rows_max_cols_batched_impl(std::int64_t val) {
+    impl_->cpu_small_rows_max_cols_batched = val;
+}
+
 template class ONEDAL_EXPORT train_parameters<task::regression>;
 
 } // namespace detail::v1
@@ -103,6 +136,32 @@ template <typename Task>
 train_input<Task>::train_input(const table& data) : impl_(new train_input_impl<Task>(data)) {}
 
 template <typename Task>
+train_input<Task>::~train_input() {}
+
+template <typename Task>
+train_input<Task>::train_input(const train_input& other) : impl_(other.impl_) {}
+
+template <typename Task>
+train_input<Task>::train_input(train_input&& other) noexcept : impl_(std::move(other.impl_)) {}
+
+template <typename Task>
+train_input<Task>& train_input<Task>::operator=(const train_input& other) {
+    if (this != &other) {
+        train_input<Task> tmp(other);
+        swap(*this, tmp);
+    }
+    return *this;
+}
+
+template <typename Task>
+train_input<Task>& train_input<Task>::operator=(train_input&& other) noexcept {
+    if (this != &other) {
+        swap(*this, other);
+    }
+    return *this;
+}
+
+template <typename Task>
 const table& train_input<Task>::get_data() const {
     return impl_->data;
 }
@@ -120,6 +179,11 @@ void train_input<Task>::set_data_impl(const table& value) {
 template <typename Task>
 void train_input<Task>::set_responses_impl(const table& value) {
     impl_->responses = value;
+}
+
+template <typename Task>
+void train_input<Task>::swap(train_input<Task>& a, train_input<Task>& b) noexcept {
+    std::swap(a.impl_, b.impl_);
 }
 
 template <typename Task>
@@ -250,10 +314,48 @@ void partial_train_result<Task>::set_partial_xty_impl(const table& value) {
     impl_->xty = value;
 }
 
+template <typename Task>
+partial_train_input<Task>::~partial_train_input() {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(const partial_train_input& other)
+        : train_input<Task>(other),
+          prev_(other.prev_) {}
+
+template <typename Task>
+partial_train_input<Task>::partial_train_input(partial_train_input&& other) noexcept
+        : train_input<Task>(std::move(other)),
+          prev_(std::move(other.prev_)) {}
+
+template <typename Task>
+partial_train_input<Task>& partial_train_input<Task>::operator=(const partial_train_input& other) {
+    if (this != &other) {
+        partial_train_input<Task> tmp(other);
+        swap(*this, tmp);
+    }
+    return *this;
+}
+
+template <typename Task>
+partial_train_input<Task>& partial_train_input<Task>::operator=(
+    partial_train_input&& other) noexcept {
+    if (this != &other) {
+        swap(*this, other);
+    }
+    return *this;
+}
+
+template <typename Task>
+void partial_train_input<Task>::swap(partial_train_input<Task>& a,
+                                     partial_train_input<Task>& b) noexcept {
+    train_input<Task>::swap(a, b);
+    std::swap(a.prev_, b.prev_);
+}
+
 template class ONEDAL_EXPORT train_result<task::regression>;
 template class ONEDAL_EXPORT train_input<task::regression>;
-template class ONEDAL_EXPORT partial_train_input<task::regression>;
 template class ONEDAL_EXPORT partial_train_result<task::regression>;
+template class ONEDAL_EXPORT partial_train_input<task::regression>;
 
 } // namespace v1
 } // namespace oneapi::dal::linear_regression

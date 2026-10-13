@@ -71,7 +71,7 @@ enum Method
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -98,10 +98,17 @@ struct DAAL_EXPORT Parameter : public sum_of_functions::Parameter
               const DAAL_UINT64 resultsToCompute = objective_function::gradient);
 
     /**
-     * Constructs an Parameter by copying input objects and parameters of another Parameter
-     * \param[in] other An object to be used as the source to initialize object
+     * Constructs a Parameter by copying input objects and parameters of another Parameter
+     * \param[in] other An object to be used as the source object to initialize from
      */
     Parameter(const Parameter & other);
+
+    /**
+     * Assigns a Parameter by copying input objects and parameters of another Parameter
+     * \param[in] other An object to be used as the source object to copy from
+     */
+    Parameter & operator=(const Parameter & other);
+
     /**
      * Checks the correctness of the parameter
      *
@@ -130,6 +137,9 @@ public:
     /** Copy constructor */
     Input(const Input & other);
 
+    /** Assignment operator */
+    Input & operator=(const Input & other);
+
     /** Destructor */
     virtual ~Input() {}
 
@@ -154,7 +164,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 /* [Parameter source code] */
 } // namespace interface2

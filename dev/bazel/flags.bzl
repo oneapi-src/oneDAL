@@ -19,17 +19,22 @@ lnx_cc_common_flags = [
     "-fstack-protector-strong",
     "-fno-delete-null-pointer-checks",
     "-Werror",
+    "-Wno-empty-body",
     "-Wformat",
     "-Wformat-security",
     "-Wreturn-type",
+    # TODO: This option was added to suppress deprecation warnings.
+    #       To be removed in oneDAL 2026.0.
+    "-Wno-deprecated-declarations",
 ]
 
 lnx_cc_pedantic_flags = [
-    "-pedantic",
     "-Wall",
     "-Wextra",
+    "-pedantic",
     "-Wno-unused-parameter",
     "-Wno-unused-but-set-parameter",
+    "-Wno-c2y-extensions",
 ]
 
 lnx_cc_flags = {
@@ -37,57 +42,186 @@ lnx_cc_flags = {
     "pedantic": lnx_cc_pedantic_flags,
 }
 
+# icx/icpx on Windows run in their native clang-cl driver mode, so flags
+# use MSVC-style spellings. Mirrors dev/make/compiler_definitions/{icx,dpcpp}.mkl.32e.mk
+# (COMPILER.win.icx / COMPILER.win.dpcpp).
+# NOTE: `-Qopenmp-simd` is deliberately absent here. icx rejects it together
+# with the debug CRT (`-Wdebug-option-simd`, fatal under `-WX`), so the flag
+# depends on the MSVC runtime and cannot be a repository-time constant. The
+# `runtime_library` feature in cc_toolchain_config_win.bzl adds it for
+# release-CRT builds only, matching `COMPILER.win.icx` in
+# dev/make/compiler_definitions/icx.mkl.32e.mk:77, which passes
+# `-MD -Qopenmp-simd` for the release runtime and a bare `-MDd` otherwise.
+win_icx_common_flags = [
+    "-nologo",
+    "-WX",
+    # C++ exception handling. The Makefile passes `-EHsc` for every oneAPI
+    # object on Windows (makefile:152, used at makefile:692/704/717); without
+    # it clang-cl defaults to exceptions disabled and any `throw` in
+    # cpp/oneapi/dal/detail/common.hpp is a hard error. This used to be
+    # supplied implicitly as a side effect of `-Qopenmp-simd` (which turns on
+    # -fexceptions in clang), so it only surfaced once that flag became
+    # release-runtime-only. Pass it explicitly instead of relying on that.
+    "-EHsc",
+    # `-Zl.icx` / `-Zl.dpcpp` disable every Intel-specific runtime library on
+    # Windows too, so the released `.lib` files never reference `__svml_*`.
+    # (`-Zl` itself, the other half of the makefile's variable, is deliberately
+    # not mirrored: it strips the CRT default-library directives that this
+    # toolchain's DLL links still rely on.)
+    "-Qno-intel-lib",
+    "-Wno-deprecated-declarations",
+    "-Wno-ignored-attributes",
+    "-Wno-empty-body",
+    # Silence icx's "loop not vectorized" pass-failed diagnostic so it does
+    # not combine with `-WX`. Matches `-Wno-pass-failed` from `-DEBC.icx`.
+    "-Wno-pass-failed",
+    # icx 2026 is stricter about [[nodiscard]] than older toolchains;
+    # suppress to avoid failing third-party headers (fmt, Catch2) that
+    # ignore nodiscard-returning functions called for side effects.
+    "-Wno-unused-result",
+    "-Wno-unused-variable",
+]
+
+# Matches `pedantic.opts.win.icx` / `pedantic.opts.win.dpcpp` in the Makefile.
+win_icx_pedantic_flags = [
+    "-Wall",
+    "-Wextra",
+    "-Wwritable-strings",
+    "-Wno-unused-parameter",
+]
+
+win_icx_flags = {
+    "common": win_icx_common_flags,
+    "pedantic": win_icx_pedantic_flags,
+}
+
 def get_default_flags(arch_id, os_id, compiler_id, category = "common"):
     _check_flag_category(category)
     if os_id == "lnx":
         flags = lnx_cc_flags[category]
-        if compiler_id == "icc" and category == "common":
-            flags = flags + [
-                "-qopenmp-simd",
-                "-mGLOB_freestanding=TRUE",
-                "-mCG_no_libirc=TRUE",
-            ]
         if compiler_id == "icx" and category == "common":
             flags = flags + [
                 "-qopenmp-simd",
-                "-no-intel-lib=libirc",
+                # Disable *all* Intel-specific runtime libraries, not just
+                # libirc. This mirrors `-Zl.icx` in
+                # dev/make/compiler_definitions/icx.mkl.32e.mk, which the
+                # makefile applies to every object (makefile:528,537,692,877).
+                #
+                # It has to be the bare form: with SVML left enabled icx
+                # vectorises integer division/remainder (for example
+                # `wsIndex % nVectors` in
+                # cpp/daal/src/algorithms/svm/svm_train_thunder_impl.i) into
+                # `__svml_u64rem4_*` calls. The shared libraries hide that
+                # because the toolchain links them with `-static-intel`, but
+                # the released static archives keep the references and any
+                # consumer that links `libonedal_core.a` with gcc/g++ fails
+                # with `undefined reference to __svml_u64rem4_l9`.
+                "-no-intel-lib",
                 "-no-canonical-prefixes",
             ]
         if compiler_id == "icpx":
-            flags = flags + ["-fsycl"] + ["-fno-canonical-system-headers"]+["-no-canonical-prefixes"]
+            flags = flags + [
+                # `-Zl.dpcpp` in dev/make/compiler_definitions/dpcpp.mk:70.
+                "-no-intel-lib",
+                "-fsycl",
+                "-fno-canonical-system-headers",
+                "-no-canonical-prefixes",
+                "-Wno-gnu-zero-variadic-macro-arguments",
+            ]
         if compiler_id == "icpx" and category == "pedantic":
             # TODO: Consider removing
             flags = flags + ["-Wno-unused-command-line-argument"]
-        if compiler_id == "gcc" or compiler_id == "icpx":
-            flags = flags + ["-Wno-gnu-zero-variadic-macro-arguments"]
-        if compiler_id not in ["icx", "icpx"]:
+        if compiler_id == "gcc":
+            flags = flags + [
+                "-Wno-gnu-zero-variadic-macro-arguments",
+                "-fopenmp-simd",
+            ]
+        if compiler_id == "clang":
+            flags = flags + [
+                # Upstream clang reports every vectorization pragma it cannot
+                # honor (for example `omp simd reduction(max : ...)`) starting
+                # from `-O1`, and `-Werror` above turns such a report into a
+                # build failure. Matches `warn.opts.clang` in
+                # dev/make/compiler_definitions/clang.mk. Intentionally not
+                # applied to icx/icpx: those honor the pragmas, so a
+                # `pass-failed` report there is a real problem worth failing on.
+                "-Wno-pass-failed",
+            ]
+        if compiler_id == "gcc":
+            # Matches COMPILER.all.gnu in dev/make/compiler_definitions/gnu.32e.mk,
+            # which pairs it with `-fwrapv`. Clang treats it as implied by
+            # `-fwrapv` above and reports it unused, which `-Werror` makes fatal.
             flags = flags + ["-fno-strict-overflow"]
+        if arch_id in ["arm", "riscv64"]:
+            # ARM/RISC-V ship a single fixed ISA variant (see cpu_type.h),
+            # unlike x86's runtime-dispatched sse2/avx2/avx512 objects, so
+            # `-march` applies to every compile action, not only the
+            # `_cpu`-suffixed ones that go through get_cpu_flags(). Mirrors
+            # COMPILER.all.gnu in dev/make/compiler_definitions/gnu.ref.arm.mk
+            # and COMPILER.lnx.clang in clang.ref.arm.mk. Make has no
+            # gnu.ref.riscv64.mk (RISC-V is clang-only there) and
+            # clang.ref.riscv64.mk carries `-march` only in rv64_OPT.clang, so
+            # for that combination this is Bazel-only coverage, not Make parity.
+            flags = flags + _get_single_variant_march_flags(arch_id)
+            if arch_id == "arm" and compiler_id == "gcc" and category == "common":
+                flags = flags + ["-ftree-vectorize"]
         return flags
+    if os_id == "win":
+        if compiler_id in ["icx", "icpx"]:
+            flags = win_icx_flags[category]
+            if compiler_id == "icpx" and category == "common":
+                flags = flags + ["-fsycl"]
+            return flags
+        # cl / other fall through to empty; cl path uses the rules_cc
+        # MSVC auto-config and does not consume these flags.
+        return []
     fail("Unsupported OS")
 
+_SINGLE_VARIANT_MARCH_FLAGS = {
+    # Matches a8sve_OPT.gnu in dev/make/compiler_definitions/gnu.ref.arm.mk and
+    # a8sve_OPT.clang in clang.ref.arm.mk.
+    "arm": ["-march=armv8-a+sve"],
+    # Matches rv64_OPT.clang in dev/make/compiler_definitions/clang.ref.riscv64.mk
+    # (Make has no gnu.ref.riscv64.mk; RISC-V is clang-only there).
+    "riscv64": ["-march=rv64gc_v1p0_zvl128b"],
+}
+
+_SINGLE_VARIANT_ISA_ID = {
+    "arm": "sve",
+    "riscv64": "rv64",
+}
+
+def _get_single_variant_march_flags(arch_id):
+    return _SINGLE_VARIANT_MARCH_FLAGS[arch_id]
+
 def get_cpu_flags(arch_id, os_id, compiler_id):
+    if arch_id in ["arm", "riscv64"]:
+        # ARM/RISC-V ship a single fixed ISA variant, no runtime dispatch.
+        # `-march` is already applied to every compile action via
+        # get_default_flags(); re-stating it here (idempotent) is only to
+        # give this feature's flag_group a non-empty flag list, which
+        # cc_toolchain_config_lnx.bzl's flag_group() requires.
+        return {
+            _SINGLE_VARIANT_ISA_ID[arch_id]: _get_single_variant_march_flags(arch_id),
+        }
     sse2 = []
-    sse42 = []
     avx2 = []
     avx512 = []
     if compiler_id == "gcc":
         sse2 = ["-march=nocona"]
-        sse42 = ["-march=corei7"]
         avx2 = ["-march=haswell"]
-        avx512 = ["-march=haswell"]
-    elif compiler_id == "icc":
-        sse2 = ["-xSSE2"]
-        sse42 = ["-xSSE4.2"]
-        avx2 = ["-xCORE-AVX2"]
-        avx512 = ["-xCORE-AVX512", "-qopt-zmm-usage=high"]
-    elif compiler_id in ["icx", "icpx"]:
+        avx512 = ["-march=skylake-avx512"]
+    elif compiler_id == "clang":
         sse2 = ["-march=nocona"]
-        sse42 = ["-march=nehalem"]
+        avx2 = ["-march=haswell"]
+        avx512 = ["-march=skylake-avx512"]
+    elif compiler_id in ["icx", "icpx"]:
+        # icx on Windows accepts -march like its Linux counterpart.
+        sse2 = ["-march=nocona"]
         avx2 = ["-march=haswell"]
         avx512 = ["-march=skx"]
     return {
         "sse2": sse2,
-        "sse42": sse42,
         "avx2": avx2,
         "avx512": avx512,
     }

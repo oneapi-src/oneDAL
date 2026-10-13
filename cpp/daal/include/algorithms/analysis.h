@@ -57,6 +57,10 @@ class AnalysisContainerIface : public AlgorithmContainerImpl<mode>
 {
 public:
     AnalysisContainerIface(daal::services::Environment::env * daalEnv = 0) : AlgorithmContainerImpl<mode>(daalEnv) {}
+
+    AnalysisContainerIface(const AnalysisContainerIface &)                               = delete;
+    AnalysisContainerIface<mode> & operator=(const AnalysisContainerIface<mode> & other) = delete;
+    ~AnalysisContainerIface() override                                                   = default;
 };
 
 /**

@@ -73,7 +73,7 @@ enum VoteWeights
 };
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -141,10 +141,11 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::classifier::Parameter
         return *this;
     }
 
+    virtual ~Parameter() {}
     /**
      * Checks a parameter of the BF kNN algorithm
      */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 
     size_t k;                      /*!< Number of neighbors */
     DataUseInModel dataUseInModel; /*!< The option to enable/disable an usage of the input dataset in kNN model */
@@ -175,7 +176,7 @@ public:
      */
     Model(size_t nFeatures = 0);
 
-    virtual ~Model() DAAL_C11_OVERRIDE;
+    ~Model() override;
 
     class ModelImpl;
 
@@ -195,14 +196,14 @@ public:
      *  Retrieves the number of features in the dataset was used on the training stage
      *  \return Number of features in the dataset was used on the training stage
      */
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfFeatures() const override;
 
 protected:
     Model(size_t nFeatures, services::Status & st);
 
-    services::Status serializeImpl(data_management::InputDataArchive * arch) DAAL_C11_OVERRIDE;
+    services::Status serializeImpl(data_management::InputDataArchive * arch) override;
 
-    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) DAAL_C11_OVERRIDE;
+    services::Status deserializeImpl(const data_management::OutputDataArchive * arch) override;
 
 private:
     ModelImpl * _impl; /*!< Model implementation */

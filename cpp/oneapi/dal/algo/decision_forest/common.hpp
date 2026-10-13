@@ -23,6 +23,8 @@
 #include "oneapi/dal/detail/serialization.hpp"
 #include "oneapi/dal/detail/threading.hpp"
 
+#include "oneapi/dal/rng.hpp"
+
 namespace oneapi::dal::decision_forest {
 
 namespace task {
@@ -230,6 +232,7 @@ public:
     std::int64_t get_min_bin_size() const;
     bool get_memory_saving_mode() const;
     bool get_bootstrap() const;
+    bool get_local_trees_mode() const;
     splitter_mode get_splitter_mode() const;
     error_metric_mode get_error_metric_mode() const;
     variable_importance_mode get_variable_importance_mode() const;
@@ -249,6 +252,7 @@ public:
         return get_voting_mode_impl();
     }
 
+    engine_type get_engine_type() const;
     std::int64_t get_seed() const;
 
 protected:
@@ -268,6 +272,7 @@ protected:
     void set_bootstrap_impl(bool value);
     void set_splitter_mode_impl(splitter_mode value);
     void set_error_metric_mode_impl(error_metric_mode value);
+    void set_local_trees_mode_impl(bool value);
     void set_variable_importance_mode_impl(variable_importance_mode value);
     void set_class_count_impl(std::int64_t value);
     void set_infer_mode_impl(infer_mode value);
@@ -277,6 +282,7 @@ protected:
     infer_mode get_infer_mode_impl() const;
     voting_mode get_voting_mode_impl() const;
 
+    void set_engine_type_impl(engine_type value);
     void set_seed_impl(std::int64_t value);
 
 private:
@@ -349,7 +355,6 @@ public:
 
     /// The fraction of observations per tree
     /// @invariant :expr:`observations_per_tree_fraction > 0.0`
-    /// @invariant :expr:`observations_per_tree_fraction <= 1.0`
     /// @remark default = 1.0
     double get_observations_per_tree_fraction() const {
         return base_t::get_observations_per_tree_fraction();
@@ -510,6 +515,19 @@ public:
         return *this;
     }
 
+    /// Enables distributed local tree building on each GPU independently.
+    /// When enabled, each GPU constructs its own set of decision trees without synchronization or data exchange.
+    /// This feature is experimental and primarily designed to improve scalability on multi-GPU systems.
+    /// @remark default = false
+    bool get_local_trees_mode() const {
+        return base_t::get_local_trees_mode();
+    }
+
+    auto& set_local_trees_mode(bool value) {
+        base_t::set_local_trees_mode_impl(value);
+        return *this;
+    }
+
     /// The bootstrap mode, if true, the training set for a tree
     /// is a bootstrap of the whole training set, if False, the whole
     /// dataset is used to build each tree.
@@ -594,6 +612,17 @@ public:
         return *this;
     }
 
+    /// Engine method for the random numbers generator used by the algorithm
+    /// @remark default = engine_method::philox4x32x10
+    engine_type get_engine_type() const {
+        return base_t::get_engine_type();
+    }
+
+    auto& set_engine_type(engine_type value) {
+        base_t::set_engine_type_impl(value);
+        return *this;
+    }
+
     /// Seed for the random numbers generator used by the algorithm
     /// @invariant :expr:`tree_count > 0`
     std::int64_t get_seed() const {
@@ -654,14 +683,11 @@ public:
     ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
     template <typename T, typename Visitor>
     void traverse_depth_first(T&& visitor_array) const {
-        dal::detail::threader_for(this->get_tree_count(),
-                                  this->get_tree_count(),
-                                  [&](std::int64_t i) {
-                                      traverse_depth_first_impl(
-                                          i,
-                                          decision_tree::detail::make_node_visitor<dtree_task_t>(
-                                              std::forward<Visitor>(visitor_array[i])));
-                                  });
+        dal::detail::threader_for(this->get_tree_count(), 1, [&](std::int64_t i) {
+            traverse_depth_first_impl(i,
+                                      decision_tree::detail::make_node_visitor<dtree_task_t>(
+                                          std::forward<Visitor>(visitor_array[i])));
+        });
     }
 
     /// Performs Breadth First Traversal of i-th tree
@@ -683,14 +709,11 @@ public:
     ///                             bool operator()(const decision_forest::leaf_node_info<Task>&)
     template <typename T, typename Visitor>
     void traverse_breadth_first(T&& visitor_array) const {
-        dal::detail::threader_for(this->get_tree_count(),
-                                  this->get_tree_count(),
-                                  [&](std::int64_t i) {
-                                      traverse_breadth_first_impl(
-                                          i,
-                                          decision_tree::detail::make_node_visitor<dtree_task_t>(
-                                              std::forward<Visitor>(visitor_array[i])));
-                                  });
+        dal::detail::threader_for(this->get_tree_count(), 1, [&](std::int64_t i) {
+            traverse_breadth_first_impl(i,
+                                        decision_tree::detail::make_node_visitor<dtree_task_t>(
+                                            std::forward<Visitor>(visitor_array[i])));
+        });
     }
 
 protected:

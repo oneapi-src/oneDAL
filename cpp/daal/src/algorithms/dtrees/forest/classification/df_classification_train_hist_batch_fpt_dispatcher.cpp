@@ -28,8 +28,8 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER_SAFE(decision_forest::classification::training::BatchContainer, batch, DAAL_FPTYPE,
-                                           decision_forest::classification::training::hist)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(decision_forest::classification::training::internal::BatchContainer, batch, DAAL_FPTYPE,
+                                      decision_forest::classification::training::hist)
 namespace decision_forest
 {
 namespace classification
@@ -41,7 +41,14 @@ namespace interface3
 using BatchType = Batch<DAAL_FPTYPE, decision_forest::classification::training::hist>;
 
 template <>
-BatchType::Batch(size_t nClasses)
+void Batch<DAAL_FPTYPE, decision_forest::classification::training::hist>::initialize()
+{
+    _ac = new __DAAL_ALGORITHM_CONTAINER(batch, internal::BatchContainer, DAAL_FPTYPE, decision_forest::classification::training::hist)(&_env);
+    _in = &input;
+    _result.reset(new ResultType());
+}
+template <>
+DAAL_EXPORT BatchType::Batch(size_t nClasses)
 {
     _par = new ParameterType(nClasses);
     initialize();
@@ -49,7 +56,7 @@ BatchType::Batch(size_t nClasses)
 }
 
 template <>
-BatchType::Batch(const BatchType & other) : classifier::training::Batch(other), input(other.input)
+DAAL_EXPORT BatchType::Batch(const BatchType & other) : classifier::training::Batch(other), input(other.input)
 {
     _par = new ParameterType(other.parameter());
     initialize();

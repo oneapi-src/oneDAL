@@ -57,17 +57,17 @@ class UnorderedRespHelperBest : public DataHelper<algorithmFPType, ClassIndexTyp
 {
 public:
     typedef DataHelper<algorithmFPType, ClassIndexType, cpu> super;
-    typedef typename dtrees::internal::TVector<float, cpu, dtrees::internal::ScalableAllocator<cpu> >
-        Histogramm; //not sure why this is hard-coded to float and not algorithmFPType
 
     struct ImpurityData
     {
-        double var; //impurity is a variance
+        typedef double intermSummFPType;
+        typedef typename dtrees::internal::TVector<intermSummFPType, cpu, dtrees::internal::ScalableAllocator<cpu> > Histogramm;
+        intermSummFPType var; //impurity is a variance
         Histogramm hist;
 
         ImpurityData() {}
         ImpurityData(size_t nClasses) : hist(nClasses), var(0) {}
-        algorithmFPType value() const { return var; }
+        intermSummFPType value() const { return var; }
         void init(size_t nClasses)
         {
             var = 0;
@@ -75,48 +75,58 @@ public:
         }
     };
 
+    using intermSummFPType = typename ImpurityData::intermSummFPType;
+    using Histogramm       = typename ImpurityData::Histogramm;
     typedef SplitData<algorithmFPType, ImpurityData> TSplitData;
 
 public:
-    UnorderedRespHelperBest(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses)
+    UnorderedRespHelperBest(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses,
+                            const classification::training::internal::Hyperparameter * hp = nullptr)
         : super(indexedFeatures), _nClasses(nClasses), _histLeft(nClasses), _impLeft(nClasses), _impRight(nClasses)
-    {}
+    {
+        DAAL_INT64 nClassesThreshold = classification::training::internal::MAX_SMALL_N_CLASSES;
+        if (hp != nullptr)
+        {
+            hp->find(classification::training::internal::smallNClassesThreshold, nClassesThreshold);
+        }
+        _nClassesThreshold = nClassesThreshold;
+    }
 
     int findSplitByHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
-                               const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const IndexType iFeature) const;
+                               const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights, const IndexType iFeature) const;
 
     template <int K, bool noWeights>
     int findSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
-                            const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const IndexType iFeature) const;
+                            const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights, const IndexType iFeature) const;
 
     template <bool noWeights>
     bool findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                 const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights) const;
 
     bool findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                     const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights) const;
 
 protected: //enables specific functions for UnorderedRespHelperBest
     // Calculate impurity for right child
-    static void updateRightImpurity(ImpurityData & imp, ClassIndexType iClass, double totalWeights, double moveWeights)
+    static void updateRightImpurity(ImpurityData & imp, ClassIndexType iClass, intermSummFPType totalWeights, intermSummFPType moveWeights)
     {
-        double delta = (2. * totalWeights - moveWeights) * imp.var + 2. * (imp.hist[iClass] - totalWeights);
-        imp.var      = isZero<double, cpu>((totalWeights - moveWeights) * (totalWeights - moveWeights)) ?
-                           1. :
-                           (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
+        intermSummFPType delta = (2. * totalWeights - moveWeights) * imp.var + 2. * (imp.hist[iClass] - totalWeights);
+        imp.var                = isZero<intermSummFPType, cpu>((totalWeights - moveWeights) * (totalWeights - moveWeights)) ?
+                                     1. :
+                                     (imp.var + moveWeights * delta / ((totalWeights - moveWeights) * (totalWeights - moveWeights)));
         imp.hist[iClass] -= moveWeights;
     }
 
     // Calculate impurity for left and right childs
-    static void updateImpurity(ImpurityData & left, ImpurityData & right, ClassIndexType iClass, double totalWeights, double startWeights,
-                               double & moveWeights)
+    static void updateImpurity(ImpurityData & left, ImpurityData & right, ClassIndexType iClass, intermSummFPType totalWeights,
+                               intermSummFPType startWeights, intermSummFPType & moveWeights)
     {
-        double tmp = startWeights * (2. * moveWeights + left.var * startWeights) - 2. * moveWeights * left.hist[iClass];
+        intermSummFPType tmp = startWeights * (2. * moveWeights + left.var * startWeights) - 2. * moveWeights * left.hist[iClass];
         // Update impurity for left child
         left.hist[iClass] += moveWeights;
-        left.var = isZero<algorithmFPType, cpu>((startWeights + moveWeights) * (startWeights + moveWeights)) ?
+        left.var = isZero<intermSummFPType, cpu>((startWeights + moveWeights) * (startWeights + moveWeights)) ?
                        1. :
                        (tmp / ((startWeights + moveWeights) * (startWeights + moveWeights)));
         // Update impurity for right child
@@ -124,26 +134,25 @@ protected: //enables specific functions for UnorderedRespHelperBest
         moveWeights = 0.;
     }
 
-    void calcGini(double totalWeights, ImpurityData & imp) const
+    void calcGini(intermSummFPType totalWeights, ImpurityData & imp) const
     {
-        const double sqWeights = totalWeights * totalWeights;
-        const double one       = double(1);
-        const double cDiv      = isZero<double, cpu>(sqWeights) ? one : (one / sqWeights);
-        double var             = one;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < _nClasses; ++i) var -= cDiv * double(imp.hist[i]) * double(imp.hist[i]);
-        imp.var = var;
-        if (!isPositive<double, cpu>(imp.var)) imp.var = 0; //roundoff error
+        const intermSummFPType sqWeights = totalWeights * totalWeights;
+        const intermSummFPType cDiv      = isZero<intermSummFPType, cpu>(sqWeights) ? 1.0 : (1.0 / sqWeights);
+        intermSummFPType sumSq           = 0.0;
+        const auto * impHist             = imp.hist.get();
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : sumSq))
+        for (size_t i = 0; i < _nClasses; ++i) sumSq += impHist[i] * impHist[i];
+        imp.var = 1.0 - cDiv * sumSq;
+        if (!isPositive<intermSummFPType, cpu>(imp.var)) imp.var = 0; //roundoff error
     }
 
 protected:
     const size_t _nClasses;
     //set of buffers for indexed features processing, used in findBestSplitForFeatureIndexed only
-    const size_t _nClassesThreshold = 8;
+    size_t _nClassesThreshold;
     mutable TVector<IndexType, cpu> _idxFeatureBuf;
-    mutable TVector<algorithmFPType, cpu> _weightsFeatureBuf;
-    mutable TVector<float, cpu> _samplesPerClassBuf;
+    mutable TVector<intermSummFPType, cpu> _weightsFeatureBuf;
+    mutable TVector<intermSummFPType, cpu> _samplesPerClassBuf;
     mutable Histogramm _histLeft;
     //work variables used in memory saving mode only
     mutable ImpurityData _impLeft;
@@ -156,62 +165,60 @@ protected:
 template <typename algorithmFPType, CpuType cpu>
 int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitByHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                           const ImpurityData & curImpurity, TSplitData & split,
-                                                                          const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                          const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights,
                                                                           const IndexType iFeature) const
 {
-    auto nFeatIdx         = _idxFeatureBuf.get();
-    auto featWeights      = _weightsFeatureBuf.get();
-    auto nSamplesPerClass = _samplesPerClassBuf.get();
+    auto nFeatIdx                       = _idxFeatureBuf.get();
+    intermSummFPType * featWeights      = _weightsFeatureBuf.get();
+    intermSummFPType * nSamplesPerClass = _samplesPerClassBuf.get();
 
-    algorithmFPType bestImpDecrease =
-        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
+    intermSummFPType bestImpDecrease =
+        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + 1.0 - curImpurity.var);
 
     //init histogram for the left part
     _histLeft.setAll(0);
-    auto histLeft               = _histLeft.get();
-    size_t nLeft                = 0;
-    algorithmFPType leftWeights = 0.;
-    int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
+    auto histLeft                = _histLeft.get();
+    size_t nLeft                 = 0;
+    intermSummFPType leftWeights = 0.;
+    int idxFeatureBestSplit      = -1; //index of best feature value in the array of sorted feature values
     for (size_t i = 0; i < nDiffFeatMax; ++i)
     {
         if (!nFeatIdx[i]) continue;
-        algorithmFPType thisFeatWeights = featWeights[i];
+        intermSummFPType thisFeatWeights = featWeights[i];
 
-        nLeft       = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        nLeft                               = (split.featureUnordered ? nFeatIdx[i] : nLeft + nFeatIdx[i]);
+        leftWeights                         = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        const intermSummFPType rightWeights = totalWeights - leftWeights;
         if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
+            || ((n - nLeft) < nMinSplitPart) || (rightWeights < minWeightLeaf) || rightWeights <= 0)
             break;
 
         if (!split.featureUnordered)
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD
             for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * _nClasses + iClass];
         }
-        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
+        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf || !leftWeights) continue;
 
         if (split.featureUnordered)
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD
             //one against others
             for (size_t iClass = 0; iClass < _nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[i * _nClasses + iClass];
         }
 
-        auto histTotal           = curImpurity.hist.get();
-        algorithmFPType sumLeft  = 0;
-        algorithmFPType sumRight = 0;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        auto histTotal            = curImpurity.hist.get();
+        intermSummFPType sumLeft  = 0;
+        intermSummFPType sumRight = 0;
         //proximal impurity improvement
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : sumLeft, sumRight))
         for (size_t iClass = 0; iClass < _nClasses; ++iClass)
         {
             sumLeft += histLeft[iClass] * histLeft[iClass];
             sumRight += (histTotal[iClass] - histLeft[iClass]) * (histTotal[iClass] - histLeft[iClass]);
         }
 
-        const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
+        const intermSummFPType decrease = sumLeft / leftWeights + sumRight / rightWeights;
         if (decrease > bestImpDecrease)
         {
             split.left.hist     = _histLeft;
@@ -224,7 +231,7 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitByHistDefault(int nD
     }
     if (idxFeatureBestSplit >= 0)
     {
-        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
+        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - 1.0;
         split.totalWeights     = totalWeights;
     }
 
@@ -235,24 +242,24 @@ template <typename algorithmFPType, CpuType cpu>
 template <int K, bool noWeights>
 int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                        const ImpurityData & curImpurity, TSplitData & split,
-                                                                       const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                       const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights,
                                                                        const IndexType iFeature) const
 {
-    auto nSamplesPerClass = _samplesPerClassBuf.get();
-    auto nFeatIdx         = _idxFeatureBuf.get();
+    intermSummFPType * nSamplesPerClass = _samplesPerClassBuf.get();
+    auto nFeatIdx                       = _idxFeatureBuf.get();
 
-    algorithmFPType bestImpDecrease =
-        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
+    intermSummFPType bestImpDecrease =
+        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + 1.0 - curImpurity.var);
 
     //init histogram for the left part
     _histLeft.setAll(0);
-    auto histLeft               = _histLeft.get();
-    size_t nLeft                = 0;
-    algorithmFPType leftWeights = 0.;
-    int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
+    auto histLeft                = _histLeft.get();
+    size_t nLeft                 = 0;
+    intermSummFPType leftWeights = 0.;
+    int idxFeatureBestSplit      = -1; //index of best feature value in the array of sorted feature values
     for (size_t i = 0; i < nDiffFeatMax; ++i)
     {
-        algorithmFPType thisNFeatIdx(0);
+        intermSummFPType thisNFeatIdx = 0;
         if (noWeights)
         {
             for (size_t iClass = 0; iClass < K; ++iClass)
@@ -268,7 +275,7 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiff
 
         if (!thisNFeatIdx) continue;
 
-        algorithmFPType thisFeatWeights(0);
+        intermSummFPType thisFeatWeights = 0;
         if (noWeights)
         {
             thisFeatWeights = thisNFeatIdx;
@@ -281,26 +288,27 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiff
             }
         }
 
-        nLeft       = (split.featureUnordered ? thisNFeatIdx : nLeft + thisNFeatIdx);
-        leftWeights = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        nLeft                               = (split.featureUnordered ? thisNFeatIdx : nLeft + thisNFeatIdx);
+        leftWeights                         = (split.featureUnordered ? thisFeatWeights : leftWeights + thisFeatWeights);
+        const intermSummFPType rightWeights = totalWeights - leftWeights;
         if ((nLeft == n) //last split
-            || ((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf))
+            || ((n - nLeft) < nMinSplitPart) || (rightWeights < minWeightLeaf) || rightWeights <= 0)
             break;
 
         if (!split.featureUnordered)
         {
             for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
         }
-        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf) continue;
+        if ((nLeft < nMinSplitPart) || leftWeights < minWeightLeaf || !leftWeights) continue;
 
         if (split.featureUnordered)
         {
             for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[i * K + iClass];
         }
 
-        auto histTotal           = curImpurity.hist.get();
-        algorithmFPType sumLeft  = 0;
-        algorithmFPType sumRight = 0;
+        auto histTotal            = curImpurity.hist.get();
+        intermSummFPType sumLeft  = 0;
+        intermSummFPType sumRight = 0;
 
         //proximal impurity improvement
         for (size_t iClass = 0; iClass < K; ++iClass)
@@ -309,7 +317,7 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiff
             sumRight += (histTotal[iClass] - histLeft[iClass]) * (histTotal[iClass] - histLeft[iClass]);
         }
 
-        const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
+        const intermSummFPType decrease = sumLeft / leftWeights + sumRight / rightWeights;
         if (decrease > bestImpDecrease)
         {
             split.left.hist     = _histLeft;
@@ -322,7 +330,7 @@ int UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitFewClasses(int nDiff
     }
     if (idxFeatureBestSplit >= 0)
     {
-        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
+        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - 1.0;
         split.totalWeights     = totalWeights;
     }
 
@@ -334,34 +342,34 @@ template <bool noWeights>
 bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                             size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                             const ImpurityData & curImpurity, TSplitData & split,
-                                                                            const algorithmFPType minWeightLeaf, algorithmFPType totalWeights) const
+                                                                            const intermSummFPType minWeightLeaf, intermSummFPType totalWeights) const
 {
     ClassIndexType iClass = this->_aResponse[aIdx[0]].val;
     _impLeft.init(_nClasses);
     _impRight = curImpurity;
 
-    const bool bBestFromOtherFeatures      = isPositive<algorithmFPType, cpu>(split.impurityDecrease);
-    algorithmFPType vBestFromOtherFeatures = algorithmFPType(-1);
+    const bool bBestFromOtherFeatures       = isPositive<intermSummFPType, cpu>(split.impurityDecrease);
+    intermSummFPType vBestFromOtherFeatures = -1.0;
     if (noWeights)
     {
-        vBestFromOtherFeatures = bBestFromOtherFeatures ? algorithmFPType(n) * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
+        vBestFromOtherFeatures = bBestFromOtherFeatures ? static_cast<intermSummFPType>(n) * (curImpurity.var - split.impurityDecrease) : -1.0;
     }
     else
     {
-        vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
+        vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1.0;
     }
 
-    bool bFound           = false;
-    algorithmFPType vBest = algorithmFPType(-1);
-    IndexType iBest       = -1;
+    bool bFound            = false;
+    intermSummFPType vBest = -1.0;
+    IndexType iBest        = -1;
 
-    double nEqualRespValues      = this->_aWeights[aIdx[0]].val;
-    double iStartEqualRespValues = double(0);
-    algorithmFPType leftWeights  = algorithmFPType(0);
-    const algorithmFPType last   = featureVal[n - nMinSplitPart];
+    intermSummFPType nEqualRespValues      = this->_aWeights[aIdx[0]].val;
+    intermSummFPType iStartEqualRespValues = 0;
+    intermSummFPType leftWeights           = 0;
+    const algorithmFPType last             = featureVal[n - nMinSplitPart];
     for (size_t i = 1; i < (n - nMinSplitPart + 1); ++i)
     {
-        const algorithmFPType weights = this->_aWeights[aIdx[i]].val;
+        const intermSummFPType weights = this->_aWeights[aIdx[i]].val;
         const bool bSameFeaturePrev(featureVal[i] <= featureVal[i - 1] + accuracy);
         leftWeights += this->_aWeights[aIdx[i - 1]].val;
         if (bSameFeaturePrev || (i < nMinSplitPart) || (leftWeights < minWeightLeaf) || (totalWeights - leftWeights < minWeightLeaf))
@@ -395,19 +403,19 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
         iClass                = this->_aResponse[aIdx[i]].val;
         nEqualRespValues      = weights;
         iStartEqualRespValues = leftWeights;
-        if (!isPositive<algorithmFPType, cpu>(_impLeft.var)) _impLeft.var = 0;
-        if (!isPositive<algorithmFPType, cpu>(_impRight.var)) _impRight.var = 0;
+        if (!isPositive<intermSummFPType, cpu>(_impLeft.var)) _impLeft.var = 0;
+        if (!isPositive<intermSummFPType, cpu>(_impRight.var)) _impRight.var = 0;
 
-        const algorithmFPType v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var;
+        const intermSummFPType v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var;
         if (iBest < 0)
         {
-            if (bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))
+            if (bBestFromOtherFeatures && isGreater<intermSummFPType, cpu>(v, vBestFromOtherFeatures))
             {
                 if (featureVal[i] < last) continue;
                 break;
             }
         }
-        else if (isGreater<algorithmFPType, cpu>(v, vBest))
+        else if (isGreater<intermSummFPType, cpu>(v, vBest))
         {
             if (featureVal[i] < last) continue;
             break;
@@ -426,8 +434,8 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitOrderedFeature(cons
     if (bFound)
     {
         DAAL_ASSERT(iBest > 0);
-        const algorithmFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
-        DAAL_CHECK_STATUS_VAR(!(isZero<algorithmFPType, cpu>(impurityDecrease)));
+        const intermSummFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
+        DAAL_CHECK_STATUS_VAR(!(isZero<intermSummFPType, cpu>(impurityDecrease)));
         split.impurityDecrease = impurityDecrease;
 #ifdef DEBUG_CHECK_IMPURITY
         checkImpurity(aIdx, split.nLeft, split.left);
@@ -446,27 +454,27 @@ template <typename algorithmFPType, CpuType cpu>
 bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                                 size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                 const ImpurityData & curImpurity, TSplitData & split,
-                                                                                const algorithmFPType minWeightLeaf,
-                                                                                const algorithmFPType totalWeights) const
+                                                                                const intermSummFPType minWeightLeaf,
+                                                                                const intermSummFPType totalWeights) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     _impRight.init(_nClasses);
     bool bFound                       = false;
     const bool bBestFromOtherFeatures = !(split.impurityDecrease < 0);
-    algorithmFPType vBest             = -1;
+    intermSummFPType vBest            = -1;
     IndexType iBest                   = -1;
 
-    const algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
+    const intermSummFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
     for (size_t i = 0; i < n - nMinSplitPart;)
     {
         _impLeft.init(_nClasses);
-        auto weights                = this->_aWeights[aIdx[i]].val;
-        size_t count                = 1;
-        algorithmFPType leftWeights = weights;
-        const algorithmFPType first = featureVal[i];
-        ClassIndexType xi           = this->_aResponse[aIdx[i]].val;
-        _impLeft.hist[xi]           = weights;
-        const size_t iStart         = i;
+        auto weights                 = this->_aWeights[aIdx[i]].val;
+        size_t count                 = 1;
+        intermSummFPType leftWeights = weights;
+        const algorithmFPType first  = featureVal[i];
+        ClassIndexType xi            = this->_aResponse[aIdx[i]].val;
+        _impLeft.hist[xi]            = weights;
+        const size_t iStart          = i;
         for (++i; (i < n) && (featureVal[i] == first); ++count, ++i)
         {
             weights = this->_aWeights[aIdx[i]].val;
@@ -474,20 +482,20 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
             leftWeights += weights;
             _impLeft.hist[xi] += weights;
         }
-        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (leftWeights < minWeightLeaf)
-            || ((totalWeights - leftWeights) < minWeightLeaf))
+        const intermSummFPType rightWeights = totalWeights - leftWeights;
+        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (leftWeights < minWeightLeaf) || (rightWeights < minWeightLeaf)
+            || !leftWeights || rightWeights <= 0)
             continue;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+
         for (size_t j = 0; j < _nClasses; ++j) _impRight.hist[j] = curImpurity.hist[j] - _impLeft.hist[j];
         calcGini(leftWeights, _impLeft);
-        calcGini(totalWeights - leftWeights, _impRight);
-        const algorithmFPType v = leftWeights * _impLeft.var + (totalWeights - leftWeights) * _impRight.var;
+        calcGini(rightWeights, _impRight);
+        const intermSummFPType v = leftWeights * _impLeft.var + rightWeights * _impRight.var;
         if (iBest < 0)
         {
-            if (bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures)) continue;
+            if (bBestFromOtherFeatures && isGreater<intermSummFPType, cpu>(v, vBestFromOtherFeatures)) continue;
         }
-        else if (isGreater<algorithmFPType, cpu>(v, vBest))
+        else if (isGreater<intermSummFPType, cpu>(v, vBest))
             continue;
         iBest              = i;
         vBest              = v;
@@ -502,8 +510,8 @@ bool UnorderedRespHelperBest<algorithmFPType, cpu>::findSplitCategoricalFeature(
     }
     if (bFound)
     {
-        const algorithmFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
-        DAAL_CHECK_STATUS_VAR(!(isZero<algorithmFPType, cpu>(impurityDecrease)));
+        const intermSummFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
+        DAAL_CHECK_STATUS_VAR(!(isZero<intermSummFPType, cpu>(impurityDecrease)));
         split.impurityDecrease = impurityDecrease;
         DAAL_ASSERT(split.nLeft >= nMinSplitPart);
         DAAL_ASSERT((n - split.nLeft) >= nMinSplitPart);
@@ -524,10 +532,10 @@ template <typename algorithmFPType, CpuType cpu, typename crtp>
 class RespHelperBase : public UnorderedRespHelperBest<algorithmFPType, cpu>
 {
 public:
+    using intermSummFPType = typename UnorderedRespHelperBest<algorithmFPType, cpu>::intermSummFPType;
     typedef ClassIndexType TResponse;
     typedef typename dtrees::internal::TreeImpClassification<> TreeType;
     typedef typename TreeType::NodeType NodeType;
-    typedef double intermSummFPType;
     using super        = UnorderedRespHelperBest<algorithmFPType, cpu>;
     using Histogramm   = typename super::Histogramm;
     using ImpurityData = typename super::ImpurityData;
@@ -536,12 +544,12 @@ public:
     engines::internal::BatchBaseImpl * engineImpl;
 
 public:
-    RespHelperBase(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses)
-        : UnorderedRespHelperBest<algorithmFPType, cpu>(indexedFeatures, nClasses)
+    RespHelperBase(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses,
+                   const classification::training::internal::Hyperparameter * hp = nullptr)
+        : UnorderedRespHelperBest<algorithmFPType, cpu>(indexedFeatures, nClasses, hp)
     {}
 
-    virtual bool init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample,
-                      const NumericTable * weights) DAAL_C11_OVERRIDE;
+    virtual bool init(const NumericTable * data, const NumericTable * resp, const IndexType * aSample, const NumericTable * weights) override;
     void convertLeftImpToRight(size_t n, const ImpurityData & total, TSplitData & split)
     {
         computeRightHistogramm(total.hist, split.left.hist, split.left.hist);
@@ -551,24 +559,24 @@ public:
     }
 
     template <bool noWeights>
-    void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp, double & totalweights) const;
+    void calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp, intermSummFPType & totalweights) const;
 
     bool findSplitForFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                              const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                             const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const
+                             const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights) const
     {
         const bool noWeights = !this->_weights;
         if (noWeights)
         {
             return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
+                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
                                             static_cast<const crtp *>(this)->template findSplitOrderedFeature<true>(
                                                 featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
         }
         else
         {
             return split.featureUnordered ? static_cast<const crtp *>(this)->findSplitCategoricalFeature(
-                       featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
+                                                featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights) :
                                             static_cast<const crtp *>(this)->template findSplitOrderedFeature<false>(
                                                 featureVal, aIdx, n, nMinSplitPart, accuracy, curImpurity, split, minWeightLeaf, totalWeights);
         }
@@ -576,9 +584,9 @@ public:
     bool terminateCriteria(ImpurityData & imp, algorithmFPType impurityThreshold, size_t nSamples) const { return imp.value() < impurityThreshold; }
 
     template <typename BinIndexType>
-    int findSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
-                                  const ImpurityData & curImpurity, TSplitData & split, const algorithmFPType minWeightLeaf,
-                                  const algorithmFPType totalWeights, const BinIndexType * binIndex) const;
+    int findSplitForFeatureSorted(intermSummFPType * featureBuf, IndexType iFeature, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
+                                  const ImpurityData & curImpurity, TSplitData & split, const intermSummFPType minWeightLeaf,
+                                  const intermSummFPType totalWeights, const BinIndexType * binIndex) const;
     template <typename BinIndexType>
     void computeHistFewClassesWithoutWeights(IndexType iFeature, const IndexType * aIdx, const BinIndexType * binIndex, size_t n) const;
     template <typename BinIndexType>
@@ -588,7 +596,7 @@ public:
 
     template <bool noWeights>
     int findSplitFewClassesDispatch(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
-                                    const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const IndexType iFeature) const;
+                                    const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights, const IndexType iFeature) const;
 
     template <bool noWeights, typename BinIndexType>
     void finalizeBestSplit(const IndexType * aIdx, const BinIndexType * binIndex, size_t n, IndexType iFeature, size_t idxFeatureValueBestSplit,
@@ -621,23 +629,25 @@ public:
     void setLeafData(typename TreeType::NodeType::Leaf & node, const IndexType * idx, size_t n, ImpurityData & imp) const
     {
         DAAL_ASSERT(n > 0);
-        node.count    = n;
-        node.impurity = imp.var;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t i = 0; i < this->_nClasses; ++i)
+        node.count           = n;
+        node.impurity        = imp.var;
+        const auto nClasses  = this->_nClasses;
+        const auto * impHist = imp.hist.get();
+        auto * nodeHist      = node.hist;
+        PRAGMA_OMP_SIMD
+        for (size_t i = 0; i < nClasses; ++i)
         {
-            node.hist[i] = imp.hist[i];
+            nodeHist[i] = impHist[i];
         }
 #ifdef DEBUG_CHECK_IMPURITY
         {
-            Histogramm res(_nClasses, 0);
+            Histogramm res(nClasses, 0);
             for (size_t i = 0; i < n; ++i)
             {
                 const ClassIndexType iClass = this->_aResponse[idx[i]].val;
                 res[iClass] += 1;
             }
-            for (size_t i = 0; i < _nClasses; ++i) DAAL_ASSERT(res[i] == imp.hist[i]);
+            for (size_t i = 0; i < nClasses; ++i) DAAL_ASSERT(res[i] == imp.hist[i]);
         }
 #endif
         auto maxVal             = imp.hist[0];
@@ -662,19 +672,16 @@ public:
 #endif
 
 protected:
-    size_t nClasses() const
-    {
-        return this->_nClasses;
-    }
+    size_t nClasses() const { return this->_nClasses; }
 
     void computeRightHistogramm(const Histogramm & total, const Histogramm & left, Histogramm & right) const
     {
-        auto histTotal = total.get();
-        auto histRight = right.get();
-        auto histLeft  = left.get();
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histRight[iClass] = histTotal[iClass] - histLeft[iClass];
+        auto histTotal      = total.get();
+        auto histRight      = right.get();
+        auto histLeft       = left.get();
+        const auto nClasses = this->_nClasses;
+        PRAGMA_OMP_SIMD
+        for (size_t iClass = 0; iClass < nClasses; ++iClass) histRight[iClass] = histTotal[iClass] - histLeft[iClass];
     }
 };
 
@@ -712,22 +719,21 @@ bool RespHelperBase<algorithmFPType, cpu, crtp>::init(const NumericTable * data,
 
 template <typename algorithmFPType, CpuType cpu, typename crtp>
 template <bool noWeights>
-void RespHelperBase<algorithmFPType, cpu, crtp>::calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp, double & totalWeights) const
+void RespHelperBase<algorithmFPType, cpu, crtp>::calcImpurity(const IndexType * aIdx, size_t n, ImpurityData & imp,
+                                                              intermSummFPType & totalWeights) const
 {
     imp.init(this->_nClasses);
     if (noWeights)
     {
-        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < n; ++i)
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
-            imp.hist[iClass] += algorithmFPType(1);
+            imp.hist[iClass] += 1.0;
         }
-        totalWeights = double(n);
+        totalWeights = static_cast<intermSummFPType>(n);
     }
     else
     {
-        PRAGMA_VECTOR_ALWAYS
         for (size_t i = 0; i < n; ++i)
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
@@ -766,9 +772,8 @@ template <typename BinIndexType>
 void RespHelperBase<algorithmFPType, cpu, crtp>::computeHistFewClassesWithoutWeights(IndexType iFeature, const IndexType * aIdx,
                                                                                      const BinIndexType * binIndex, size_t n) const
 {
-    const algorithmFPType one(1.0);
-    const auto aResponse  = this->_aResponse.get();
-    auto nSamplesPerClass = this->_samplesPerClassBuf.get();
+    const auto aResponse                = this->_aResponse.get();
+    intermSummFPType * nSamplesPerClass = this->_samplesPerClassBuf.get();
     {
         for (size_t i = 0; i < n; ++i)
         {
@@ -777,7 +782,7 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::computeHistFewClassesWithoutWei
 
             const BinIndexType idx      = binIndex[r.idx];
             const ClassIndexType iClass = r.val;
-            nSamplesPerClass[idx * this->_nClasses + iClass] += one;
+            nSamplesPerClass[idx * this->_nClasses + iClass] += 1.0;
         }
     }
 }
@@ -790,8 +795,8 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::computeHistFewClassesWithWeight
     const auto aResponse = this->_aResponse.get();
     const auto aWeights  = this->_aWeights.get();
 
-    auto nFeatIdx         = this->_idxFeatureBuf.get();
-    auto nSamplesPerClass = this->_samplesPerClassBuf.get();
+    auto nFeatIdx                       = this->_idxFeatureBuf.get();
+    intermSummFPType * nSamplesPerClass = this->_samplesPerClassBuf.get();
 
     {
         for (size_t i = 0; i < n; ++i)
@@ -800,8 +805,8 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::computeHistFewClassesWithWeight
             const auto & r          = aResponse[aIdx[i]];
             const BinIndexType idx  = binIndex[r.idx];
             ++nFeatIdx[idx];
-            const auto weights          = aWeights[iSample].val;
-            const ClassIndexType iClass = r.val;
+            const intermSummFPType weights = aWeights[iSample].val;
+            const ClassIndexType iClass    = r.val;
             nSamplesPerClass[idx * this->_nClasses + iClass] += weights;
         }
     }
@@ -815,9 +820,9 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::computeHistManyClasses(IndexTyp
     const auto aResponse = this->_aResponse.get();
     const auto aWeights  = this->_aWeights.get();
 
-    auto nFeatIdx         = this->_idxFeatureBuf.get();
-    auto featWeights      = this->_weightsFeatureBuf.get();
-    auto nSamplesPerClass = this->_samplesPerClassBuf.get();
+    auto nFeatIdx                       = this->_idxFeatureBuf.get();
+    intermSummFPType * featWeights      = this->_weightsFeatureBuf.get();
+    intermSummFPType * nSamplesPerClass = this->_samplesPerClassBuf.get();
 
     {
         for (size_t i = 0; i < n; ++i)
@@ -826,8 +831,8 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::computeHistManyClasses(IndexTyp
             const auto & r          = aResponse[aIdx[i]];
             const BinIndexType idx  = binIndex[r.idx];
             ++nFeatIdx[idx];
-            const auto weights          = aWeights[iSample].val;
-            const ClassIndexType iClass = r.val;
+            const intermSummFPType weights = aWeights[iSample].val;
+            const ClassIndexType iClass    = r.val;
             featWeights[idx] += weights; //use for calculate leftWeights
             nSamplesPerClass[idx * this->_nClasses + iClass] += weights;
         }
@@ -838,7 +843,7 @@ template <typename algorithmFPType, CpuType cpu, typename crtp>
 template <bool noWeights>
 int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitFewClassesDispatch(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                             const ImpurityData & curImpurity, TSplitData & split,
-                                                                            const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                            const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights,
                                                                             const IndexType iFeature) const
 {
     DAAL_ASSERT(this->_nClasses <= this->_nClassesThreshold);
@@ -871,10 +876,10 @@ int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitFewClassesDispatch(int 
 
 template <typename algorithmFPType, CpuType cpu, typename crtp>
 template <typename BinIndexType>
-int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitForFeatureSorted(algorithmFPType * featureBuf, IndexType iFeature, const IndexType * aIdx,
+int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitForFeatureSorted(intermSummFPType * featureBuf, IndexType iFeature, const IndexType * aIdx,
                                                                           size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity,
-                                                                          TSplitData & split, const algorithmFPType minWeightLeaf,
-                                                                          const algorithmFPType totalWeights, const BinIndexType * binIndex) const
+                                                                          TSplitData & split, const intermSummFPType minWeightLeaf,
+                                                                          const intermSummFPType totalWeights, const BinIndexType * binIndex) const
 {
     const auto nDiffFeatMax = this->indexedFeatures().numIndices(iFeature);
     this->_samplesPerClassBuf.setValues(nClasses() * nDiffFeatMax, 0);
@@ -902,7 +907,7 @@ int RespHelperBase<algorithmFPType, cpu, crtp>::findSplitForFeatureSorted(algori
     else
     {
         // nSamplesPerClass, nFeatIdx and featWeights - computed
-        this->_weightsFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
+        this->_weightsFeatureBuf.setValues(nDiffFeatMax, intermSummFPType(0));
         this->_idxFeatureBuf.setValues(nDiffFeatMax, algorithmFPType(0));
         computeHistManyClasses(iFeature, aIdx, binIndex, n);
         idxFeatureBestSplit = static_cast<const crtp *>(this)->findSplitByHistDefault(nDiffFeatMax, n, nMinSplitPart, curImpurity, split,
@@ -920,14 +925,14 @@ void RespHelperBase<algorithmFPType, cpu, crtp>::finalizeBestSplit(const IndexTy
 {
     DAAL_ASSERT(bestSplit.nLeft > 0);
     DAAL_ASSERT(bestSplit.leftWeights > 0.);
-    algorithmFPType divL = algorithmFPType(1);
+    intermSummFPType divL = 1.0;
     if (noWeights)
     {
-        divL = algorithmFPType(1) / algorithmFPType(bestSplit.nLeft);
+        divL = 1.0 / static_cast<intermSummFPType>(bestSplit.nLeft);
     }
     else
     {
-        divL = isZero<algorithmFPType, cpu>(bestSplit.leftWeights) ? algorithmFPType(1.) : (algorithmFPType(1.) / bestSplit.leftWeights);
+        divL = isZero<intermSummFPType, cpu>(bestSplit.leftWeights) ? 1.0 : (1.0 / static_cast<intermSummFPType>(bestSplit.leftWeights));
     }
     bestSplit.left.var            = 1. - bestSplit.left.var * divL * divL; // Gini node impurity
     IndexType * bestSplitIdxRight = bestSplitIdx + bestSplit.nLeft;
@@ -977,32 +982,34 @@ template <typename algorithmFPType, CpuType cpu>
 class UnorderedRespHelperRandom : public RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >
 {
 public:
-    using Histogramm   = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::Histogramm;
-    using ImpurityData = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::ImpurityData;
-    using TSplitData   = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::TSplitData;
+    using intermSummFPType = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::intermSummFPType;
+    using Histogramm       = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::Histogramm;
+    using ImpurityData     = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::ImpurityData;
+    using TSplitData       = typename RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >::TSplitData;
 
 public:
-    UnorderedRespHelperRandom(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses)
-        : RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >(indexedFeatures, nClasses)
+    UnorderedRespHelperRandom(const dtrees::internal::IndexedFeatures * indexedFeatures, size_t nClasses,
+                              const classification::training::internal::Hyperparameter * hp = nullptr)
+        : RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> >(indexedFeatures, nClasses, hp)
     {}
 
     size_t genRandomBinIdx(const IndexType iFeature, const size_t minidx, const size_t maxidx) const;
 
     int findSplitByHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
-                               const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const IndexType iFeature) const;
+                               const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights, const IndexType iFeature) const;
 
     template <int K, bool noWeights>
     int findSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart, const ImpurityData & curImpurity, TSplitData & split,
-                            const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights, const IndexType iFeature) const;
+                            const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights, const IndexType iFeature) const;
 
     template <bool noWeights>
     bool findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                  const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                 const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                 const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights) const;
 
     bool findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n, size_t nMinSplitPart,
                                      const algorithmFPType accuracy, const ImpurityData & curImpurity, TSplitData & split,
-                                     const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights) const;
+                                     const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights) const;
 };
 
 template <typename algorithmFPType, CpuType cpu>
@@ -1036,22 +1043,22 @@ size_t UnorderedRespHelperRandom<algorithmFPType, cpu>::genRandomBinIdx(const In
 template <typename algorithmFPType, CpuType cpu>
 int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitByHistDefault(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                             const ImpurityData & curImpurity, TSplitData & split,
-                                                                            const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                            const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights,
                                                                             const IndexType iFeature) const
 {
-    auto nFeatIdx         = this->_idxFeatureBuf.get();
-    auto featWeights      = this->_weightsFeatureBuf.get();
-    auto nSamplesPerClass = this->_samplesPerClassBuf.get();
+    auto nFeatIdx                       = this->_idxFeatureBuf.get();
+    intermSummFPType * featWeights      = this->_weightsFeatureBuf.get();
+    intermSummFPType * nSamplesPerClass = this->_samplesPerClassBuf.get();
 
-    algorithmFPType bestImpDecrease =
-        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
+    intermSummFPType bestImpDecrease =
+        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + 1.0 - curImpurity.var);
 
     //init histogram for the left part
     this->_histLeft.setAll(0);
-    auto histLeft               = this->_histLeft.get();
-    size_t nLeft                = 0;
-    algorithmFPType leftWeights = 0.;
-    int idxFeatureBestSplit     = -1; //index of best feature value in the array of sorted feature values
+    auto histLeft                = this->_histLeft.get();
+    size_t nLeft                 = 0;
+    intermSummFPType leftWeights = 0.;
+    int idxFeatureBestSplit      = -1; //index of best feature value in the array of sorted feature values
 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax - 1;
@@ -1066,6 +1073,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitByHistDefault(int 
         || ((n - nFeatIdx[minidx]) < nMinSplitPart) || ((totalWeights - featWeights[minidx]) < minWeightLeaf))
         return idxFeatureBestSplit;
 
+    const auto nClasses = this->_nClasses;
     if (split.featureUnordered)
     {
         //find random index between minidx and maxidx
@@ -1079,10 +1087,9 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitByHistDefault(int 
         nLeft       = nFeatIdx[idx];
         leftWeights = featWeights[idx];
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         //one against others
-        for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * this->_nClasses + iClass];
+        PRAGMA_OMP_SIMD
+        for (size_t iClass = 0; iClass < nClasses; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * nClasses + iClass];
     }
     else
     {
@@ -1098,28 +1105,28 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitByHistDefault(int 
             nLeft += nFeatIdx[i];
             leftWeights += featWeights[i];
 
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t iClass = 0; iClass < this->_nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * this->_nClasses + iClass];
+            PRAGMA_OMP_SIMD
+            for (size_t iClass = 0; iClass < nClasses; ++iClass) histLeft[iClass] += nSamplesPerClass[i * nClasses + iClass];
         }
     }
 
-    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
-          || (leftWeights < minWeightLeaf)))
+    const intermSummFPType rightWeights = totalWeights - leftWeights;
+    if (!(((n - nLeft) < nMinSplitPart) || (rightWeights < minWeightLeaf) || (nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)) && leftWeights
+        && rightWeights)
     {
-        auto histTotal           = curImpurity.hist.get();
-        algorithmFPType sumLeft  = 0;
-        algorithmFPType sumRight = 0;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        auto histTotal            = curImpurity.hist.get();
+        intermSummFPType sumLeft  = 0;
+        intermSummFPType sumRight = 0;
+        const auto nClasses       = this->_nClasses;
         //proximal impurity improvement
-        for (size_t iClass = 0; iClass < this->_nClasses; ++iClass)
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : sumLeft, sumRight))
+        for (size_t iClass = 0; iClass < nClasses; ++iClass)
         {
             sumLeft += histLeft[iClass] * histLeft[iClass];
             sumRight += (histTotal[iClass] - histLeft[iClass]) * (histTotal[iClass] - histLeft[iClass]);
         }
 
-        const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
+        const intermSummFPType decrease = sumLeft / leftWeights + sumRight / rightWeights;
         if (decrease > bestImpDecrease)
         {
             split.left.hist     = this->_histLeft;
@@ -1132,7 +1139,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitByHistDefault(int 
     }
     if (idxFeatureBestSplit >= 0)
     {
-        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
+        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - 1.0;
         split.totalWeights     = totalWeights;
     }
 
@@ -1143,22 +1150,22 @@ template <typename algorithmFPType, CpuType cpu>
 template <int K, bool noWeights>
 int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDiffFeatMax, size_t n, size_t nMinSplitPart,
                                                                          const ImpurityData & curImpurity, TSplitData & split,
-                                                                         const algorithmFPType minWeightLeaf, const algorithmFPType totalWeights,
+                                                                         const intermSummFPType minWeightLeaf, const intermSummFPType totalWeights,
                                                                          const IndexType iFeature) const
 {
-    auto nSamplesPerClass = this->_samplesPerClassBuf.get();
-    auto nFeatIdx         = this->_idxFeatureBuf.get();
+    intermSummFPType * nSamplesPerClass = this->_samplesPerClassBuf.get();
+    auto nFeatIdx                       = this->_idxFeatureBuf.get();
 
-    algorithmFPType bestImpDecrease =
-        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + algorithmFPType(1.) - curImpurity.var);
+    intermSummFPType bestImpDecrease =
+        split.impurityDecrease < 0 ? split.impurityDecrease : totalWeights * (split.impurityDecrease + 1.0 - curImpurity.var);
 
     //init histogram for the left part
     this->_histLeft.setAll(0);
-    auto histLeft = this->_histLeft.get();
-    size_t nLeft  = 0;
-    algorithmFPType leftWeights(0);
-    algorithmFPType minWeights(0);
-    int idxFeatureBestSplit = -1; //index of best feature value in the array of sorted feature values
+    auto histLeft                = this->_histLeft.get();
+    size_t nLeft                 = 0;
+    intermSummFPType leftWeights = 0;
+    intermSummFPType minWeights  = 0;
+    int idxFeatureBestSplit      = -1; //index of best feature value in the array of sorted feature values
 
     size_t minidx = 0;
     size_t maxidx = nDiffFeatMax;
@@ -1170,14 +1177,13 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     //solve for the min non-zero index
     if (noWeights)
     {
-        algorithmFPType thisNFeatIdx(0);
+        intermSummFPType thisNFeatIdx = 0;
         for (size_t iC = 0; iC < K; ++iC) thisNFeatIdx += nSamplesPerClass[iC];
-        while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
+        while ((minidx < maxidx) && isZero<intermSummFPType, cpu>(thisNFeatIdx))
         {
             minidx++;
 
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : thisNFeatIdx))
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 thisNFeatIdx += nSamplesPerClass[minidx * K + iClass];
@@ -1192,8 +1198,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
         while ((minidx < maxidx) && isZero<IndexType, cpu>(thisNFeatIdx)) thisNFeatIdx = nFeatIdx[++minidx];
         nLeft = thisNFeatIdx;
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : minWeights))
         for (size_t iClass = 0; iClass < K; ++iClass)
         {
             minWeights += nSamplesPerClass[minidx * K + iClass];
@@ -1207,19 +1212,17 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
         return idxFeatureBestSplit;
 
     //set histLeft
-    PRAGMA_IVDEP
-    PRAGMA_VECTOR_ALWAYS
+    PRAGMA_OMP_SIMD
     for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[minidx * K + iClass];
 
     //solve for the max non-zero index
     if (noWeights)
     {
-        algorithmFPType thisNFeatIdx(0);
-        while ((minidx < maxidx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
+        intermSummFPType thisNFeatIdx = 0;
+        while ((minidx < maxidx) && isZero<intermSummFPType, cpu>(thisNFeatIdx))
         {
             maxidx--;
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : thisNFeatIdx))
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 thisNFeatIdx += nSamplesPerClass[maxidx * K + iClass];
@@ -1248,42 +1251,41 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     if (noWeights)
     {
         //iterate idx down to a bin with values for FinalizeBestSplit
-        algorithmFPType thisNFeatIdx(0);
+        intermSummFPType thisNFeatIdx = 0;
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : thisNFeatIdx))
         for (size_t iC = 0; iC < K; ++iC) thisNFeatIdx += nSamplesPerClass[idx * K + iC];
-        while ((minidx < idx) && isZero<algorithmFPType, cpu>(thisNFeatIdx))
+        while ((minidx < idx) && isZero<intermSummFPType, cpu>(thisNFeatIdx))
         {
             idx--;
+            PRAGMA_OMP_SIMD_ARGS(reduction(+ : thisNFeatIdx))
             for (size_t iClass = 0; iClass < K; ++iClass)
             {
                 thisNFeatIdx += nSamplesPerClass[idx * K + iClass];
             }
         }
 
-        DAAL_ASSERT(!(isZero<algorithmFPType, cpu>(thisNFeatIdx)))
+        DAAL_ASSERT(!(isZero<intermSummFPType, cpu>(thisNFeatIdx)))
 
         if (split.featureUnordered) //only need last index
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD
             for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * K + iClass];
         }
         else //sum over all to idx
         {
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
             for (size_t i = minidx + 1; i <= idx; i++)
             {
+                PRAGMA_OMP_SIMD
                 for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
             }
         }
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : leftWeights))
         for (size_t iClass = 0; iClass < K; ++iClass)
-            leftWeights += histLeft[iClass]; //histleft is forced to float, and may cause issues with algorithmFPType = double
+        {
+            leftWeights += histLeft[iClass];
+        }
         nLeft = leftWeights;
     }
     else
@@ -1297,8 +1299,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
         if (split.featureUnordered) //only need last index
         {
             nLeft = nFeatIdx[idx];
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
+            PRAGMA_OMP_SIMD
             for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] = nSamplesPerClass[idx * K + iClass];
         }
         else //sum over all to idx
@@ -1306,23 +1307,22 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
             for (size_t i = minidx + 1; i <= idx; i++)
             {
                 nLeft += nFeatIdx[i];
-                PRAGMA_IVDEP
-                PRAGMA_VECTOR_ALWAYS
+                PRAGMA_OMP_SIMD
                 for (size_t iClass = 0; iClass < K; ++iClass) histLeft[iClass] += nSamplesPerClass[i * K + iClass];
             }
         }
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
+        PRAGMA_OMP_SIMD_ARGS(reduction(+ : leftWeights))
         for (size_t iClass = 0; iClass < K; ++iClass) leftWeights += histLeft[iClass];
     }
 
-    if (!(((n - nLeft) < nMinSplitPart) || ((totalWeights - leftWeights) < minWeightLeaf) || (nLeft < nMinSplitPart)
-          || (leftWeights < minWeightLeaf)))
+    const intermSummFPType rightWeights = totalWeights - leftWeights;
+    if (!(((n - nLeft) < nMinSplitPart) || (rightWeights < minWeightLeaf) || (nLeft < nMinSplitPart) || (leftWeights < minWeightLeaf)) && leftWeights
+        && rightWeights > 0)
     {
-        auto histTotal           = curImpurity.hist.get();
-        algorithmFPType sumLeft  = 0;
-        algorithmFPType sumRight = 0;
+        auto histTotal            = curImpurity.hist.get();
+        intermSummFPType sumLeft  = 0;
+        intermSummFPType sumRight = 0;
 
         //proximal impurity improvement
         for (size_t iClass = 0; iClass < K; ++iClass)
@@ -1331,7 +1331,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
             sumRight += (histTotal[iClass] - histLeft[iClass]) * (histTotal[iClass] - histLeft[iClass]);
         }
 
-        const algorithmFPType decrease = sumLeft / leftWeights + sumRight / (totalWeights - leftWeights);
+        const intermSummFPType decrease = sumLeft / leftWeights + sumRight / rightWeights;
         if (decrease > bestImpDecrease)
         {
             split.left.hist     = this->_histLeft;
@@ -1344,7 +1344,7 @@ int UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitFewClasses(int nDi
     }
     if (idxFeatureBestSplit >= 0)
     {
-        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - algorithmFPType(1);
+        split.impurityDecrease = curImpurity.var + bestImpDecrease / totalWeights - 1.0;
         split.totalWeights     = totalWeights;
     }
 
@@ -1356,18 +1356,19 @@ template <bool noWeights>
 bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(const algorithmFPType * featureVal, const IndexType * aIdx, size_t n,
                                                                               size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                               const ImpurityData & curImpurity, TSplitData & split,
-                                                                              const algorithmFPType minWeightLeaf, algorithmFPType totalWeights) const
+                                                                              const intermSummFPType minWeightLeaf,
+                                                                              intermSummFPType totalWeights) const
 {
     this->_impLeft.init(this->_nClasses);
     this->_impRight = curImpurity;
 
-    const bool bBestFromOtherFeatures      = isPositive<algorithmFPType, cpu>(split.impurityDecrease);
-    algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : algorithmFPType(-1);
+    const bool bBestFromOtherFeatures       = isPositive<intermSummFPType, cpu>(split.impurityDecrease);
+    intermSummFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1.0;
 
-    bool bFound                 = false;
-    IndexType iBest             = -1;
-    algorithmFPType leftWeights = algorithmFPType(0);
-    algorithmFPType v           = algorithmFPType(0);
+    bool bFound                  = false;
+    IndexType iBest              = -1;
+    intermSummFPType leftWeights = 0;
+    intermSummFPType v           = 0;
     algorithmFPType idx;
     size_t i;
 
@@ -1402,19 +1403,15 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
 
     if (noWeights)
     {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         for (i = 0; i < r; ++i)
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
-            this->_impLeft.hist[iClass] += algorithmFPType(1);
+            this->_impLeft.hist[iClass] += 1.0;
         }
         leftWeights = i;
     }
     else
     {
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         for (i = 0; i < r; ++i)
         {
             const ClassIndexType iClass = this->_aResponse[aIdx[i]].val;
@@ -1429,23 +1426,25 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
     }
 
     this->calcGini(leftWeights, this->_impLeft);
-    this->calcGini(totalWeights - leftWeights, this->_impRight);
+    const intermSummFPType rightWeights = totalWeights - leftWeights;
+    this->calcGini(rightWeights, this->_impRight);
 
 #ifdef DEBUG_CHECK_IMPURITY
     checkImpurity(aIdx, leftWeights, this->_impLeft);
-    checkImpurity(aIdx + i - 1, totalWeights - leftWeights, this->_impRight);
+    checkImpurity(aIdx + i - 1, rightWeights, this->_impRight);
 #endif
 
-    if ((leftWeights >= minWeightLeaf) && ((totalWeights - leftWeights) >= minWeightLeaf)) //it is a valid split with enought leaf weights
+    if ((leftWeights >= minWeightLeaf) && (rightWeights >= minWeightLeaf) && leftWeights
+        && rightWeights) //it is a valid split with enought leaf weights
     {
         //check if bFound condition below
-        if (!isPositive<algorithmFPType, cpu>(this->_impLeft.var)) this->_impLeft.var = 0;   //set left impurity to 0 if negative
-        if (!isPositive<algorithmFPType, cpu>(this->_impRight.var)) this->_impRight.var = 0; //set right impurity to 0 if negative
+        if (!isPositive<intermSummFPType, cpu>(this->_impLeft.var)) this->_impLeft.var = 0;   //set left impurity to 0 if negative
+        if (!isPositive<intermSummFPType, cpu>(this->_impRight.var)) this->_impRight.var = 0; //set right impurity to 0 if negative
 
-        v = leftWeights * this->_impLeft.var + (totalWeights - leftWeights) * this->_impRight.var; //calculate overall weighted Gini index
+        v = leftWeights * this->_impLeft.var + rightWeights * this->_impRight.var; //calculate overall weighted Gini index
 
         if (!(bBestFromOtherFeatures
-              && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures))) //if it has a better weighted gini overwite parameters
+              && isGreater<intermSummFPType, cpu>(v, vBestFromOtherFeatures))) //if it has a better weighted gini overwite parameters
         {
             bFound             = true;
             split.left.var     = this->_impLeft.var;
@@ -1460,8 +1459,8 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitOrderedFeature(co
     if (bFound) //if new best found
     {
         DAAL_ASSERT(iBest > 0);
-        const algorithmFPType impurityDecrease = curImpurity.var - v / totalWeights;
-        DAAL_CHECK_STATUS_VAR(!(isZero<algorithmFPType, cpu>(impurityDecrease)));
+        const intermSummFPType impurityDecrease = curImpurity.var - v / totalWeights;
+        DAAL_CHECK_STATUS_VAR(!(isZero<intermSummFPType, cpu>(impurityDecrease)));
         split.impurityDecrease = impurityDecrease;
 #ifdef DEBUG_CHECK_IMPURITY
         checkImpurity(aIdx, split.nLeft, split.left);
@@ -1480,14 +1479,14 @@ template <typename algorithmFPType, CpuType cpu>
 bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeature(const algorithmFPType * featureVal, const IndexType * aIdx,
                                                                                   size_t n, size_t nMinSplitPart, const algorithmFPType accuracy,
                                                                                   const ImpurityData & curImpurity, TSplitData & split,
-                                                                                  const algorithmFPType minWeightLeaf,
-                                                                                  const algorithmFPType totalWeights) const
+                                                                                  const intermSummFPType minWeightLeaf,
+                                                                                  const intermSummFPType totalWeights) const
 {
     DAAL_ASSERT(n >= 2 * nMinSplitPart);
     this->_impRight.init(this->_nClasses);
     bool bFound                       = false;
     const bool bBestFromOtherFeatures = !(split.impurityDecrease < 0);
-    algorithmFPType vBest             = -1;
+    intermSummFPType vBest            = -1;
     IndexType iBest                   = -1;
     algorithmFPType min               = featureVal[0];
     algorithmFPType max               = featureVal[0];
@@ -1511,7 +1510,7 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
     }
     //first is the closest categorical feature less than the idx O(n) computation as ordering of featureVal is unknown.
 
-    const algorithmFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
+    const intermSummFPType vBestFromOtherFeatures = bBestFromOtherFeatures ? totalWeights * (curImpurity.var - split.impurityDecrease) : -1;
     for (size_t i = 0; i < n - nMinSplitPart;)
     {
         if (featureVal[i] != first)
@@ -1520,13 +1519,13 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
             continue;
         }
         this->_impLeft.init(this->_nClasses);
-        auto weights                = this->_aWeights[aIdx[i]].val;
-        size_t count                = 1;
-        algorithmFPType leftWeights = weights;
-        const algorithmFPType first = featureVal[i];
-        ClassIndexType xi           = this->_aResponse[aIdx[i]].val;
-        this->_impLeft.hist[xi]     = weights;
-        const size_t iStart         = i;
+        auto weights                 = this->_aWeights[aIdx[i]].val;
+        size_t count                 = 1;
+        intermSummFPType leftWeights = weights;
+        const algorithmFPType first  = featureVal[i];
+        ClassIndexType xi            = this->_aResponse[aIdx[i]].val;
+        this->_impLeft.hist[xi]      = weights;
+        const size_t iStart          = i;
         //there is an ordering to categorical features shown here that isn't described
         //its not clear if featureVal[i] == first will occur at a later point
         //but the for loop assumes that they could be grouped together in the array
@@ -1537,21 +1536,25 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
             leftWeights += weights;
             this->_impLeft.hist[xi] += weights;
         }
-        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (leftWeights < minWeightLeaf)
-            || ((totalWeights - leftWeights) < minWeightLeaf))
+        const intermSummFPType rightWeights = totalWeights - leftWeights;
+        if ((count < nMinSplitPart) || ((n - count) < nMinSplitPart) || (leftWeights < minWeightLeaf) || (rightWeights < minWeightLeaf)
+            || !leftWeights || rightWeights <= 0)
             continue;
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
-        for (size_t j = 0; j < this->_nClasses; ++j) this->_impRight.hist[j] = curImpurity.hist[j] - this->_impLeft.hist[j];
+        const auto nClasses          = this->_nClasses;
+        const auto * curImpurityHist = curImpurity.hist.get();
+        const auto * impLeftHist     = this->_impLeft.hist.get();
+        auto * impRightHist          = this->_impRight.hist.get();
+        PRAGMA_OMP_SIMD
+        for (size_t j = 0; j < nClasses; ++j) impRightHist[j] = curImpurityHist[j] - impLeftHist[j];
         this->calcGini(leftWeights, this->_impLeft);
-        this->calcGini(totalWeights - leftWeights, this->_impRight);
-        const algorithmFPType v = leftWeights * this->_impLeft.var + (totalWeights - leftWeights) * this->_impRight.var;
+        this->calcGini(rightWeights, this->_impRight);
+        const intermSummFPType v = leftWeights * this->_impLeft.var + rightWeights * this->_impRight.var;
 
         if (iBest < 0)
         {
-            if (bBestFromOtherFeatures && isGreater<algorithmFPType, cpu>(v, vBestFromOtherFeatures)) continue;
+            if (bBestFromOtherFeatures && isGreater<intermSummFPType, cpu>(v, vBestFromOtherFeatures)) continue;
         }
-        else if (isGreater<algorithmFPType, cpu>(v, vBest))
+        else if (isGreater<intermSummFPType, cpu>(v, vBest))
             continue;
         iBest              = i;
         vBest              = v;
@@ -1566,8 +1569,8 @@ bool UnorderedRespHelperRandom<algorithmFPType, cpu>::findSplitCategoricalFeatur
     }
     if (bFound)
     {
-        const algorithmFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
-        DAAL_CHECK_STATUS_VAR(!(isZero<algorithmFPType, cpu>(impurityDecrease)));
+        const intermSummFPType impurityDecrease = curImpurity.var - vBest / totalWeights;
+        DAAL_CHECK_STATUS_VAR(!(isZero<intermSummFPType, cpu>(impurityDecrease)));
         split.impurityDecrease = impurityDecrease;
         DAAL_ASSERT(split.nLeft >= nMinSplitPart);
         DAAL_ASSERT((n - split.nLeft) >= nMinSplitPart);
@@ -1585,6 +1588,7 @@ class TreeThreadCtx : public TreeThreadCtxBase<algorithmFPType, cpu>
 {
 public:
     typedef TreeThreadCtxBase<algorithmFPType, cpu> super;
+    using intermSummFPType = typename super::intermSummFPType;
     TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp), _nClasses(0) {}
     bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t nClasses)
     {
@@ -1608,9 +1612,12 @@ public:
         {
             OOBClassificationData * dst       = (OOBClassificationData *)other.oobBuf;
             const OOBClassificationData * src = (const OOBClassificationData *)this->oobBuf;
-            PRAGMA_IVDEP
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0, n = _nClasses * nSamples; i < n; ++i) dst[i] += src[i];
+            const size_t n                    = _nClasses * nSamples;
+            PRAGMA_OMP_SIMD
+            for (size_t i = 0; i < n; ++i)
+            {
+                dst[i] += src[i];
+            }
         }
     }
     Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resAccuracy,
@@ -1631,16 +1638,16 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
     DAAL_CHECK_BLOCK_STATUS(y);
     Atomic<size_t> nPredicted(0);
     Atomic<size_t> nError(0);
-    const algorithmFPType eps = services::internal::EpsilonVal<algorithmFPType>::get();
-    daal::threader_for(nSamples, nSamples, [&](size_t i) {
+    const intermSummFPType eps = services::internal::EpsilonVal<intermSummFPType>::get();
+    daal::threader_for(nSamples, 1, [&](size_t i) {
         const OOBClassificationData * ptr = ((const OOBClassificationData *)this->oobBuf) + i * _nClasses;
         const size_t classLabel(y.get()[i]);
         size_t maxIdx                = 0;
-        algorithmFPType sum          = static_cast<algorithmFPType>(ptr[0]);
+        intermSummFPType sum         = static_cast<algorithmFPType>(ptr[0]);
         OOBClassificationData maxVal = ptr[0];
         for (size_t j = 1; j < _nClasses; ++j)
         {
-            sum += static_cast<algorithmFPType>(ptr[j]);
+            sum += static_cast<intermSummFPType>(ptr[j]);
             if (maxVal < ptr[j])
             {
                 maxVal = ptr[j];
@@ -1652,7 +1659,7 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
             for (size_t j = 0; j < _nClasses; ++j)
             {
                 resDecisionFunction[i * _nClasses + j] =
-                    static_cast<algorithmFPType>(ptr[j]) / services::internal::max<cpu, algorithmFPType>(sum, eps);
+                    static_cast<intermSummFPType>(ptr[j]) / services::internal::max<cpu, intermSummFPType>(sum, eps);
             }
         }
         if (maxVal == 0)
@@ -1668,27 +1675,30 @@ Status TreeThreadCtx<algorithmFPType, cpu>::finalizeOOBError(const NumericTable 
         }
         if (resPerObs) resPerObs[i] = algorithmFPType(maxIdx != classLabel);
     });
-    if (res) *res = nPredicted.get() ? algorithmFPType(nError.get()) / algorithmFPType(nPredicted.get()) : 0;
+    if (res) *res = nPredicted.get() ? static_cast<intermSummFPType>(nError.get()) / static_cast<intermSummFPType>(nPredicted.get()) : 0;
     if (resAccuracy)
-        *resAccuracy = nPredicted.get() ? algorithmFPType(1) - algorithmFPType(nError.get()) / algorithmFPType(nPredicted.get()) : algorithmFPType(1);
+        *resAccuracy = nPredicted.get() ?
+                           intermSummFPType(1) - static_cast<intermSummFPType>(nError.get()) / static_cast<intermSummFPType>(nPredicted.get()) :
+                           intermSummFPType(1);
     return Status();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // TrainBatchTask for classification
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename algorithmFPType, typename BinIndexType, decision_forest::classification::training::Method method, typename helper, CpuType cpu>
-class TrainBatchTask : public TrainBatchTaskBase<algorithmFPType, BinIndexType, helper, cpu>
+template <typename algorithmFPType, typename BinIndexType, decision_forest::classification::training::Method method, typename helper,
+          typename HyperparameterType, CpuType cpu>
+class TrainBatchTask : public TrainBatchTaskBase<algorithmFPType, BinIndexType, helper, HyperparameterType, cpu>
 {
-    typedef TrainBatchTaskBase<algorithmFPType, BinIndexType, helper, cpu> super;
+    typedef TrainBatchTaskBase<algorithmFPType, BinIndexType, helper, HyperparameterType, cpu> super;
 
 public:
     typedef TreeThreadCtx<algorithmFPType, cpu> ThreadCtxType;
-    TrainBatchTask(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
-                   const decision_forest::training::Parameter & par, const dtrees::internal::FeatureTypes & featTypes,
-                   const dtrees::internal::IndexedFeatures * indexedFeatures, const BinIndexType * binIndex, typename super::ThreadCtxType & ctx,
-                   size_t dummy)
-        : super(pHostApp, x, y, w, par, featTypes, indexedFeatures, binIndex, ctx, dummy)
+    TrainBatchTask(const NumericTable * x, const NumericTable * y, const NumericTable * w, const decision_forest::training::Parameter & par,
+                   const dtrees::internal::FeatureTypes & featTypes, const dtrees::internal::IndexedFeatures * indexedFeatures,
+                   const BinIndexType * binIndex, typename super::ThreadCtxType & ctx, size_t dummy,
+                   const HyperparameterType * hyperparameter = nullptr)
+        : super(x, y, w, par, featTypes, indexedFeatures, binIndex, ctx, dummy, hyperparameter)
     {
         if (!this->_nFeaturesPerNode)
         {
@@ -1702,10 +1712,12 @@ public:
 // ClassificationTrainBatchKernel
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, Method method, CpuType cpu, typename helper>
-services::Status computeForSpecificHelper(HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w,
+services::Status computeForSpecificHelper(const NumericTable * x, const NumericTable * y, const NumericTable * w,
                                           decision_forest::classification::Model & m, Result & res,
-                                          const decision_forest::classification::training::Parameter & par, bool memSave)
+                                          const decision_forest::classification::training::Parameter & par, bool memSave,
+                                          const classification::training::internal::Hyperparameter * hyperparameter)
 {
+    typedef classification::training::internal::Hyperparameter HyperparameterType;
     ResultData rd(par, res.get(variableImportance).get(), res.get(outOfBagError).get(), res.get(outOfBagErrorPerObservation).get(),
                   res.get(outOfBagErrorAccuracy).get(), nullptr, res.get(outOfBagErrorDecisionFunction).get(), nullptr);
     services::Status s;
@@ -1723,27 +1735,28 @@ services::Status computeForSpecificHelper(HostAppIface * pHostApp, const Numeric
 
             if (indexedFeatures.maxNumIndices() <= 256)
                 s = computeImpl<algorithmFPType, uint8_t, cpu, daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint8_t, hist, helper, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                    par.nClasses, featTypes, &indexedFeatures);
+                                TrainBatchTask<algorithmFPType, uint8_t, hist, helper, HyperparameterType, cpu> >(
+                    x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
+                    featTypes, &indexedFeatures, hyperparameter);
             else if (indexedFeatures.maxNumIndices() <= 65536)
                 s = computeImpl<algorithmFPType, uint16_t, cpu, daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, uint16_t, hist, helper, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                    par.nClasses, featTypes, &indexedFeatures);
+                                TrainBatchTask<algorithmFPType, uint16_t, hist, helper, HyperparameterType, cpu> >(
+                    x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
+                    featTypes, &indexedFeatures, hyperparameter);
             else
-                s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                                daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, cpu> >(
-                    pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par,
-                    par.nClasses, featTypes, &indexedFeatures);
+                s = computeImpl<
+                    algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                    daal::algorithms::decision_forest::classification::internal::ModelImpl,
+                    TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, HyperparameterType, cpu> >(
+                    x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
+                    featTypes, &indexedFeatures, hyperparameter);
         }
         else
             s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
                             daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, cpu> >(
-                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
-                featTypes, nullptr);
+                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, hist, helper, HyperparameterType, cpu> >(
+                x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses, featTypes,
+                nullptr, hyperparameter);
     }
     else
     {
@@ -1751,18 +1764,20 @@ services::Status computeForSpecificHelper(HostAppIface * pHostApp, const Numeric
         {
             s = indexedFeatures.init<algorithmFPType, cpu>(*x, &featTypes);
             DAAL_CHECK_STATUS_VAR(s);
-            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                            daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, cpu> >(
-                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
-                featTypes, &indexedFeatures);
+            s = computeImpl<
+                algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                daal::algorithms::decision_forest::classification::internal::ModelImpl,
+                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, HyperparameterType, cpu> >(
+                x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses, featTypes,
+                &indexedFeatures, hyperparameter);
         }
         else
-            s = computeImpl<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
-                            daal::algorithms::decision_forest::classification::internal::ModelImpl,
-                            TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, cpu> >(
-                pHostApp, x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses,
-                featTypes, nullptr);
+            s = computeImpl<
+                algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, cpu,
+                daal::algorithms::decision_forest::classification::internal::ModelImpl,
+                TrainBatchTask<algorithmFPType, dtrees::internal::IndexedFeatures::IndexType, defaultDense, helper, HyperparameterType, cpu> >(
+                x, y, w, *static_cast<daal::algorithms::decision_forest::classification::internal::ModelImpl *>(&m), rd, par, par.nClasses, featTypes,
+                nullptr, hyperparameter);
     }
 
     if (s.ok()) res.impl()->setEngine(rd.updatedEngine);
@@ -1771,21 +1786,31 @@ services::Status computeForSpecificHelper(HostAppIface * pHostApp, const Numeric
 
 template <typename algorithmFPType, Method method, CpuType cpu>
 services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::compute(
-    HostAppIface * pHostApp, const NumericTable * x, const NumericTable * y, const NumericTable * w, decision_forest::classification::Model & m,
-    Result & res, const decision_forest::classification::training::Parameter & par)
+    const NumericTable * x, const NumericTable * y, const NumericTable * w, decision_forest::classification::Model & m, Result & res,
+    const decision_forest::classification::training::Parameter & par, const HyperparameterType * hp)
 {
     services::Status s;
+    if (hp)
+    {
+        hp->check(s);
+        if (!s) return s;
+    }
+
+    const services::SharedPtr<NumericTable> normalizedWeights = normalizeWeights<algorithmFPType, cpu>(w, s);
+    if (!s) return s;
+    if (normalizedWeights) w = normalizedWeights.get();
+
     if (par.splitter == decision_forest::training::SplitterMode::best)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,
-                                     RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperBest<algorithmFPType, cpu> > >(
-            pHostApp, x, y, w, m, res, par, par.memorySavingMode);
+                                     RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperBest<algorithmFPType, cpu> > >(x, y, w, m, res, par,
+                                                                                                                            par.memorySavingMode, hp);
     }
     else if (par.splitter == decision_forest::training::SplitterMode::random)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,
                                      RespHelperBase<algorithmFPType, cpu, UnorderedRespHelperRandom<algorithmFPType, cpu> > >(
-            pHostApp, x, y, w, m, res, par, par.memorySavingMode || method == defaultDense);
+            x, y, w, m, res, par, par.memorySavingMode || method == defaultDense, hp);
     }
     return s;
 }

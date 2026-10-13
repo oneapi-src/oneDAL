@@ -44,32 +44,6 @@ namespace interface1
  * @{
  */
 /**
- * <a name="DAAL-CLASS-ALGORITHMS__COSINE_DISTANCE__BATCHCONTAINER"></a>
- * \brief Provides methods to run implementations of the cosine distance algorithm.
- *        This class is associated with daal::algorithms::cosine_distance::Batch class
- *
- * \tparam algorithmFPType  Data type to use in intermediate computations for the cosine distance, double or float
- * \tparam method           Cosine distance computation method, \ref Method
- */
-template <typename algorithmFPType, Method method, CpuType cpu>
-class BatchContainer : public daal::algorithms::AnalysisContainerIface<batch>
-{
-public:
-    /**
-     * Constructs a container for the cosine distance algorithm with a specified environment
-     * in the batch processing mode
-     * \param[in] daalEnv   Environment object
-     */
-    BatchContainer(daal::services::Environment::env * daalEnv);
-    /** Default constructor */
-    ~BatchContainer();
-    /**
-     * Computes the result of the cosine distance algorithm in the batch processing mode
-     */
-    virtual services::Status compute() DAAL_C11_OVERRIDE;
-};
-
-/**
  * <a name="DAAL-CLASS-ALGORITHMS__COSINE_DISTANCE__BATCH"></a>
  * \brief Computes the cosine distance in the batch processing mode.
  * <!-- \n<a href="DAAL-REF-COSDISTANCE-ALGORITHM">Cosine distance algorithm description and usage models</a> -->
@@ -89,7 +63,7 @@ public:
     typedef algorithms::cosine_distance::Input InputType;
     typedef algorithms::cosine_distance::Result ResultType;
 
-    Batch() { initialize(); }
+    Batch();
 
     /**
      * Constructs a cosine distance algorithm by copying input objects
@@ -97,13 +71,13 @@ public:
      * \param[in] other An algorithm to be used as the source to initialize the input objects
      *                  and parameters of the algorithm
      */
-    Batch(const Batch<algorithmFPType, method> & other) : input(other.input) { initialize(); }
+    Batch(const Batch<algorithmFPType, method> & other);
 
     /**
     * Returns the method of the algorithm
     * \return Method of the algorithm
     */
-    virtual int getMethod() const DAAL_C11_OVERRIDE { return (int)method; }
+    int getMethod() const override { return (int)method; }
 
     /**
      * Returns the structure that contains the cosine distance
@@ -131,21 +105,16 @@ public:
     services::SharedPtr<Batch<algorithmFPType, method> > clone() const { return services::SharedPtr<Batch<algorithmFPType, method> >(cloneImpl()); }
 
 protected:
-    virtual Batch<algorithmFPType, method> * cloneImpl() const DAAL_C11_OVERRIDE { return new Batch<algorithmFPType, method>(*this); }
+    Batch<algorithmFPType, method> * cloneImpl() const override { return new Batch<algorithmFPType, method>(*this); }
 
-    virtual services::Status allocateResult() DAAL_C11_OVERRIDE
+    services::Status allocateResult() override
     {
         services::Status s = _result->allocate<algorithmFPType>(&input, NULL, (int)method);
         _res               = _result.get();
         return s;
     }
 
-    void initialize()
-    {
-        Analysis<batch>::_ac = new __DAAL_ALGORITHM_CONTAINER(batch, BatchContainer, algorithmFPType, method)(&_env);
-        _in                  = &input;
-        _result.reset(new ResultType());
-    }
+    void initialize();
 
 public:
     InputType input; /*!< %Input objects of the algorithm */
@@ -157,7 +126,6 @@ private:
 };
 /** @} */
 } // namespace interface1
-using interface1::BatchContainer;
 using interface1::Batch;
 
 } // namespace cosine_distance

@@ -38,6 +38,7 @@ namespace algorithms
 {
 namespace internal
 {
+using namespace daal::internal;
 using namespace services::internal;
 
 typedef int (*CompareFunction)(const void *, const void *);
@@ -107,10 +108,8 @@ void qSort(size_t n, algorithmDataType * x)
             a = x[l + 1];
             for (;;)
             {
-                while (x[++i] < a)
-                    ;
-                while (x[--j] > a)
-                    ;
+                while (x[++i] < a);
+                while (x[--j] > a);
                 if (j < i)
                 {
                     break;
@@ -205,10 +204,8 @@ void qSort(size_t n, algorithmDataType * x, CompareFunction compare)
             a = x[l + 1];
             for (;;)
             {
-                while (compare(&x[++i], &a) == -1)
-                    ;
-                while (compare(&x[--j], &a) == 1)
-                    ;
+                while (compare(&x[++i], &a) == -1);
+                while (compare(&x[--j], &a) == 1);
                 if (j < i)
                 {
                     break;
@@ -296,10 +293,8 @@ void qSortByKey(size_t n, T * x)
             a = x[l + 1];
             for (;;)
             {
-                while (x[++i].key < a.key)
-                    ;
-                while (x[--j].key > a.key)
-                    ;
+                while (x[++i].key < a.key);
+                while (x[--j].key > a.key);
 
                 if (j < i)
                 {
@@ -404,10 +399,8 @@ void qSort(size_t n, algorithmDataType * x, algorithmIndexType * index)
             b = index[l + 1];
             for (;;)
             {
-                while (x[++i] < a)
-                    ;
-                while (x[--j] > a)
-                    ;
+                while (x[++i] < a);
+                while (x[--j] > a);
                 if (j < i)
                 {
                     break;
@@ -515,10 +508,8 @@ void qSort(size_t n, algorithmFPtype * x, wType * w, zType * z)
             c = z[l + 1];
             for (;;)
             {
-                while (x[++i] < a)
-                    ;
-                while (x[--j] > a)
-                    ;
+                while (x[++i] < a);
+                while (x[--j] > a);
                 if (j < i)
                 {
                     break;

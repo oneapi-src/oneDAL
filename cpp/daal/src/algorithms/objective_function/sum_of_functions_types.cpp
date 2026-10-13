@@ -49,6 +49,16 @@ Parameter::Parameter(const Parameter & other)
       featureId(other.featureId)
 {}
 
+Parameter & Parameter::operator=(const Parameter & other)
+{
+    if (this == &other) return *this;
+    objective_function::Parameter::operator=(other.resultsToCompute);
+    this->numberOfTerms = other.numberOfTerms;
+    this->batchIndices  = other.batchIndices;
+    this->featureId     = other.featureId;
+    return *this;
+}
+
 /**
  * Checks the correctness of the parameter
  */
@@ -64,6 +74,12 @@ services::Status Parameter::check() const
 Input::Input(size_t n) : objective_function::Input(n) {}
 
 Input::Input(const Input & other) : objective_function::Input(other) {}
+
+Input & Input::operator=(const Input & other)
+{
+    objective_function::Input::operator=(other);
+    return *this;
+}
 
 /**
  * Sets one input object for Sum of functions

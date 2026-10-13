@@ -162,7 +162,7 @@ struct ColIndexTaskBins : public ColIndexTask<IndexType, algorithmFPType, cpu>
     *     BinParams::Strategy is used
     */
     virtual services::Status makeIndex(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows,
-                                       bool bUnorderedFeature) DAAL_C11_OVERRIDE;
+                                       bool bUnorderedFeature) override;
     /* Function to create feature indices for Strategy == quantiles */
     services::Status makeIndexQuantiles(NumericTable & nt, IndexedFeatures::FeatureEntry & entry, IndexType * aRes, size_t iCol, size_t nRows);
     /* Function to create feature indices for Strategy == averages */
@@ -481,7 +481,7 @@ services::Status IndexedFeatures::init(const NumericTable & nt, const FeatureTyp
     });
 
     SafeStatus safeStat;
-    daal::threader_for(nC, nC, [&](size_t iCol) {
+    daal::threader_for(nC, 1, [&](size_t iCol) {
         //in case of single thread no need to allocate
         TlsTask * task = tlsData.local();
         DAAL_CHECK_THR(task, services::ErrorMemoryAllocationFailed);

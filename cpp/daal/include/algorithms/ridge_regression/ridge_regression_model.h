@@ -39,7 +39,7 @@ namespace algorithms
 namespace ridge_regression
 {
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -69,7 +69,7 @@ struct DAAL_EXPORT TrainParameter : public Parameter
 {
     TrainParameter();
 
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 
     data_management::NumericTablePtr ridgeParameters; /*!< Numeric table that contains values of ridge parameters */
 };

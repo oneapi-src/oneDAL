@@ -99,7 +99,7 @@ enum OptionalDataId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -135,14 +135,14 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
     */
     Parameter & operator=(const Parameter & other);
 
-    ~Parameter() DAAL_C11_OVERRIDE {}
+    ~Parameter() override {}
 
     /**
      * Checks the correctness of the parameter
      *
      * \return Status of computations
      */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 
     sum_of_functions::BatchPtr function; /*!< Objective function represented as sum of functions */
     size_t nIterations;                  /*!< Maximal number of iterations of the algorithm */
@@ -166,8 +166,9 @@ class DAAL_EXPORT Input : public daal::algorithms::Input
 public:
     Input();
     Input(const Input & other);
+    Input & operator=(const Input & other);
 
-    ~Input() DAAL_C11_OVERRIDE {}
+    ~Input() override {}
 
     /**
      * Returns input NumericTable of the iterative solver algorithm
@@ -217,7 +218,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /**
@@ -230,7 +231,7 @@ public:
     DECLARE_SERIALIZABLE_CAST(Result)
     Result() : daal::algorithms::Result(lastOptionalResultId + 1) {}
 
-    ~Result() DAAL_C11_OVERRIDE {};
+    ~Result() override {};
 
     /**
      * Allocates memory to store the results of the iterative solver algorithm
@@ -293,7 +294,7 @@ public:
      *
      * \return Status of computations
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     using daal::algorithms::interface1::Result::check;

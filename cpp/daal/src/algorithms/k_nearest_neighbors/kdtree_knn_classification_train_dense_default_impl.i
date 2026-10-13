@@ -159,14 +159,9 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     size_t * const indexes = static_cast<data_management::HomogenNumericTable<size_t> *>(r->impl()->getIndices().get())->getArray();
 
     Queue<BuildNode, cpu> q;
-    BBox * bboxQ    = nullptr;
-    auto oldThreads = services::Environment::getInstance()->getNumberOfThreads();
+    BBox * bboxQ = nullptr;
     DAAL_CHECK_STATUS(status, buildFirstPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
-    // Temporary workaround for threading issues in `buildSecondPartOfKDTree()`
-    // Fix to be provided in https://github.com/uxlfoundation/oneDAL/pull/2925
-    services::Environment::getInstance()->setNumberOfThreads(1);
     DAAL_CHECK_STATUS(status, buildSecondPartOfKDTree(q, bboxQ, *x, *r, indexes, engine));
-    services::Environment::getInstance()->setNumberOfThreads(oldThreads);
     DAAL_CHECK_STATUS(status, rearrangePoints(*x, indexes));
     if (y)
     {
@@ -337,7 +332,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
         DAAL_CHECK_STATUS_OK((status.ok()), status);
 
-        daal::threader_for(blockCount, blockCount, [=, &bboxTLS](int iBlock) {
+        daal::threader_for(blockCount, 1, [=, &bboxTLS](int iBlock) {
             BBox * const bboxLocal = bboxTLS.local();
             if (bboxLocal)
             {
@@ -350,7 +345,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     size_t i = first;
                     b.upper  = dx[indexes[i]];
                     b.lower  = dx[indexes[i]];
-                    PRAGMA_IVDEP
+
                     for (++i; i < last; ++i)
                     {
                         if (b.lower > dx[indexes[i]])
@@ -416,7 +411,6 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             const_cast<NumericTable &>(x).getBlockOfColumnValues(j, 0, xRowCount, readOnly, columnBD);
             const algorithmFpType * const dx = columnBD.getBlockPtr();
 
-            PRAGMA_IVDEP
             for (size_t i = 0; i < elementCount; ++i)
             {
                 sampleValues[i] = dx[indexes[start + i]];
@@ -458,7 +452,6 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
             const_cast<NumericTable &>(x).getBlockOfColumnValues(j, 0, xRowCount, readOnly, columnBD);
             const algorithmFpType * const dx = columnBD.getBlockPtr();
 
-            PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < elementCount; ++i)
             {
                 sampleValues[i] = dx[indexes[sampleIndexes[i]]];
@@ -562,7 +555,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
         return (algorithmFpType)0;
     }
 
-    daal::threader_for(blockCount, blockCount, [=, &histTLS, &samples, &subSamples](int iBlock) {
+    daal::threader_for(blockCount, 1, [=, &histTLS, &samples, &subSamples](int iBlock) {
         Hist * const hist = histTLS.local();
         if (hist)
         {
@@ -580,7 +573,7 @@ algorithmFpType KNNClassificationTrainBatchKernel<algorithmFpType, training::def
     histTLS.reduce([=, &masterHist](Hist * v) -> void {
         if (v)
         {
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t j = 0; j < sampleCount; ++j)
             {
@@ -727,15 +720,13 @@ size_t KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         return 0;
     }
 
-    daal::threader_for(blockCount, blockCount, [=, &leftSegmentStartPerBlock, &rightSegmentStartPerBlock](int iBlock) {
+    daal::threader_for(blockCount, 1, [=, &leftSegmentStartPerBlock, &rightSegmentStartPerBlock](int iBlock) {
         const size_t first = start + iBlock * rowsPerBlock;
         const size_t last  = min<cpu>(first + rowsPerBlock, end);
 
         size_t left  = first;
         size_t right = last - 1;
 
-        PRAGMA_IVDEP
-        PRAGMA_VECTOR_ALWAYS
         for (;;)
         {
             while ((left <= right) && (dx[indexes[left]] < median))
@@ -863,7 +854,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
         const auto rowsPerBlock = 256;
         const auto blockCount   = (xRowCount + rowsPerBlock - 1) / rowsPerBlock;
 
-        daal::threader_for(blockCount, blockCount, [=](int iBlock) {
+        daal::threader_for(blockCount, 1, [=](int iBlock) {
             const size_t first = iBlock * rowsPerBlock;
             const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
@@ -885,7 +876,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
 
         if (rx == wx)
         {
-            daal::threader_for(blockCount, blockCount, [=](int iBlock) {
+            daal::threader_for(blockCount, 1, [=](int iBlock) {
                 const size_t first = iBlock * rowsPerBlock;
                 const size_t last  = min<cpu>(static_cast<decltype(xRowCount)>(first + rowsPerBlock), xRowCount);
 
@@ -1021,7 +1012,7 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
     SafeStatus safeStat;
 
     daal::threader_for(
-        blockCount, blockCount, [=, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock) {
+        blockCount, 1, [=, &localTLS, &firstNodeIndex, &kdTreeTable, &x, &r, &rowsPerBlock, &xColumnCount, &safeStat, &engine](int iBlock) {
             int result                     = 0;
             engines::EnginePtr engineLocal = engine.clone();
 
@@ -1072,7 +1063,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                     {
                         bn = local->buildStack.pop();
                         --local->bboxPos;
-                        bboxCur = &(local->bboxes[local->bboxPos * xColumnCount]);
+                        const size_t bboxCurIndex = local->bboxPos * xColumnCount;
+                        bboxCur                   = &(local->bboxes[bboxCurIndex]);
                         curNode = (bn.nodePos < firstExtraNodeIndex) ? static_cast<KDTreeNode *>(kdTreeTable.getArray()) + bn.nodePos :
                                                                        &(local->extraKDTreeNodes[bn.nodePos - firstExtraNodeIndex]);
 
@@ -1143,6 +1135,11 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                         local->extraKDTreeNodesCapacity = newCapacity;
                                         daal_free(oldNodes);
                                         oldNodes = nullptr;
+
+                                        if (bn.nodePos >= firstExtraNodeIndex)
+                                        {
+                                            curNode = &(local->extraKDTreeNodes[bn.nodePos - firstExtraNodeIndex]);
+                                        }
                                     }
                                 }
                                 else
@@ -1185,6 +1182,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                                 local->bboxes          = newBboxes;
                                 local->bboxesCapacity  = newCapacity;
                                 service_scalable_free<BBox, cpu>(oldBboxes);
+
+                                bboxCur = &local->bboxes[bboxCurIndex];
                             }
                             bboxLeft = &local->bboxes[bnLeft.queueOrStackPos * xColumnCount];
                             this->copyBBox(bboxLeft, bboxCur, xColumnCount);
@@ -1193,8 +1192,8 @@ Status KNNClassificationTrainBatchKernel<algorithmFpType, training::defaultDense
                             statStackPush     = local->buildStack.push(bnLeft);
                             DAAL_CHECK_STATUS_THR(statStackPush)
                         } // if (bn.end - bn.start <= __KDTREE_LEAF_BUCKET_SIZE)
-                    }     // while (local->buildStack.size() > 0)
-                }         // for (auto i = first; i < last; ++i)
+                    } // while (local->buildStack.size() > 0)
+                } // for (auto i = first; i < last; ++i)
                 if (result) safeStat.add(services::Status(services::ErrorMemoryCopyFailedInternal));
             } // if (local)
         });

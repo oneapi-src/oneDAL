@@ -92,7 +92,6 @@ dal_collect_test_suites(
         "placement",
         "reduction",
         "regression",
-        "rng",
         "selection",
         "search",
         "sort",

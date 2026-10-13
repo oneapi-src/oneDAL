@@ -25,3 +25,11 @@ CMakeCache.txt
 
 # MODULE.bazel lock file
 MODULE.bazel.lock
+
+# Configurations from file explorers
+.directory
+.DS_Store
+
+# Python bytecode
+__pycache__/
+*.pyc

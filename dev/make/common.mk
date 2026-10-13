@@ -67,27 +67,28 @@ md5sum.cmd.win = md5sum
 md5sum.cmd.mac = md5 -q
 
 # Enable compiler-provided defences as recommended by Intel Security Development Lifecycle document (SW.01)
-secure.opts.icc.win = -GS
-secure.opts.icc.lnx = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+secure.opts.win = $(if $(COMPILER_is_vc),-GS,)
+secure.opts.lnx = -Wformat -Wformat-security -fstack-protector-strong
+secure.opts.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 
-secure.opts.icc.mac = -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fstack-protector
 
 secure.opts.link.win = -DYNAMICBASE -NXCOMPAT
 secure.opts.link.lnx = -z relro -z now -z noexecstack
 secure.opts.link.mac =
 
-RC.COMPILE = rc.exe $(RCOPT) -fo$@ $<
+RC.COMPILE = $(if $(COMPILER_is_clang),llvm-rc,rc.exe) $(RCOPT) -fo$@ $<
 
 # Used as $(eval $(call set_c_compile,$(COMPILER),$(_OS),$(gcc_toolchain))
 C.COMPILE = $(if $(COMPILER.$(_OS).$(COMPILER)),$(COMPILER.$(_OS).$(COMPILER)),$(error COMPILER.$(_OS).$(COMPILER) must be defined)) \
             $(if $(C.COMPILE.gcc_toolchain),--gcc-toolchain=$(C.COMPILE.gcc_toolchain)) \
-            -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
+            -c $(secure.opts.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
 
 DPC.COMPILE = $(if $(COMPILER.$(_OS).dpcpp),$(COMPILER.$(_OS).dpcpp),$(error COMPILER.$(_OS).dpcpp must be defined)) \
               $(if $(DPC.COMPILE.gcc_toolchain),--gcc-toolchain=$(DPC.COMPILE.gcc_toolchain)) \
-              -c $(secure.opts.icc.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
+              -c $(secure.opts.$(_OS)) $(COPT) $(INCLUDES) $1 $(-Fo)$@ $<
 
 # Enable additional options to follow ISO C++ standards
+# TODO: add these flags for DAAL code.
 pedantic.opts = $(pedantic.opts.$(_OS).$(COMPILER))
 pedantic.opts.dpcpp = $(pedantic.opts.$(_OS).dpcpp)
 
@@ -100,6 +101,10 @@ write.prereqs.args = $(or $1,$(^.no-mkdeps))
 write.prereqs.impl = $(call xargs,write.prereqs.dump,$1,$2)
 write.prereqs.dump = $(call exec,printf -- "$(subst $(space),$2,$1)$(if $6,$2)" >> $@)
 
+# Dynamically generate EXCLUDE_LIBS from MATH_LIBS_TO_EXCLUDE
+# Each library in MATH_LIBS_TO_EXCLUDE is prefixed with `-Wl,--exclude-libs=`
+EXCLUDE_LIBS = $(foreach lib,$(MATH_LIBS_TO_EXCLUDE),-Wl$(comma)--exclude-libs=$(lib))
+
 # Link static lib
 LINK.STATIC = $(mkdir)$(call rm,$@)$(link.static.cmd)
 link.static.cmd = $(call link.static.$(_OS),$(LOPT) $(or $1,$(^.no-mkdeps)))
@@ -109,15 +114,15 @@ link.static.lnx.cmdline = $(if $(AR_is_command_line),${AR},ar) rs $@ $(1:%_link.
 .addmod = $(if $(filter %.o,$1),addmod $(filter %.o,$1))
 .addlink = $(if $(filter %_link.txt,$1),addmod $(shell tr '\n' ', ' < $(filter %_link.txt,$1)))
 link.static.lnx.script = printf "create $@\n$(call .addlib,$1)\n$(call .addmod,$1)\n$(call .addlink,$1)\nsave\n" | $(if $(AR_is_command_line),${AR},ar) -M
-link.static.win = lib $(link.static.win.$(COMPILER)) -nologo -out:$@ $(1:%_link.txt=@%_link.txt)
+link.static.win = $(link.static.win.$(COMPILER)) -nologo -out:$@ $(1:%_link.txt=@%_link.txt)
 link.static.mac = libtool -V -static -o $@ $(1:%_link.txt=-filelist %_link.txt)
 
 # Link dynamic lib
 LINK.DYNAMIC = $(mkdir)$(call rm,$@)$(link.dynamic.cmd)
 link.dynamic.cmd = $(call link.dynamic.$(_OS),$(secure.opts.link.$(_OS)) $(or $1,$(^.no-mkdeps)) $(LOPT))
 link.dynamic.lnx = $(if $(link.dynamic.lnx.$(COMPILER)),$(link.dynamic.lnx.$(COMPILER)),$(error link.dynamic.lnx.$(COMPILER) must be defined)) \
-                   -Wl,-soname,$(@F).$(MAJORBINARY) -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
-link.dynamic.win = link $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) \
+                   $(EXCLUDE_LIBS) -Wl,-soname,$(@F).$(MAJORBINARY) -shared $(-sGRP) $(patsubst %_link.txt,@%_link.txt,$(patsubst %_link.def,@%_link.def,$1)) $(-eGRP) -o $@
+link.dynamic.win = $(link.dynamic.win.$(COMPILER)) -WX -nologo -map -dll $(-DEBL) \
                    $(patsubst %_link.txt,@%_link.txt,$(patsubst %.def,-DEF:%.def,$1)) -out:$@
 link.dynamic.mac = $(if $(link.dynamic.mac.$(COMPILER)),$(link.dynamic.mac.$(COMPILER)),$(error link.dynamic.mac.$(COMPILER) must be defined)) \
                    -undefined dynamic_lookup -dynamiclib -Wl,-flat_namespace -Wl,-install_name,@rpath/$(subst .dylib,.$(MAJORBINARY).dylib,$(@F)) \
@@ -173,7 +178,7 @@ sed.eol.win = \r
 sed.eol.lnx =
 
 # sed's end of word
-sed.eow = $(sed.eol.$(_OS))
+sed.eow = $(sed.eow.$(_OS))
 # macOS default sed doesn't support it
 sed.eow.mac =
 sed.eow.win = \b

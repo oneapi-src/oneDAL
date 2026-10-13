@@ -160,7 +160,7 @@ enum ResultToComputeId
 };
 
 /**
-    * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+    * \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
     */
 namespace interface1
 {
@@ -200,6 +200,7 @@ class DAAL_EXPORT Input : public InputIface
 public:
     Input();
     Input(const Input & other);
+    Input & operator=(const Input & other);
 
     virtual ~Input() {};
 
@@ -228,7 +229,7 @@ public:
         * Returns the number of columns in the input data set
         * \return Number of columns in the input data set
         */
-    size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNFeatures() const override;
 
     /**
     * Checks input algorithm parameters
@@ -236,7 +237,7 @@ public:
     * \param[in] method  Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 };
 
 /**
@@ -282,7 +283,7 @@ public:
         */
     data_management::NumericTablePtr get(PartialCorrelationResultId id) const;
 
-    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNFeatures() const override;
 
     /**
         * Sets partial result of the PCA Correlation algorithm
@@ -300,7 +301,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const override;
 
     /**
     * Checks partial results of the PCA Ccorrelation algorithm
@@ -308,7 +309,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 
     /**
         * Allocates memory to store partial results of the PCA  SVD algorithm
@@ -360,7 +361,7 @@ public:
     */
     data_management::NumericTablePtr get(PartialSVDTableResultId id) const;
 
-    virtual size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNFeatures() const override;
 
     /**
     * Gets partial results of the PCA SVD algorithm
@@ -405,7 +406,7 @@ public:
     * \param[in] method     Computation method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const override;
 
     /**
     * Checks partial results of the PCA SVD algorithm
@@ -413,7 +414,7 @@ public:
     * \param[in] par        %Parameter of algorithm
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * par, int method) const override;
 
     virtual ~PartialResult() {};
 
@@ -487,7 +488,7 @@ public:
     * Checks online parameter of the PCA correlation algorithm
     * \return Errors detected while checking
     */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 
 /**
@@ -505,7 +506,7 @@ public:
     * Checks online parameter of the PCA SVD algorithm
     * \return Errors detected while checking
     */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 
 /**
@@ -535,7 +536,7 @@ public:
     * Checks distributed parameter of the PCA correlation algorithm
     * \return Errors detected while checking
     */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 
 /**
@@ -556,6 +557,7 @@ class DistributedInput<correlationDense> : public InputIface
 public:
     DAAL_EXPORT DistributedInput();
     DAAL_EXPORT DistributedInput(const DistributedInput & other);
+    DAAL_EXPORT DistributedInput operator=(const DistributedInput & other);
 
     /**
         * Sets input objects for the PCA on the second step in the distributed processing mode
@@ -588,7 +590,7 @@ public:
         * Returns the number of columns in the input data set
         * \return Number of columns in the input data set
         */
-    size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNFeatures() const override;
 
     /**
     * Checks the input of the PCA algorithm
@@ -596,7 +598,7 @@ public:
     * \param[in] method    Computation  method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 };
 
 /**
@@ -643,19 +645,19 @@ public:
     * \param[in] method    Computation  method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 
     /**
         * Returns the number of columns in the input data set
         * \return Number of columns in the input data set
         */
-    size_t getNFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNFeatures() const override;
 };
 
 } // namespace interface1
 
 /**
-    * \brief Contains version 3.0 of Intel(R) oneAPI Data Analytics Library interface.
+    * \brief Contains version 3.0 of oneAPI Data Analytics Library interface.
     */
 namespace interface3
 {
@@ -703,7 +705,7 @@ public:
     * Checks batch parameter of the PCA correlation algorithm
     * \return Errors detected while checking
     */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 
 /**
@@ -725,7 +727,7 @@ public:
                                                             * Checks batch parameter of the PCA svd algorithm
                                                             * \return Errors detected while checking
                                                             */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 
 /**
@@ -795,7 +797,7 @@ public:
     * \param[in] method  Computation  method
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::Input * _input, const daal::algorithms::Parameter * par, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * _input, const daal::algorithms::Parameter * par, int method) const override;
 
     /**
     * Checks the results of the PCA algorithm
@@ -804,8 +806,7 @@ public:
     * \param[in] parameter      Algorithm %parameter
     * \return Errors detected while checking
     */
-    services::Status check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * parameter,
-                           int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::PartialResult * pr, const daal::algorithms::Parameter * parameter, int method) const override;
 
 protected:
     /**

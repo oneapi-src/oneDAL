@@ -97,7 +97,7 @@ enum ResultId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -167,7 +167,7 @@ public:
      * \param[in] parameter Pointer to the parameters
      * \param[in] method Computation method
      */
-    virtual services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 };
 
 /**
@@ -214,8 +214,7 @@ public:
      * \param[in] par    Pointer to parameters
      * \param[in] method Computation method
      */
-    virtual services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par,
-                                   int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * par, int method) const override;
 
 protected:
     using daal::algorithms::interface1::Result::check;

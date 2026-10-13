@@ -15,10 +15,35 @@
 *******************************************************************************/
 
 #include "oneapi/dal/backend/primitives/sort/sort.hpp"
+#include "oneapi/dal/backend/common.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
 
 #include <sycl/ext/oneapi/experimental/builtins.hpp>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-local-typedef"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wkeyword-macro"
+#pragma clang diagnostic ignored "-Wunused-template"
+
+// Workaround: some oneTBB versions annotate the override of
+// std::exception::what() with __TBB_EXPORTED_METHOD, which on Windows-x86
+// expands to `__thiscall`. Newer MSVC vcruntime_exception.h declares the
+// base with the default calling convention, so the mismatch on the virtual
+// override is a hard error that `#pragma diagnostic` cannot silence.
+#if defined(_WIN32) && defined(_WIN64)
+#define __thiscall
+#endif
+
+#include <oneapi/dpl/experimental/kernel_templates>
+
+#if defined(_WIN32) && defined(_WIN64)
+#undef __thiscall
+#endif
+
+#pragma clang diagnostic pop
 
 namespace oneapi::dal::backend::primitives {
 
@@ -32,17 +57,32 @@ inline std::uint64_t inv_bits(std::uint64_t x) {
     return x ^ (-(x >> 63) | 0x8000000000000000ul);
 }
 
-using sycl::ext::oneapi::plus;
+/// Maps the raw bits of a float onto the unsigned key the radix passes sort by.
+/// `inv_bits` is the order-preserving map; complementing it reverses the order, so
+/// descending is the same single XOR against a compile-time complemented mask. Doing it
+/// here rather than negating the input values also keeps `-0.0` and `+0.0` on one key.
+template <bool Ascending, typename Uint>
+inline Uint radix_key(Uint x) {
+    if constexpr (Ascending) {
+        return inv_bits(x);
+    }
+    else {
+        return ~inv_bits(x);
+    }
+}
 
-template <typename Float, typename Index>
-sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& queue,
-                                                                 const ndview<Float, 1>& val,
-                                                                 ndarray<Index, 1>& part_hist,
-                                                                 Index elem_count,
-                                                                 std::uint32_t bit_offset,
-                                                                 std::int64_t local_size,
-                                                                 std::int64_t local_hist_count,
-                                                                 sycl::event& deps) {
+using sycl::plus;
+
+template <typename Float, typename Index, bool Ascending>
+sycl::event radix_sort_indices_inplace<Float, Index, Ascending>::radix_scan(
+    sycl::queue& queue,
+    const ndview<Float, 1>& val,
+    ndarray<Index, 1>& part_hist,
+    Index elem_count,
+    std::uint32_t bit_offset,
+    std::int64_t local_size,
+    std::int64_t local_hist_count,
+    sycl::event& deps) {
     ONEDAL_ASSERT(part_hist.get_count() == hist_buff_size_);
 
     const sycl::nd_range<1> nd_range =
@@ -79,7 +119,8 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
             }
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
-                radix_integer_t data_bits = ((inv_bits(val_ptr[i]) >> bit_offset) & radix_range_1_);
+                radix_integer_t data_bits =
+                    ((radix_key<Ascending>(val_ptr[i]) >> bit_offset) & radix_range_1_);
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
                     Index value = static_cast<Index>(data_bits == j);
                     Index partial_offset = sycl::reduce_over_group(sbg, value, plus<Index>());
@@ -98,8 +139,8 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_scan(sycl::queue& qu
     return event;
 }
 
-template <typename Float, typename Index>
-sycl::event radix_sort_indices_inplace<Float, Index>::radix_hist_scan(
+template <typename Float, typename Index, bool Ascending>
+sycl::event radix_sort_indices_inplace<Float, Index, Ascending>::radix_hist_scan(
     sycl::queue& queue,
     const ndarray<Index, 1>& part_hist,
     ndarray<Index, 1>& part_prefix_hist,
@@ -153,8 +194,8 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_hist_scan(
     return event;
 }
 
-template <typename Float, typename Index>
-sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
+template <typename Float, typename Index, bool Ascending>
+sycl::event radix_sort_indices_inplace<Float, Index, Ascending>::radix_reorder(
     sycl::queue& queue,
     const ndview<Float, 1>& val_in,
     const ndview<Index, 1>& ind_in,
@@ -212,7 +253,8 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
 
             for (Index i = ind_start + local_id; i < ind_end; i += local_size) {
                 radix_integer_t data_value = val_in_ptr[i];
-                radix_integer_t data_bits = ((inv_bits(data_value) >> bit_offset) & radix_range_1_);
+                radix_integer_t data_bits =
+                    ((radix_key<Ascending>(data_value) >> bit_offset) & radix_range_1_);
                 Index pos_new = 0;
                 for (std::uint32_t j = 0; j < radix_range_; j++) {
                     Index value = static_cast<Index>(data_bits == j);
@@ -230,18 +272,20 @@ sycl::event radix_sort_indices_inplace<Float, Index>::radix_reorder(
     return event;
 }
 
-template <typename Float, typename Index>
-radix_sort_indices_inplace<Float, Index>::radix_sort_indices_inplace(const sycl::queue& queue)
+template <typename Float, typename Index, bool Ascending>
+radix_sort_indices_inplace<Float, Index, Ascending>::radix_sort_indices_inplace(
+    const sycl::queue& queue)
         : queue_(queue),
           elem_count_(0) {}
 
-template <typename Float, typename Index>
-radix_sort_indices_inplace<Float, Index>::~radix_sort_indices_inplace() {
+template <typename Float, typename Index, bool Ascending>
+radix_sort_indices_inplace<Float, Index, Ascending>::~radix_sort_indices_inplace() {
     sort_event_.wait_and_throw();
 }
 
-template <typename Float, typename Index>
-void radix_sort_indices_inplace<Float, Index>::init(sycl::queue& queue, std::int64_t elem_count) {
+template <typename Float, typename Index, bool Ascending>
+void radix_sort_indices_inplace<Float, Index, Ascending>::init(sycl::queue& queue,
+                                                               std::int64_t elem_count) {
     ONEDAL_ASSERT(elem_count > 0);
     ONEDAL_ASSERT(elem_count <= de::limits<std::uint32_t>::max());
 
@@ -264,10 +308,11 @@ void radix_sort_indices_inplace<Float, Index>::init(sycl::queue& queue, std::int
     }
 }
 
-template <typename Float, typename Index>
-sycl::event radix_sort_indices_inplace<Float, Index>::operator()(ndview<Float, 1>& val_in,
-                                                                 ndview<Index, 1>& ind_in,
-                                                                 const event_vector& deps) {
+template <typename Float, typename Index, bool Ascending>
+sycl::event radix_sort_indices_inplace<Float, Index, Ascending>::operator()(
+    ndview<Float, 1>& val_in,
+    ndview<Index, 1>& ind_in,
+    const event_vector& deps) {
     ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace, queue_);
     ONEDAL_ASSERT(val_in.has_mutable_data());
     ONEDAL_ASSERT(ind_in.has_mutable_data());
@@ -524,6 +569,92 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
     return sort_event_;
 }
 
+template <typename Float, typename Index, bool Ascending>
+sycl::event radix_sort_indices_inplace_dpl(sycl::queue& queue,
+                                           ndview<Float, 1>& val_in,
+                                           ndview<Index, 1>& ind_in,
+                                           const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort_indices_inplace, queue);
+    sycl::event::wait_and_throw(deps);
+
+    ONEDAL_ASSERT(val_in.has_mutable_data());
+    ONEDAL_ASSERT(ind_in.has_mutable_data());
+    ONEDAL_ASSERT(val_in.get_count() == ind_in.get_count());
+
+    if (val_in.get_count() > de::limits<std::uint32_t>::max()) {
+        throw domain_error(dal::detail::error_messages::invalid_number_of_elements_to_sort());
+    }
+
+    // oneDPL kernel templates instantiate an internal kernel whose work-group
+    // size is compile-time-hardcoded and can exceed the device limit on
+    // non-datacenter GPUs (e.g. Iris Xe caps at 512). Route those devices to
+    // the in-house radix sort primitives, which pick a safe work-group size at
+    // runtime. Datacenter GPUs (PVC / BMG / GPU Max, max WG >= 1024) keep the
+    // faster oneDPL path.
+    // Reference: https://github.com/uxlfoundation/oneDPL/blob/main/documentation/library_guide/kernel_templates/sycl/radix_sort_by_key.rst
+    if (device_max_wg_size(queue) < 1024) {
+        radix_sort_indices_inplace<Float, Index, Ascending> sorter(queue);
+        return sorter(val_in, ind_in, deps);
+    }
+    return oneapi::dpl::experimental::kt::gpu::radix_sort_by_key<Ascending, 8>(
+        queue,
+        val_in.get_mutable_data(),
+        val_in.get_mutable_data() + val_in.get_count(),
+        ind_in.get_mutable_data(),
+        dpl::experimental::kt::kernel_param<10, 512>{});
+}
+
+template <typename Integer>
+sycl::event radix_sort_dpl(sycl::queue& queue,
+                           ndview<Integer, 2>& val_in,
+                           ndview<Integer, 2>& val_out,
+                           std::int64_t sorted_elem_count,
+                           const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort, queue);
+    sycl::event::wait_and_throw(deps);
+
+    const auto row_count = val_in.get_dimension(0);
+    const auto col_count = val_in.get_dimension(1);
+    sycl::event radix_sort_event;
+
+    // oneDPL kernel templates instantiate an internal kernel whose work-group
+    // size is compile-time-hardcoded and can exceed the device limit on
+    // non-datacenter GPUs (e.g. Iris Xe caps at 512). Route those devices to
+    // the in-house radix sort primitive, which picks a safe work-group size at
+    // runtime. Datacenter GPUs (PVC / BMG / GPU Max, max WG >= 1024) keep the
+    // faster oneDPL path.
+    // Reference: https://www.intel.com/content/www/us/en/docs/onedpl/developer-guide/2022-7/radix-sort-by-key.html
+    if (device_max_wg_size(queue) < 1024) {
+        radix_sort<Integer> sorter(queue);
+        return sorter(val_in, val_out, sorted_elem_count, deps);
+    }
+
+    for (std::int64_t row = 0; row < row_count; ++row) {
+        Integer* row_start_in = val_in.get_mutable_data() + row * col_count;
+        Integer* row_start_out = val_out.get_mutable_data() + row * col_count;
+
+        const auto row_sorted_elem_count = std::min(sorted_elem_count, col_count);
+
+        radix_sort_event = oneapi::dpl::experimental::kt::gpu::radix_sort<true, 8>(
+            queue,
+            row_start_in,
+            row_start_in + row_sorted_elem_count,
+            row_start_out,
+            dpl::experimental::kt::kernel_param<10, 512>{});
+    }
+
+    return radix_sort_event;
+}
+
+template <typename Integer>
+sycl::event radix_sort_dpl(sycl::queue& queue,
+                           ndview<Integer, 2>& val_in,
+                           ndview<Integer, 2>& val_out,
+                           const event_vector& deps) {
+    ONEDAL_PROFILER_TASK(sort.radix_sort, queue);
+    return radix_sort_dpl(queue, val_in, val_out, val_in.get_dimension(1), deps);
+}
+
 template <typename Integer>
 sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
                                             ndview<Integer, 2>& val_out,
@@ -532,8 +663,9 @@ sycl::event radix_sort<Integer>::operator()(ndview<Integer, 2>& val_in,
     return this->operator()(val_in, val_out, val_in.get_dimension(1), deps);
 }
 
-#define INSTANTIATE_SORT_INDICES(F, I) \
-    template class ONEDAL_EXPORT radix_sort_indices_inplace<F, I>;
+#define INSTANTIATE_SORT_INDICES(F, I)                                   \
+    template class ONEDAL_EXPORT radix_sort_indices_inplace<F, I, true>; \
+    template class ONEDAL_EXPORT radix_sort_indices_inplace<F, I, false>;
 
 #define INSTANTIATE_SORT(I) template class ONEDAL_EXPORT radix_sort<I>;
 
@@ -546,4 +678,46 @@ INSTANTIATE_SORT(std::int32_t)
 INSTANTIATE_SORT(std::uint32_t)
 INSTANTIATE_SORT(std::int64_t)
 INSTANTIATE_SORT(std::uint64_t)
+
+#define INSTANTIATE_SORT_INDICES_DPL_DIR(Float, Index, Ascending)                               \
+    template ONEDAL_EXPORT sycl::event radix_sort_indices_inplace_dpl<Float, Index, Ascending>( \
+        sycl::queue&,                                                                           \
+        ndview<Float, 1>&,                                                                      \
+        ndview<Index, 1>&,                                                                      \
+        const event_vector&);
+
+#define INSTANTIATE_SORT_INDICES_DPL(Float, Index)       \
+    INSTANTIATE_SORT_INDICES_DPL_DIR(Float, Index, true) \
+    INSTANTIATE_SORT_INDICES_DPL_DIR(Float, Index, false)
+
+#define INSTANTIATE_FLOAT(Index)               \
+    INSTANTIATE_SORT_INDICES_DPL(float, Index) \
+    INSTANTIATE_SORT_INDICES_DPL(double, Index)
+
+INSTANTIATE_FLOAT(std::uint32_t)
+INSTANTIATE_FLOAT(std::int32_t)
+
+#define INSTANTIATE_RADIX_SORT(Index)                                           \
+    template ONEDAL_EXPORT sycl::event radix_sort_dpl<Index>(sycl::queue&,      \
+                                                             ndview<Index, 2>&, \
+                                                             ndview<Index, 2>&, \
+                                                             const event_vector&);
+
+INSTANTIATE_RADIX_SORT(std::int32_t)
+INSTANTIATE_RADIX_SORT(std::uint32_t)
+INSTANTIATE_RADIX_SORT(std::int64_t)
+INSTANTIATE_RADIX_SORT(std::uint64_t)
+
+#define INSTANTIATE_RADIX_SORT_WITH_COUNT(Index)                                \
+    template ONEDAL_EXPORT sycl::event radix_sort_dpl<Index>(sycl::queue&,      \
+                                                             ndview<Index, 2>&, \
+                                                             ndview<Index, 2>&, \
+                                                             std::int64_t,      \
+                                                             const event_vector&);
+
+INSTANTIATE_RADIX_SORT_WITH_COUNT(std::int32_t)
+INSTANTIATE_RADIX_SORT_WITH_COUNT(std::uint32_t)
+INSTANTIATE_RADIX_SORT_WITH_COUNT(std::int64_t)
+INSTANTIATE_RADIX_SORT_WITH_COUNT(std::uint64_t)
+
 } // namespace oneapi::dal::backend::primitives

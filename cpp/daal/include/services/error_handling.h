@@ -17,7 +17,7 @@
 
 /*
 //++
-//  Handling errors in Intel(R) oneAPI Data Analytics Library (oneDAL).
+//  Handling errors in oneAPI Data Analytics Library (oneDAL).
 //--
 */
 
@@ -329,6 +329,16 @@ public:
      */
     ErrorCollection(const ErrorCollection & o) : _errors(o.getErrors()), _canThrow(o._canThrow) {}
 
+    ErrorCollection & operator=(const ErrorCollection & o)
+    {
+        if (this != &o)
+        {
+            _errors   = o.getErrors();
+            _canThrow = o._canThrow;
+        }
+        return *this;
+    }
+
     /**
     * Constructor for error collection
     * \param[in] errors  Error collection that will be kept by
@@ -393,19 +403,13 @@ public:
      * Returns size of an error collection
      * \return Size of an error collection
      */
-    size_t size() const
-    {
-        return _errors->size();
-    }
+    size_t size() const { return _errors->size(); }
 
     /**
      * Returns true if kernel error collection is empty
      * \return True if kernel error collection is empty
      */
-    bool isEmpty() const
-    {
-        return _errors->isEmpty();
-    }
+    bool isEmpty() const { return _errors->isEmpty(); }
 
     /**
      * Destructor of error collection
@@ -416,28 +420,19 @@ public:
      * Returns kernel error collection
      * \return True if kernel error collection is empty
      */
-    const KernelErrorCollectionPtr & getErrors() const
-    {
-        return _errors;
-    }
+    const KernelErrorCollectionPtr & getErrors() const { return _errors; }
 
     /**
      * Returns description of all errors from collection
      * \return Description of all errors from collection
      */
-    const char * getDescription() const
-    {
-        return _errors->getDescription();
-    }
+    const char * getDescription() const { return _errors->getDescription(); }
 
     /**
     * Returns true if can throw exceptions
     * \return true if can throw exceptions
     */
-    bool canThrow() const
-    {
-        return _canThrow;
-    }
+    bool canThrow() const { return _canThrow; }
 
     /**
     * Set canThrow flag

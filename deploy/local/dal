@@ -1,4 +1,3 @@
-
 #%Module1.0###################################################################
 #===============================================================================
 # Copyright 2020 Intel Corporation
@@ -42,7 +41,7 @@ set componentroot "[file dirname [file dirname [file dirname [file dirname "${sc
 
 ##############################################################################
 
-module-whatis "Name: Intel® oneAPI Data Analytics Library"
+module-whatis "Name: oneAPI Data Analytics Library"
 module-whatis "Version: $modulefilename/$modulefilever"
 module-whatis "Description: Library for building compute-intense applications optimized for Intel CPUs and GPUs."
 module-whatis "URL: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onedal.html"
@@ -63,14 +62,18 @@ proc ModulesHelp { } {
 set dalroot "$componentroot"
 
 set daal_target_arch "intel64"
+set daal_libdir "$dalroot/lib"
+if {[file isdirectory "$dalroot/lib/$daal_target_arch"]} {
+    set daal_libdir "$dalroot/lib/$daal_target_arch"
+}
 
 # Setup environment variables
-setenv          DAL_MAJOR_BINARY   1
-setenv          DAL_MINOR_BINARY   1
+setenv          DAL_MAJOR_BINARY   __DAL_MAJOR_BINARY__
+setenv          DAL_MINOR_BINARY   __DAL_MINOR_BINARY__
 setenv          DALROOT            "$dalroot"
 
-prepend-path    LD_LIBRARY_PATH    "$dalroot/lib"
-prepend-path    LIBRARY_PATH       "$dalroot/lib"
-prepend-path    CPATH              "$dalroot/include/dal"
+prepend-path    LD_LIBRARY_PATH    "$daal_libdir"
+prepend-path    LIBRARY_PATH       "$daal_libdir"
+prepend-path    CPLUS_INCLUDE_PATH "$dalroot/include/dal"
 prepend-path    CMAKE_PREFIX_PATH  "$dalroot"
 prepend-path    PKG_CONFIG_PATH    "$dalroot/lib/pkgconfig"

@@ -1,0 +1,128 @@
+# Modern oneAPI Interface - AI Agents Context
+
+> **Purpose**: AI guide for oneAPI interface (modern C++17, SYCL, distributed computing)
+
+## 🎯 Quick Rules
+
+- **Headers**: `.hpp` files with `#pragma once`
+- **Memory**: STL RAII (`std::unique_ptr`, `std::shared_ptr`)
+- **Errors**: exceptions from `cpp/oneapi/dal/exceptions.hpp` (`dal::invalid_argument`, `dal::domain_error`, ...) with messages from `detail/error_messages.hpp`, e.g. `throw invalid_argument{ dal::detail::error_messages::queues_in_different_contexts() };` (`backend/common.hpp`)
+- **Naming**: `snake_case` for types, functions, variables and constants (`train_ops`, `get_data()`, `row_count`); private members take a trailing underscore (`store_`, `comm_`)
+- **GPU**: Intel SYCL with USM for CPU/GPU operations
+- **Namespace**: `oneapi::dal::v1` (stable), `preview` (experimental)
+- **Interface**: Never mix DAAL and oneAPI patterns in same file
+
+## 🚀 Essential Commands
+
+### Bazel build and test
+```bash
+# Build oneAPI interface
+bazel build //cpp/oneapi/dal:core
+
+# Run CPU (host) tests
+bazel test --config=host //cpp/oneapi/dal:tests
+
+# Run DPC++ tests on GPU
+bazel test --config=dpc --device=gpu //cpp/oneapi/dal:tests
+```
+
+### Make and CMake build
+
+```bash
+# Build oneAPI interface with CPU-only support
+make onedal_c
+
+# Build oneAPI interface with CPU and GPU support
+make onedal_dpc
+
+# Build the examples against the release tree (there is no root CMakeLists.txt)
+source __release_lnx/daal/latest/env/vars.sh
+cd examples/oneapi/cpp
+cmake -B build -S . -DONEDAL_LINK=dynamic
+cmake --build build --parallel
+```
+
+## 🛠️ Core Patterns
+
+### Algorithm Usage
+```cpp
+#include "oneapi/dal/algo/kmeans.hpp"
+
+// Configure algorithm
+auto desc = kmeans::descriptor<float>()
+    .set_cluster_count(10)
+    .set_max_iteration_count(100);
+
+// CPU execution
+auto result = train(desc, data);
+
+// GPU execution
+sycl::queue gpu_q(sycl::gpu_selector_v);
+auto gpu_result = train(gpu_q, desc, data);
+
+// Distributed execution (samples/oneapi/cpp/ccl)
+auto comm = preview::spmd::make_communicator<preview::spmd::backend::ccl>();
+auto dist_result = preview::train(comm, desc, data);
+```
+
+### Data Tables
+
+Data tables in oneDAL are always immutable. There is intentionally no way to overwrite the data in the numeric table.
+
+Data ownership variant depends on the way the table is constructed.
+
+```cpp
+#include "oneapi/dal/table/homogen.hpp"
+
+// Create table with type safety
+auto table = homogen_table::wrap(data, rows, cols);
+
+// Access data
+auto accessor = row_accessor<const float>(table);
+auto subset = accessor.pull({0, 10}); // Rows 0-9
+const float * data_block = subset.get_data();
+
+// Pull memory with device access
+auto subset_gpu = accessor.pull(gpu_q, {0, 10}, sycl::usm::alloc::device);
+// SYCL USM pointer
+const float * gpu_data_block = subset_gpu.get_data();
+```
+
+### Exception Handling
+```cpp
+try {
+    auto result = train(desc, data);
+} catch (const dal::invalid_argument& e) {
+    // Handle parameter error
+} catch (const dal::unimplemented& e) {
+    // Handle unsupported operation
+}
+```
+
+### SYCL GPU Kernels
+```cpp
+template <typename Float>
+sycl::event gpu_compute(sycl::queue& q,
+                       const Float * data,  // SYCL USM data pointer
+                       std::int64_t n,
+                       const std::vector<sycl::event>& deps) {
+    return q.submit([&](sycl::handler& cgh) {
+        cgh.depends_on(deps);
+        cgh.parallel_for(sycl::nd_range<1>(n, 256), [=](sycl::nd_item<1> item) {
+            const auto idx = item.get_global_id(0);
+            // GPU computation
+        });
+    });
+}
+```
+
+## 📝 Rules for Changes
+
+- Public types are declared in a versioned namespace and re-exported: `namespace v1 { struct x {}; }` followed by `using v1::x;`. The namespace is not `inline`, so a type without the `using` line is unreachable as `oneapi::dal::...::x`. Reference: `cpp/oneapi/dal/algo/pca/common.hpp`.
+- Use `nullptr`, never `0` or `NULL`. Write `override` directly, not through a macro. No `using namespace` in headers.
+
+## 🔗 References
+
+- **[AGENTS.md](../../AGENTS.md)** - Repository overview
+- **[cpp/daal/AGENTS.md](../daal/AGENTS.md)** - Traditional DAAL interface
+- **[cpp/AGENTS.md](../AGENTS.md)** - Interface conventions shared by both interfaces

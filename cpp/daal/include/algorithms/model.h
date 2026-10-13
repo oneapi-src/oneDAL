@@ -33,7 +33,7 @@ namespace daal
 namespace algorithms
 {
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -57,12 +57,12 @@ public:
     /** Default constructor */
     Model() {}
 
-    virtual ~Model() DAAL_C11_OVERRIDE {}
+    ~Model() override {}
 
     /**
      * \copydoc daal::data_management::interface1::SerializationIface::getSerializationTag()
      */
-    DAAL_EXPORT int getSerializationTag() const DAAL_C11_OVERRIDE { return 0; }
+    DAAL_EXPORT int getSerializationTag() const override { return 0; }
 
 protected:
     template <typename Archive, bool onDeserialize>

@@ -25,8 +25,8 @@ namespace detail::v1 {
 template <typename Task>
 class compute_input_impl : public base {
 public:
-    compute_input_impl() : data(table()){};
-    compute_input_impl(const table& data) : data(data){};
+    compute_input_impl() : data(table()) {};
+    compute_input_impl(const table& data) : data(data) {};
     table data;
 };
 
@@ -56,6 +56,10 @@ struct compute_parameters_impl : public base {
     /// To compute the variance-covariance matrix input data set is being split into blocks of rows.
     /// This value defines the default number of rows in the block on CPU.
     std::int64_t cpu_macro_block = 140l;
+    std::int64_t cpu_grain_size = 1l;
+    std::int64_t cpu_max_cols_batched = 4096;
+    std::int64_t cpu_small_rows_threshold = 10'000;
+    std::int64_t cpu_small_rows_max_cols_batched = 1024;
 };
 
 template <typename Task>
@@ -73,6 +77,50 @@ std::int64_t compute_parameters<Task>::get_cpu_macro_block() const {
 template <typename Task>
 void compute_parameters<Task>::set_cpu_macro_block_impl(std::int64_t val) {
     impl_->cpu_macro_block = val;
+}
+
+/// Choose the number of data blocks used by one thread in variance-covariance matrix computations on CPU.
+///
+/// @tparam Task    The variant of the computations.
+///                 Covariance algorithm supports only :expr:`compute`.
+template <typename Task>
+std::int64_t compute_parameters<Task>::get_cpu_grain_size() const {
+    return impl_->cpu_grain_size;
+}
+
+template <typename Task>
+void compute_parameters<Task>::set_cpu_grain_size_impl(std::int64_t val) {
+    impl_->cpu_grain_size = val;
+}
+
+template <typename Task>
+std::int64_t compute_parameters<Task>::get_cpu_max_cols_batched() const {
+    return impl_->cpu_max_cols_batched;
+}
+
+template <typename Task>
+void compute_parameters<Task>::set_cpu_max_cols_batched_impl(std::int64_t val) {
+    impl_->cpu_max_cols_batched = val;
+}
+
+template <typename Task>
+std::int64_t compute_parameters<Task>::get_cpu_small_rows_threshold() const {
+    return impl_->cpu_small_rows_threshold;
+}
+
+template <typename Task>
+void compute_parameters<Task>::set_cpu_small_rows_threshold_impl(std::int64_t val) {
+    impl_->cpu_small_rows_threshold = val;
+}
+
+template <typename Task>
+std::int64_t compute_parameters<Task>::get_cpu_small_rows_max_cols_batched() const {
+    return impl_->cpu_small_rows_max_cols_batched;
+}
+
+template <typename Task>
+void compute_parameters<Task>::set_cpu_small_rows_max_cols_batched_impl(std::int64_t val) {
+    impl_->cpu_small_rows_max_cols_batched = val;
 }
 
 template class ONEDAL_EXPORT compute_parameters<task::compute>;
@@ -93,6 +141,33 @@ template <typename Task>
 compute_input<Task>::compute_input(const table& data) : impl_(new compute_input_impl<Task>(data)) {}
 
 template <typename Task>
+compute_input<Task>::~compute_input() {}
+
+template <typename Task>
+compute_input<Task>::compute_input(const compute_input& other) : impl_(other.impl_) {}
+
+template <typename Task>
+compute_input<Task>::compute_input(compute_input&& other) noexcept
+        : impl_(std::move(other.impl_)) {}
+
+template <typename Task>
+compute_input<Task>& compute_input<Task>::operator=(const compute_input& other) {
+    if (this != &other) {
+        compute_input<Task> tmp(other);
+        swap(*this, tmp);
+    }
+    return *this;
+}
+
+template <typename Task>
+compute_input<Task>& compute_input<Task>::operator=(compute_input&& other) noexcept {
+    if (this != &other) {
+        swap(*this, other);
+    }
+    return *this;
+}
+
+template <typename Task>
 const table& compute_input<Task>::get_data() const {
     return impl_->data;
 }
@@ -100,6 +175,11 @@ const table& compute_input<Task>::get_data() const {
 template <typename Task>
 void compute_input<Task>::set_data_impl(const table& value) {
     impl_->data = value;
+}
+
+template <typename Task>
+void compute_input<Task>::swap(compute_input<Task>& a, compute_input<Task>& b) noexcept {
+    std::swap(a.impl_, b.impl_);
 }
 
 template <typename Task>
@@ -217,10 +297,49 @@ void partial_compute_result<Task>::set_partial_sum_impl(const table& value) {
     impl_->sums = value;
 }
 
+template <typename Task>
+partial_compute_input<Task>::~partial_compute_input() {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input(const partial_compute_input& other)
+        : compute_input<Task>(other),
+          prev_(other.prev_) {}
+
+template <typename Task>
+partial_compute_input<Task>::partial_compute_input(partial_compute_input&& other) noexcept
+        : compute_input<Task>(std::move(other)),
+          prev_(std::move(other.prev_)) {}
+
+template <typename Task>
+partial_compute_input<Task>& partial_compute_input<Task>::operator=(
+    const partial_compute_input& other) {
+    if (this != &other) {
+        partial_compute_input<Task> tmp(other);
+        swap(*this, tmp);
+    }
+    return *this;
+}
+
+template <typename Task>
+partial_compute_input<Task>& partial_compute_input<Task>::operator=(
+    partial_compute_input&& other) noexcept {
+    if (this != &other) {
+        swap(*this, other);
+    }
+    return *this;
+}
+
+template <typename Task>
+void partial_compute_input<Task>::swap(partial_compute_input<Task>& a,
+                                       partial_compute_input<Task>& b) noexcept {
+    compute_input<Task>::swap(a, b);
+    std::swap(a.prev_, b.prev_);
+}
+
 template class ONEDAL_EXPORT compute_input<task::compute>;
 template class ONEDAL_EXPORT compute_result<task::compute>;
-template class ONEDAL_EXPORT partial_compute_input<task::compute>;
 template class ONEDAL_EXPORT partial_compute_result<task::compute>;
+template class ONEDAL_EXPORT partial_compute_input<task::compute>;
 
 } // namespace v1
 } // namespace oneapi::dal::covariance

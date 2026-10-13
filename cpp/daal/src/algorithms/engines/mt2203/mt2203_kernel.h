@@ -19,15 +19,12 @@
 //  Declaration of template function that calculate mt2203s.
 //--
 
-#ifndef __MCG59_KERNEL_H__
-#define __MCG59_KERNEL_H__
+#ifndef __MT2203_KERNEL_H__
+#define __MT2203_KERNEL_H__
 
 #include "algorithms/engines/mt2203/mt2203.h"
 #include "src/algorithms/kernel.h"
 #include "data_management/data/numeric_table.h"
-
-using namespace daal::services;
-using namespace daal::data_management;
 
 namespace daal
 {
@@ -39,6 +36,10 @@ namespace mt2203
 {
 namespace internal
 {
+using namespace daal::data_management;
+using namespace daal::internal;
+using namespace daal::services;
+
 /**
  *  \brief Kernel for mt2203 calculation
  */

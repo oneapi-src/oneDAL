@@ -114,7 +114,7 @@ enum MasterInputId
 };
 
 /**
- * \brief Contains version 1.0 of Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -125,10 +125,11 @@ namespace interface1
 class DAAL_EXPORT InputIface : public daal::algorithms::Input
 {
 public:
-    InputIface(size_t nElements) : daal::algorithms::Input(nElements) {}
-    InputIface(const InputIface & other) : daal::algorithms::Input(other) {}
+    InputIface(size_t nElements);
+    InputIface(const InputIface & other);
+    InputIface & operator=(const InputIface & other);
     virtual size_t getNumberOfFeatures() const = 0;
-    virtual ~InputIface() {}
+    virtual ~InputIface();
 };
 
 /**
@@ -139,15 +140,16 @@ class DAAL_EXPORT Input : public InputIface
 {
 public:
     Input();
-    Input(const Input & other) : InputIface(other) {}
+    Input(const Input & other);
+    Input & operator=(const Input & other);
 
-    virtual ~Input() {}
+    virtual ~Input();
 
     /**
      * Returns number of columns in the input data set
      * \return Number of columns in the input data set
      */
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfFeatures() const override;
 
     /**
      * Returns the input object of the correlation or variance-covariance matrix algorithm
@@ -168,7 +170,7 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 };
 
 /**
@@ -230,14 +232,14 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const override;
 
     /**
     * Check the correctness of PartialResult object
     * \param[in] parameter Pointer to the structure of the parameters of the algorithm
     * \param[in] method    Computation method
     */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 
 protected:
     services::Status checkImpl(size_t nFeatures) const;
@@ -280,9 +282,15 @@ struct DAAL_EXPORT OnlineParameter : public Parameter
     OnlineParameter(const OnlineParameter & other);
 
     /**
+    *  Copy-assignment operator for parameters of the Covariance Online algorithm
+    *  \param[in] other    Parameters of the Covariance Online algorithm
+    */
+    OnlineParameter & operator=(const OnlineParameter & other);
+
+    /**
      * Check the correctness of the %OnlineParameter object
      */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 
 /**
@@ -338,7 +346,7 @@ public:
      * \param[in] method            Computation method
      */
     services::Status check(const daal::algorithms::PartialResult * partialResult, const daal::algorithms::Parameter * parameter,
-                           int method) const DAAL_C11_OVERRIDE;
+                           int method) const override;
 
     /**
      * Check correctness of the result
@@ -346,7 +354,7 @@ public:
      * \param[in] parameter Pointer to the structure of algorithm parameters
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Input * input, const daal::algorithms::Parameter * parameter, int method) const override;
 
 protected:
     services::Status checkImpl(size_t nFeatures, OutputMatrixType outputMatrixType) const;
@@ -380,7 +388,8 @@ class DAAL_EXPORT DistributedInput<step1Local> : public Input
 {
 public:
     DistributedInput() : Input() {}
-    DistributedInput(const DistributedInput & other) : Input(other) {}
+    DistributedInput(const DistributedInput & other)             = default;
+    DistributedInput & operator=(const DistributedInput & other) = default;
 
     virtual ~DistributedInput() {}
 };
@@ -395,15 +404,16 @@ class DAAL_EXPORT DistributedInput<step2Master> : public InputIface
 {
 public:
     DistributedInput();
-    DistributedInput(const DistributedInput & other) : InputIface(other) {}
+    DistributedInput(const DistributedInput & other);
+    DistributedInput & operator=(const DistributedInput & other);
 
-    virtual ~DistributedInput() {}
+    virtual ~DistributedInput();
 
     /**
      * Returns number of columns in the input data set
      * \return Number of columns in the input data set
      */
-    size_t getNumberOfFeatures() const DAAL_C11_OVERRIDE;
+    size_t getNumberOfFeatures() const override;
 
     /**
      * Adds partial result to the end of DataCollection of input arguments of the Distributed Covariance algorithm
@@ -424,7 +434,7 @@ public:
      * \param[in] parameter Pointer to the structure of the parameters of the algorithm
      * \param[in] method    Computation method
      */
-    services::Status check(const daal::algorithms::Parameter * parameter, int method) const DAAL_C11_OVERRIDE;
+    services::Status check(const daal::algorithms::Parameter * parameter, int method) const override;
 };
 /** @} */
 } // namespace interface1

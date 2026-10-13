@@ -24,7 +24,7 @@
 #ifndef __KDTREE_KNN_IMPL_I__
 #define __KDTREE_KNN_IMPL_I__
 
-#if defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER)
+#if (defined(_MSC_VER) || defined(DAAL_INTEL_CPP_COMPILER)) && defined(TARGET_X86_64)
     #include <immintrin.h>
 #endif
 
@@ -36,6 +36,8 @@ namespace kdtree_knn_classification
 {
 namespace internal
 {
+using namespace daal::internal;
+
 #define __KDTREE_MAX_NODE_COUNT_MULTIPLICATION_FACTOR 3
 #define __KDTREE_LEAF_BUCKET_SIZE                     31 // Must be ((power of 2) minus 1).
 #define __KDTREE_FIRST_PART_LEAF_NODES_PER_THREAD     3

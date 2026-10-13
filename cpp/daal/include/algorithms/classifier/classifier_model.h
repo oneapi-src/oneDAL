@@ -51,7 +51,7 @@ enum ResultToComputeId
 };
 
 /**
- * \brief Contains version 2.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 2.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface2
 {
@@ -72,7 +72,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 
     size_t nClasses;               /*!< Number of classes */
     DAAL_UINT64 resultsToEvaluate; /*!< 64 bit integer flag that indicates the results to compute */
-    services::Status check() const DAAL_C11_OVERRIDE;
+    services::Status check() const override;
 };
 /* [Parameter source code] */
 /** @} */
@@ -80,7 +80,7 @@ struct DAAL_EXPORT Parameter : public daal::algorithms::Parameter
 using interface2::Parameter;
 
 /**
- * \brief Contains version 1.0 of the Intel(R) oneAPI Data Analytics Library interface.
+ * \brief Contains version 1.0 of the oneAPI Data Analytics Library interface.
  */
 namespace interface1
 {
@@ -101,7 +101,7 @@ public:
     Model(const Model & other)             = default;
     Model & operator=(const Model & other) = default;
 
-    virtual ~Model() DAAL_C11_OVERRIDE {}
+    ~Model() override {}
 
     /**
      *  Retrieves the number of features in the dataset was used on the training stage

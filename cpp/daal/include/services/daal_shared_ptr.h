@@ -70,7 +70,7 @@ template <class T>
 class ObjectDeleter : public DeleterIface
 {
 public:
-    void operator()(const void * ptr) DAAL_C11_OVERRIDE { delete (const T *)(ptr); }
+    void operator()(const void * ptr) override { delete (const T *)(ptr); }
 };
 
 /**
@@ -82,7 +82,7 @@ public:
 class ServiceDeleter : public DeleterIface
 {
 public:
-    void operator()(const void * ptr) DAAL_C11_OVERRIDE { daal::services::daal_free((void *)ptr); }
+    void operator()(const void * ptr) override { daal::services::daal_free((void *)ptr); }
 };
 
 /**
@@ -94,7 +94,7 @@ public:
 class EmptyDeleter : public DeleterIface
 {
 public:
-    void operator()(const void * /*ptr*/) DAAL_C11_OVERRIDE {}
+    void operator()(const void * /*ptr*/) override {}
 };
 
 /**
@@ -131,7 +131,7 @@ public:
     RefCounterImp(const Deleter & d) : _deleter(d) {}
     /** Destructor */
     virtual ~RefCounterImp() {}
-    void operator()(const void * ptr) DAAL_C11_OVERRIDE { _deleter(ptr); }
+    void operator()(const void * ptr) override { _deleter(ptr); }
 
 protected:
     Deleter _deleter;
@@ -189,7 +189,7 @@ public:
     SharedPtr(const SharedPtr<T> & ptr, T * shiftedPtr);
 
     /**
-    * Constructs a shared pointer from another shared pointer of the same type
+    * Constructs a shared pointer from another shared pointer of the different type
     * \param[in] other   Input shared pointer
     */
     template <class U>
@@ -359,7 +359,9 @@ void SharedPtr<T>::_remove()
 template <class T>
 SharedPtr<T> & SharedPtr<T>::operator=(const SharedPtr<T> & ptr)
 {
-    if (&ptr != this || ptr._ownedPtr != this->_ownedPtr || ptr._ptr != this->_ptr)
+    if (&ptr == this) return *this;
+
+    if (ptr._ownedPtr != this->_ownedPtr || ptr._ptr != this->_ptr)
     {
         _remove();
         _ownedPtr = ptr._ownedPtr;

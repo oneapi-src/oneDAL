@@ -16,16 +16,26 @@
 
 #include "oneapi/dal/detail/cpu.hpp"
 #include "oneapi/dal/detail/global_context_impl.hpp"
-#include <daal/src/services/service_defines.h>
+
+#include "daal/include/services/env_detect.h"
 
 namespace oneapi::dal::detail {
 namespace v1 {
 
-global_context_impl::global_context_impl() : cpu_info_(dal::detail::detect_top_cpu_extension()) {
+global_context_impl::global_context_impl() {
     using daal::services::Environment;
     // Call to `getCpuId` changes global settings, in particular,
     // changes default number of threads in the threading layer
-    Environment::getInstance()->getCpuId();
+    Environment* env = Environment::getInstance();
+    if (!env) {
+        int error = daal::services::Environment::getStatus();
+        throw std::runtime_error(
+            "Environment not initialized, cannot get processor info, error code: " +
+            std::to_string(error));
+    }
+    auto cpuid = env->getCpuId();
+
+    cpu_info_ = cpu_info(from_daal_cpu_type(cpuid));
 }
 
 } // namespace v1

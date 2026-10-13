@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/pca/common.hpp"
+#include "oneapi/dal/detail/parameters/system_parameters.hpp"
 
 namespace oneapi::dal::pca {
 
@@ -29,9 +30,72 @@ template <typename Task>
 class train_result_impl;
 
 template <typename Task>
+struct train_parameters_impl;
+
+template <typename Task>
 class partial_train_result_impl;
+
+template <typename Task = task::by_default>
+class train_parameters : public dal::detail::system_parameters {
+public:
+    explicit train_parameters();
+    train_parameters(train_parameters&&) = default;
+    train_parameters(const train_parameters&) = default;
+
+    /// Covariance-based method of PCA splits input data table into blocks of rows to speedup
+    /// the computations when below the thresholds controlled by the other parameters here.
+    /// These API define the number of rows in the data block.
+    std::int64_t get_cpu_macro_block() const;
+    auto& set_cpu_macro_block(std::int64_t val) {
+        set_cpu_macro_block_impl(val);
+        return *this;
+    }
+
+    /// Minimal number of data blocks to be processed by one thread in covariance-based method
+    std::int64_t get_cpu_grain_size() const;
+    auto& set_cpu_grain_size(std::int64_t val) {
+        set_cpu_grain_size_impl(val);
+        return *this;
+    }
+
+    /// Maximum number of columns of the input data for which the route splitting data into
+    /// blocks will be used. If there are more than this number of columns, it will use a
+    /// different route that does not divide the data into blocks.
+    std::int64_t get_cpu_max_cols_batched() const;
+    auto& set_cpu_max_cols_batched(std::int64_t val) {
+        set_cpu_max_cols_batched_impl(val);
+        return *this;
+    }
+
+    /// Maximum number of rows below which the criterion 'small_rows_max_cols_batched' will
+    /// apply. If the data has more than this number of rows, then 'small_rows_max_cols_batched'
+    /// will not apply to it.
+    std::int64_t get_cpu_small_rows_threshold() const;
+    auto& set_cpu_small_rows_threshold(std::int64_t val) {
+        set_cpu_small_rows_threshold_impl(val);
+        return *this;
+    }
+
+    /// Same criterion as 'max_cols_batched' controlling whether to use the non-batched route,
+    /// but applying only to cases where the number of rows is below 'small_rows_threshold'.
+    /// Note that the earlier 'max_cols_batched' always applies regardless of the number of rows.
+    std::int64_t get_cpu_small_rows_max_cols_batched() const;
+    auto& set_cpu_small_rows_max_cols_batched(std::int64_t val) {
+        set_cpu_small_rows_max_cols_batched_impl(val);
+        return *this;
+    }
+
+private:
+    void set_cpu_macro_block_impl(std::int64_t val);
+    void set_cpu_grain_size_impl(std::int64_t val);
+    void set_cpu_max_cols_batched_impl(std::int64_t val);
+    void set_cpu_small_rows_threshold_impl(std::int64_t val);
+    void set_cpu_small_rows_max_cols_batched_impl(std::int64_t val);
+    dal::detail::pimpl<train_parameters_impl<Task>> impl_;
+};
 } // namespace v1
 
+using v1::train_parameters;
 using v1::train_input_impl;
 using v1::train_result_impl;
 using v1::partial_train_result_impl;
@@ -54,6 +118,17 @@ public:
     /// property value
     train_input(const table& data);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~train_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    train_input(const train_input&);
+    train_input(train_input&&) noexcept;
+    train_input& operator=(const train_input&);
+    train_input& operator=(train_input&&) noexcept;
+
     /// An $n \\times p$ table with the training data, where each row stores one
     /// feature vector.
     /// @remark default = table{}
@@ -66,6 +141,7 @@ public:
 
 protected:
     void set_data_impl(const table& data);
+    static void swap(train_input<Task>& a, train_input<Task>& b) noexcept;
 
 private:
     dal::detail::pimpl<detail::train_input_impl<Task>> impl_;
@@ -140,6 +216,14 @@ public:
         set_singular_values_impl(value);
         return *this;
     }
+    /// A value that contains the noise variance.
+    double get_noise_variance() const;
+
+    auto& set_noise_variance(const double value) {
+        set_noise_variance_impl(value);
+        return *this;
+    }
+
     /// A $1 \\times r$ table that contains the explained variances values for the first :literal:`r`
     /// features.
     /// @remark default = table{}
@@ -164,6 +248,7 @@ protected:
     void set_eigenvectors_impl(const table&);
     void set_variances_impl(const table&);
     void set_means_impl(const table&);
+    void set_noise_variance_impl(const double);
     void set_explained_variances_ratio_impl(const table&);
     void set_singular_values_impl(const table&);
     void set_result_options_impl(const result_option_id&);
@@ -208,9 +293,14 @@ public:
         return *this;
     }
 
+    /// The number of auxiliary tables.
+    /// @remark default = 0l
     std::int64_t get_auxiliary_table_count() const;
 
-    const table& get_auxiliary_table(const std::int64_t) const;
+    /// Returns the auxiliary table at the specified index.
+    /// @param  index The index of the auxiliary table to retrieve.
+    /// @return The auxiliary table at the specified index.
+    const table& get_auxiliary_table(const std::int64_t index) const;
 
     auto& set_auxiliary_table(const table& value) {
         set_auxiliary_table_impl(value);
@@ -238,6 +328,20 @@ public:
 
     partial_train_input(const partial_train_result<Task>& prev, const table& data);
 
+    // Do not remove the destructor.
+    // It is needed to properly handle the visibility of the class in the shared library
+    // while compiling with -fvisibility=hidden
+    ~partial_train_input() override;
+
+    // Rule of five methods defined here due to the definition of the destructor.
+    partial_train_input(const partial_train_input&);
+    partial_train_input(partial_train_input&&) noexcept;
+    partial_train_input& operator=(const partial_train_input&);
+    partial_train_input& operator=(partial_train_input&&) noexcept;
+
+    /// An $n_i \\times p$ table with the $i$-th block of training data, where each row stores one
+    /// feature vector.
+    /// @remark default = table{}
     const table& get_data() const {
         return train_input<Task>::get_data();
     }
@@ -247,6 +351,8 @@ public:
         return *this;
     }
 
+    /// The previous partial train result.
+    /// @remark default = partial_train_result<Task>{}
     const partial_train_result<Task>& get_prev() const {
         return prev_;
     }
@@ -255,6 +361,9 @@ public:
         prev_ = value;
         return *this;
     }
+
+protected:
+    static void swap(partial_train_input<Task>& a, partial_train_input<Task>& b) noexcept;
 
 private:
     partial_train_result<Task> prev_;

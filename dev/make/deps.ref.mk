@@ -23,13 +23,33 @@ OPENBLASDIR:= $(if $(wildcard $(DIR)/__deps/open_blas/*),$(DIR)/__deps/open_blas
                 $(if $(wildcard $(OPENBLASROOT)/include/*),$(subst \,/,$(OPENBLASROOT)),                              \
                     $(error Can`t find OPENBLAS libs in $(DIR)/__deps/open_blas or OPENBLASROOT.)))
 OPENBLASDIR.include := $(OPENBLASDIR)/include
-OPENBLASDIR.libia := $(OPENBLASDIR)/lib
 
-daaldep.math_backend.thr := $(OPENBLASDIR.libia)/libopenblas.$a
-daaldep.math_backend.seq := $(OPENBLASDIR.libia)/libopenblas.$a
+OPENBLASDIR.libia.win := $(if $(OS_is_win),$(OPENBLASDIR)/lib,)
+OPENBLASDIR.libia.lnx := $(if $(OS_is_lnx),$(OPENBLASDIR)/lib,)
+
+OPENBLASDIR.soia.win := $(if $(OS_is_win),$(OPENBLASDIR)/bin,)
+OPENBLASDIR.soia.lnx := $(if $(OS_is_lnx),$(OPENBLASDIR)/lib,)
+
+OPENBLASDIR.libia := $(OPENBLASDIR.libia.$(_OS))
+OPENBLASDIR.soia :=  $(OPENBLASDIR.soia.$(_OS))
+
+releaseopen_blas.LIBS_A := $(OPENBLASDIR.libia)/$(plib)openblas.$(a)
+releaseopen_blas.LIBS_Y := $(OPENBLASDIR.soia)/$(plib)openblas.$(y)
+
+daaldep.math_backend.thr := $(releaseopen_blas.LIBS_A)
+daaldep.math_backend.seq := $(releaseopen_blas.LIBS_A)
 
 daaldep.math_backend.incdir := $(OPENBLASDIR.include)
 daaldep.math_backend_oneapi.incdir := $(OPENBLASDIR.include)
+
+RELEASEDIR.open_blas       := $(RELEASEDIR)/open_blas/latest
+RELEASEDIR.open_blas.libia := $(RELEASEDIR.open_blas)/lib$(if $(OS_is_mac),,$(if $(OS_is_win),/vc_mt,/))
+RELEASEDIR.open_blas.soia  := $(if $(OS_is_win),$(RELEASEDIR.open_blas)/bin/vc_mt,$(RELEASEDIR.open_blas.libia))
+
+# List of OpenBLAS libraries to exclude from linking.
+# This list is used to generate the `--exclude-libs` linker options.
+# If you need to exclude additional libraries, extend this list by appending the library names.
+MATH_LIBS_TO_EXCLUDE := $(plib)openblas.$a 
 
 ifeq ($(RNG_OPENRNG), yes)
 	OPENRNGDIR:= $(if $(wildcard $(DIR)/__deps/openrng/*),$(DIR)/__deps/openrng,                            \
@@ -41,9 +61,18 @@ ifeq ($(RNG_OPENRNG), yes)
 	daaldep.rng_backend.incdir := $(OPENRNGDIR.include)
 	daaldep.rng_backend.lib := $(OPENRNGDIR.libia)/libopenrng.$a
 
+# Add libopenrng.$a to the exclusion list because RNG_OPENRNG is enabled
+	MATH_LIBS_TO_EXCLUDE += libopenrng.$a
+
 	daaldep.math_backend.incdir += $(daaldep.rng_backend.incdir)
+	daaldep.math_backend_oneapi.incdir += $(daaldep.rng_backend.incdir)
+	daaldep.math_backend.seq += $(daaldep.rng_backend.lib)
+	daaldep.math_backend.thr += $(daaldep.rng_backend.lib)
 endif
 
-daaldep.math_backend.ext := $(daaldep.math_backend.thr)
-daaldep.math_backend.sycl := $(daaldep.math_backend.thr)
-daaldep.math_backend.oneapi := $(daaldep.math_backend.thr)
+# Symbols from OpenBLAS are copied into libonedal_core library.
+# The user doesn't need to link OpenBLAS manually when building their application.
+daaldep.math_backend.static_link_deps := $(daaldep.math_backend.thr)
+# Static OpenBLAS libraries linked into the shared oneDAL library.
+daaldep.math_backend.shared_link_deps := $(daaldep.math_backend.thr)
+daaldep.math_backend.dpc_link_deps := $(daaldep.math_backend.thr)

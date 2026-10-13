@@ -27,6 +27,34 @@ namespace daal
 {
 namespace algorithms
 {
-__DAAL_INSTANTIATE_DISPATCH_CONTAINER(qr::OnlineContainer, online, DAAL_FPTYPE, qr::defaultDense)
+__DAAL_INSTANTIATE_DISPATCH_CONTAINER(qr::internal::OnlineContainer, online, DAAL_FPTYPE, qr::defaultDense)
+namespace qr
+{
+namespace interface1
+{
+
+template <>
+void Online<DAAL_FPTYPE, qr::defaultDense>::initialize()
+{
+    Analysis<online>::_ac = new __DAAL_ALGORITHM_CONTAINER(online, internal::OnlineContainer, DAAL_FPTYPE, qr::defaultDense)(&_env);
+    _in                   = &input;
+    _par                  = &parameter;
 }
+template <>
+DAAL_EXPORT Online<DAAL_FPTYPE, qr::defaultDense>::Online()
+{
+    initialize();
+}
+
+using OnlineType = Online<DAAL_FPTYPE, qr::defaultDense>;
+
+template <>
+DAAL_EXPORT OnlineType::Online(const OnlineType & other) : input(other.input), parameter(other.parameter)
+{
+    initialize();
+}
+
+} // namespace interface1
+} // namespace qr
+} // namespace algorithms
 } // namespace daal

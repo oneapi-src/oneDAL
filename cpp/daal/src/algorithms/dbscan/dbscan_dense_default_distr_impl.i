@@ -41,6 +41,8 @@ namespace dbscan
 {
 namespace internal
 {
+using namespace daal::internal;
+
 #define __DBSCAN_PREFETCHED_NEIGHBORHOODS_COUNT 64
 
 template <typename algorithmFPType, Method method, CpuType cpu>
@@ -1927,7 +1929,7 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::compute(const Data
         const size_t defaultBlockSize = 256;
         const size_t nQueriesBlocks   = nCurQueries / defaultBlockSize + int(nCurQueries % defaultBlockSize > 0);
 
-        daal::threader_for(nQueriesBlocks, nQueriesBlocks, [&](size_t block) {
+        daal::threader_for(nQueriesBlocks, 1, [&](size_t block) {
             const size_t i1    = block * defaultBlockSize;
             const size_t i2    = (block + 1 == nQueriesBlocks ? nCurQueries : i1 + defaultBlockSize);
             const size_t iSize = i2 - i1;
@@ -1967,7 +1969,7 @@ Status DBSCANDistrStep13Kernel<algorithmFPType, method, cpu>::finalizeCompute(co
     const size_t defaultBlockSize = 256;
     const size_t nQueriesBlocks   = nQueries / defaultBlockSize + int(nQueries % defaultBlockSize > 0);
 
-    daal::threader_for(nQueriesBlocks, nQueriesBlocks, [&](size_t block) {
+    daal::threader_for(nQueriesBlocks, 1, [&](size_t block) {
         const size_t i1    = block * defaultBlockSize;
         const size_t i2    = (block + 1 == nQueriesBlocks ? nQueries : i1 + defaultBlockSize);
         const size_t iSize = i2 - i1;

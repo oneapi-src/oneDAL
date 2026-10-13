@@ -17,6 +17,7 @@
 #include <daal/src/algorithms/pca/pca_dense_svd_batch_kernel.h>
 #include <daal/include/algorithms/normalization/zscore_types.h>
 
+#include "oneapi/dal/algo/pca/train_types.hpp"
 #include "oneapi/dal/algo/pca/backend/common.hpp"
 #include "oneapi/dal/algo/pca/backend/cpu/train_kernel.hpp"
 
@@ -37,7 +38,7 @@ namespace daal_pca = daal::algorithms::pca;
 namespace daal_zscore = daal::algorithms::normalization::zscore;
 namespace interop = dal::backend::interop;
 
-template <typename Float, daal::CpuType Cpu>
+template <typename Float, daal::internal::CpuType Cpu>
 using daal_pca_svd_kernel_t = daal_pca::internal::
     PCASVDBatchKernel<Float, daal_pca::BatchParameter<Float, daal_pca::svdDense>, Cpu>;
 
@@ -141,6 +142,17 @@ static result_t call_daal_kernel(const context_cpu& ctx,
         result.set_variances(homogen_table::wrap(arr_vars, 1, column_count));
     }
 
+    if (desc.get_result_options().test(result_options::noise_variance)) {
+        double noiseVariance = 0.0;
+        interop::status_to_exception(dal::backend::dispatch_by_cpu(ctx, [&](auto cpu) {
+            return daal_pca_svd_kernel_t<
+                       Float,
+                       dal::backend::interop::to_daal_cpu_type<decltype(cpu)>::value>()
+                .computeNoiseVariances(*daal_eigenvalues, *daal_variances, noiseVariance);
+        }));
+        result.set_noise_variance(noiseVariance);
+    }
+
     if (desc.get_result_options().test(result_options::means)) {
         result.set_means(homogen_table::wrap(arr_means, 1, column_count));
     }
@@ -157,6 +169,7 @@ template <typename Float>
 struct train_kernel_cpu<Float, method::svd, task::dim_reduction> {
     result_t operator()(const context_cpu& ctx,
                         const descriptor_t& desc,
+                        const detail::train_parameters<task_t>& params,
                         const input_t& input) const {
         return train<Float>(ctx, desc, input);
     }

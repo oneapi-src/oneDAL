@@ -26,6 +26,7 @@
 
 #include "service_blas_declar_ref.h"
 #include "service_thread_declar_ref.h"
+#include "src/services/cpu_type.h"
 
 namespace daal
 {
@@ -33,6 +34,8 @@ namespace internal
 {
 namespace ref
 {
+using namespace daal::internal;
+
 template <typename fpType, CpuType cpu>
 struct OpenBlas
 {};
@@ -46,14 +49,14 @@ struct OpenBlas<double, cpu>
 {
     typedef DAAL_INT SizeType;
 
-    static void xsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, double * alpha, double * a, DAAL_INT * lda, double * beta, double * ata,
-                      DAAL_INT * ldata)
+    static void xsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const double * alpha, const double * a,
+                      const DAAL_INT * lda, const double * beta, double * ata, const DAAL_INT * ldata)
     {
         dsyrk_(uplo, trans, p, n, alpha, a, lda, beta, ata, ldata);
     }
 
-    static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, double * alpha, double * a, DAAL_INT * lda, double * beta, double * ata,
-                       DAAL_INT * ldata)
+    static void xxsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const double * alpha, const double * a,
+                       const DAAL_INT * lda, const double * beta, double * ata, const DAAL_INT * ldata)
     {
         openblas_thread_setter ots(1);
         dsyrk_(uplo, trans, p, n, alpha, a, lda, beta, ata, ldata);
@@ -127,6 +130,10 @@ struct OpenBlas<double, cpu>
         double res = ddot_(n, x, incx, y, incy);
         return res;
     }
+
+    static void xscal(const DAAL_INT * n, const double * a, double * x, const DAAL_INT * incx) { dscal_(n, a, x, incx); }
+
+    static double xasum(const DAAL_INT * n, const double * x, const DAAL_INT * incx) { return dasum_(n, x, incx); }
 };
 
 /*
@@ -138,14 +145,14 @@ struct OpenBlas<float, cpu>
 {
     typedef DAAL_INT SizeType;
 
-    static void xsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * beta, float * ata,
-                      DAAL_INT * ldata)
+    static void xsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const float * alpha, const float * a,
+                      const DAAL_INT * lda, const float * beta, float * ata, const DAAL_INT * ldata)
     {
         ssyrk_(uplo, trans, p, n, alpha, a, lda, beta, ata, ldata);
     }
 
-    static void xxsyrk(char * uplo, char * trans, DAAL_INT * p, DAAL_INT * n, float * alpha, float * a, DAAL_INT * lda, float * beta, float * ata,
-                       DAAL_INT * ldata)
+    static void xxsyrk(const char * uplo, const char * trans, const DAAL_INT * p, const DAAL_INT * n, const float * alpha, const float * a,
+                       const DAAL_INT * lda, const float * beta, float * ata, const DAAL_INT * ldata)
     {
         openblas_thread_setter ots(1);
         ssyrk_(uplo, trans, p, n, alpha, a, lda, beta, ata, ldata);
@@ -219,6 +226,10 @@ struct OpenBlas<float, cpu>
         float res = sdot_(n, x, incx, y, incy);
         return res;
     }
+
+    static void xscal(const DAAL_INT * n, const float * a, float * x, const DAAL_INT * incx) { sscal_(n, a, x, incx); }
+
+    static float xasum(const DAAL_INT * n, const float * x, const DAAL_INT * incx) { return sasum_(n, x, incx); }
 };
 
 } // namespace ref

@@ -344,7 +344,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
         DAAL_CHECK_BLOCK_STATUS(bkA_input);
         const algorithmFPType * A_input = bkA_input.get();
 
-        daal::threader_for(blocks, blocks, [=, &A_input, &Q_buff, &RT_buff, &safeStat](int k) {
+        daal::threader_for(blocks, 1, [=, &A_input, &Q_buff, &RT_buff, &safeStat](int k) {
             const algorithmFPType * A_block = A_input + k * brows * cols;
             algorithmFPType * Q_block       = Q_buff + k * brows * cols;
 
@@ -365,7 +365,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Get transposed Q from A */
             for (size_t i = 0; i < cols_local; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < brows_local; j++)
                 {
                     QT_local[i * brows_local + j] = A_block[i + j * cols_local];
@@ -383,7 +383,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Transpose Q */
             for (size_t i = 0; i < cols_local; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < brows_local; j++)
                 {
                     Q_block[i + j * cols_local] = QT_local[i * brows_local + j];
@@ -394,16 +394,13 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             for (size_t i = 0; i < cols_local; i++)
             {
                 size_t j;
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (j = 0; j <= i; j++)
                 {
                     RT_buff[k * cols_local + i * cols_local * blocks + j] = RT_local[i * cols_local + j];
                 }
-                PRAGMA_IVDEP
-                for (; j < cols_local; j++)
-                {
-                    RT_buff[k * cols_local + i * cols_local * blocks + j] = 0.0;
-                }
+
+                service_memset<algorithmFPType, cpu>(&RT_buff[k * cols_local + i * cols_local * blocks + i + 1], 0.0, cols_local - i - 1);
             }
         });
     }
@@ -446,7 +443,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Transpose result R and save to V output */
             for (size_t i = 0; i < cols; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < nComponents; j++)
                 {
                     V_output[i + j * cols] = V_buff[i * cols + j];
@@ -460,7 +457,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
 
     if (svdPar->leftSingularMatrix == requiredInPackedForm)
     {
-        daal::threader_for(blocks, blocks, [=, &RT_buff, &U_output, &Q_buff, &safeStat](int k) {
+        daal::threader_for(blocks, 1, [=, &RT_buff, &U_output, &Q_buff, &safeStat](int k) {
             algorithmFPType * Q_block  = Q_buff + k * brows * cols;
             algorithmFPType * RT_block = RT_buff + k * cols * cols;
             algorithmFPType * U_block  = U_output + k * brows * cols; /* the same as Q_buff here */
@@ -484,7 +481,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Transpose RB */
             for (size_t i = 0; i < cols_local; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < cols_local; j++)
                 {
                     RT_block[i * cols_local + j] = R_buff[j * cols_local * blocks + k * cols_local + i];
@@ -494,7 +491,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Transpose Q to QT */
             for (size_t i = 0; i < cols_local; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < brows_local; j++)
                 {
                     QT_local[i * brows_local + j] = Q_block[i + j * cols_local];
@@ -504,7 +501,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Transpose R to RT */
             for (size_t i = 0; i < cols_local; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < cols_local; j++)
                 {
                     RT_local[i * cols_local + j] = RT_block[i + j * cols_local];
@@ -518,7 +515,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_thr(const size_t na
             /* Transpose result Q */
             for (size_t i = 0; i < cols_local; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 for (size_t j = 0; j < brows_local; j++)
                 {
                     U_block[i + j * cols_local] = QT_result_local[i * brows_local + j];
@@ -594,7 +591,7 @@ Status SVDBatchKernel<algorithmFPType, method, cpu>::compute_pcl(const size_t na
         algorithmFPType * tV = vBlock.get();
         for (size_t i = 0; i < nComponents; i++)
         {
-            PRAGMA_IVDEP
+            PRAGMA_OMP_SIMD
             for (size_t j = 0; j < n; j++)
             {
                 tV[i * n + j] = V[i * n + j];

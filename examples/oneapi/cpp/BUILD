@@ -4,6 +4,18 @@ load("@onedal//dev/bazel:dal.bzl",
     "dal_algo_example_suite",
 )
 
+filegroup(
+    name = "release_files",
+    visibility = ["//visibility:public"],
+    srcs = glob([
+        "CMakeLists.txt",
+        "target_excludes.cmake",
+        "source/**/CMakeLists.txt",
+        "source/**/*.cpp",
+        "source/**/*.hpp",
+    ]),
+)
+
 dal_module(
     name = "example_util",
     hdrs = glob(["source/example_util/*.hpp"]),
@@ -80,9 +92,12 @@ dal_algo_example_suite(
     algos = [
         "basic_statistics",
         "connected_components",
+        "correlation_distance",
+        "cosine_distance",
         "covariance",
         "dbscan",
         "decision_forest",
+        "hdbscan",
         "kmeans",
         "knn",
         "linear_kernel",

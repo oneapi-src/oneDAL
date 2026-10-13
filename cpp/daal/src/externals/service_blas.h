@@ -103,14 +103,14 @@ struct Blas
 {
     typedef typename _impl<fpType, cpu>::SizeType SizeType;
 
-    static void xsyrk(char * uplo, char * trans, SizeType * p, SizeType * n, fpType * alpha, fpType * a, SizeType * lda, fpType * beta, fpType * ata,
-                      SizeType * ldata)
+    static void xsyrk(const char * uplo, const char * trans, const SizeType * p, const SizeType * n, const fpType * alpha, const fpType * a,
+                      const SizeType * lda, const fpType * beta, fpType * ata, const SizeType * ldata)
     {
         _impl<fpType, cpu>::xsyrk(uplo, trans, p, n, alpha, a, lda, beta, ata, ldata);
     }
 
-    static void xxsyrk(char * uplo, char * trans, SizeType * p, SizeType * n, fpType * alpha, fpType * a, SizeType * lda, fpType * beta, fpType * ata,
-                       SizeType * ldata)
+    static void xxsyrk(const char * uplo, const char * trans, const SizeType * p, const SizeType * n, const fpType * alpha, const fpType * a,
+                       const SizeType * lda, const fpType * beta, fpType * ata, const SizeType * ldata)
     {
         _impl<fpType, cpu>::xxsyrk(uplo, trans, p, n, alpha, a, lda, beta, ata, ldata);
     }
@@ -179,6 +179,10 @@ struct Blas
     {
         return _impl<fpType, cpu>::xxdot(n, x, incx, y, incy);
     }
+
+    static void xscal(const SizeType * n, const fpType * a, fpType * x, const SizeType * incx) { _impl<fpType, cpu>::xscal(n, a, x, incx); }
+
+    static fpType xasum(const SizeType * n, const fpType * x, const SizeType * incx) { return _impl<fpType, cpu>::xasum(n, x, incx); }
 
     static services::Status xgemm_blocked(const char * transa, const char * transb, const SizeType * na, const SizeType * nb, const SizeType * cols,
                                           const fpType * alpha, const NumericTable * ta, const SizeType * lda, const NumericTable * tb,

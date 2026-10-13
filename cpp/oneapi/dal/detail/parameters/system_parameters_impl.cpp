@@ -19,7 +19,8 @@
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/detail/parameters/system_parameters_impl.hpp"
 #include <daal/src/services/service_defines.h>
-#include <daal/include/services/internal/daal_kernel_defines.h>
+#include <daal/src/services/service_environment.h>
+#include <daal/src/services/internal/daal_internal_kernel_defines.h>
 
 #include <sstream>
 
@@ -29,9 +30,24 @@ namespace v1 {
 system_parameters_impl::system_parameters_impl() {
     using daal::services::Environment;
     Environment* env = Environment::getInstance();
-    sys_info_["top_enabled_cpu_extension"] =
-        from_daal_cpu_type(DAAL_KERNEL_BUILD_MAX_INSTRUCTION_SET_ID);
+    if (!env) {
+        int error = daal::services::Environment::getStatus();
+        throw std::runtime_error(
+            "Environment not initialized, cannot get processor info, error code: " +
+            std::to_string(error));
+    }
+    // Call to `getCpuId` changes global settings, in particular,
+    // changes default number of threads in the threading layer
+    const int cpuid = env->getCpuId();
+
+    sys_info_["top_enabled_cpu_extension"] = from_daal_cpu_type(cpuid);
     sys_info_["max_number_of_threads"] = static_cast<std::uint32_t>(env->getNumberOfThreads());
+    sys_info_["l1_cache_size"] =
+        static_cast<std::uint64_t>(daal::services::internal::getL1CacheSize());
+    sys_info_["l2_cache_size"] =
+        static_cast<std::uint64_t>(daal::services::internal::getL2CacheSize());
+    sys_info_["ll_cache_size"] =
+        static_cast<std::uint64_t>(daal::services::internal::getLLCacheSize());
 }
 
 cpu_extension system_parameters_impl::get_top_enabled_cpu_extension() const {
@@ -50,6 +66,30 @@ std::uint32_t system_parameters_impl::get_max_number_of_threads() const {
     return std::any_cast<std::uint32_t>(entry->second);
 }
 
+std::uint64_t system_parameters_impl::get_l1_cache_size() const {
+    const auto entry = sys_info_.find("l1_cache_size");
+    if (entry == sys_info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<std::uint64_t>(entry->second);
+}
+
+std::uint64_t system_parameters_impl::get_l2_cache_size() const {
+    const auto entry = sys_info_.find("l2_cache_size");
+    if (entry == sys_info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<std::uint64_t>(entry->second);
+}
+
+std::uint64_t system_parameters_impl::get_ll_cache_size() const {
+    const auto entry = sys_info_.find("ll_cache_size");
+    if (entry == sys_info_.end()) {
+        throw invalid_argument{ error_messages::invalid_key() };
+    }
+    return std::any_cast<std::uint64_t>(entry->second);
+}
+
 void system_parameters_impl::print_any(const std::any& value, std::ostringstream& ss) const {
     const std::type_info& ti = value.type();
     if (ti == typeid(cpu_extension)) {
@@ -57,6 +97,9 @@ void system_parameters_impl::print_any(const std::any& value, std::ostringstream
     }
     else if (ti == typeid(std::uint32_t)) {
         ss << std::any_cast<std::uint32_t>(value);
+    }
+    else if (ti == typeid(std::uint64_t)) {
+        ss << std::any_cast<std::uint64_t>(value);
     }
     else {
         throw unimplemented{ dal::detail::error_messages::unsupported_data_type() };

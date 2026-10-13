@@ -57,7 +57,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
         /* In case of non-inplace just copy input array to output */
         if (&inputTable != &resultTable)
         {
-            daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iRowsBlock) {
+            daal::threader_for(numRowsBlocks, 1, [&](int iRowsBlock) {
                 size_t _nRows    = (iRowsBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
                 size_t _startRow = iRowsBlock * numRowsInBlock;
 
@@ -71,7 +71,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
 
                 for (size_t i = 0; i < _nRows; i++)
                 {
-                    PRAGMA_IVDEP
+                    PRAGMA_OMP_SIMD
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t j = 0; j < _nFeatures; j++)
                     {
@@ -105,7 +105,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
             if (variances_total[j]) invSigmas[j] = algorithmFPType(1.0) / MathInst<algorithmFPType, cpu>::sSqrt(variances_total[j]);
         }
         /* Final normalization threaded loop */
-        daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iRowsBlock) {
+        daal::threader_for(numRowsBlocks, 1, [&](int iRowsBlock) {
             size_t _nRows    = (iRowsBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
             size_t _startRow = iRowsBlock * numRowsInBlock;
 
@@ -119,7 +119,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
 
             for (size_t i = 0; i < _nRows; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < _nFeatures; j++)
                 {
@@ -131,7 +131,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
     else
     {
         /* Final normalization threaded loop */
-        daal::threader_for(numRowsBlocks, numRowsBlocks, [&](int iRowsBlock) {
+        daal::threader_for(numRowsBlocks, 1, [&](int iRowsBlock) {
             size_t _nRows    = (iRowsBlock < (numRowsBlocks - 1)) ? numRowsInBlock : numRowsInLastBlock;
             size_t _startRow = iRowsBlock * numRowsInBlock;
 
@@ -145,7 +145,7 @@ Status ZScoreKernelBase<algorithmFPType, cpu>::common_compute(NumericTable & inp
 
             for (size_t i = 0; i < _nRows; i++)
             {
-                PRAGMA_IVDEP
+                PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t j = 0; j < _nFeatures; j++)
                 {
