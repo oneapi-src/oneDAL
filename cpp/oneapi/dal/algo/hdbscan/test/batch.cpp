@@ -980,10 +980,9 @@ TEMPLATE_LIST_TEST_M(
 
     const auto ref_table = homogen_table::wrap(ref_tree, row_count - 1, 4);
     const auto ref_rows = row_accessor<const double>(ref_table).pull({ 0, -1 });
-    check_same_hierarchy(this->get_single_linkage_tree(result),
-                         ref_rows,
-                         row_count,
-                         te::get_tolerance<Float>(1e-4, 1e-7));
+    const auto tree = this->get_single_linkage_tree(result);
+    check_same_hierarchy(tree, ref_rows, row_count, te::get_tolerance<Float>(1e-4, 1e-7));
+    check_same_children(tree, ref_rows, row_count, te::get_tolerance<Float>(1e-4, 1e-7));
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,

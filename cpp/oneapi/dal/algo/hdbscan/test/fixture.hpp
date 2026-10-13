@@ -212,6 +212,64 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
     }
 }
 
+/// Check that every merge away from a tie has the same left and right child as the expected tree.
+///
+/// A child is named after its smallest point, which does not depend on how tied merges below it
+/// were ordered.
+///
+/// @tparam Float    Floating-point type of the tree under test
+/// @tparam RefFloat Floating-point type of the expected tree
+///
+/// @param[in] tree      `(n - 1) x 4` dendrogram under test
+/// @param[in] ref_tree  `(n - 1) x 4` expected dendrogram
+/// @param[in] row_count Number of original observations `n`
+/// @param[in] tol       Merges whose distances differ by at most `2 * tol` count as tied
+template <typename Float, typename RefFloat>
+static void check_same_children(const dal::array<Float>& tree,
+                                const dal::array<RefFloat>& ref_tree,
+                                std::int64_t row_count,
+                                double tol) {
+    const std::int64_t edge_count = row_count - 1;
+    REQUIRE(tree.get_count() == 4 * edge_count);
+    REQUIRE(ref_tree.get_count() == 4 * edge_count);
+
+    const auto smallest_point = [=](const auto& t) {
+        std::vector<std::int64_t> smallest(row_count + edge_count);
+        for (std::int64_t i = 0; i < row_count; i++) {
+            smallest[i] = i;
+        }
+        for (std::int64_t e = 0; e < edge_count; e++) {
+            const auto left = static_cast<std::int64_t>(t[4 * e + 0]);
+            const auto right = static_cast<std::int64_t>(t[4 * e + 1]);
+            CAPTURE(e, left, right);
+            REQUIRE((0 <= left && left < row_count + e));
+            REQUIRE((0 <= right && right < row_count + e));
+            smallest[row_count + e] = std::min(smallest[left], smallest[right]);
+        }
+        return smallest;
+    };
+    const auto actual = smallest_point(tree);
+    const auto expected = smallest_point(ref_tree);
+
+    const auto distance = [&](std::int64_t e) {
+        return static_cast<double>(ref_tree[4 * e + 2]);
+    };
+    for (std::int64_t e = 0; e < edge_count; e++) {
+        if ((e > 0 && distance(e) - distance(e - 1) <= 2 * tol) ||
+            (e + 1 < edge_count && distance(e + 1) - distance(e) <= 2 * tol)) {
+            continue;
+        }
+        CAPTURE(e, distance(e));
+        for (std::int64_t side = 0; side < 2; side++) {
+            CAPTURE(side);
+            REQUIRE(actual[static_cast<std::int64_t>(tree[4 * e + side])] ==
+                    expected[static_cast<std::int64_t>(ref_tree[4 * e + side])]);
+        }
+        REQUIRE(static_cast<std::int64_t>(tree[4 * e + 3]) ==
+                static_cast<std::int64_t>(ref_tree[4 * e + 3]));
+    }
+}
+
 template <typename TestType, typename Derived>
 class hdbscan_test : public te::crtp_algo_fixture<TestType, Derived> {
 public:
