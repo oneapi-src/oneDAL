@@ -219,7 +219,7 @@ distances by ``alpha``. Each call takes one of two paths:
   ``min_samples`` above 256 the core distances come from a blocked brute-force
   k-NN search instead, whose block size is ``distance_block_size``.
 
-Cosine raises :expr:`domain_error` when the matrix does not fit on the device.
+Cosine raises ``oneapi::dal::domain_error`` when the matrix does not fit on the device.
 Cluster extraction runs on the host.
 
 
