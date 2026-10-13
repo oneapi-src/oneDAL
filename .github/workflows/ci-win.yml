@@ -73,9 +73,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}-${{ github.event.number || github.sha }}
   cancel-in-progress: true
 
-# Declare default permissions as read only.
-permissions: read-all
-
 jobs:
   build-and-test:
     strategy:
