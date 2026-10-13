@@ -315,8 +315,11 @@ public:
         std::numeric_limits<std::int32_t>::max() / col_count + 2;
 
     bool fits_on_device() {
-        const std::int64_t needed = 3 * sizeof(float) * row_count * col_count;
-        return device_global_mem_size(this->get_queue()) > needed + needed / 4;
+        const auto& q = this->get_queue();
+        const std::int64_t matrix_bytes = sizeof(float) * row_count * col_count;
+        const std::int64_t needed = 3 * matrix_bytes;
+        return device_global_mem_size(q) > needed + needed / 4 &&
+               device_max_mem_alloc_size(q) >= matrix_bytes;
     }
 
     // Each row is a permutation of 0 .. col_count - 1, so its k smallest are 0 .. k - 1.
