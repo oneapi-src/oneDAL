@@ -132,4 +132,36 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
     this->online_general_checks(data, std::shared_ptr<te::dataframe>{}, compute_mode, nBlocks);
 }
 
+/// A one-row block has no `n - 1` of its own to normalize by, so it must not
+/// turn the accumulated variance into NaN.
+TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
+                     "basic_statistics online with single-row blocks",
+                     "[basic_statistics][integration][online]",
+                     basic_statistics_types) {
+    SKIP_IF(this->not_float64_friendly());
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 3, 1 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 20, 10 }.fill_normal(-30, 30, 7777));
+
+    std::shared_ptr<te::dataframe> weights;
+    const bool use_weights = GENERATE(0, 1);
+
+    // Every block holds one row, or every block but the last one.
+    const std::int64_t row_count = data.get_row_count();
+    const std::int64_t nBlocks = GENERATE_COPY(row_count, row_count - 1);
+
+    if (use_weights) {
+        weights = std::make_shared<te::dataframe>(
+            te::dataframe_builder{ row_count, 1 }.fill_normal(0, 1, 777).build());
+    }
+
+    const bs::result_option_id res_mean_varc = result_options::mean | result_options::variance;
+    const bs::result_option_id res_all =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
+
+    const bs::result_option_id compute_mode = GENERATE_COPY(res_mean_varc, res_all);
+
+    this->online_general_checks(data, weights, compute_mode, nBlocks);
+}
+
 } // namespace oneapi::dal::basic_statistics::test

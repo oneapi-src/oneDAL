@@ -374,7 +374,8 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
             algorithmFPType n1_m_n2        = n_current * _td->nvectors;
             algorithmFPType delta_scale    = n1_m_n2 / n1_p_n2;
             algorithmFPType mean_scale     = algorithmFPType(1.0) / (n1_p_n2);
-            algorithmFPType variance_scale = algorithmFPType(1.0) / (n1_p_n2 - algorithmFPType(1.0));
+            algorithmFPType variance_scale = (n1_p_n2 > algorithmFPType(1.0)) ? algorithmFPType(1.0) / (n1_p_n2 - algorithmFPType(1.0)) :
+                                                                                algorithmFPType(0.0); /* a single row has no spread; avoid 0/0 */
 
             PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
