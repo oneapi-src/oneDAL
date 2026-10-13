@@ -261,6 +261,33 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
     }
 }
 
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan: host extraction rejects an invalid MST",
+                     "[hdbscan][batch]",
+                     hdbscan_bf_only) {
+    SKIP_IF(!this->get_policy().is_cpu());
+
+    constexpr std::int64_t row_count = 4;
+    const auto extract = [&](std::int32_t last_to, double last_weight) {
+        const std::int32_t from[] = { 0, 2, 1 };
+        const std::int32_t to[] = { 1, 3, last_to };
+        const double weights[] = { 0.1, 0.1, last_weight };
+        return backend::extract_clusters_from_mst<double>(
+            dal::backend::context_cpu{},
+            this->get_descriptor(2, 1),
+            array<std::int32_t>::wrap(from, row_count - 1),
+            array<std::int32_t>::wrap(to, row_count - 1),
+            array<double>::wrap(weights, row_count - 1),
+            row_count,
+            false,
+            false);
+    };
+
+    REQUIRE_THROWS_AS(extract(row_count, 5.0), out_of_range);
+    REQUIRE_THROWS_AS(extract(-1, 5.0), out_of_range);
+    REQUIRE_THROWS_AS(extract(2, std::numeric_limits<double>::quiet_NaN()), domain_error);
+}
+
 // =========================================================================
 // Tree methods
 // =========================================================================

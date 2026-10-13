@@ -141,7 +141,8 @@ public:
     /// @param[in]  clusterSelectionEpsilon Distance threshold below which clusters are merged
     /// @param[in]  maxClusterSize          Maximum allowed cluster size; 0 disables the limit
     ///
-    /// @return Status code
+    /// @return Status code; `ErrorIncorrectIndex` for an endpoint outside `[0, N)` and
+    ///         `ErrorIncorrectInputNumericTable` for a non-finite weight
     services::Status compute(const NumericTable * ntMstFrom, const NumericTable * ntMstTo, const NumericTable * ntMstWeights, size_t nRows,
                              NumericTable * ntAssignments, NumericTable * ntNClusters, NumericTable * ntProbabilities,
                              NumericTable * ntSingleLinkageTree, size_t minClusterSize, int clusterSelection, bool allowSingleCluster,

@@ -15,6 +15,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <cstdint>
+
 #include "src/algorithms/hdbscan/hdbscan_kernel.h"
 #include "src/algorithms/hdbscan/hdbscan_cluster_utils.h"
 #include "src/data_management/service_numeric_table.h"
@@ -45,6 +47,8 @@ services::Status HDBSCANExtractClustersKernel<algorithmFPType, cpu>::compute(con
                                                                              double clusterSelectionEpsilon, size_t maxClusterSize)
 {
     DAAL_CHECK(nRows > 0, services::ErrorEmptyInputNumericTable);
+    // Labels are stored as int32, and there are at most nRows / minClusterSize clusters.
+    DAAL_CHECK(minClusterSize > 0 && nRows / minClusterSize <= static_cast<size_t>(INT32_MAX), services::ErrorIncorrectSizeOfInputNumericTable);
     const size_t edgeCount = nRows - 1;
 
     // The extraction sorts the edges in place, so it works on copies.
@@ -70,10 +74,14 @@ services::Status HDBSCANExtractClustersKernel<algorithmFPType, cpu>::compute(con
         const algorithmFPType * weight = weightRows.get();
         for (size_t e = 0; e < edgeCount; e++)
         {
+            DAAL_CHECK(from[e] >= 0 && static_cast<size_t>(from[e]) < nRows && to[e] >= 0 && static_cast<size_t>(to[e]) < nRows,
+                       services::ErrorIncorrectIndex);
             mstFrom[e]    = static_cast<DAAL_INT>(from[e]);
             mstTo[e]      = static_cast<DAAL_INT>(to[e]);
             mstWeights[e] = weight[e];
         }
+        const services::Status mstStatus = checkMst(edgeCount, edgeCount, mstWeights);
+        DAAL_CHECK_STATUS_VAR(mstStatus);
     }
 
     WriteOnlyRows<int, cpu> assignBlock(ntAssignments, 0, nRows);
