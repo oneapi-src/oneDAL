@@ -132,6 +132,7 @@ original observation and id :math:`n + k` is the cluster formed by row
 observations. The table is empty when :math:`n < 2`. The ids share the table's
 floating-point type, so they are exact as long as :math:`2n` fits the mantissa:
 always in double precision, and up to :math:`n = 2^{23}` in single precision.
+A larger :math:`n` in single precision raises ``oneapi::dal::domain_error``.
 
 The dendrogram is the full hierarchy the flat clustering was cut out of, so a
 caller can re-cut it at any distance :math:`\varepsilon` and obtain the
