@@ -35,6 +35,19 @@ template <typename Float, daal::internal::CpuType Cpu>
 using daal_hdbscan_extract_t =
     daal::algorithms::hdbscan::internal::HDBSCANExtractClustersKernel<Float, Cpu>;
 
+/// Wrap a host column as a read-only DAAL table, so an immutable array is accepted.
+///
+/// @param[in] arr       Column data, length `row_count`
+/// @param[in] row_count Number of rows; 0 gives a null table
+template <typename T>
+static daal::data_management::NumericTablePtr wrap_column(const array<T>& arr,
+                                                          std::int64_t row_count) {
+    if (row_count == 0) {
+        return daal::data_management::NumericTablePtr();
+    }
+    return interop::convert_to_daal_table<T>(homogen_table::wrap(arr, row_count, 1));
+}
+
 template <typename Float>
 extracted_clusters<Float> extract_clusters_from_mst(
     const dal::backend::context_cpu& ctx,
@@ -58,12 +71,9 @@ extracted_clusters<Float> extract_clusters_from_mst(
     }
     auto cluster_count = array<std::int32_t>::empty(1);
 
-    auto from_copy = mst_from;
-    auto to_copy = mst_to;
-    auto weights_copy = mst_weights;
-    const auto daal_from = interop::convert_to_daal_homogen_table(from_copy, edge_count, 1);
-    const auto daal_to = interop::convert_to_daal_homogen_table(to_copy, edge_count, 1);
-    const auto daal_weights = interop::convert_to_daal_homogen_table(weights_copy, edge_count, 1);
+    const auto daal_from = wrap_column(mst_from, edge_count);
+    const auto daal_to = wrap_column(mst_to, edge_count);
+    const auto daal_weights = wrap_column(mst_weights, edge_count);
     const auto daal_responses = interop::convert_to_daal_homogen_table(out.responses, row_count, 1);
     const auto daal_cluster_count = interop::convert_to_daal_homogen_table(cluster_count, 1, 1);
     const auto daal_probabilities =
@@ -124,10 +134,8 @@ void set_cluster_centers(const dal::backend::context_cpu& ctx,
     }
 
     const auto daal_data = interop::convert_to_daal_table<Float>(data);
-    auto labels_copy = labels;
-    auto weights_copy = weights;
-    const auto daal_labels = interop::convert_to_daal_homogen_table(labels_copy, row_count, 1);
-    const auto daal_weights = interop::convert_to_daal_homogen_table(weights_copy, row_count, 1);
+    const auto daal_labels = wrap_column(labels, row_count);
+    const auto daal_weights = wrap_column(weights, row_count);
     const auto daal_centroids =
         interop::convert_to_daal_homogen_table(centroids, cluster_count, col_count);
     const auto daal_medoids =
