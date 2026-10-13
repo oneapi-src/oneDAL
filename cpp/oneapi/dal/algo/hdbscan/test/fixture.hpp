@@ -81,6 +81,7 @@ static std::vector<std::int32_t> labelling_at_cut(const dal::array<Float>& tree,
                                                   double cut_distance,
                                                   std::int64_t min_cluster_size) {
     const std::int64_t node_count = 2 * row_count - 1;
+    REQUIRE(tree.get_count() == 4 * (row_count - 1));
 
     // Union by rank and path compression as in scikit-learn, since labels follow the root ids.
     std::vector<std::int64_t> parent(node_count);
@@ -119,8 +120,13 @@ static std::vector<std::int32_t> labelling_at_cut(const dal::array<Float>& tree,
             continue;
         }
         const auto node = row_count + e;
-        unite(static_cast<std::int64_t>(tree[4 * e + 0]), node);
-        unite(static_cast<std::int64_t>(tree[4 * e + 1]), node);
+        const auto left = static_cast<std::int64_t>(tree[4 * e + 0]);
+        const auto right = static_cast<std::int64_t>(tree[4 * e + 1]);
+        CAPTURE(e, left, right);
+        REQUIRE((0 <= left && left < node));
+        REQUIRE((0 <= right && right < node));
+        unite(left, node);
+        unite(right, node);
     }
 
     std::map<std::int64_t, std::int64_t> component_size;
@@ -159,6 +165,8 @@ static void check_same_hierarchy(const dal::array<Float>& tree,
                                  std::int64_t row_count,
                                  double tol) {
     const std::int64_t edge_count = row_count - 1;
+    REQUIRE(tree.get_count() == 4 * edge_count);
+    REQUIRE(ref_tree.get_count() == 4 * edge_count);
 
     INFO("merge distances agree");
     for (std::int64_t e = 0; e < edge_count; e++) {
