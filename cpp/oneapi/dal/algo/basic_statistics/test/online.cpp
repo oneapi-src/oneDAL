@@ -73,8 +73,9 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
                            te::dataframe_builder{ 7, 5 }.fill_normal(-30, 30, 7777));
     const std::int64_t row_count = data.get_row_count();
 
-    // Every row in its own block, and a split that ends with a one-row block.
-    const std::int64_t nBlocks = GENERATE_COPY(row_count, row_count / 2 + 1);
+    // Every row in its own block, and a multi-row block followed by a one-row block.
+    const auto row_counts = GENERATE_COPY(std::vector<std::int64_t>(row_count, 1),
+                                          std::vector<std::int64_t>{ row_count - 1, 1 });
 
     std::shared_ptr<te::dataframe> weights;
     if (GENERATE(0, 1)) {
@@ -84,7 +85,7 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
 
     const bs::result_option_id compute_mode =
         bs::result_option_id(dal::result_option_id_base(mask_full));
-    this->online_general_checks(data, weights, compute_mode, nBlocks);
+    this->online_general_checks(data, weights, compute_mode, row_counts);
 }
 
 /// Sweep the result option masks that the common flow above does not reach.

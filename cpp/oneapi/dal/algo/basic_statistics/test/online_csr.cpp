@@ -59,11 +59,12 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_csr_test,
     SKIP_IF(this->not_cpu_friendly(data));
     const std::int64_t row_count = data.row_count_;
 
-    // Every row in its own block, and a split that ends with a one-row block.
-    const std::int64_t n_blocks = GENERATE_COPY(row_count, row_count / 2 + 1);
+    // Every row in its own block, and a multi-row block followed by a one-row block.
+    const auto row_counts = GENERATE_COPY(std::vector<std::int64_t>(row_count, 1),
+                                          std::vector<std::int64_t>{ row_count - 1, 1 });
     const bs::result_option_id compute_mode =
         bs::result_option_id(dal::result_option_id_base(mask_full));
-    this->online_csr_general_checks(data, compute_mode, n_blocks);
+    this->online_csr_general_checks(data, compute_mode, row_counts);
 }
 
 TEMPLATE_LIST_TEST_M(basic_statistics_online_csr_test,
