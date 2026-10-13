@@ -33,6 +33,26 @@ $ErrorActionPreference = "Stop"
 
 $bazeliskVersion = "v1.29.0"
 $assetName = "bazelisk-windows-amd64.exe"
+
+# SHA256 of the release assets for the version above, so the usual install path
+# needs no GitHub API call: the API is the only rate-limited endpoint here, and
+# it is what failed the Windows nightly on 2026-10-12 ("API rate limit exceeded
+# for 130.131.238.16"). The digest is what the API would be asked for anyway, so
+# pinning it loses no verification -- the download is still checked against it.
+#
+# Refresh together with $bazeliskVersion:
+#   gh api repos/bazelbuild/bazelisk/releases/tags/<version> --jq '.assets[] | "\(.name) \(.digest)"'
+#
+# $pinnedVersion is what these digests belong to. Renovate bumps the version
+# strings but cannot update an asset digest, so when the two differ the pins are
+# ignored and the release metadata is fetched as before: a Renovate bump keeps
+# working unattended, it only loses the API-free path until the digests are
+# refreshed.
+$pinnedVersion = "v1.29.0"
+$pinnedDigests = @{
+    "bazelisk-windows-amd64.exe" = "092a8738d5b41aae7a85c42cc961b1034e3389aba43ffc20c0fabda7b43e095b"
+    "bazelisk-windows-arm64.exe" = "8bc42bd5d7857f18a21440b906469bb6c7cf91a7c72364d4b1e5ec56a76fe94f"
+}
 $installDir = Join-Path (Get-Location) "bazel\bin"
 $bazelPath = Join-Path $installDir "bazel.exe"
 
@@ -108,35 +128,46 @@ function Invoke-WithRetry {
     }
 }
 
-$release = Invoke-WithRetry -Description "fetch Bazelisk $bazeliskVersion release metadata" -Action {
-    $response = Invoke-RestMethod `
-        -Headers $headers `
-        -Uri "https://api.github.com/repos/bazelbuild/bazelisk/releases/tags/$bazeliskVersion"
-    # An empty body is a failure too, as in `.ci/env/bazelisk.sh`.
-    if ($null -eq $response -or -not $response.assets) {
-        throw "Empty Bazelisk release metadata response"
-    }
-    $response
+$expectedHash = $null
+$downloadUrl = "https://github.com/bazelbuild/bazelisk/releases/download/$bazeliskVersion/$assetName"
+if ($bazeliskVersion -eq $pinnedVersion -and $pinnedDigests.ContainsKey($assetName)) {
+    $expectedHash = $pinnedDigests[$assetName]
 }
 
-$asset = $release.assets | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
-if (-not $asset) {
-    throw "Could not find $assetName in Bazelisk release $bazeliskVersion"
+if (-not $expectedHash) {
+    Write-Host "No pinned digest for $assetName at $bazeliskVersion; reading the release metadata."
+    $release = Invoke-WithRetry -Description "fetch Bazelisk $bazeliskVersion release metadata" -Action {
+        $response = Invoke-RestMethod `
+            -Headers $headers `
+            -Uri "https://api.github.com/repos/bazelbuild/bazelisk/releases/tags/$bazeliskVersion"
+        # An empty body is a failure too, as in `.ci/env/bazelisk.sh`.
+        if ($null -eq $response -or -not $response.assets) {
+            throw "Empty Bazelisk release metadata response"
+        }
+        $response
+    }
+
+    $asset = $release.assets | Where-Object { $_.name -eq $assetName } | Select-Object -First 1
+    if (-not $asset) {
+        throw "Could not find $assetName in Bazelisk release $bazeliskVersion"
+    }
+    if (-not $asset.digest.StartsWith("sha256:")) {
+        # Do not install an asset that cannot be checked against release metadata.
+        throw "Unexpected Bazelisk digest format: $($asset.digest)"
+    }
+    $expectedHash = $asset.digest.Substring("sha256:".Length)
+    $downloadUrl = $asset.browser_download_url
 }
 
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 Invoke-WithRetry -Description "download $assetName" -Action {
-    Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $bazelPath
+    Invoke-WebRequest -Uri $downloadUrl -OutFile $bazelPath
 } | Out-Null
 
-if (-not $asset.digest.StartsWith("sha256:")) {
-    # Do not install an asset that cannot be checked against release metadata.
-    throw "Unexpected Bazelisk digest format: $($asset.digest)"
-}
-
-$expectedHash = $asset.digest.Substring("sha256:".Length)
 $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $bazelPath).Hash.ToLowerInvariant()
 if ($actualHash -ne $expectedHash.ToLowerInvariant()) {
+    # Do not leave an unverified executable where the caller would add it to PATH.
+    Remove-Item -LiteralPath $bazelPath -Force -ErrorAction SilentlyContinue
     throw "Bazelisk SHA256 mismatch. Expected $expectedHash, got $actualHash"
 }
 

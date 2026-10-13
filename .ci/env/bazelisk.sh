@@ -17,6 +17,26 @@
 
 BAZELISK_VERSION=v1.29.0
 
+# SHA256 of the release assets for the version above, so the usual install path
+# needs no GitHub API call at all: the API is the only rate-limited endpoint
+# here, it is what took `install-bazel` down on Azure builds 63813 and 63876 and
+# on the Windows nightly of 2026-10-12, and the Azure jobs cannot authenticate.
+# The digest is what the API would be asked for anyway, so pinning it loses no
+# verification -- the download is still checked against it.
+#
+# Refresh together with BAZELISK_VERSION:
+#   gh api repos/bazelbuild/bazelisk/releases/tags/<version> \
+#     --jq '.assets[] | "\(.name) \(.digest)"'
+#
+# `BAZELISK_PINNED_VERSION` is what the digests below belong to. Renovate bumps
+# the version strings but cannot update an asset digest, so when the two differ
+# the pins are simply ignored and the release metadata is fetched as before --
+# a Renovate bump keeps working unattended, it only loses the API-free path
+# until the digests are refreshed.
+BAZELISK_PINNED_VERSION=v1.29.0
+BAZELISK_SHA256_bazelisk_linux_amd64=5a408715e932c0250d28bd84555f12edbf70117de42f9181691c736eacc4a992
+BAZELISK_SHA256_bazelisk_linux_arm64=e20e8b0f4f240091b7a55bf17b9398bd4f40ee70ae0208dff95dd4c445fb4010
+
 # Bazelisk itself always runs on the CI *exec* host (even when the build
 # cross-compiles to another target arch, e.g. the riscv64 job below), so pick
 # the asset matching the host running this script, not the oneDAL target arch.
@@ -108,23 +128,36 @@ function fetch_release_json {
   printf '%s' "${body}"
 }
 
-# collect information about the bazelisk release
-if ! BAZELISK_JSON=$(retry fetch_release_json) || [ -z "${BAZELISK_JSON}" ]; then
-  echo ":error: Failed to fetch Bazelisk release information from GitHub API." >&2
-  exit 1
+# the pinned digest for this asset, empty when the pins do not apply
+SHA256=""
+if [ "${BAZELISK_VERSION}" = "${BAZELISK_PINNED_VERSION}" ]; then
+  pin_var="BAZELISK_SHA256_$(printf '%s' "${BAZELISK_ASSET}" | tr '.-' '__')"
+  SHA256=$(eval "printf '%s' \"\${${pin_var}:-}\"")
 fi
 
-# extract SHA256 from json
-SHA256=""
-found=""
-while IFS= read -r line; do
-  if [[ $line == *"\"name\": \"${BAZELISK_ASSET}\""* ]]; then
-    found=1
-  elif [[ $found && $line == *'"digest":'* ]]; then
-    SHA256=$(echo "$line" | sed -n 's/.*"sha256:\([^"]*\)".*/\1/p')
-    break
+if [ -z "${SHA256}" ]; then
+  echo "No pinned digest for ${BAZELISK_ASSET} at ${BAZELISK_VERSION}; reading the release metadata."
+  # collect information about the bazelisk release
+  if ! BAZELISK_JSON=$(retry fetch_release_json) || [ -z "${BAZELISK_JSON}" ]; then
+    echo ":error: Failed to fetch Bazelisk release information from GitHub API." >&2
+    exit 1
   fi
-done < <(printf '%s\n' "$BAZELISK_JSON")
+
+  # extract SHA256 from json
+  found=""
+  while IFS= read -r line; do
+    if [[ $line == *"\"name\": \"${BAZELISK_ASSET}\""* ]]; then
+      found=1
+    elif [[ $found && $line == *'"digest":'* ]]; then
+      SHA256=$(echo "$line" | sed -n 's/.*"sha256:\([^"]*\)".*/\1/p')
+      break
+    fi
+  done < <(printf '%s\n' "$BAZELISK_JSON")
+  if [ -z "${SHA256}" ]; then
+    echo ":error: Release metadata for ${BAZELISK_VERSION} carries no digest for ${BAZELISK_ASSET}." >&2
+    exit 1
+  fi
+fi
 SHA256+="  ${BAZELISK_ASSET}"
 
 # Download Bazelisk
@@ -134,7 +167,14 @@ if ! retry wget -O "${BAZELISK_ASSET}" \
   exit 1
 fi
 echo $SHA256
-echo ${SHA256} | sha256sum --check
+# The script is sourced, nothing sets `-e`, and the install steps below do not
+# look at this result: a mismatching download used to be installed anyway, with
+# the job going green. Stop here instead, and take the file away with us.
+if ! printf '%s\n' "${SHA256}" | sha256sum --check; then
+  echo ":error: SHA256 mismatch for ${BAZELISK_ASSET}; refusing to install it." >&2
+  rm -f "${BAZELISK_ASSET}"
+  exit 1
+fi
 # "Install" bazelisk
 chmod +x ${BAZELISK_ASSET}
 mkdir -p bazel/bin
