@@ -80,6 +80,35 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan: clusters at different depths numbered breadth-first",
+                     "[hdbscan][batch]",
+                     hdbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    // Five 7-point blobs, no two pairwise distances within 1e-5 of each other. The root splits into
+    // G1 and G2, G1 into A (which holds point 0) and H, G2 into C and D, and H into H1 and H2.
+    // Breadth-first numbering gives A, C, D, H1, H2 = 0 .. 4; either depth-first order differs.
+    constexpr std::int64_t row_count = 35;
+    constexpr double data[] = { 0.41,  -0.35, 4.88,  0.39,  19.89, -0.05, 20.07, 3.69,  4.98,
+                                2.36,  20.42, -0.2,  20.11, -0.1,  0.73,  0.4,   4.16,  2.62,
+                                19.93, 3.9,   5.09,  0.12,  20.09, 4.02,  5.44,  0.02,  20.0,
+                                0.08,  20.28, 3.87,  5.41,  3.02,  19.8,  0.4,   5.13,  2.56,
+                                6.01,  0.16,  0.26,  0.17,  19.72, 3.57,  19.75, -0.14, 19.99,
+                                0.07,  -0.21, -0.23, 0.29,  -0.09, 5.4,   2.37,  0.2,   0.54,
+                                -0.04, -0.25, 4.9,   0.08,  20.23, 3.9,   4.97,  2.32,  4.56,
+                                2.94,  19.97, 4.03,  5.28,  0.37,  4.72,  0.43 };
+    // Reference: sklearn.cluster.HDBSCAN(min_cluster_size=5, min_samples=4).labels_.
+    constexpr std::int32_t labels[] = { 0, 3, 1, 2, 4, 1, 1, 0, 4, 2, 3, 2, 3, 1, 2, 4, 1, 4,
+                                        3, 0, 2, 1, 1, 0, 0, 4, 0, 0, 3, 2, 4, 4, 2, 3, 3 };
+
+    const auto x = make_table<Float>(data, row_count, 2);
+    const auto result = this->compute(this->get_descriptor(5, 4), x);
+    REQUIRE(result.get_cluster_count() == 5);
+    this->check_responses_against_ref(result.get_responses(), labels, row_count);
+}
+
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
                      "hdbscan: gold data test",
                      "[hdbscan][batch][gold]",
                      hdbscan_types) {
