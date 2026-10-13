@@ -567,13 +567,15 @@ void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t 
     if (nVectors > 0)
     {
         const algorithmFPType nVectorsM1 = (algorithmFPType)(nVectors - 1);
+        /* The sample variance of one row is 0 / 0, while its centered sum of squares is exactly 0 */
+        const bool singleRow = (nVectors == 1);
         if (!isOnline)
         {
             PRAGMA_OMP_SIMD
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < nFeatures; i++)
             {
-                sumSqCen[i] = variance[i] * nVectorsM1;
+                sumSqCen[i] = singleRow ? algorithmFPType(0) : variance[i] * nVectorsM1;
             }
             return;
         }
@@ -584,7 +586,7 @@ void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t 
             PRAGMA_VECTOR_ALWAYS
             for (size_t i = 0; i < nFeatures; i++)
             {
-                sumSqCen[i] += variance[i] * nVectorsM1;
+                sumSqCen[i] += singleRow ? algorithmFPType(0) : variance[i] * nVectorsM1;
             }
         }
         else
@@ -598,7 +600,7 @@ void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t 
                 algorithmFPType mean1 = prevSums[i] * invPrevNVectors;
                 algorithmFPType mean2 = (sums[i] - prevSums[i]) * invNVectors;
 
-                algorithmFPType ssqdm2 = variance[i] * nVectorsM1;
+                algorithmFPType ssqdm2 = singleRow ? algorithmFPType(0) : variance[i] * nVectorsM1;
 
                 sumSqCen[i] += (ssqdm2 + coeff * (mean1 * mean1 + mean2 * mean2 - 2.0 * mean1 * mean2));
             }

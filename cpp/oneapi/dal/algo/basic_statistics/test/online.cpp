@@ -62,6 +62,31 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
     this->online_general_checks(data, weights, compute_mode, nBlocks);
 }
 
+// A one-row block used to turn the online variance into NaN, whatever the earlier blocks held.
+TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
+                     "basic_statistics online with one-row blocks",
+                     "[basic_statistics][integration][online]",
+                     basic_statistics_types) {
+    SKIP_IF(this->not_float64_friendly());
+    const te::dataframe data =
+        GENERATE_DATAFRAME(te::dataframe_builder{ 3, 2 }.fill_normal(-30, 30, 7777),
+                           te::dataframe_builder{ 7, 5 }.fill_normal(-30, 30, 7777));
+    const std::int64_t row_count = data.get_row_count();
+
+    // Every row in its own block, and a split that ends with a one-row block.
+    const std::int64_t nBlocks = GENERATE_COPY(row_count, row_count / 2 + 1);
+
+    std::shared_ptr<te::dataframe> weights;
+    if (GENERATE(0, 1)) {
+        weights = std::make_shared<te::dataframe>(
+            te::dataframe_builder{ row_count, 1 }.fill_uniform(0.5, 1.5, 777).build());
+    }
+
+    const bs::result_option_id compute_mode =
+        bs::result_option_id(dal::result_option_id_base(mask_full));
+    this->online_general_checks(data, weights, compute_mode, nBlocks);
+}
+
 /// Sweep the result option masks that the common flow above does not reach.
 ///
 /// The partial descriptor derived by `get_desc_to_compute` must request a superset

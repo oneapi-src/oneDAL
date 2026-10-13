@@ -428,13 +428,15 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
         if (_cd.nVectors > 0)
         {
             algorithmFPType nVectorsM1 = (algorithmFPType)(_cd.nVectors - 1);
+            /* The variance of one row is NaN after the merge above, while its centered sum of squares is exactly 0 */
+            const bool singleRow = (_cd.nVectors == 1);
             if (!isOnline)
             {
                 PRAGMA_OMP_SIMD
                 PRAGMA_VECTOR_ALWAYS
                 for (size_t i = 0; i < _cd.nFeatures; i++)
                 {
-                    _sumSqCen[i] = _cd.variance[i] * nVectorsM1;
+                    _sumSqCen[i] = singleRow ? algorithmFPType(0) : _cd.variance[i] * nVectorsM1;
                 }
             }
             else /* isOnline */
@@ -445,7 +447,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
                     PRAGMA_VECTOR_ALWAYS
                     for (size_t i = 0; i < _cd.nFeatures; i++)
                     {
-                        _sumSqCen[i] += _cd.variance[i] * nVectorsM1;
+                        _sumSqCen[i] += singleRow ? algorithmFPType(0) : _cd.variance[i] * nVectorsM1;
                     }
                 }
                 else /* if (nObs != 0) */
@@ -461,7 +463,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
                         algorithmFPType mean1 = _cd.prevSums[i] * invPrevNVectors;
                         algorithmFPType mean2 = (_sums[i] - _cd.prevSums[i]) * invNVectors;
 
-                        algorithmFPType ssqdm2 = _cd.variance[i] * nVectorsM1;
+                        algorithmFPType ssqdm2 = singleRow ? algorithmFPType(0) : _cd.variance[i] * nVectorsM1;
 
                         _sumSqCen[i] += (ssqdm2 + coeff * (mean1 * mean1 + mean2 * mean2 - 2 * mean1 * mean2));
                     }
