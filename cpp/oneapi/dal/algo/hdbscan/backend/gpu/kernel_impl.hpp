@@ -292,13 +292,11 @@ inline sycl::event compute_core_distances(sycl::queue& queue,
     // The point itself counts as its first neighbor, as in scikit-learn.
     const std::int64_t k = min_samples;
 
-    auto [ksel_vals, ksel_vals_event] =
-        pr::ndarray<Float, 2>::zeros(queue, { n, k }, sycl::usm::alloc::device);
+    // Not zero-filled: `kselect_by_rows` writes all `k` entries of every row.
+    auto ksel_vals = pr::ndarray<Float, 2>::empty(queue, { n, k }, sycl::usm::alloc::device);
 
     pr::kselect_by_rows<Float> ksel(queue, { n, n }, k);
-    bk::event_vector ksel_deps = deps;
-    ksel_deps.push_back(ksel_vals_event);
-    auto ksel_event = ksel(queue, dist, k, ksel_vals, ksel_deps);
+    auto ksel_event = ksel(queue, dist, k, ksel_vals, deps);
 
     const Float* ksel_ptr = ksel_vals.get_data();
     Float* core_ptr = core_distances.get_mutable_data();
