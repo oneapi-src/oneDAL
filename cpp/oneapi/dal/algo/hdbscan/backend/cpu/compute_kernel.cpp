@@ -103,7 +103,7 @@ static result_t compute_kernel_impl(const context_cpu& ctx,
     const auto daal_single_linkage_tree =
         interop::convert_to_daal_homogen_table(arr_single_linkage_tree, edge_count, 4);
 
-    interop::status_to_exception(
+    kernel_status_to_exception(
         interop::call_daal_kernel<Float, batch_kernel<Method>::template type>(
             ctx,
             daal_data.get(),

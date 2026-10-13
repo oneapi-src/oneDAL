@@ -84,7 +84,7 @@ extracted_clusters<Float> extract_clusters_from_mst(
     const bool allow_single_cluster = desc.get_allow_single_cluster();
     const int cluster_selection =
         (desc.get_cluster_selection() == cluster_selection_method::leaf) ? 1 : 0;
-    interop::status_to_exception(interop::call_daal_kernel<Float, daal_hdbscan_extract_t>(
+    kernel_status_to_exception(interop::call_daal_kernel<Float, daal_hdbscan_extract_t>(
         ctx,
         daal_from.get(),
         daal_to.get(),

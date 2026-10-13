@@ -98,6 +98,8 @@ services::Status HDBSCANBatchKernel<algorithmFPType, method, cpu>::compute(
     ReadRows<algorithmFPType, cpu> dataBlock(const_cast<NumericTable *>(ntData), 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(dataBlock);
     const algorithmFPType * data = dataBlock.get();
+    // The distance step clamps a non-finite value to a finite one, so checkMst cannot see it.
+    DAAL_CHECK(!data_management::internal::valuesAreNotFinite(data, nRows * nCols, false), services::ErrorIncorrectInputNumericTable);
 
     // =========================================================================
     // Step 1: Compute pairwise distance matrix

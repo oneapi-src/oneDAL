@@ -17,9 +17,12 @@
 #include "oneapi/dal/algo/hdbscan/test/fixture.hpp"
 #include "oneapi/dal/algo/hdbscan/backend/cpu/cluster_utils.hpp"
 #include "oneapi/dal/test/engine/blobs.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -342,18 +345,18 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
-                     "hdbscan trees: non-finite input is rejected instead of truncating the MST",
+                     "hdbscan: non-finite input is rejected instead of truncating the MST",
                      "[hdbscan][batch]",
-                     hdbscan_tree_methods_f64) {
-    // CPU only: the GPU takes the MRD with `sycl::fmax`, which drops a NaN operand and keeps the
-    // graph connected.
-    SKIP_IF(!this->get_policy().is_cpu());
+                     hdbscan_types) {
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
+    // The GPU takes the MRD with `sycl::fmax`, which drops a NaN operand and keeps the graph
+    // connected, so it only rejects infinity.
     const Float bad =
         GENERATE(std::numeric_limits<Float>::quiet_NaN(), std::numeric_limits<Float>::infinity());
     CAPTURE(bad);
+    SKIP_IF(!this->get_policy().is_cpu() && std::isnan(bad));
 
     // No Boruvka round can join the poisoned row, so the MST is incomplete and the call must fail.
     // Checking finiteness is the caller's job, as for every algorithm.
@@ -361,7 +364,15 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
                      5.0, 5.0, 5.1, 5.1, 5.2, 5.0, 5.0, 5.2, bad,  5.15 };
     const auto x = homogen_table::wrap(data, 10, 2);
 
-    REQUIRE_THROWS_AS(this->compute(this->get_descriptor(3, 3), x), domain_error);
+    const std::string expected = dal::detail::error_messages::hdbscan_input_data_is_not_finite();
+    std::string message;
+    try {
+        this->compute(this->get_descriptor(3, 3), x);
+    }
+    catch (const domain_error& e) {
+        message = e.what();
+    }
+    REQUIRE(message == expected);
 }
 
 // =========================================================================

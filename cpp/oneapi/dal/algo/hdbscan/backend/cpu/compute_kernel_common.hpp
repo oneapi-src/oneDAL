@@ -17,6 +17,7 @@
 #pragma once
 
 #include "oneapi/dal/algo/hdbscan/common.hpp"
+#include "oneapi/dal/backend/interop/error_converter.hpp"
 #include "oneapi/dal/detail/error_messages.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
@@ -43,6 +44,20 @@ inline daal_pairwise_distance_t convert_metric(distance_metric m) {
         case distance_metric::cosine: return daal_pairwise_distance_t::cosine;
     }
     throw invalid_argument(dal::detail::error_messages::unknown_distance_type());
+}
+
+/// Convert a DAAL HDBSCAN status to an exception, raising non-finite input as the GPU does.
+///
+/// The kernels report non-finite input, and only that, as `ErrorIncorrectInputNumericTable`.
+///
+/// @param[in] s Status returned by a DAAL HDBSCAN kernel
+inline void kernel_status_to_exception(const daal::services::Status& s) {
+    dal::backend::interop::status_to_exception(s, [](const daal::services::Status& s) {
+        if (daal::services::internal::get_error_id(s) ==
+            daal::services::ErrorIncorrectInputNumericTable) {
+            throw domain_error(dal::detail::error_messages::hdbscan_input_data_is_not_finite());
+        }
+    });
 }
 
 } // namespace oneapi::dal::hdbscan::backend
