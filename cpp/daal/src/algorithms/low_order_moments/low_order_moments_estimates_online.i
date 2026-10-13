@@ -473,7 +473,7 @@ Status compute_estimates(NumericTable * dataTable, PartialResult * partialResult
                         for (size_t i = 0; i < _cd.nFeatures; i++)
                         {
                             algorithmFPType mean1 = _cd.prevSums[i] * invPrevNVectors;
-                            algorithmFPType mean2 = (_sums[i] - _cd.prevSums[i]) * invNVectors;
+                            algorithmFPType mean2 = _sums[i] - _cd.prevSums[i];
 
                             _sumSqCen[i] += coeff * (mean1 * mean1 + mean2 * mean2 - 2 * mean1 * mean2);
                         }

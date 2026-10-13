@@ -610,7 +610,7 @@ void computeSumOfSquaredDiffsFromMean(size_t nFeatures, size_t nVectors, size_t 
                 for (size_t i = 0; i < nFeatures; i++)
                 {
                     algorithmFPType mean1 = prevSums[i] * invPrevNVectors;
-                    algorithmFPType mean2 = (sums[i] - prevSums[i]) * invNVectors;
+                    algorithmFPType mean2 = sums[i] - prevSums[i];
 
                     sumSqCen[i] += coeff * (mean1 * mean1 + mean2 * mean2 - 2.0 * mean1 * mean2);
                 }
