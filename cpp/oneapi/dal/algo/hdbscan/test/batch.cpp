@@ -219,15 +219,72 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
         1.0,  1.0,  1.05,  1.05,  1.1,  1.0,  1.0,  1.1,  1.08,  1.08, //
         10.0, 10.0, 10.05, 10.05, 10.1, 10.0, 10.0, 10.1, 10.08, 10.08,
     };
-    const auto x = make_table<Float>(data, 15, 2);
+    constexpr std::int64_t row_count = 15;
+    const auto x = make_table<Float>(data, row_count, 2);
+
+    // Reference: sklearn.cluster.HDBSCAN(min_cluster_size=5, min_samples=5,
+    // cluster_selection_epsilon=epsilon).labels_.
+    constexpr std::int32_t ref_labels_eps0[] = { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0 };
+    constexpr std::int32_t ref_labels_eps5[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 };
 
     const auto result_no_eps =
         this->compute(this->get_descriptor(5, 5).set_cluster_selection_epsilon(0.0), x);
+    REQUIRE(result_no_eps.get_cluster_count() == 3);
+    this->check_responses_against_ref(result_no_eps.get_responses(), ref_labels_eps0, row_count);
+
     const auto result_eps =
         this->compute(this->get_descriptor(5, 5).set_cluster_selection_epsilon(5.0), x);
+    REQUIRE(result_eps.get_cluster_count() == 2);
+    this->check_responses_against_ref(result_eps.get_responses(), ref_labels_eps5, row_count);
+}
 
-    INFO("epsilon merges clusters, so the count does not grow");
-    REQUIRE(result_eps.get_cluster_count() <= result_no_eps.get_cluster_count());
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan: epsilon search stops only above epsilon",
+                     "[hdbscan][batch]",
+                     hdbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    // Five 5-point groups on a line. Leaves L1, L2 (gap 2) form P, leaves Y1, Y2 (gap 2.5) form
+    // Y, P and Y (gap 4) form G, and G and X (gap 15.5) form the root. Multiples of 1/8, so every
+    // merge distance is exact in float32 and lands exactly on the epsilons 2 and 4.
+    constexpr std::int64_t row_count = 25;
+    constexpr double data[] = {
+        0.0,    0.125,  0.375,  0.5,    0.875, //
+        2.875,  3.0,    3.25,   3.375,  3.75, //
+        7.75,   7.875,  8.125,  8.25,   8.625, //
+        11.125, 11.25,  11.5,   11.625, 12.0, //
+        27.5,   27.625, 27.875, 28.0,   28.375,
+    };
+    const auto x = make_table<Float>(data, row_count, 1);
+
+    struct epsilon_case {
+        double epsilon;
+        std::int64_t cluster_count;
+        std::int32_t labels[row_count];
+    };
+    // Reference: sklearn.cluster.HDBSCAN(min_cluster_size=5, min_samples=5,
+    // cluster_selection_epsilon=epsilon).labels_. At 2.0 and 2.5 a leaf born exactly at epsilon
+    // is kept; at 4.0 the search passes P and Y, born exactly at epsilon, and stops at G.
+    const epsilon_case c =
+        GENERATE(epsilon_case{ 0.0, 5, { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3,
+                                         3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 } },
+                 epsilon_case{ 2.0, 5, { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3,
+                                         3, 3, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0 } },
+                 epsilon_case{ 2.5, 4, { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+                                         2, 2, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0 } },
+                 epsilon_case{ 3.0, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+                                         2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0 } },
+                 epsilon_case{ 4.0, 2, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                         0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 } },
+                 epsilon_case{ 16.0, 2, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                          0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 } });
+    CAPTURE(c.epsilon);
+
+    const auto result =
+        this->compute(this->get_descriptor(5, 5).set_cluster_selection_epsilon(c.epsilon), x);
+    REQUIRE(result.get_cluster_count() == c.cluster_count);
+    this->check_responses_against_ref(result.get_responses(), c.labels, row_count);
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
