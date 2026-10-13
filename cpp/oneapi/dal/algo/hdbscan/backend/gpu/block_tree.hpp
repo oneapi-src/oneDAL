@@ -354,32 +354,39 @@ inline pr::ndarray<std::uint32_t, 1> kd_order(sycl::queue& queue,
         const std::uint32_t* order_ptr = order.get_data();
         std::uint32_t* moved_ptr = moved.get_mutable_data();
         std::uint32_t* next_ptr = next.get_mutable_data();
-        // One work-group per (segment, column) box side.
+        // One work-group per (segment, column) box side, in launches that stay within int32.
         const std::int64_t wg = std::min<std::int64_t>(seg_size, 256);
-        auto box_event = queue.submit([&](sycl::handler& h) {
-            h.depends_on(last_event);
-            h.parallel_for(
-                bk::make_multiple_nd_range_1d(seg_count * d * wg, wg),
-                [=](sycl::nd_item<1> it) {
-                    const std::int64_t g = it.get_group(0);
-                    const std::int64_t s = g / d;
-                    const std::int64_t c = g % d;
-                    const std::int64_t end = std::min(n, (s + 1) * seg_size);
-                    Float lo = std::numeric_limits<Float>::max();
-                    Float hi = std::numeric_limits<Float>::lowest();
-                    for (std::int64_t p = s * seg_size + it.get_local_id(0); p < end; p += wg) {
-                        const Float v = data_ptr[static_cast<std::int64_t>(order_ptr[p]) * d + c];
-                        lo = sycl::fmin(lo, v);
-                        hi = sycl::fmax(hi, v);
-                    }
-                    lo = sycl::reduce_over_group(it.get_group(), lo, sycl::minimum<Float>());
-                    hi = sycl::reduce_over_group(it.get_group(), hi, sycl::maximum<Float>());
-                    if (it.get_local_id(0) == 0) {
-                        lo_ptr[s * d + c] = lo;
-                        hi_ptr[s * d + c] = hi;
-                    }
-                });
-        });
+        const std::int64_t group_count = seg_count * d;
+        const std::int64_t block_groups = bk::max_range_2d_rows(wg);
+        bk::event_vector box_events;
+        for (std::int64_t first_group = 0; first_group < group_count; first_group += block_groups) {
+            const std::int64_t groups = std::min(block_groups, group_count - first_group);
+            box_events.push_back(queue.submit([&](sycl::handler& h) {
+                h.depends_on(last_event);
+                h.parallel_for(
+                    bk::make_multiple_nd_range_1d(groups * wg, wg),
+                    [=](sycl::nd_item<1> it) {
+                        const std::int64_t g = first_group + it.get_group(0);
+                        const std::int64_t s = g / d;
+                        const std::int64_t c = g % d;
+                        const std::int64_t end = std::min(n, (s + 1) * seg_size);
+                        Float lo = std::numeric_limits<Float>::max();
+                        Float hi = std::numeric_limits<Float>::lowest();
+                        for (std::int64_t p = s * seg_size + it.get_local_id(0); p < end; p += wg) {
+                            const Float v =
+                                data_ptr[static_cast<std::int64_t>(order_ptr[p]) * d + c];
+                            lo = sycl::fmin(lo, v);
+                            hi = sycl::fmax(hi, v);
+                        }
+                        lo = sycl::reduce_over_group(it.get_group(), lo, sycl::minimum<Float>());
+                        hi = sycl::reduce_over_group(it.get_group(), hi, sycl::maximum<Float>());
+                        if (it.get_local_id(0) == 0) {
+                            lo_ptr[s * d + c] = lo;
+                            hi_ptr[s * d + c] = hi;
+                        }
+                    });
+            }));
+        }
 
         // One sort on `segment * 2^bits + coordinate cell` while that stays below 2^24, which
         // every float key holds exactly; past that, by coordinate and then stably by segment.
@@ -387,7 +394,7 @@ inline pr::ndarray<std::uint32_t, 1> kd_order(sycl::queue& queue,
         const bool one_sort = cell_bits >= 8;
         const Float cells = one_sort ? Float((std::int64_t(1) << cell_bits) - 1) : Float(0);
         auto key_event = queue.submit([&](sycl::handler& h) {
-            h.depends_on(box_event);
+            h.depends_on(box_events);
             h.parallel_for(sycl::range<1>(n), [=](sycl::id<1> idx) {
                 const std::int64_t p = idx[0];
                 const std::int64_t s = p / seg_size;
