@@ -98,6 +98,19 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
 }
 
 TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan: min_samples > n is clamped to n",
+                     "[hdbscan][batch]",
+                     hdbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    const auto x = make_table<Float>(two_blob_data, two_blob_row_count, 2);
+    this->check_descriptors_agree(this->get_descriptor(5, two_blob_row_count + 5),
+                                  this->get_descriptor(5, two_blob_row_count),
+                                  x);
+}
+
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
                      "hdbscan: small min_cluster_size",
                      "[hdbscan][batch]",
                      hdbscan_types) {

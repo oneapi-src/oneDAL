@@ -24,6 +24,8 @@
 
 #include <daal/src/algorithms/hdbscan/hdbscan_kernel.h>
 
+#include <algorithm>
+
 namespace oneapi::dal::hdbscan::backend {
 
 using dal::backend::context_cpu;
@@ -110,7 +112,7 @@ static result_t compute_kernel_impl(const context_cpu& ctx,
             daal_probabilities.get(),
             daal_single_linkage_tree.get(),
             static_cast<size_t>(desc.get_min_cluster_size()),
-            static_cast<size_t>(desc.get_min_samples()),
+            static_cast<size_t>(std::min(desc.get_min_samples(), row_count)),
             convert_metric(desc.get_metric()),
             desc.get_degree(),
             desc.get_cluster_selection() == cluster_selection_method::leaf ? 1 : 0,
