@@ -403,33 +403,39 @@ static void nearestMrdBoruvkaQuery(const algorithmFPType * data, size_t nCols, c
 /// @param[in]     distFunc        Metric functor instance (unscaled metric)
 /// @param[in]     alpha           Robust single-linkage scaling factor; applied
 ///                                only to dist(q,p) inside MRD
+/// @param[out]    edgesAdded      Number of MST edges emitted; fewer than `nRows - 1` only on
+///                                non-finite input
 ///
-/// @return Number of MST edges emitted; fewer than `nRows - 1` only on non-finite input
+/// @return `ErrorMemoryAllocationFailed` if a scratch allocation fails
 template <typename algorithmFPType, CpuType cpu, typename DistFunc>
-static size_t computeCoreDistAndMst(const algorithmFPType * data, size_t nRows, size_t nCols, size_t minSamples, KdNode<algorithmFPType> * nodes,
-                                    DAAL_INT * pointIndices, DAAL_INT totalTreeNodes, algorithmFPType * bboxLo, algorithmFPType * bboxHi,
-                                    algorithmFPType * coreDistances, DAAL_INT * mstFrom, DAAL_INT * mstTo, algorithmFPType * mstWeights,
-                                    const DistFunc & distFunc, double alpha)
+static services::Status computeCoreDistAndMst(const algorithmFPType * data, size_t nRows, size_t nCols, size_t minSamples,
+                                              KdNode<algorithmFPType> * nodes, DAAL_INT * pointIndices, DAAL_INT totalTreeNodes,
+                                              algorithmFPType * bboxLo, algorithmFPType * bboxHi, algorithmFPType * coreDistances, DAAL_INT * mstFrom,
+                                              DAAL_INT * mstTo, algorithmFPType * mstWeights, const DistFunc & distFunc, double alpha,
+                                              size_t & edgesAdded)
 {
     const algorithmFPType invAlpha = static_cast<algorithmFPType>(1.0 / alpha);
     // The core distance is the distance to the minSamples-th nearest neighbor counting the point
     // itself, i.e. the heap top of a size-minSamples query that includes the point.
     const DAAL_INT k = static_cast<DAAL_INT>(minSamples);
+    edgesAdded       = 0;
+    SafeStatus safeStat;
 
     // Step 2: Compute core distances via k-NN queries on the kd-tree
     daal::threader_for(nRows, 1, [&](size_t i) {
         KnnHeap<algorithmFPType, cpu> heap(k);
-        if (!heap.ok()) return;
+        DAAL_CHECK_MALLOC_THR(heap.ok());
 
         knnQuery<algorithmFPType, cpu>(data, nCols, nodes, pointIndices, data + i * nCols, 0, heap, distFunc);
 
         coreDistances[i] = heap.maxDist();
     });
+    DAAL_CHECK_SAFE_STATUS();
 
     // Step 2b: Per-node minimum core distances
     TArrayScalable<algorithmFPType, cpu> minCoreDistNodeVec(totalTreeNodes);
     algorithmFPType * minCoreDistNode = minCoreDistNodeVec.get();
-    if (!minCoreDistNode) return 0;
+    DAAL_CHECK_MALLOC(minCoreDistNode);
     computeMinCoreDists<algorithmFPType, cpu>(nodes, pointIndices, coreDistances, minCoreDistNode, 0);
 
     // Step 3: Boruvka MST
@@ -440,13 +446,13 @@ static size_t computeCoreDistAndMst(const algorithmFPType * data, size_t nRows, 
     DAAL_INT * ufParent    = ufParentVec.get();
     DAAL_INT * ufRank      = ufRankVec.get();
     DAAL_INT * componentOf = componentOfVec.get();
-    if (!ufParent || !ufRank || !componentOf) return 0;
+    DAAL_CHECK_MALLOC(ufParent && ufRank && componentOf);
 
     TArrayScalable<algorithmFPType, cpu> pointBestMrdVec(nRows);
     TArray<DAAL_INT, cpu> pointBestIdxVec(nRows);
     algorithmFPType * pointBestMrd = pointBestMrdVec.get();
     DAAL_INT * pointBestIdx        = pointBestIdxVec.get();
-    if (!pointBestMrd || !pointBestIdx) return 0;
+    DAAL_CHECK_MALLOC(pointBestMrd && pointBestIdx);
 
     TArrayScalable<algorithmFPType, cpu> compBestMrdVec(nRows);
     TArray<DAAL_INT, cpu> compBestFromVec(nRows);
@@ -454,7 +460,7 @@ static size_t computeCoreDistAndMst(const algorithmFPType * data, size_t nRows, 
     algorithmFPType * compBestMrd = compBestMrdVec.get();
     DAAL_INT * compBestFrom       = compBestFromVec.get();
     DAAL_INT * compBestTo         = compBestToVec.get();
-    if (!compBestMrd || !compBestFrom || !compBestTo) return 0;
+    DAAL_CHECK_MALLOC(compBestMrd && compBestFrom && compBestTo);
 
     for (size_t i = 0; i < nRows; i++)
     {
@@ -467,7 +473,6 @@ static size_t computeCoreDistAndMst(const algorithmFPType * data, size_t nRows, 
 
     updateNodeComponents<algorithmFPType, cpu>(nodes, pointIndices, componentOf, 0);
 
-    size_t edgesAdded    = 0;
     size_t numComponents = nRows;
 
     // Nearest neighbor of each point outside its component, under MRD.
@@ -499,7 +504,7 @@ static size_t computeCoreDistAndMst(const algorithmFPType * data, size_t nRows, 
 
         updateNodeComponents<algorithmFPType, cpu>(nodes, pointIndices, componentOf, 0);
     }
-    return edgesAdded;
+    return services::Status();
 }
 
 // =========================================================================
@@ -598,12 +603,14 @@ services::Status HDBSCANBatchKernel<algorithmFPType, method, cpu>::compute(
 
     // Alpha scales only dist(q, p) inside MRD. Cosine is not an L_p distance, so the tree cannot
     // prune with it.
-    size_t edgesAdded       = 0;
+    size_t edgesAdded = 0;
+    services::Status mstStatus;
     services::Status status = callWithLpDistance<algorithmFPType>(pairwiseDistance, minkowskiDegree, [&](const auto & distFunc) {
-        edgesAdded = computeCoreDistAndMst<algorithmFPType, cpu>(data, nRows, nCols, minSamples, nodes, pointIndices, totalTreeNodes, bboxLo, bboxHi,
-                                                                 coreDistances, mstFrom, mstTo, mstWeights, distFunc, alpha);
+        mstStatus = computeCoreDistAndMst<algorithmFPType, cpu>(data, nRows, nCols, minSamples, nodes, pointIndices, totalTreeNodes, bboxLo, bboxHi,
+                                                                coreDistances, mstFrom, mstTo, mstWeights, distFunc, alpha, edgesAdded);
     });
     DAAL_CHECK_STATUS_VAR(status);
+    DAAL_CHECK_STATUS_VAR(mstStatus);
     DAAL_CHECK_STATUS(status, checkMst(edgesAdded, edgeCount, mstWeights));
 
     // =========================================================================
