@@ -49,8 +49,21 @@ dal_test_suite(
 )
 
 dal_test_suite(
+    name = "cpu_tests",
+    framework = "catch2",
+    private = True,
+    srcs = glob([
+        "backend/cpu/test/*.cpp",
+    ]),
+    dal_deps = [
+        ":hdbscan",
+    ],
+)
+
+dal_test_suite(
     name = "tests",
     tests = [
+        ":cpu_tests",
         ":gpu_tests",
         ":interface_tests",
     ],

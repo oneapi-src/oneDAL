@@ -20,31 +20,8 @@
 
 namespace oneapi::dal::hdbscan::backend::test {
 
-// The sizing helpers below guard row counts whose n x n matrix is several gigabytes, so they are
+// The sizing helper guards row counts whose n x n matrix is several gigabytes, so it is
 // driven directly rather than through `dal::compute`.
-
-TEST("hdbscan gpu: the square launches stay inside the int32 range limit", "[hdbscan][gpu]") {
-    constexpr std::int64_t int32_max = 2147483647;
-
-    // Below the limit a single launch still covers the whole matrix.
-    REQUIRE(dal::backend::max_range_2d_rows(1) >= 1);
-    REQUIRE(dal::backend::max_range_2d_rows(46340) * 46340 <= int32_max);
-    REQUIRE(dal::backend::max_range_2d_rows(46340) >= 46340);
-
-    // 46341^2 is the first square past int32, so blocking must kick in there.
-    REQUIRE(dal::backend::max_range_2d_rows(46341) < 46341);
-
-    for (const std::int64_t n : { std::int64_t(46341),
-                                  std::int64_t(50000),
-                                  std::int64_t(100000),
-                                  std::int64_t(1000000),
-                                  int32_max }) {
-        const std::int64_t rows = dal::backend::max_range_2d_rows(n);
-        REQUIRE(rows >= 1);
-        REQUIRE(rows * n <= int32_max);
-    }
-}
-
 TEST("hdbscan gpu: brute_force rejects a matrix larger than device memory", "[hdbscan][gpu]") {
     constexpr std::int64_t gib = 1024 * 1024 * 1024;
     constexpr std::int64_t f64 = 8;
