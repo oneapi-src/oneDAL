@@ -622,9 +622,11 @@ services::Status HDBSCANBatchKernel<algorithmFPType, method, cpu>::compute(
     algorithmFPType * singleLinkageTree = sltBlock.set(ntSingleLinkageTree, 0, edgeCount);
     DAAL_CHECK_BLOCK_STATUS(sltBlock);
 
-    int labelCounter = sortMstAndExtractClusters<algorithmFPType, cpu>(mstFrom, mstTo, mstWeights, nRows, minClusterSize, assignments,
-                                                                       clusterSelection, allowSingleCluster, clusterSelectionEpsilon, maxClusterSize,
-                                                                       probabilities, singleLinkageTree);
+    int labelCounter               = 0;
+    services::Status extractStatus = sortMstAndExtractClusters<algorithmFPType, cpu>(
+        mstFrom, mstTo, mstWeights, nRows, minClusterSize, assignments, labelCounter, clusterSelection, allowSingleCluster, clusterSelectionEpsilon,
+        maxClusterSize, probabilities, singleLinkageTree);
+    DAAL_CHECK_STATUS_VAR(extractStatus);
 
     WriteOnlyRows<int, cpu> ncBlock(ntNClusters, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(ncBlock);

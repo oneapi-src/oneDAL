@@ -87,9 +87,11 @@ services::Status HDBSCANExtractClustersKernel<algorithmFPType, cpu>::compute(con
     algorithmFPType * singleLinkageTree = (edgeCount > 0) ? sltBlock.set(ntSingleLinkageTree, 0, edgeCount) : nullptr;
     DAAL_CHECK_BLOCK_STATUS(sltBlock);
 
-    const int labelCounter = sortMstAndExtractClusters<algorithmFPType, cpu>(mstFrom, mstTo, mstWeights, nRows, minClusterSize, assignBlock.get(),
-                                                                             clusterSelection, allowSingleCluster, clusterSelectionEpsilon,
-                                                                             maxClusterSize, probabilities, singleLinkageTree);
+    int labelCounter        = 0;
+    services::Status status = sortMstAndExtractClusters<algorithmFPType, cpu>(
+        mstFrom, mstTo, mstWeights, nRows, minClusterSize, assignBlock.get(), labelCounter, clusterSelection, allowSingleCluster,
+        clusterSelectionEpsilon, maxClusterSize, probabilities, singleLinkageTree);
+    DAAL_CHECK_STATUS_VAR(status);
 
     WriteOnlyRows<int, cpu> ncBlock(ntNClusters, 0, 1);
     DAAL_CHECK_BLOCK_STATUS(ncBlock);
