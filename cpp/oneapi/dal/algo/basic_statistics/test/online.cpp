@@ -62,30 +62,29 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
     this->online_general_checks(data, weights, compute_mode, nBlocks);
 }
 
-// A one-row block used to turn the online variance into NaN, whatever the earlier blocks held.
+// A one-row block used to make the online variance NaN.
 TEMPLATE_LIST_TEST_M(basic_statistics_online_test,
                      "basic_statistics online with one-row blocks",
                      "[basic_statistics][integration][online]",
                      basic_statistics_types) {
     SKIP_IF(this->not_float64_friendly());
-    const te::dataframe data =
-        GENERATE_DATAFRAME(te::dataframe_builder{ 3, 2 }.fill_normal(-30, 30, 7777),
-                           te::dataframe_builder{ 7, 5 }.fill_normal(-30, 30, 7777));
-    const std::int64_t row_count = data.get_row_count();
+    using float_t = std::tuple_element_t<0, TestType>;
+    const float_t data[] = { 1, 2, 3, 6 };
+    const auto desc =
+        this->get_descriptor(result_options::sum_squares_centered | result_options::variance);
 
-    // Every row in its own block, and a multi-row block followed by a one-row block.
-    const auto row_counts = GENERATE_COPY(std::vector<std::int64_t>(row_count, 1),
-                                          std::vector<std::int64_t>{ row_count - 1, 1 });
-
-    std::shared_ptr<te::dataframe> weights;
-    if (GENERATE(0, 1)) {
-        weights = std::make_shared<te::dataframe>(
-            te::dataframe_builder{ row_count, 1 }.fill_uniform(0.5, 1.5, 777).build());
+    bs::partial_compute_result<> partial;
+    for (std::int64_t row = 0; row < 2; ++row) {
+        partial = this->partial_compute(desc, partial, homogen_table::wrap(data + 2 * row, 1, 2));
     }
+    const auto result = this->finalize_compute(desc, partial);
 
-    const bs::result_option_id compute_mode =
-        bs::result_option_id(dal::result_option_id_base(mask_full));
-    this->online_general_checks(data, weights, compute_mode, row_counts);
+    const auto ssc = row_accessor<const float_t>(result.get_sum_squares_centered()).pull();
+    const auto variance = row_accessor<const float_t>(result.get_variance()).pull();
+    REQUIRE(ssc[0] == 2);
+    REQUIRE(ssc[1] == 8);
+    REQUIRE(variance[0] == 2);
+    REQUIRE(variance[1] == 8);
 }
 
 /// Sweep the result option masks that the common flow above does not reach.

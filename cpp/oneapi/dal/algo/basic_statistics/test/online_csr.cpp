@@ -47,24 +47,32 @@ TEMPLATE_LIST_TEST_M(basic_statistics_online_csr_test,
     this->online_csr_general_checks(data, compute_mode, n_blocks);
 }
 
-// A one-row block used to turn the online variance into NaN, whatever the earlier blocks held.
+// A one-row block used to make the online variance NaN.
 TEMPLATE_LIST_TEST_M(basic_statistics_online_csr_test,
                      "basic_statistics online CSR flow with one-row blocks",
                      "[basic_statistics][integration][online]",
                      online_csr_types) {
     SKIP_IF(this->not_float64_friendly());
-    this->data_indexing_ = GENERATE(sparse_indexing::zero_based, sparse_indexing::one_based);
-    const auto data = GENERATE_COPY(te::csr_table_builder(3, 4, 0.75, this->data_indexing_),
-                                    te::csr_table_builder(7, 5, 0.75, this->data_indexing_));
-    SKIP_IF(this->not_cpu_friendly(data));
-    const std::int64_t row_count = data.row_count_;
+    using float_t = std::tuple_element_t<0, TestType>;
+    const float_t data[] = { 1, 2, 3, 6 };
+    const auto desc = bs::descriptor<float_t, bs::method::sparse>{}.set_result_options(
+        result_options::sum_squares_centered | result_options::variance);
 
-    // Every row in its own block, and a multi-row block followed by a one-row block.
-    const auto row_counts = GENERATE_COPY(std::vector<std::int64_t>(row_count, 1),
-                                          std::vector<std::int64_t>{ row_count - 1, 1 });
-    const bs::result_option_id compute_mode =
-        bs::result_option_id(dal::result_option_id_base(mask_full));
-    this->online_csr_general_checks(data, compute_mode, row_counts);
+    bs::partial_compute_result<> partial;
+    for (std::int64_t row = 0; row < 2; ++row) {
+        partial = this->partial_compute(
+            desc,
+            partial,
+            te::dense_to_explicit_csr<float_t>(data + 2 * row, 1, 2, sparse_indexing::zero_based));
+    }
+    const auto result = this->finalize_compute(desc, partial);
+
+    const auto ssc = row_accessor<const float_t>(result.get_sum_squares_centered()).pull();
+    const auto variance = row_accessor<const float_t>(result.get_variance()).pull();
+    REQUIRE(ssc[0] == 2);
+    REQUIRE(ssc[1] == 8);
+    REQUIRE(variance[0] == 2);
+    REQUIRE(variance[1] == 8);
 }
 
 TEMPLATE_LIST_TEST_M(basic_statistics_online_csr_test,

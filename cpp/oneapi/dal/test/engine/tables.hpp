@@ -123,30 +123,23 @@ inline array<T> get_table_block(device_test_policy& p, const table& t, const ran
 }
 #endif
 
-/// Row counts of `split_count` blocks that cover `row_count` rows: equal blocks, with the
-/// remainder added to the last one.
-inline std::vector<std::int64_t> split_row_counts(std::int64_t row_count,
-                                                  std::int64_t split_count) {
-    ONEDAL_ASSERT(split_count > 0);
-    std::vector<std::int64_t> block_rows(split_count, row_count / split_count);
-    block_rows.back() += row_count % split_count;
-    return block_rows;
-}
-
-/// Split a table into consecutive row-blocks of `row_counts[i]` rows each; a zero
-/// count gives an empty table.
 template <typename Float, typename TestPolicy>
 inline std::vector<table> split_table_by_rows(TestPolicy& policy,
                                               const table& t,
-                                              const std::vector<std::int64_t>& row_counts) {
-    const std::int64_t split_count = row_counts.size();
+                                              std::int64_t split_count) {
+    ONEDAL_ASSERT(split_count > 0);
+
+    const std::int64_t row_count = t.get_row_count();
     const std::int64_t column_count = t.get_column_count();
+    const std::int64_t block_size_regular = row_count / split_count;
+    const std::int64_t block_size_tail = row_count % split_count;
 
     std::vector<table> result(split_count);
 
     std::int64_t row_offset = 0;
     for (std::int64_t i = 0; i < split_count; i++) {
-        const std::int64_t block_size = row_counts[i];
+        const std::int64_t tail = std::int64_t(i + 1 == split_count) * block_size_tail;
+        const std::int64_t block_size = block_size_regular + tail;
 
         if (block_size > 0) {
             const auto row_range = range{ row_offset, row_offset + block_size };
@@ -162,16 +155,9 @@ inline std::vector<table> split_table_by_rows(TestPolicy& policy,
     return result;
 }
 
-template <typename Float, typename TestPolicy>
-inline std::vector<table> split_table_by_rows(TestPolicy& policy,
-                                              const table& t,
-                                              std::int64_t split_count) {
-    return split_table_by_rows<Float>(policy, t, split_row_counts(t.get_row_count(), split_count));
-}
-
-/// Split a CSR table into consecutive row-blocks, host-side, of `row_counts[i]` rows
-/// each, so block `i` of a dataset lines up row-for-row with block `i` of its weights
-/// split by `split_table_by_rows`.
+/// Split a CSR table into row-blocks, host-side, using the same
+/// regular-blocks-plus-tail partition as `split_table_by_rows`, so block `i` of a
+/// dataset lines up row-for-row with block `i` of its weights.
 ///
 /// A block whose rows happen to hold only implicit zeros still contributes its rows to
 /// an online computation, so it must stay in the sequence rather than be dropped. It
@@ -182,14 +168,13 @@ inline std::vector<table> split_table_by_rows(TestPolicy& policy,
 ///
 /// @tparam Float      Floating-point type of the table values
 /// @param source      Input CSR table of size `n x p`
-/// @param row_counts  Row count of each block, all positive, summing to `n`
-/// @return            One CSR table per entry of `row_counts`, each holding a contiguous
-///                    row range of `source` and preserving its column count, always
-///                    `zero_based`
+/// @param n_blocks    Number of row-blocks to produce, must be positive
+/// @return            `n_blocks` CSR tables, each holding a contiguous row range of
+///                    `source` and preserving its column count, always `zero_based`
 template <typename Float>
-inline std::vector<csr_table> split_csr_by_rows(const csr_table& source,
-                                                const std::vector<std::int64_t>& row_counts) {
-    const std::int64_t n_blocks = row_counts.size();
+inline std::vector<csr_table> split_csr_by_rows(const csr_table& source, std::int64_t n_blocks) {
+    ONEDAL_ASSERT(n_blocks > 0);
+    const auto row_count = source.get_row_count();
     const auto column_count = source.get_column_count();
 
     // Pull all three arrays on the host. `zero_based` is easier arithmetic; we emit
@@ -198,9 +183,11 @@ inline std::vector<csr_table> split_csr_by_rows(const csr_table& source,
         csr_accessor<const Float>(source).pull({ 0, -1 }, sparse_indexing::zero_based);
 
     std::vector<csr_table> blocks(n_blocks);
+    const std::int64_t regular = row_count / n_blocks;
+    const std::int64_t tail = row_count % n_blocks;
     std::int64_t row_offset = 0;
     for (std::int64_t b = 0; b < n_blocks; ++b) {
-        const std::int64_t block_rows = row_counts[b];
+        const std::int64_t block_rows = regular + (b + 1 == n_blocks ? tail : 0);
         ONEDAL_ASSERT(block_rows > 0);
         const std::int64_t nnz_start = row_off_arr[row_offset];
         const std::int64_t nnz_end = row_off_arr[row_offset + block_rows];
@@ -243,12 +230,6 @@ inline std::vector<csr_table> split_csr_by_rows(const csr_table& source,
         row_offset += block_rows;
     }
     return blocks;
-}
-
-/// Split a CSR table into `n_blocks` row-blocks as `split_row_counts` does.
-template <typename Float>
-inline std::vector<csr_table> split_csr_by_rows(const csr_table& source, std::int64_t n_blocks) {
-    return split_csr_by_rows<Float>(source, split_row_counts(source.get_row_count(), n_blocks));
 }
 
 /// Build a CSR table that stores every element of a dense host buffer explicitly, zeros

@@ -108,30 +108,19 @@ public:
                                std::shared_ptr<te::dataframe> weights_fr,
                                bs::result_option_id compute_mode,
                                std::int64_t nBlocks) {
-        online_general_checks(data_fr,
-                              weights_fr,
-                              compute_mode,
-                              te::split_row_counts(data_fr.get_row_count(), nBlocks));
-    }
-
-    void online_general_checks(const te::dataframe& data_fr,
-                               std::shared_ptr<te::dataframe> weights_fr,
-                               bs::result_option_id compute_mode,
-                               const std::vector<std::int64_t>& row_counts) {
         const auto use_weights = bool(weights_fr);
-        CAPTURE(use_weights, compute_mode, row_counts);
+        CAPTURE(use_weights, compute_mode);
         const auto bs_desc = get_descriptor(compute_mode);
         const auto data_table_id = this->get_homogen_table_id();
-        const std::int64_t nBlocks = row_counts.size();
 
         table weights, data = data_fr.get_table(this->get_policy(), data_table_id);
         dal::basic_statistics::partial_compute_result<> partial_result;
 
-        auto input_table = te::split_table_by_rows<float_t>(this->get_policy(), data, row_counts);
+        auto input_table = te::split_table_by_rows<float_t>(this->get_policy(), data, nBlocks);
         if (use_weights) {
             weights = weights_fr->get_table(this->get_policy(), data_table_id);
             auto weights_table =
-                te::split_table_by_rows<float_t>(this->get_policy(), weights, row_counts);
+                te::split_table_by_rows<float_t>(this->get_policy(), weights, nBlocks);
             for (std::int64_t i = 0; i < nBlocks; ++i) {
                 partial_result = this->partial_compute(bs_desc,
                                                        partial_result,
@@ -430,16 +419,7 @@ public:
     void online_csr_general_checks(const te::csr_table_builder<>& builder,
                                    bs::result_option_id compute_mode,
                                    std::int64_t n_blocks) {
-        online_csr_general_checks(builder,
-                                  compute_mode,
-                                  te::split_row_counts(builder.row_count_, n_blocks));
-    }
-
-    /// Same flow, with the table fed in row-shards of `row_counts[i]` rows.
-    void online_csr_general_checks(const te::csr_table_builder<>& builder,
-                                   bs::result_option_id compute_mode,
-                                   const std::vector<std::int64_t>& row_counts) {
-        CAPTURE(row_counts, compute_mode);
+        CAPTURE(n_blocks, compute_mode);
         const auto desc = descriptor_t{}.set_result_options(compute_mode);
         const auto full_csr = builder.build_csr_table(this->get_policy());
         const auto dense_ref = builder.build_dense_table(this->get_policy());
@@ -447,7 +427,7 @@ public:
         auto batch_result = this->compute(desc, full_csr);
         this->check_compute_result(compute_mode, dense_ref, table{}, batch_result);
 
-        const auto blocks = te::split_csr_by_rows<float_t>(full_csr, row_counts);
+        const auto blocks = te::split_csr_by_rows<float_t>(full_csr, n_blocks);
         dal::basic_statistics::partial_compute_result<> partial;
         std::int64_t rows_fed = 0;
         for (const auto& block : blocks) {
@@ -466,7 +446,7 @@ public:
             this->check_compute_result(compute_mode, ref_prefix, table{}, interim);
         }
         // After the loop `partial` already contains all rows; the last iteration
-        // finalize covered the full table. Still emit the final check
+        // finalize covered n_blocks == the full table. Still emit the final check
         // separately for symmetry with online.cpp.
         auto final_result = this->finalize_compute(desc, partial);
         this->check_compute_result(compute_mode, dense_ref, table{}, final_result);
