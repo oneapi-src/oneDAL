@@ -63,26 +63,6 @@ def _find_tool(repo_ctx, tool_name, mandatory = False):
 def find_tool(repo_ctx, tool_name, mandatory = False):
     return _find_tool(repo_ctx, tool_name, mandatory)
 
-def _create_ar_merge_tool(repo_ctx, ar_path):
-    ar_merge_name = "merge_static_libs.sh"
-    repo_ctx.template(
-        ar_merge_name,
-        Label("@onedal//dev/bazel/toolchains/tools:merge_static_libs_lnx.tpl.sh"),
-        {"%{ar_path}": ar_path},
-    )
-    ar_merge_path = repo_ctx.path(ar_merge_name)
-    return str(ar_merge_path)
-
-def _create_dynamic_link_wrapper(repo_ctx, prefix, cc_path):
-    wrapper_name = prefix + "_dynamic_link.sh"
-    repo_ctx.template(
-        wrapper_name,
-        Label("@onedal//dev/bazel/toolchains/tools:dynamic_link_lnx.tpl.sh"),
-        {"%{cc_path}": cc_path},
-    )
-    wrapper_path = repo_ctx.path(wrapper_name)
-    return str(wrapper_path)
-
 def _find_tools(repo_ctx, reqs):
     # TODO: Use full compiler path from reqs
     # A cross-toolchain triple prefix (e.g. `aarch64-linux-gnu-`) applies to
@@ -94,8 +74,6 @@ def _find_tools(repo_ctx, reqs):
     cc_path, _ = _find_tool(repo_ctx, cross_prefix + reqs.compiler_id, mandatory = True)
     strip_path, _ = _find_tool(repo_ctx, cross_prefix + "strip", mandatory = True)
     dpcc_path, dpcpp_found = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory = False)
-    cc_link_path = _create_dynamic_link_wrapper(repo_ctx, "cc", cc_path)
-    dpcc_link_path = _create_dynamic_link_wrapper(repo_ctx, "dpc", dpcc_path)
     if dpcpp_found:
         # The llvm-ar tool is used because Bazel prepends directory names with +,
         # which caused issues with GNU ar on RHEL. Derive it from the DPC++
@@ -104,16 +82,11 @@ def _find_tools(repo_ctx, reqs):
         if not repo_ctx.path(ar_path).exists:
             auto_configure_fail("Cannot find DPC++ archiver at {}".format(ar_path))
 
-    ar_merge_path = _create_ar_merge_tool(repo_ctx, ar_path)
-
     return struct(
         cc = cc_path,
         dpcc = dpcc_path,
-        cc_link = cc_link_path,
-        dpcc_link = dpcc_link_path,
         strip = strip_path,
         ar = ar_path,
-        ar_merge = ar_merge_path,
         is_dpc_found = dpcpp_found,
         dpc_compiler_version = reqs.dpc_compiler_version
     )
@@ -224,21 +197,11 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
             "%{compiler_deps}": get_starlark_list([
                 ":builtin_include_directory_paths",
             ]),
-            "%{ar_deps}": get_starlark_list([
-                ":" + paths.basename(tools.ar_merge),
-            ]),
-            "%{linker_deps}": get_starlark_list([
-                ":" + paths.basename(tools.cc_link),
-                ":" + paths.basename(tools.dpcc_link),
-            ]),
 
             # Tools
             "%{cc_path}": tools.cc,
             "%{dpcc_path}": tools.dpcc,
-            "%{cc_link_path}": tools.cc_link,
-            "%{dpcc_link_path}": tools.dpcc_link,
             "%{ar_path}": tools.ar,
-            "%{ar_merge_path}": tools.ar_merge,
             "%{strip_path}": tools.strip,
             "%{cxx_builtin_include_directories}": get_starlark_list(builtin_include_directories),
             "%{compile_flags_cc}": get_starlark_list(
@@ -323,7 +286,19 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-pass-exit-codes",
                 ) +
                 (
-                    ["-static-intel"] if reqs.compiler_id in ["icx", "icpx"] else []
+                    # `-static-intel` is not enough: the icx releases measured
+                    # here still add `-limf` to a shared library link, so
+                    # `libonedal.so` and `libonedal_core.so` end up recording
+                    # DT_NEEDED `libimf.so`. Neither release stages the Intel
+                    # compiler runtimes, so such a library fails to load on a
+                    # host without oneAPI installed. The objects are already
+                    # compiled with `-no-intel-lib` (dev/bazel/flags.bzl), so
+                    # repeating it on the link line drops the dependency
+                    # instead of satisfying it statically -- and it is what
+                    # Make does: `link.dynamic.lnx.icx` in
+                    # dev/make/compiler_definitions/icx.mkl.32e.mk passes
+                    # `-no-intel-lib` and its libraries record no `libimf.so`.
+                    ["-no-intel-lib", "-static-intel"] if reqs.compiler_id in ["icx", "icpx"] else []
                 ) +
                 bin_search_flag_cc + link_opts,
             ),
