@@ -106,7 +106,7 @@ inline bool mrd_matrix_fits_on_device(std::int64_t row_count,
     }
 
     // The input table and the core distances.
-    const std::int64_t resident_bytes = mrd_mul_bytes(row_bytes, column_count + 1);
+    const std::int64_t resident_bytes = mrd_mul_bytes(row_bytes, mrd_add_bytes(column_count, 1));
 
     // The `n x min_samples` k-selection output and its scratch.
     const std::int64_t selection_bytes =

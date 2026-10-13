@@ -14,6 +14,8 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <limits>
+
 #include "oneapi/dal/test/engine/fixtures.hpp"
 
 #include "oneapi/dal/algo/hdbscan/backend/gpu/kernel_impl.hpp"
@@ -70,6 +72,13 @@ TEST("hdbscan gpu: brute_force rejects a matrix larger than device memory", "[hd
     // their own.
     REQUIRE(!backend::mrd_matrix_fits_on_device(1000,
                                                 std::int64_t(1) << 50,
+                                                f64,
+                                                45 * gib,
+                                                48 * gib,
+                                                k,
+                                                no_scratch));
+    REQUIRE(!backend::mrd_matrix_fits_on_device(1000,
+                                                std::numeric_limits<std::int64_t>::max(),
                                                 f64,
                                                 45 * gib,
                                                 48 * gib,

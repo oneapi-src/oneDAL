@@ -757,7 +757,9 @@ static services::Status selectClusters(const CondensedEdge * condensed, const al
 
     computeClusterStability<algorithmFPType, cpu>(condensed, condensedLambda, nCondensed, nClusters, lambdaBirth, stability);
 
-    const DAAL_INT mcsMax = (maxClusterSize > 0) ? static_cast<DAAL_INT>(maxClusterSize) : MaxVal<DAAL_INT>::get();
+    const DAAL_INT mcsMax = (maxClusterSize > 0 && maxClusterSize < static_cast<size_t>(MaxVal<DAAL_INT>::get())) ?
+                                static_cast<DAAL_INT>(maxClusterSize) :
+                                MaxVal<DAAL_INT>::get();
 
     // Every cluster starts selected and EOM only deselects; the root only with allowSingleCluster.
     for (DAAL_INT c = 0; c < nClusters; c++)
