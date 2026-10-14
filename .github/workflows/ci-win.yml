@@ -67,8 +67,8 @@ env:
   VS_VER: 2026_build_tools
 
 # Stop stale workflows when pull requests are updated: https://stackoverflow.com/a/70972844
-# Does not apply to the main branch. Matters more now that this workflow holds a
-# three-hour Bazel job on the scarce ARM64 runners.
+# Does not apply to the main branch. Matters more now that this workflow also
+# holds a three-hour Bazel job on the scarce ARM64 runners.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref_name }}-${{ github.event.number || github.sha }}
   cancel-in-progress: true
@@ -283,5 +283,3 @@ jobs:
               }
             }
           }
-
-
