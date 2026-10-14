@@ -271,8 +271,8 @@ It is possible to integrate various sanitizers by specifying the REQSAN flag, av
 
             bazel build //:release --code_coverage=true
 
-    It is supported only on Linux when the detected host compiler ID is `icx`,
-    and applies the Make compiler options to oneDAL-owned actions only - see
+    It is supported only on Linux when the detected host compiler ID is `icx`
+    or `icpx`, and applies the Make compiler options to oneDAL-owned actions only - see
     [Make to Bazel flag reference](https://github.com/uxlfoundation/oneDAL/blob/main/dev/bazel/README.md#make--bazel-flag-reference)
     for the per-action list.
 

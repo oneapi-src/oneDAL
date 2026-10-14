@@ -35,14 +35,6 @@ function install_dpcpp {
     sudo apt-get install -y intel-oneapi-compiler-dpcpp-cpp=2026.1.1-325
 }
 
-function install_icx {
-    # icx ships in the DPC++/C++ compiler package, so there is nothing else to
-    # install: the runtime meta-package this used to exclude is no longer part
-    # of `install_dpcpp` either (#3842). Calling it keeps the Renovate-tracked
-    # pin spelled out in exactly one place.
-    install_dpcpp
-}
-
 function install_tbb {
     # TBB version monitored by Renovate and sets exact value available via apt
     sudo apt-get install -y intel-oneapi-tbb-devel=2023.1.0-151
@@ -148,9 +140,6 @@ function install_abigail {
 if [ "${component}" == "dpcpp" ]; then
     add_repo
     install_dpcpp
-elif [ "${component}" == "icx" ]; then
-    add_repo
-    install_icx
 elif [ "${component}" == "tbb" ]; then
     add_repo
     install_tbb
@@ -194,6 +183,6 @@ elif [ "${component}" == "opencl" ]; then
     install_opencl_apt
 else
     echo "Usage:"
-    echo "   $0 [dpcpp|icx|tbb|mkl|dpl|gnu-cross-compilers|clang-format|dev-base|qemu-apt|qemu-deb|llvm-version|build-sysroot|miniforge|abigail|opencl]"
+    echo "   $0 [dpcpp|tbb|mkl|dpl|gnu-cross-compilers|clang-format|dev-base|qemu-apt|qemu-deb|llvm-version|build-sysroot|miniforge|abigail|opencl]"
     exit 1
 fi

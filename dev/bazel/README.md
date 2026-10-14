@@ -821,7 +821,7 @@ to run them against a specific binary, such as a downloaded `bazelisk`.
 | `REQSAN=memory`                | `--config=msan`                                              | MemorySanitizer (Clang/LLVM + lld; instrumented dependencies recommended)  |
 | `REQSAN=type`                  | `--config=type`                                              | TypeSanitizer; Clang-only; GCC/ICPX unsupported                            |
 | `STDALLOC=yes`                  | `--stdalloc=true`                                            | Allocator-selection equivalent for Linux DAAL core objects; threading objects unchanged. Make ICX also adds `-static-libstdc++` |
-| `CODE_COVERAGE=yes`            | `--code_coverage=true`                                       | Linux with host compiler ID `icx`; Make-equivalent action-local flags      |
+| `CODE_COVERAGE=yes`            | `--code_coverage=true`                                       | Linux with host compiler ID `icx`/`icpx`; Make-equivalent action-local flags |
 | `COMPILER=gnu`                 | `CC=gcc bazel build ...`                                     | Override compiler via `CC` env                                             |
 | `OPTFLAG=O2`                   | `--copt=-O2`                                                 | Override optimization level                                                |
 | `COPT=-flag`                   | `--copt=-flag` (C+C++) / `--cxxopt=-flag` (C++ only)         | Arbitrary compiler flag                                                    |
@@ -862,7 +862,7 @@ applies the corresponding driver option to dynamic-library, module, executable,
 and test link actions; executable/test links need it to resolve the coverage
 runtime from instrumented objects. Static archives remain flag-free. The flag
 is rejected on non-Linux platforms and unless the detected host compiler ID is
-exactly `icx`.
+`icx` or `icpx`.
 
 ### Recovering coverage data
 
@@ -888,21 +888,19 @@ by this flag.
 `dev/bazel/tests/code_coverage_test.sh` is the smoke for both halves, selected
 by `--dpc`.
 
-Public CI runs it in the default host mode on the CPU-only icx installation: it
+The `LinuxBazelCoverage` CI job runs the default host mode on every pull request: it
 builds `//cpp/daal:core_static` and `//cpp/daal:thread_static` with
 `--code_coverage=true`, inspects `bazel aquery` output to confirm DAAL core
 compile actions carry `-coverage`/`-DGCOV_BUILD` while the separately built
 threading module does not, and asserts the `.gcno` notes files survive into the
-output tree. Its Bazel output tree is isolated under the agent temporary
-directory, measured before and after, then removed before the release build.
+output tree.
 
 `--dpc` verifies the DPC++ link-specific `-Xscoverage` option instead: it builds
 `//cpp/oneapi/dal/table:table_dpc` and, through analysis only, checks the
-released `//cpp/oneapi/dal:dynamic_dpc` link as well. It needs the complete
-DPC++ runtime, so it is excluded from public PR CI and runs from the
-`LinuxBazelDpcCoverage` job on a manually queued pipeline. There is deliberately
-no cron for it: an Azure schedule queues the whole pipeline, which would re-run
-every other job nightly for this one check.
+released `//cpp/oneapi/dal:dynamic_dpc` link as well. The same job runs it
+only on a manually queued pipeline. There is deliberately no cron for it: an
+Azure schedule queues the whole pipeline, which would re-run every other job
+nightly for this one check.
 
 ## Cross-compiling to ARM/RISC-V
 

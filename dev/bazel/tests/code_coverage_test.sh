@@ -22,8 +22,8 @@
 # Default (host) mode builds DAAL core and confirms the compile actions carry
 # the Make-equivalent coverage flags while the separately built threading module
 # does not. `--dpc` checks the option that only the DPC++ link adds,
-# `-Xscoverage`; it is an on-demand check because it needs the full oneAPI
-# runtime, while the host mode runs in public PR CI.
+# `-Xscoverage`; CI runs it only in manually queued pipelines, while the host
+# mode runs on every pull request.
 set -euo pipefail
 
 mode="host"

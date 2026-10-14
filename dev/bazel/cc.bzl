@@ -84,7 +84,6 @@ def _init_cc_rule(ctx, features=[], disable_features=[]):
     )
     return cc_toolchain, feature_config
 
-
 def _is_windows(ctx):
     return ctx.target_platform_has_constraint(
         ctx.attr._windows_constraint[platform_common.ConstraintValueInfo],
@@ -101,8 +100,9 @@ def _coverage_options(ctx, cc_toolchain, feature_config):
     compiler_id = cc_toolchain.compiler.split("-")[0]
     if not is_linux:
         fail("--code_coverage=true requires Linux (detected target OS is not Linux)")
-    if compiler_id != "icx":
-        fail("--code_coverage=true requires host compiler ID 'icx' " +
+    # `CC=icpx` is detected as `icpx`; it is the same Intel driver as `icx`.
+    if compiler_id not in ("icx", "icpx"):
+        fail("--code_coverage=true requires host compiler ID 'icx' or 'icpx' " +
              "(detected compiler ID: '{}')".format(compiler_id))
 
     is_dpc = cc_common.is_enabled(
