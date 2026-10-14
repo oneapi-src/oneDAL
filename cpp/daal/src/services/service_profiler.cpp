@@ -247,10 +247,6 @@ struct global_state
     std::atomic<std::uint64_t> trace_dropped { 0 };
     std::uint64_t origin = now_ns();
 
-    std::mutex log_mutex;
-    std::unordered_set<std::string> logged_threading_begin;
-    std::unordered_set<std::string> logged_threading_end;
-
     global_state()
     {
         for (int k = 0; k < memory_kinds; ++k)
@@ -274,6 +270,39 @@ struct global_state
         return 4000000;
     }
 };
+
+/// Where the logger, the tracer and the report go. Never destroyed, like global_state.
+struct log_sink
+{
+    std::mutex mutex;
+    std::ofstream file;
+    bool to_file    = false;
+    bool every_call = false; // otherwise each call site is logged once
+    bool noted      = false;
+    std::unordered_set<std::string> seen;
+
+    log_sink()
+    {
+        const char * path = std::getenv("ONEDAL_PROFILER_OUTPUT");
+        if (path && *path)
+        {
+            file.open(path, std::ios::out | std::ios::trunc);
+            to_file = file.is_open();
+            if (!to_file) std::cerr << "ONEDAL PROFILER: cannot open " << path << ", writing to stderr" << std::endl;
+        }
+        // A pipe that nobody reads while oneDAL runs (a notebook kernel) blocks the process once it is
+        // full, so stderr gets one line per call site. A file takes every call.
+        every_call = to_file;
+    }
+
+    std::ostream & out() { return to_file ? static_cast<std::ostream &>(file) : std::cerr; }
+};
+
+log_sink & sink()
+{
+    static log_sink * instance = new log_sink();
+    return *instance;
+}
 
 void report_at_exit();
 profiler_region region_capture(bool blocking);
@@ -466,19 +495,12 @@ void end_one(thread_state & ts, std::uint64_t end, bool shared)
 
     if (shared && is_tracer_enabled())
     {
+        const std::string key = "tracer " + task.name;
         if (!task.threading)
-        {
-            std::cerr << task.name << " " << format_time(length) << '\n';
-        }
+            profiler_log(key.c_str(), task.name + " " + format_time(length) + "\n");
         else
-        {
-            std::lock_guard<std::mutex> lock(global.log_mutex);
-            if (global.logged_threading_end.insert(task.name).second)
-            {
-                std::cerr << "THREADING " << task.name
-                          << " finished on the main rank(time could be different for other ranks): " << format_time(length) << '\n';
-            }
-        }
+            profiler_log(key.c_str(), "THREADING " + task.name
+                                          + " finished on the main rank(time could be different for other ranks): " + format_time(length) + "\n");
     }
 }
 
@@ -971,7 +993,12 @@ void report_at_exit()
     try
     {
 #endif
-        if (is_analyzer_enabled()) profiler_print_report(std::cerr);
+        if (is_analyzer_enabled())
+        {
+            std::ostringstream report;
+            profiler_print_report(report);
+            profiler_log(nullptr, report.str());
+        }
         if (const char * path = profiler_trace_path()) write_trace(path);
 #ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED
     }
@@ -1021,17 +1048,31 @@ void print_memory_summary(std::ostream & out, const merged_tree & tree)
 
 } // namespace
 
+DAAL_EXPORT void profiler_log(const char * once_key, const std::string & text)
+{
+    auto & s = sink();
+    std::lock_guard<std::mutex> lock(s.mutex);
+    if (once_key && !s.every_call)
+    {
+        if (!s.seen.insert(once_key).second) return;
+        if (!s.noted)
+        {
+            s.noted = true;
+            s.out() << "ONEDAL PROFILER: each call site is logged once; set ONEDAL_PROFILER_OUTPUT=<file> to log every call\n";
+        }
+    }
+    s.out() << text;
+    s.out().flush();
+}
+
 DAAL_EXPORT int profiler_begin_task(const char * task_name, bool threading)
 {
     if (threading && is_logger_enabled())
     {
-        auto & global = state();
-        std::lock_guard<std::mutex> lock(global.log_mutex);
-        if (is_service_debug_enabled() || global.logged_threading_begin.insert(task_name).second)
-        {
-            std::cerr << "-----------------------------------------------------------------------------" << '\n';
-            std::cerr << "THREADING Profiler task started " << task_name << '\n';
-        }
+        const std::string key = std::string("threading ") + task_name;
+        profiler_log(key.c_str(), std::string("-----------------------------------------------------------------------------\n"
+                                              "THREADING Profiler task started ")
+                                      + task_name + "\n");
     }
     return begin_task(this_thread(), task_name, threading, true);
 }
@@ -1131,21 +1172,25 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out)
     const double cost   = task_cost_ns();
     const auto overhead = static_cast<std::uint64_t>(cost * double(tree.task_runs));
 
+    const bool tree_only = is_tree_only_report();
     out << "oneDAL profiler report\n";
     if (rows.empty())
     {
         out << "  no profiled task ran\n";
-        print_memory_summary(out, tree);
+        if (!tree_only) print_memory_summary(out, tree);
         out << std::flush;
         return;
     }
-    out << "  profiled wall time " << format_time(total) << " on " << tree.threads << " threads, " << tree.task_runs << " task runs\n";
-    out << "  profiler cost about " << format_time(static_cast<std::uint64_t>(cost)) << " per task run, " << format_time(overhead)
-        << " of CPU time in total (" << percent(overhead, total_cpu) << "% of the profiled CPU time)\n";
-    out << "  time: wall time, a parallel task taking its busiest thread in each run; self: time not in child tasks\n";
-    if (any_memory[0] || any_memory[1])
-        out << "  alloc: bytes allocated in the task and its children; peak: highest live memory above the task's start\n";
-    out << '\n';
+    if (!tree_only)
+    {
+        out << "  profiled wall time " << format_time(total) << " on " << tree.threads << " threads, " << tree.task_runs << " task runs\n";
+        out << "  profiler cost about " << format_time(static_cast<std::uint64_t>(cost)) << " per task run, " << format_time(overhead)
+            << " of CPU time in total (" << percent(overhead, total_cpu) << "% of the profiled CPU time)\n";
+        out << "  time: wall time, a parallel task taking its busiest thread in each run; self: time not in child tasks\n";
+        if (any_memory[0] || any_memory[1])
+            out << "  alloc: bytes allocated in the task and its children; peak: highest live memory above the task's start\n";
+        out << '\n';
+    }
 
     // Columns, then the tree.
     std::ostringstream header;
@@ -1204,6 +1249,12 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out)
             out << "  [parallel, cpu " << format_time(row.cpu_ns) << ", imbalance " << std::fixed << std::setprecision(2) << imbalance << "]";
         }
         out << '\n';
+    }
+
+    if (tree_only)
+    {
+        out << std::flush;
+        return;
     }
 
     // Hotspots: self time summed over every place a task name appears.

@@ -126,8 +126,7 @@ private:
 #define ONEDAL_PROFILER_TASK(...)                                                       \
     auto ONEDAL_PROFILER_CONCAT(__profiler_task__, ONEDAL_PROFILER_UNIQUE_ID) = [&]() { \
         if (daal::internal::is_logger_enabled()) {                                      \
-            DAAL_PROFILER_PRINT_HEADER();                                               \
-            std::cerr << "Profiler task_name: " << #__VA_ARGS__ << '\n';                \
+            DAAL_PROFILER_LOG("Profiler task_name: " << #__VA_ARGS__ << '\n');          \
         }                                                                               \
         return ONEDAL_PROFILER_GET_MACRO(__VA_ARGS__,                                   \
                                          ONEDAL_PROFILER_MACRO_2,                       \
@@ -174,8 +173,7 @@ private:
 #define ONEDAL_PROFILER_SERVICE_TASK(...)                                               \
     auto ONEDAL_PROFILER_CONCAT(__profiler_task__, ONEDAL_PROFILER_UNIQUE_ID) = [&]() { \
         if (daal::internal::is_service_debug_enabled()) {                               \
-            DAAL_PROFILER_PRINT_HEADER();                                               \
-            std::cerr << "Profiler task_name: " << #__VA_ARGS__ << '\n';                \
+            DAAL_PROFILER_LOG("Profiler task_name: " << #__VA_ARGS__ << '\n');          \
         }                                                                               \
         return ONEDAL_PROFILER_GET_MACRO(__VA_ARGS__,                                   \
                                          ONEDAL_PROFILER_SERVICE_MACRO_2,               \

@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <exception>
 #include "services/daal_defines.h"
@@ -56,27 +57,27 @@
 #define DAAL_PROFILER_MACRO_2(name, queue)                daal::internal::profiler::start_task(#name, queue)
 #define DAAL_PROFILER_GET_MACRO(arg_1, arg_2, MACRO, ...) MACRO
 
-// HEADER OUTPUT
-#define DAAL_PROFILER_PRINT_HEADER()                                                                          \
-    do                                                                                                        \
-    {                                                                                                         \
-        std::cerr << "-----------------------------------------------------------------------------" << '\n'; \
-        std::cerr << "File: " << __FILE__ << ", Line: " << __LINE__ << '\n';                                  \
-        if (daal::internal::is_service_debug_enabled())                                                       \
-        {                                                                                                     \
-            std::cerr << PRETTY_FUNCTION << '\n';                                                             \
-        }                                                                                                     \
+#define DAAL_PROFILER_STRINGIFY2(x) #x
+#define DAAL_PROFILER_STRINGIFY(x)  DAAL_PROFILER_STRINGIFY2(x)
+
+// LOGGER OUTPUT
+// Logs a call of a profiled task: where it was called from, then the streamed message. On stderr each
+// call site is logged once (see profiler_log).
+#define DAAL_PROFILER_LOG(...)                                                                                  \
+    do                                                                                                          \
+    {                                                                                                           \
+        std::ostringstream profiler_log_line_;                                                                  \
+        profiler_log_line_ << "-----------------------------------------------------------------------------\n" \
+                           << "File: " << __FILE__ << ", Line: " << __LINE__ << '\n';                           \
+        if (daal::internal::is_service_debug_enabled()) profiler_log_line_ << PRETTY_FUNCTION << '\n';          \
+        profiler_log_line_ << __VA_ARGS__;                                                                      \
+        daal::internal::profiler_log(__FILE__ ":" DAAL_PROFILER_STRINGIFY(__LINE__), profiler_log_line_.str()); \
     } while (0)
 
 // ARGS LOGGING
-#define DAAL_PROFILER_LOG_ARGS(task_name, ...)                                  \
-    do                                                                          \
-    {                                                                           \
-        DAAL_PROFILER_PRINT_HEADER();                                           \
-        std::cerr << "Profiler task_name: " << #task_name << " Printed args: "; \
-        daal::internal::profiler_log_named_args(#__VA_ARGS__, __VA_ARGS__);     \
-        std::cerr << '\n';                                                      \
-    } while (0)
+#define DAAL_PROFILER_LOG_ARGS(task_name, ...)                                                                                                    \
+    DAAL_PROFILER_LOG("Profiler task_name: " << #task_name << " Printed args: " << daal::internal::profiler_named_args(#__VA_ARGS__, __VA_ARGS__) \
+                                             << '\n')
 
 #define DAAL_PROFILER_TASK_WITH_ARGS(task_name, ...)                                                                                          \
     daal::internal::profiler_task DAAL_PROFILER_CONCAT(__profiler_task__, DAAL_PROFILER_UNIQUE_ID) = [&]() -> daal::internal::profiler_task { \
@@ -97,8 +98,7 @@
         {                                                                                                                                     \
             if (daal::internal::is_logger_enabled())                                                                                          \
             {                                                                                                                                 \
-                DAAL_PROFILER_PRINT_HEADER();                                                                                                 \
-                std::cerr << "Profiler task_name: " << #__VA_ARGS__ << std::endl;                                                             \
+                DAAL_PROFILER_LOG("Profiler task_name: " << #__VA_ARGS__ << '\n');                                                            \
             }                                                                                                                                 \
             return DAAL_PROFILER_GET_MACRO(__VA_ARGS__, DAAL_PROFILER_MACRO_2, DAAL_PROFILER_MACRO_1, FICTIVE)(__VA_ARGS__);                  \
         }                                                                                                                                     \
@@ -120,8 +120,7 @@
         {                                                                                                                                     \
             if (daal::internal::is_logger_enabled())                                                                                          \
             {                                                                                                                                 \
-                DAAL_PROFILER_PRINT_HEADER();                                                                                                 \
-                std::cerr << "Profiler task_name: " << #__VA_ARGS__ << std::endl;                                                             \
+                DAAL_PROFILER_LOG("Profiler task_name: " << #__VA_ARGS__ << '\n');                                                            \
             }                                                                                                                                 \
             return DAAL_PROFILER_GET_MACRO(__VA_ARGS__, DAAL_PROFILER_MACRO_2, DAAL_PROFILER_MACRO_1, FICTIVE)(__VA_ARGS__);                  \
         }                                                                                                                                     \
@@ -175,16 +174,25 @@ inline static const char * profiler_trace_path()
     return path;
 }
 
-inline void profiler_log_named_args(const char * /*names*/) {}
+inline void profiler_write_named_args(std::ostream & /*out*/, const char * /*names*/) {}
 
 template <typename T, typename... Rest>
-inline void profiler_log_named_args(const char * names, const T & value, Rest &&... rest)
+inline void profiler_write_named_args(std::ostream & out, const char * names, const T & value, Rest &&... rest)
 {
     const char * comma = strchr(names, ',');
     std::string name   = comma ? std::string(names, comma) : std::string(names);
     name.erase(name.begin(), std::find_if(name.begin(), name.end(), [](unsigned char ch) { return !std::isspace(ch); }));
-    std::cerr << name << ": " << value << "; ";
-    if (comma) profiler_log_named_args(comma + 1, std::forward<Rest>(rest)...);
+    out << name << ": " << value << "; ";
+    if (comma) profiler_write_named_args(out, comma + 1, std::forward<Rest>(rest)...);
+}
+
+/// Formats `value...` as "name: value; " pairs, the names taken from the stringized argument list `names`.
+template <typename... Args>
+inline std::string profiler_named_args(const char * names, Args &&... values)
+{
+    std::ostringstream out;
+    profiler_write_named_args(out, names, std::forward<Args>(values)...);
+    return out.str();
 }
 
 inline static bool is_service_debug_enabled()
@@ -208,7 +216,6 @@ inline static bool is_logger_enabled()
 inline static bool is_tracer_enabled()
 {
     static const bool verbose_value = [] {
-        std::ios::sync_with_stdio(false);
         int value = daal_verbose_mode();
         return value == PROFILER_MODE_TRACER || value == PROFILER_MODE_ALL_TOOLS || value == PROFILER_MODE_DEBUG;
     }();
@@ -242,20 +249,39 @@ inline static bool is_memory_tracking_enabled()
     return value;
 }
 
+/// Whether ONEDAL_PROFILER_REPORT=tree asks for the task tree alone.
+inline static bool is_tree_only_report()
+{
+    static const bool value = [] {
+        const char * report = std::getenv("ONEDAL_PROFILER_REPORT");
+        return report && std::strcmp(report, "tree") == 0;
+    }();
+    return value;
+}
+
+/// Writes `text` to the profiler output: the file named by ONEDAL_PROFILER_OUTPUT, or stderr.
+///
+/// @param[in] once_key  If not nullptr, `text` is written only the first time this key is seen,
+///                      unless the output is a file, which takes every call.
+/// @param[in] text      Whole lines, written in one piece.
+DAAL_EXPORT void profiler_log(const char * once_key, const std::string & text);
+
 inline void print_header()
 {
-    if (is_profiler_enabled())
+    if (is_profiler_enabled() && !is_tree_only_report())
     {
         daal::services::LibraryVersionInfo ver;
-        std::cerr << "Major version:          " << ver.majorVersion << '\n';
-        std::cerr << "Minor version:          " << ver.minorVersion << '\n';
-        std::cerr << "Update version:         " << ver.updateVersion << '\n';
-        std::cerr << "Product status:         " << ver.productStatus << '\n';
-        std::cerr << "Build:                  " << ver.build << '\n';
-        std::cerr << "Build revision:         " << ver.build_rev << '\n';
-        std::cerr << "Name:                   " << ver.name << '\n';
-        std::cerr << "Processor optimization: " << ver.processor << '\n';
-        std::cerr << '\n';
+        std::ostringstream out;
+        out << "Major version:          " << ver.majorVersion << '\n';
+        out << "Minor version:          " << ver.minorVersion << '\n';
+        out << "Update version:         " << ver.updateVersion << '\n';
+        out << "Product status:         " << ver.productStatus << '\n';
+        out << "Build:                  " << ver.build << '\n';
+        out << "Build revision:         " << ver.build_rev << '\n';
+        out << "Name:                   " << ver.name << '\n';
+        out << "Processor optimization: " << ver.processor << '\n';
+        out << '\n';
+        profiler_log(nullptr, out.str());
     }
 }
 

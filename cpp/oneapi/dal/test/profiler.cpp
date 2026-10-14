@@ -450,6 +450,30 @@ TEST("profiler closes tasks left open above the one being closed") {
     REQUIRE(find_row(prof::profiler_report(), "next", -1) >= 0);
 }
 
+TEST("profiler logs a call site once unless every call is asked for") {
+    // Without ONEDAL_PROFILER_OUTPUT, the log goes to stderr one line per call
+    // site, so a pipe nobody reads while oneDAL runs cannot fill up and block the process.
+    std::ostringstream captured;
+    auto* previous = std::cerr.rdbuf(captured.rdbuf());
+    for (int i = 0; i < 3; ++i) {
+        prof::profiler_log("profiler test call site", "logged line\n");
+    }
+    prof::profiler_log(nullptr, "unkeyed line\n");
+    prof::profiler_log(nullptr, "unkeyed line\n");
+    std::cerr.rdbuf(previous);
+
+    const std::string text = captured.str();
+    const auto count = [&](const std::string& what) {
+        std::size_t n = 0;
+        for (auto at = text.find(what); at != std::string::npos; at = text.find(what, at + 1)) {
+            ++n;
+        }
+        return n;
+    };
+    REQUIRE(count("logged line") == 1);
+    REQUIRE(count("unkeyed line") == 2);
+}
+
 TEST("profiler report lists the tree and the hotspots") {
     prof::profiler_reset();
     {

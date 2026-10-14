@@ -82,6 +82,12 @@ with their own environment variables:
 +-----------------------------------------+----------------------------------------------------------------+
 | ``ONEDAL_PROFILER_MEMORY=0``            | Do not record allocations.                                     |
 +-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_OUTPUT=<file>``       | Write the Logger, the Tracer and the report to ``<file>``      |
+|                                         | instead of ``stderr``, with every call logged.                 |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_REPORT=tree``         | Print only the task tree: no version lines, summary, hotspots  |
+|                                         | or memory summary.                                             |
++-----------------------------------------+----------------------------------------------------------------+
 
 GPU tasks that are given a queue wait for the queue when they start and when they end, so their time
 covers the device work. This serializes kernels that would otherwise overlap.
@@ -104,6 +110,8 @@ Example output (for ``cov_dense_batch``):
 Each entry shows the ``__PRETTY_FUNCTION__`` along with the corresponding ``PROFILER_TASK`` and its arguments.
 
 The primary purpose of the Logger is debugging — especially useful for identifying the last called function before a segmentation fault or crash (if the function includes a profiler tag).
+For that, set ``ONEDAL_PROFILER_OUTPUT=<file>``: the file gets every call and is flushed after each line,
+while ``stderr`` gets each call site only once.
 
 
 Tracer
@@ -196,10 +204,10 @@ The analyzer report and the timeline are written when the process exits. They ar
 interactive environments like Jupyter Notebooks, where the process may not exit; run the application
 as a standalone script.
 
-The Logger and the Tracer print a line for every task run, which for an iterative algorithm can be
-megabytes. Where ``stderr`` is a pipe that is not read while oneDAL runs, such as a notebook kernel,
-the process blocks once the pipe is full. Use ``ONEDAL_VERBOSE=3`` there: it prints only the tree, at
-exit.
+On ``stderr``, the Logger and the Tracer print each call site once. Every call, which for an iterative
+algorithm can be megabytes, goes only to the file named by ``ONEDAL_PROFILER_OUTPUT``: where ``stderr``
+is a pipe that is not read while oneDAL runs, such as a notebook kernel, that much output would block
+the process once the pipe is full.
 
 Profiling adds the cost printed in the report to every task run. The report shows it so that the
 timings can be judged against it.
