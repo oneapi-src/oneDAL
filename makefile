@@ -163,6 +163,8 @@ y              := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 # undiscoverable from the example binary and triggering the
 # "ASan runtime does not come first in initial library list" error at startup.
 -sanitize      := $(if $(REQSAN),-fsanitize=$(if $(filter static,$(word 1,$(REQSAN))),address,$(REQSAN)) -fno-omit-frame-pointer)
+# Host only: the DPC++ link does not pull in the device ASan library, so instrumented device code fails to JIT.
+-sanitize.dpc  := $(if $(REQSAN),-Xarch_host $(-sanitize))
 -lsanitize     := $(if $(REQSAN),-fsanitize=$(if $(filter static,$(word 1,$(REQSAN))),address $(-asanstatic.$(COMPILER)),$(REQSAN)$(if $(filter address,$(word 1,$(REQSAN))), $(-asanshared.$(COMPILER)))))
 -lsanitize.dpc := $(if $(REQSAN),-Xarch_host -fsanitize=$(if $(filter static,$(word 1,$(REQSAN))),address $(-asanstatic.dpcpp),$(REQSAN)$(if $(filter address,$(word 1,$(REQSAN))), $(-asanshared.dpcpp))))
 -EHsc          := $(if $(OS_is_win),-EHsc,)
@@ -731,7 +733,7 @@ $(ONEAPI.objs_y): COPT += $(-fPIC) $(-cxx17) $(-optlevel) $(-Zl) $(-visibility) 
 $(eval $(call update_copt_from_dispatcher_tag,$(ONEAPI.objs_y)))
 
 $(ONEAPI.objs_y.dpc): $(ONEAPI.dispatcher_cpu) $(ONEAPI.tmpdir_y.dpc)/inc_y_folders.txt
-$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-optlevel.dpcpp) $(-Zl_DPCPP) $(-visibility) $(-sanitize) $(-DMKL_LP64) $(-EHsc) $(pedantic.opts.dpcpp) \
+$(ONEAPI.objs_y.dpc): COPT += $(-fPIC) $(-cxx17) $(-optlevel.dpcpp) $(-Zl_DPCPP) $(-visibility) $(-sanitize.dpc) $(-DMKL_LP64) $(-EHsc) $(pedantic.opts.dpcpp) \
                               -DDAAL_NOTHROW_EXCEPTIONS \
                               -DDAAL_HIDE_DEPRECATED \
                               -DONEDAL_DATA_PARALLEL \
