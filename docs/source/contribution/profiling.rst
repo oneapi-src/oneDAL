@@ -71,7 +71,20 @@ You can change the verbose mode either by setting the environment variable ``ONE
 +--------------------------+-----------------------------------------------+
 
 
-When enabled with timing, execution timing is taken synchronously, meaning previous kernel execution will block later kernels.
+The analyzer and the timeline can also record memory and write a timeline file. These are set
+with their own environment variables:
+
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_TRACE=<file>``        | Write a timeline of every task to ``<file>`` at exit (see      |
+|                                         | :ref:`profiling-timeline`). Enables profiling on its own.      |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_TRACE_LIMIT=<n>``     | Keep at most ``<n>`` timeline events (default 4000000).        |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_MEMORY=0``            | Do not record allocations.                                     |
++-----------------------------------------+----------------------------------------------------------------+
+
+GPU tasks that are given a queue wait for the queue when they start and when they end, so their time
+covers the device work. This serializes kernels that would otherwise overlap.
 
 Logger
 ------
@@ -102,12 +115,10 @@ Example output (for ``cov_dense_batch``):
 
 ::
 
-    Covariance::prepareSums 8.40us
-    Covariance::prepareCrossProduct 1.26us
-    THREADING computeSums.local finished on the main rank(time could be different for other ranks): 2.36us
-    THREADING computeSums.reduce finished on the main rank(time could be different for other ranks): 630ns
-    THREADING gemmSums finished on the main rank(time could be different for other ranks): 761ns
-    THREADING Covariance::updateDenseCrossProductAndSums finished on the main rank(time could be different for other ranks): 316.42us
+    Covariance::prepareSums 8.40 us
+    Covariance::prepareCrossProduct 1.26 us
+    THREADING computeSums.local finished on the main rank(time could be different for other ranks): 2.36 us
+    THREADING computeSums.reduce finished on the main rank(time could be different for other ranks): 630 ns
 
 The Tracer is particularly useful in Jupyter Notebooks or general profiling scenarios where performance insights are needed.
 
@@ -115,32 +126,73 @@ The Tracer is particularly useful in Jupyter Notebooks or general profiling scen
 Analyzer
 --------
 
-**Analyzer** is a subtool that provides a hierarchical view of the full algorithm execution tree, along with time spent in each task.
+**Analyzer** prints, at exit, the tree of every task the program ran, with time and memory for each.
+Tasks with the same name under the same parent are merged into one row. Tasks that run on worker
+threads are placed under the task that started their parallel region.
 
-Example output (for ``cov_dense_batch``):
+Example output (illustrative):
 
 ::
 
-    Algorithm tree analyzer
-    |-- CovarianceDenseBatchKernel::compute time: 782.13us 100.00% 1 times in a 0 region
-    |   |-- Covariance::prepareSums time: 19.51us 2.49% 1 times in a 0 region
-    |   |-- Covariance::prepareCrossProduct time: 1.35us 0.17% 1 times in a 0 region
-    |   |-- Covariance::updateDenseCrossProductAndSums time: 636.83us 81.42% 1 times in a 1 region
-    |   |-- computeSums.local time: 2.54us 0.33% 2 times in a 1 region
-    |   |-- computeSums.reduce time: 783ns 0.10% 2 times in a 1 region
-    |   |-- gemmSums time: 767ns 0.10% 1 times in a 1 region
-    |   |-- compute.finalizeCovariance time: 1.19us 0.15% 1 times in a 0 region
-    |---(end)
+    oneDAL profiler report
+      profiled wall time 120.00 ms on 32 threads, 12000 task runs
+      profiler cost about 60 ns per task run, 720.00 us of CPU time in total (0.4% of the profiled CPU time)
 
-    ONEDAL KERNEL_PROFILER: kernels total time 501.60ms
+          time      %      self    calls       avg       max     thr host alloc  host peak  task
+     120.00 ms  100.0  10.00 ms       10  12.00 ms  14.00 ms       1  20.00 MiB   2.00 MiB  CovarianceDenseBatchKernel::compute
+      20.00 ms   16.7  20.00 ms       10   2.00 ms   2.50 ms       1        0 B        0 B  |-- Covariance::prepareCrossProduct
+      90.00 ms   75.0   5.00 ms       10   9.00 ms  11.00 ms       1  20.00 MiB   2.00 MiB  `-- Covariance::updateDenseCrossProductAndSums
+      85.00 ms   70.8   2.00 ms     2000  1.20 ms   3.00 ms      32        0 B        0 B      `-- reducer.update  [parallel, cpu 2.40 s, imbalance 1.30]
+      83.00 ms   69.2  83.00 ms     2000  1.15 ms   2.90 ms      32        0 B        0 B          `-- reducer.update.syrkData  [parallel, cpu 2.30 s, imbalance 1.30]
 
-The Analyzer helps visualize nested kernel calls and their contribution to the total runtime. It's especially helpful for understanding which tasks call which kernels and how much time each part consumes.
+    Hotspots by self time
+          self      %    calls  task
+      83.00 ms   69.2     2000  reducer.update.syrkData
+      20.00 ms   16.7       10  Covariance::prepareCrossProduct
+      ...
 
+    Memory
+      host:   allocated 300.00 MiB in 12000 blocks, freed 300.00 MiB in 12000 blocks, peak 6.00 MiB, live now 0 B
 
+The columns are:
+
+- ``time``: wall time. A task that runs in a parallel region is as long as its busiest thread in
+  each run of the region, so a child is never longer than its parent.
+- ``%``: share of the profiled wall time.
+- ``self``: time not spent in child tasks, or waiting for parallel regions the task started.
+- ``calls``, ``avg``, ``max``: number of runs, and the average and longest run.
+- ``thr``: number of threads; for a parallel task, the most threads in one run of its region.
+- ``host alloc``, ``dev alloc``: bytes allocated by the task and its children. Allocations that a
+  worker makes outside any task count toward the task that started its parallel region.
+- ``host peak``, ``dev peak``: the highest live memory above the level at the start of the task.
+- ``to dev``, ``to host``: bytes copied between host and device memory.
+
+Parallel tasks also show their total CPU time and their imbalance: the busiest thread over the
+average thread in each run, where 1.00 is a perfectly balanced region. A row named
+``(waiting for parallel work)`` is the time a task waited for a parallel region it started, beyond
+running chunks of the region itself.
+
+The memory columns, and the transfer columns, appear only when there is something to show.
+Allocations go through ``daal_malloc`` and the oneAPI USM allocator; memory allocated in any other
+way is not seen.
+
+.. _profiling-timeline:
+
+Timeline
+--------
+
+``ONEDAL_PROFILER_TRACE=<file>`` writes every task run, per thread, and the live host and device memory
+over time, in the Chrome trace event format. Open the file in https://ui.perfetto.dev or in
+``chrome://tracing`` to see when each task ran on which thread, where threads were idle, and how memory
+grew. When the number of events exceeds ``ONEDAL_PROFILER_TRACE_LIMIT``, later events are dropped and a
+warning is printed.
 
 General Notes on Verbose Mode
 -----------------------------
 
-Important: This means that the analyzer will not work properly in interactive environments like Jupyter Notebooks, 
-where the application may not fully terminate and static object destructors may never be called.
-To use the analyzer, run your application as a standalone script.
+The analyzer report and the timeline are written when the process exits. They are not written in
+interactive environments like Jupyter Notebooks, where the process may not exit; run the application
+as a standalone script.
+
+Profiling adds the cost printed in the report to every task run. The report shows it so that the
+timings can be judged against it.

@@ -14,19 +14,44 @@
 * limitations under the License.
 *******************************************************************************/
 
+#include <algorithm>
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
+#include <sstream>
 #include <thread>
 
 #include "oneapi/dal/test/engine/common.hpp"
 #include "oneapi/dal/detail/profiler.hpp"
+#include "src/threading/threading.h"
 
 namespace oneapi::dal::test {
 
 namespace prof = daal::internal;
 
-static const prof::task_entry& entry_at(std::int64_t idx) {
-    return prof::profiler::get_instance()->get_task().kernels.at(idx);
+using rows_t = std::vector<prof::profiler_report_row>;
+
+/// Index of the row named `name` under the row `parent`, or -1.
+static std::int64_t find_row(const rows_t& rows, const std::string& name, std::int64_t parent) {
+    for (std::size_t i = 0; i < rows.size(); ++i) {
+        if (rows[i].name == name && rows[i].parent == parent) {
+            return static_cast<std::int64_t>(i);
+        }
+    }
+    return -1;
+}
+
+/// Number of rows that are tasks, not the rows the report adds for waits on parallel regions.
+static std::size_t task_count(const rows_t& rows) {
+    return static_cast<std::size_t>(std::count_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row.name.front() != '(';
+    }));
+}
+
+static void busy_wait(std::chrono::microseconds length) {
+    const auto end = std::chrono::steady_clock::now() + length;
+    while (std::chrono::steady_clock::now() < end) {
+    }
 }
 
 // Runs `body` on a new thread and keeps the task it opens alive until `release()` is called,
@@ -36,7 +61,7 @@ public:
     template <typename Body>
     explicit held_worker(Body body)
             : thread_([this, body]() {
-                  auto task = body(idx_);
+                  auto task = body();
                   {
                       std::lock_guard<std::mutex> lock(m_);
                       opened_ = true;
@@ -62,68 +87,383 @@ public:
         thread_.join();
     }
 
-    std::int64_t idx() const {
-        return idx_;
-    }
-
 private:
     std::mutex m_;
     std::condition_variable cv_;
     bool opened_ = false;
     bool released_ = false;
-    std::int64_t idx_ = -1;
     std::thread thread_;
 };
 
-static std::int64_t next_idx() {
-    return static_cast<std::int64_t>(prof::profiler::get_instance()->get_task().kernels.size());
+TEST("profiler merges repeated siblings and splits self time from child time") {
+    prof::profiler_reset();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        for (int i = 0; i < 3; ++i) {
+            auto inner = prof::profiler::start_task("inner");
+            busy_wait(std::chrono::microseconds(200));
+        }
+        busy_wait(std::chrono::microseconds(200));
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    REQUIRE(outer >= 0);
+    const auto inner = find_row(rows, "inner", outer);
+    REQUIRE(inner >= 0);
+    REQUIRE(task_count(rows) == 2);
+
+    REQUIRE(rows[outer].count == 1);
+    REQUIRE(rows[inner].count == 3);
+    REQUIRE(rows[inner].depth == 1);
+    REQUIRE(!rows[outer].parallel);
+    REQUIRE(rows[inner].min_ns <= rows[inner].max_ns);
+    REQUIRE(rows[inner].time_ns >= 3 * 200000);
+    REQUIRE(rows[outer].time_ns >= rows[inner].time_ns + 200000);
+    REQUIRE(rows[outer].self_ns == rows[outer].time_ns - rows[inner].time_ns);
+    REQUIRE(rows[inner].self_ns == rows[inner].time_ns);
 }
 
 TEST("profiler attaches concurrent worker tasks to the task that started the region") {
-    const std::int64_t outer_idx = next_idx();
-    auto outer = prof::profiler::start_task("outer");
-
-    // Worker threads have nothing open on their own stacks, like TBB workers joining a region.
-    held_worker first([](std::int64_t& idx) {
-        idx = next_idx();
-        return prof::profiler::start_task("worker");
-    });
-    held_worker second([](std::int64_t& idx) {
-        idx = next_idx();
-        return prof::profiler::start_task("worker");
-    });
-
-    REQUIRE(entry_at(first.idx()).parent_idx == outer_idx);
-    REQUIRE(entry_at(second.idx()).parent_idx == outer_idx);
-    REQUIRE(entry_at(second.idx()).level == entry_at(outer_idx).level + 1);
-
-    first.release();
-    second.release();
-
-    // A task opened after the region still nests under `outer`, not under a worker task.
-    const std::int64_t after_idx = next_idx();
+    prof::profiler_reset();
     {
+        auto outer = prof::profiler::start_task("outer");
+
+        // Worker threads have nothing open on their own stacks, like TBB workers joining a region.
+        held_worker first([]() {
+            return prof::profiler::start_threading_task("worker");
+        });
+        held_worker second([]() {
+            return prof::profiler::start_threading_task("worker");
+        });
+        first.release();
+        second.release();
+
+        // A task opened after the region still nests under `outer`, not under a worker task.
         auto after = prof::profiler::start_task("after");
-        REQUIRE(entry_at(after_idx).parent_idx == outer_idx);
     }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    REQUIRE(outer >= 0);
+    const auto worker = find_row(rows, "worker", outer);
+    REQUIRE(worker >= 0);
+    REQUIRE(find_row(rows, "after", outer) >= 0);
+    REQUIRE(task_count(rows) == 3);
+
+    REQUIRE(rows[worker].parallel);
+    REQUIRE(rows[worker].count == 2);
+    REQUIRE(rows[worker].threads == 2);
+    // Wall time is the busier thread, CPU time is both.
+    REQUIRE(rows[worker].cpu_ns >= rows[worker].time_ns);
+    REQUIRE(rows[worker].time_ns <= rows[outer].time_ns);
 }
 
 TEST("profiler nests a worker's regular task under its own threading task") {
-    const std::int64_t outer_idx = next_idx();
-    auto outer = prof::profiler::start_task("outer");
+    prof::profiler_reset();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        std::thread worker([]() {
+            auto threading = prof::profiler::start_threading_task("body");
+            auto inner = prof::profiler::start_task("inner");
+        });
+        worker.join();
+    }
+    const auto rows = prof::profiler_report();
 
-    std::int64_t threading_idx = -1;
-    std::int64_t inner_idx = -1;
-    std::thread worker([&]() {
-        threading_idx = next_idx();
-        auto threading = prof::profiler::start_threading_task("body");
-        inner_idx = next_idx();
+    const auto outer = find_row(rows, "outer", -1);
+    const auto body = find_row(rows, "body", outer);
+    REQUIRE(body >= 0);
+    const auto inner = find_row(rows, "inner", body);
+    REQUIRE(inner >= 0);
+    REQUIRE(rows[inner].parallel);
+}
+
+// Calls the threading layer's hooks around `body`, as it does around a chunk of a parallel region.
+template <typename Body>
+static void run_chunk(const daal::profiler_region& region, Body body) {
+    const auto& hooks = prof::profiler_threading_hooks();
+    hooks.enter(region);
+    body();
+    hooks.leave();
+}
+
+TEST("profiler attaches each chunk to the task its region was started from") {
+    prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        const daal::profiler_region region = hooks.capture(true);
+
+        // The thread that started the region runs a chunk itself, and so does a worker.
+        run_chunk(region, []() {
+            auto body = prof::profiler::start_task("body");
+        });
+        std::thread worker([&]() {
+            run_chunk(region, []() {
+                auto body = prof::profiler::start_task("body");
+            });
+        });
+        worker.join();
+        hooks.finish(region);
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    const auto body = find_row(rows, "body", outer);
+    REQUIRE(body >= 0);
+    REQUIRE(task_count(rows) == 2);
+    REQUIRE(rows[body].parallel);
+    REQUIRE(rows[body].count == 2);
+    REQUIRE(rows[body].threads == 2);
+}
+
+TEST("profiler keeps concurrent chunks of a region started outside any task apart") {
+    prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
+    const daal::profiler_region region = hooks.capture(true);
+
+    // Both chunks open the same tasks at the same time, as in a parallel loop over independent fits.
+    std::mutex m;
+    std::condition_variable cv;
+    int opened = 0;
+    auto chunk_body = [&]() {
+        run_chunk(region, [&]() {
+            auto train = prof::profiler::start_task("train");
+            auto inner = prof::profiler::start_task("inner");
+            std::unique_lock<std::mutex> lock(m);
+            ++opened;
+            cv.notify_all();
+            cv.wait(lock, [&] {
+                return opened == 2;
+            });
+        });
+    };
+    std::thread first(chunk_body);
+    std::thread second(chunk_body);
+    first.join();
+    second.join();
+    hooks.finish(region);
+    const auto rows = prof::profiler_report();
+
+    const auto train = find_row(rows, "train", -1);
+    REQUIRE(train >= 0);
+    REQUIRE(find_row(rows, "inner", train) >= 0);
+    REQUIRE(task_count(rows) == 2);
+    REQUIRE(rows[train].count == 2);
+    REQUIRE(rows[train].threads == 2);
+}
+
+TEST("profiler does not add up nested regions of tasks that ran at the same time") {
+    prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
+    const daal::profiler_region outer_region = hooks.capture(true);
+
+    // Two fits run as chunks of one region, and each waits for a nested region of its own.
+    auto fit = [&]() {
+        run_chunk(outer_region, [&]() {
+            auto train = prof::profiler::start_task("train");
+            const daal::profiler_region nested = hooks.capture(true);
+            std::thread helper([&]() {
+                run_chunk(nested, []() {
+                    auto rows = prof::profiler::start_task("rows");
+                    busy_wait(std::chrono::microseconds(2000));
+                });
+            });
+            helper.join();
+            hooks.finish(nested);
+        });
+    };
+    std::thread first(fit);
+    std::thread second(fit);
+    first.join();
+    second.join();
+    hooks.finish(outer_region);
+    const auto rows = prof::profiler_report();
+
+    const auto train = find_row(rows, "train", -1);
+    REQUIRE(train >= 0);
+    const auto nested = find_row(rows, "rows", train);
+    REQUIRE(nested >= 0);
+    REQUIRE(rows[train].threads == 2);
+    REQUIRE(rows[nested].count == 2);
+    // The two nested regions overlap in time, so together they take as long as one.
+    REQUIRE(rows[nested].time_ns <= rows[train].time_ns);
+    REQUIRE(rows[nested].cpu_ns >= 2 * 2000000);
+    // Waiting for the nested region is not the fit's own time; it shows as a row of its own.
+    REQUIRE(rows[train].self_ns < 1000000);
+    const auto waiting = find_row(rows, "(waiting for parallel work)", train);
+    REQUIRE(waiting >= 0);
+    REQUIRE(rows[waiting].count == 2);
+    REQUIRE(rows[waiting].time_ns <= rows[train].time_ns);
+}
+
+TEST("profiler takes a chunk run while the thread waited elsewhere out of the waiting tasks") {
+    prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        const daal::profiler_region region = hooks.capture(true);
+        std::thread worker([&]() {
+            run_chunk(region, [&]() {
+                auto chunk = prof::profiler::start_task("chunk");
+                auto wait = prof::profiler::start_task("wait");
+                // While waiting, the worker is given another chunk of the same region.
+                run_chunk(region, []() {
+                    auto stolen = prof::profiler::start_task("chunk");
+                    busy_wait(std::chrono::microseconds(2000));
+                });
+                busy_wait(std::chrono::microseconds(100));
+            });
+        });
+        worker.join();
+        hooks.finish(region);
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    const auto chunk = find_row(rows, "chunk", outer);
+    REQUIRE(chunk >= 0);
+    const auto wait = find_row(rows, "wait", chunk);
+    REQUIRE(wait >= 0);
+    REQUIRE(find_row(rows, "chunk", wait) == -1);
+    REQUIRE(task_count(rows) == 3);
+
+    REQUIRE(rows[chunk].count == 2);
+    REQUIRE(rows[wait].time_ns >= 100000);
+    REQUIRE(rows[wait].time_ns < 2000000);
+    REQUIRE(rows[chunk].time_ns >= 2000000 + rows[wait].time_ns);
+}
+
+TEST("profiler takes the busiest thread of each run of a parallel region") {
+    prof::profiler_reset();
+    for (int run = 0; run < 2; ++run) {
+        auto outer = prof::profiler::start_task("outer");
+        std::thread slow([]() {
+            auto chunk = prof::profiler::start_threading_task("chunk");
+            busy_wait(std::chrono::microseconds(3000));
+        });
+        slow.join();
+        std::thread fast([]() {
+            auto chunk = prof::profiler::start_threading_task("chunk");
+            busy_wait(std::chrono::microseconds(1000));
+        });
+        fast.join();
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    const auto chunk = find_row(rows, "chunk", outer);
+    REQUIRE(chunk >= 0);
+    REQUIRE(rows[chunk].count == 4);
+    REQUIRE(rows[chunk].threads == 2);
+    // Each run lasts as long as its slow thread, although every thread ran in only one of the runs.
+    REQUIRE(rows[chunk].time_ns >= 2 * 3000000);
+    REQUIRE(rows[chunk].time_ns < rows[chunk].cpu_ns);
+    REQUIRE(rows[chunk].mean_thread_ns >= 2 * 2000000);
+    REQUIRE(rows[chunk].mean_thread_ns < rows[chunk].time_ns);
+}
+
+TEST("profiler charges memory to the open task and counts it in every enclosing task") {
+    prof::profiler_reset();
+    char host_a = 0, host_b = 0, device = 0;
+    {
+        auto outer = prof::profiler::start_task("outer");
+        prof::profiler_record_alloc(&host_a, 1000, prof::profiler_memory_kind::host);
+        {
+            auto inner = prof::profiler::start_task("inner");
+            prof::profiler_record_alloc(&host_b, 500, prof::profiler_memory_kind::host);
+            prof::profiler_record_alloc(&device, 64, prof::profiler_memory_kind::device);
+            prof::profiler_record_free(&host_b);
+            prof::profiler_record_transfer(4096, prof::profiler_transfer_kind::host_to_device);
+        }
+        prof::profiler_record_free(&host_a);
+        prof::profiler_record_free(&device);
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    const auto inner = find_row(rows, "inner", outer);
+    REQUIRE(inner >= 0);
+    const int host = static_cast<int>(prof::profiler_memory_kind::host);
+    const int dev = static_cast<int>(prof::profiler_memory_kind::device);
+    const int to_device = static_cast<int>(prof::profiler_transfer_kind::host_to_device);
+
+    REQUIRE(rows[inner].alloc_bytes[host] == 500);
+    REQUIRE(rows[inner].free_bytes[host] == 500);
+    REQUIRE(rows[inner].peak_bytes[host] == 500);
+    REQUIRE(rows[inner].alloc_bytes[dev] == 64);
+    REQUIRE(rows[inner].free_bytes[dev] == 0);
+    REQUIRE(rows[inner].transfer_bytes[to_device] == 4096);
+    REQUIRE(rows[inner].transfer_count[to_device] == 1);
+
+    REQUIRE(rows[outer].alloc_bytes[host] == 1500);
+    REQUIRE(rows[outer].alloc_count[host] == 2);
+    REQUIRE(rows[outer].free_bytes[host] == 1500);
+    REQUIRE(rows[outer].peak_bytes[host] == 1500);
+    REQUIRE(rows[outer].free_bytes[dev] == 64);
+    REQUIRE(rows[outer].transfer_bytes[to_device] == 4096);
+}
+
+TEST(
+    "profiler charges a worker's allocations outside any task to the task that started the region") {
+    prof::profiler_reset();
+    char block = 0;
+    {
+        auto outer = prof::profiler::start_task("outer");
+        std::thread worker([&]() {
+            prof::profiler_record_alloc(&block, 256, prof::profiler_memory_kind::host);
+            prof::profiler_record_free(&block);
+        });
+        worker.join();
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    REQUIRE(outer >= 0);
+    REQUIRE(rows[outer].alloc_bytes[0] == 256);
+    REQUIRE(rows[outer].free_bytes[0] == 256);
+    // The worker allocated while `outer` was the innermost sequential task, so it shows in its peak.
+    REQUIRE(rows[outer].peak_bytes[0] == 256);
+}
+
+TEST("profiler closes tasks left open above the one being closed") {
+    prof::profiler_reset();
+    {
+        const int outer = prof::profiler_begin_task("outer", false);
+        prof::profiler_begin_task("leaked", false);
+        prof::profiler_end_task(outer);
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    REQUIRE(outer >= 0);
+    const auto leaked = find_row(rows, "leaked", outer);
+    REQUIRE(leaked >= 0);
+    REQUIRE(rows[outer].count == 1);
+    REQUIRE(rows[leaked].count == 1);
+
+    // Nothing is left open: the next task is top-level again.
+    {
+        auto next = prof::profiler::start_task("next");
+    }
+    REQUIRE(find_row(prof::profiler_report(), "next", -1) >= 0);
+}
+
+TEST("profiler report lists the tree and the hotspots") {
+    prof::profiler_reset();
+    {
+        auto outer = prof::profiler::start_task("outer");
         auto inner = prof::profiler::start_task("inner");
-    });
-    worker.join();
+    }
+    std::ostringstream out;
+    prof::profiler_print_report(out);
+    const std::string text = out.str();
 
-    REQUIRE(entry_at(threading_idx).parent_idx == outer_idx);
-    REQUIRE(entry_at(inner_idx).parent_idx == threading_idx);
+    REQUIRE(text.find("oneDAL profiler report") != std::string::npos);
+    REQUIRE(text.find("  outer\n") != std::string::npos);
+    REQUIRE(text.find("`-- inner\n") != std::string::npos);
+    REQUIRE(text.find("Hotspots by self time") != std::string::npos);
 }
 
 } // namespace oneapi::dal::test
