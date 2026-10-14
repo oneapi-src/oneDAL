@@ -15,7 +15,7 @@ The two C++ interfaces: DAAL (`cpp/daal/`, CPU) and oneAPI (`cpp/oneapi/`, CPU a
 | Naming | Classes `CamelCase`, functions and variables `lowerCamelCase` | `snake_case` throughout; private members end in `_` |
 
 ## Rules for Changes
-- Never mix the two interfaces in one file. The exception is the bridge: oneAPI CPU backends (`algo/*/backend/cpu`) and `cpp/oneapi/dal/backend/interop` call DAAL kernels and convert their `services::Status` with `interop::status_to_exception`; keep DAAL types inside those files. C++17 only; no C++20/23 features.
+- Never mix the two interfaces in one file. The exception is bridge code: oneAPI implementation files that call DAAL kernels or wrap DAAL tables and data sources, and convert `services::Status` with `interop::status_to_exception`. Most of it is in CPU backends, but GPU backends (`algo/kmeans/backend/gpu`, `io/csv/backend/gpu`), table adapters (`table/backend/interop`) and some `detail/` helpers do the same. Keep DAAL types out of the public oneAPI headers. C++17 only; no C++20/23 features.
 - Parallelize through the threading layer (`cpp/oneapi/dal/detail/threading.hpp`, `cpp/daal/src/threading/threading.h`), never TBB directly.
 - Keep CPU dispatch intact: optimized code is templated on `CpuType` and selected at runtime.
 - Removing anything from a public header needs a deprecation period and an entry in `docs/source/deprecation.rst`. Expected symbol removals go in `.github/.abignore`, which the ABI check reads.
