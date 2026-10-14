@@ -84,10 +84,29 @@ public:
 };
 
 typedef internal::UniquePtr<Reducer, DAAL_BASE_CPU> ReducerUniquePtr;
+
+/// The task a parallel region was started from, as the kernel profiler identifies it.
+struct profiler_region
+{
+    const void * parent;
+    uint64_t run;
+};
+
+/// Callbacks through which the threading layer tells the kernel profiler, when one is attached,
+/// which region each chunk of parallel work belongs to.
+struct profiler_region_hooks
+{
+    profiler_region (*capture)(bool blocking);      // on the thread that starts a region
+    void (*finish)(const profiler_region & region); // on that thread, when a blocking region is done
+    void (*enter)(const profiler_region & region);  // on a thread that starts running a chunk of it
+    void (*leave)();                                // when that chunk is done
+};
 } // namespace daal
 
 extern "C"
 {
+    DAAL_EXPORT void _daal_threader_set_profiler_hooks(const daal::profiler_region_hooks * hooks);
+
     DAAL_EXPORT int _daal_threader_get_max_threads();
     DAAL_EXPORT int _daal_threader_get_current_thread_index();
 
