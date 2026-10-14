@@ -149,6 +149,12 @@ y              := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 # sections uncompressed unless told otherwise.
 -DEBL          := $(if $(REQDBG),$(if $(OS_is_win),-debug,$(if $(OS_is_lnx),-Wl$(comma)--compress-debug-sections=zlib)))
 -DGCOV_BUILD   := $(if $(filter yes,$(GCOV_ENABLED)),-DGCOV_BUILD)
+# Release builds on Linux move the static symbol table of each shared library into
+# $(WORKDIR)/symbols/<library>.debug: the libraries get 11-30% smaller, and debuggers and profilers
+# find the names through the build ID (gdb: set debug-file-directory to that directory). REQSTRIP=no
+# keeps them in the libraries.
+-strip.symbols := $(if $(OS_is_lnx),$(if $(filter no,$(COMPILER_is_cross)),$(if $(REQDBG),,$(if $(filter no,$(REQSTRIP)),,yes))))
+SYMBOLS.dir     = $(WORKDIR)/symbols
 # NOTE: only some compilers support other sanitizers, failure is expected by design in order to not
 # quietly hide the lack of support (e.g. gnu will fail with REQSAN=memory). The sanitizer must be
 # explicitly specified. ASan can be statically linked with special value "static", normal use of ASan set with REQSAN=address.
@@ -1181,6 +1187,10 @@ Flags:
       Workaround for stubborn link orders:
         LD_PRELOAD=$(icpx -print-file-name=libclang_rt.asan-x86_64.so) ./bin
       special values: static, address, memory, thread, leak, undefined
+  REQSTRIP - on Linux release builds, the static symbol table of each shared library
+      is moved into $(WORKDIR)/symbols/<library>.debug, found by debuggers and profilers
+      through the library's build ID and debug link.
+      Set REQSTRIP=no to keep the symbols in the libraries. No effect with REQDBG.
   CODE_COVERAGE - flag that integrates the gcov code coverage tool
       can only be enabled when set to value "yes" with the icx compiler on
       a Linux OS
