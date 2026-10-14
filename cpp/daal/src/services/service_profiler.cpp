@@ -348,7 +348,9 @@ allocation_shard & shard_for(const void * ptr)
     return state().shards[(bits * 0x9E3779B97F4A7C15ull) >> 58];
 }
 
-node * find_child(thread_state & ts, node * parent, node * anchor, const char * name, bool threading)
+/// @param[in] stable_name  Whether `name` outlives the profiler, as the string literals in the macros
+///                         do; only then is its address kept for a faster lookup.
+node * find_child(thread_state & ts, node * parent, node * anchor, const char * name, bool threading, bool stable_name = true)
 {
     auto & children = parent ? parent->children : ts.root.children;
     for (node * child : children)
@@ -362,7 +364,7 @@ node * find_child(thread_state & ts, node * parent, node * anchor, const char * 
     ts.nodes.emplace_back();
     node * created     = &ts.nodes.back();
     created->name      = name;
-    created->key       = name;
+    created->key       = stable_name ? name : nullptr;
     created->parent    = parent;
     created->anchor    = anchor;
     created->threading = threading;
@@ -372,7 +374,28 @@ node * find_child(thread_state & ts, node * parent, node * anchor, const char * 
 
 /// @param[in] shared   Whether the task may publish itself as the anchor and track memory process-wide.
 ///                     False only for the private calibration state.
-int begin_task(thread_state & ts, const char * name, bool threading, bool shared)
+constexpr std::size_t max_args_variants = 8;
+
+/// The row name for a task with arguments: "name [args]", or "name [other args]" once the task has
+/// max_args_variants rows under this parent already.
+std::string args_label(const std::vector<node *> & siblings, const node * anchor, const char * name, const std::string & args)
+{
+    std::string trimmed = args;
+    while (!trimmed.empty() && (trimmed.back() == ' ' || trimmed.back() == ';')) trimmed.pop_back();
+    const std::string prefix = std::string(name) + " [";
+    std::string label        = prefix + trimmed + "]";
+    std::size_t variants     = 0;
+    for (const node * sibling : siblings)
+    {
+        if (sibling->anchor != anchor || sibling->name.compare(0, prefix.size(), prefix) != 0) continue;
+        if (sibling->name == label) return label;
+        ++variants;
+    }
+    return variants < max_args_variants ? label : prefix + "other args]";
+}
+
+/// @param[in] args     The task's arguments, or nullptr
+int begin_task(thread_state & ts, const char * name, bool threading, bool shared, const std::string * args = nullptr)
 {
     auto & global = state();
     frame f;
@@ -404,7 +427,15 @@ int begin_task(thread_state & ts, const char * name, bool threading, bool shared
         in_parallel = threading || anchor != nullptr;
         f.run       = anchor ? anchor->current_run.load(std::memory_order_relaxed) : 0;
     }
-    f.task = find_child(ts, parent, anchor, name, threading);
+    if (args)
+    {
+        const std::string label = args_label(parent ? parent->children : ts.root.children, anchor, name, *args);
+        f.task                  = find_child(ts, parent, anchor, label.c_str(), threading, false);
+    }
+    else
+    {
+        f.task = find_child(ts, parent, anchor, name, threading);
+    }
     f.task->in_parallel |= in_parallel;
     f.in_parallel      = in_parallel;
     f.counts_in_parent = parent != nullptr;
@@ -1075,6 +1106,11 @@ DAAL_EXPORT int profiler_begin_task(const char * task_name, bool threading)
                                       + task_name + "\n");
     }
     return begin_task(this_thread(), task_name, threading, true);
+}
+
+DAAL_EXPORT int profiler_begin_task_with_args(const char * task_name, const std::string & args)
+{
+    return begin_task(this_thread(), task_name, false, true, &args);
 }
 
 DAAL_EXPORT const profiler_region_hooks & profiler_threading_hooks()

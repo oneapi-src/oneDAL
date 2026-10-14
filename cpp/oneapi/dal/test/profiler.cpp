@@ -474,6 +474,46 @@ TEST("profiler logs a call site once unless every call is asked for") {
     REQUIRE(count("unkeyed line") == 2);
 }
 
+TEST("profiler reports a task with arguments once per distinct set of arguments") {
+    prof::profiler_reset();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        for (int i = 0; i < 2; ++i) {
+            auto gemm =
+                prof::profiler::start_task_with_args("gemm",
+                                                     prof::profiler_named_args("m, n", 100, 20));
+        }
+        {
+            auto gemm =
+                prof::profiler::start_task_with_args("gemm",
+                                                     prof::profiler_named_args("m, n", 5, 20));
+        }
+        // Past a few variants, further argument sets share one row.
+        for (int m = 0; m < 12; ++m) {
+            auto other =
+                prof::profiler::start_task_with_args("syrk", prof::profiler_named_args("m", m));
+        }
+    }
+    const auto rows = prof::profiler_report();
+
+    const auto outer = find_row(rows, "outer", -1);
+    const auto big = find_row(rows, "gemm [m: 100; n: 20]", outer);
+    const auto small = find_row(rows, "gemm [m: 5; n: 20]", outer);
+    REQUIRE(big >= 0);
+    REQUIRE(small >= 0);
+    REQUIRE(rows[big].count == 2);
+    REQUIRE(rows[small].count == 1);
+
+    std::size_t syrk_rows = 0;
+    for (const auto& row : rows) {
+        syrk_rows += row.name.rfind("syrk [", 0) == 0 ? 1 : 0;
+    }
+    const auto rest = find_row(rows, "syrk [other args]", outer);
+    REQUIRE(rest >= 0);
+    REQUIRE(rows[rest].count == 4);
+    REQUIRE(syrk_rows == 9);
+}
+
 TEST("profiler report lists the tree and the hotspots") {
     prof::profiler_reset();
     {

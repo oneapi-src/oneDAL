@@ -175,6 +175,10 @@ The columns are:
 - ``host peak``, ``dev peak``: the highest live memory above the level at the start of the task.
 - ``to dev``, ``to host``: bytes copied between host and device memory.
 
+A task that logs its arguments, such as ``blas.gemm`` with its matrix sizes, gets a row for each
+distinct set of them, for example ``blas.gemm [a.get_dimension(0): 20; a.get_dimension(1): 1000; alpha: 1]``.
+After eight such rows under one parent, further argument sets share a row named ``[other args]``.
+
 Parallel tasks also show their total CPU time and their imbalance: the busiest thread over the
 average thread in each run, where 1.00 is a perfectly balanced region. A row named
 ``(waiting for parallel work)`` is the time a task waited for a parallel region it started, beyond

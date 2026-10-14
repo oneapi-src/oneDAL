@@ -79,17 +79,21 @@
     DAAL_PROFILER_LOG("Profiler task_name: " << #task_name << " Printed args: " << daal::internal::profiler_named_args(#__VA_ARGS__, __VA_ARGS__) \
                                              << '\n')
 
-#define DAAL_PROFILER_TASK_WITH_ARGS(task_name, ...)                                                                                          \
-    daal::internal::profiler_task DAAL_PROFILER_CONCAT(__profiler_task__, DAAL_PROFILER_UNIQUE_ID) = [&]() -> daal::internal::profiler_task { \
-        if (daal::internal::is_profiler_enabled())                                                                                            \
-        {                                                                                                                                     \
-            if (daal::internal::is_logger_enabled())                                                                                          \
-            {                                                                                                                                 \
-                DAAL_PROFILER_LOG_ARGS(task_name, __VA_ARGS__);                                                                               \
-            }                                                                                                                                 \
-            return daal::internal::profiler::start_task(#task_name);                                                                          \
-        }                                                                                                                                     \
-        return daal::internal::profiler::start_task(nullptr);                                                                                 \
+#define DAAL_PROFILER_TASK_WITH_ARGS(task_name, ...)                                                                                               \
+    daal::internal::profiler_task DAAL_PROFILER_CONCAT(__profiler_task__, DAAL_PROFILER_UNIQUE_ID) = [&]() -> daal::internal::profiler_task {      \
+        if (daal::internal::is_profiler_enabled())                                                                                                 \
+        {                                                                                                                                          \
+            if (daal::internal::is_logger_enabled())                                                                                               \
+            {                                                                                                                                      \
+                DAAL_PROFILER_LOG_ARGS(task_name, __VA_ARGS__);                                                                                    \
+            }                                                                                                                                      \
+            if (daal::internal::is_analyzer_enabled())                                                                                             \
+            {                                                                                                                                      \
+                return daal::internal::profiler::start_task_with_args(#task_name, daal::internal::profiler_named_args(#__VA_ARGS__, __VA_ARGS__)); \
+            }                                                                                                                                      \
+            return daal::internal::profiler::start_task(#task_name);                                                                               \
+        }                                                                                                                                          \
+        return daal::internal::profiler::start_task(nullptr);                                                                                      \
     }()
 
 #define DAAL_PROFILER_TASK(...)                                                                                                               \
@@ -307,6 +311,14 @@ enum class profiler_transfer_kind : int
 /// @return The stack depth to pass to profiler_end_task()
 DAAL_EXPORT int profiler_begin_task(const char * task_name, bool threading);
 
+/// Opens a task that the analyzer reports separately for each distinct `args`, up to a few per task.
+///
+/// @param[in] task_name    Name of the task
+/// @param[in] args         The task's arguments as "name: value; " pairs
+///
+/// @return The stack depth to pass to profiler_end_task()
+DAAL_EXPORT int profiler_begin_task_with_args(const char * task_name, const std::string & args);
+
 /// Closes the task opened at `depth` on the calling thread, and any task still open above it.
 ///
 /// @param[in] depth    Value returned by profiler_begin_task()
@@ -408,6 +420,15 @@ public:
     {
         if (!task_name) return profiler_task();
         return profiler_task(profiler_begin_task(task_name, false));
+    }
+
+    /// Starts a profiling task reported separately for each distinct set of arguments
+    ///
+    /// @param[in] task_name The name of the task
+    /// @param[in] args      The task's arguments, as formatted by profiler_named_args()
+    inline static profiler_task start_task_with_args(const char * task_name, const std::string & args)
+    {
+        return profiler_task(profiler_begin_task_with_args(task_name, args));
     }
 
     /// Starts a task that is the body of a parallel region. Invoked by DAAL_PROFILER_THREADING_TASK.

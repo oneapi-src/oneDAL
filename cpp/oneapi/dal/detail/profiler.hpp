@@ -30,10 +30,17 @@ namespace oneapi::dal::detail {
 // When `enabled` is false no waits are issued.
 class queue_sync_guard {
 public:
-    static queue_sync_guard make(sycl::queue& q, const char* task_name, bool enabled) {
+    /// @param[in] args  The task's arguments for the analyzer, or empty
+    static queue_sync_guard make(sycl::queue& q,
+                                 const char* task_name,
+                                 bool enabled,
+                                 const std::string& args = std::string()) {
         if (enabled) {
             q.wait_and_throw();
-            return queue_sync_guard(&q, daal::internal::profiler::start_task(task_name));
+            return queue_sync_guard(
+                &q,
+                args.empty() ? daal::internal::profiler::start_task(task_name)
+                             : daal::internal::profiler::start_task_with_args(task_name, args));
         }
         return queue_sync_guard(nullptr, daal::internal::profiler::start_task(nullptr));
     }
@@ -105,6 +112,30 @@ private:
 
 #define ONEDAL_PROFILER_START_NULL_TASK() daal::internal::profiler::start_task(nullptr)
 
+// The arguments of a task, formatted only when the analyzer reports them.
+#define ONEDAL_PROFILER_ARGS(...)                                         \
+    (daal::internal::is_analyzer_enabled()                                \
+         ? daal::internal::profiler_named_args(#__VA_ARGS__, __VA_ARGS__) \
+         : std::string())
+
+#define ONEDAL_PROFILER_START_TASK_WITH_ARGS(name, ...)                                      \
+    (!daal::internal::is_profiler_enabled() ? daal::internal::profiler::start_task(nullptr)  \
+     : daal::internal::is_analyzer_enabled()                                                 \
+         ? daal::internal::profiler::start_task_with_args(#name,                             \
+                                                          ONEDAL_PROFILER_ARGS(__VA_ARGS__)) \
+         : daal::internal::profiler::start_task(#name))
+
+#ifdef ONEDAL_DATA_PARALLEL
+#define ONEDAL_PROFILER_START_TASK_WITH_QUEUE_ARGS(name, queue, ...)                     \
+    ::oneapi::dal::detail::queue_sync_guard::make((queue),                               \
+                                                  #name,                                 \
+                                                  daal::internal::is_profiler_enabled(), \
+                                                  ONEDAL_PROFILER_ARGS(__VA_ARGS__))
+#else
+#define ONEDAL_PROFILER_START_TASK_WITH_QUEUE_ARGS(name, queue, ...) \
+    ONEDAL_PROFILER_START_TASK_WITH_ARGS(name, __VA_ARGS__)
+#endif
+
 // PROFILER TASKS
 // `auto` holds a profiler_task or a queue_sync_guard, depending on the argument count.
 #define ONEDAL_PROFILER_TASK_WITH_ARGS(task_name, ...)                                  \
@@ -112,15 +143,15 @@ private:
         if (daal::internal::is_logger_enabled()) {                                      \
             DAAL_PROFILER_LOG_ARGS(task_name, __VA_ARGS__);                             \
         }                                                                               \
-        return ONEDAL_PROFILER_START_TASK(task_name);                                   \
+        return ONEDAL_PROFILER_START_TASK_WITH_ARGS(task_name, __VA_ARGS__);            \
     }()
 
-#define ONEDAL_PROFILER_TASK_WITH_ARGS_QUEUE(task_name, queue, ...)                     \
-    auto ONEDAL_PROFILER_CONCAT(__profiler_task__, ONEDAL_PROFILER_UNIQUE_ID) = [&]() { \
-        if (daal::internal::is_logger_enabled()) {                                      \
-            DAAL_PROFILER_LOG_ARGS(task_name, __VA_ARGS__);                             \
-        }                                                                               \
-        return ONEDAL_PROFILER_START_TASK_WITH_QUEUE(task_name, queue);                 \
+#define ONEDAL_PROFILER_TASK_WITH_ARGS_QUEUE(task_name, queue, ...)                       \
+    auto ONEDAL_PROFILER_CONCAT(__profiler_task__, ONEDAL_PROFILER_UNIQUE_ID) = [&]() {   \
+        if (daal::internal::is_logger_enabled()) {                                        \
+            DAAL_PROFILER_LOG_ARGS(task_name, __VA_ARGS__);                               \
+        }                                                                                 \
+        return ONEDAL_PROFILER_START_TASK_WITH_QUEUE_ARGS(task_name, queue, __VA_ARGS__); \
     }()
 
 #define ONEDAL_PROFILER_TASK(...)                                                       \
