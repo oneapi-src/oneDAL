@@ -172,7 +172,9 @@ average thread in each run, where 1.00 is a perfectly balanced region. A row nam
 ``(waiting for parallel work)`` is the time a task waited for a parallel region it started, beyond
 running chunks of the region itself.
 
-The memory columns, and the transfer columns, appear only when there is something to show.
+The memory columns, and the transfer columns, appear only when there is something to show: a CPU
+run has no device or transfer columns, and no host columns either if every allocation happened
+outside the profiled tasks. The ``Memory`` summary at the end always covers the whole process.
 Allocations go through ``daal_malloc`` and the oneAPI USM allocator; memory allocated in any other
 way is not seen.
 
@@ -193,6 +195,11 @@ General Notes on Verbose Mode
 The analyzer report and the timeline are written when the process exits. They are not written in
 interactive environments like Jupyter Notebooks, where the process may not exit; run the application
 as a standalone script.
+
+The Logger and the Tracer print a line for every task run, which for an iterative algorithm can be
+megabytes. Where ``stderr`` is a pipe that is not read while oneDAL runs, such as a notebook kernel,
+the process blocks once the pipe is full. Use ``ONEDAL_VERBOSE=3`` there: it prints only the tree, at
+exit.
 
 Profiling adds the cost printed in the report to every task run. The report shows it so that the
 timings can be judged against it.
