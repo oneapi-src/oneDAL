@@ -144,15 +144,32 @@ jobs:
       - name: Verify no OpenBLAS import
         shell: cmd
         run: |
+          setlocal enabledelayedexpansion
           CALL "%ProgramFiles%\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.os.arch }}
           if errorlevel 1 exit /b 1
+          set /a checked=0
           for /R __release_win_${{ matrix.os.cxx }} %%f in (onedal*.dll) do (
-            dumpbin /nologo /dependents "%%f" | findstr /I /C:"openblas" /C:"flang" && (
+            set /a checked+=1
+            dumpbin /nologo /dependents "%%f" > "%TEMP%\dependents.txt"
+            rem A `dumpbin` that cannot read the binary would otherwise look the
+            rem same as one reporting no match.
+            if errorlevel 1 (
+              echo ::error::dumpbin failed on %%f
+              exit /b 1
+            )
+            findstr /I /C:"openblas" /C:"flang" "%TEMP%\dependents.txt" >nul && (
               echo ::error::%%f imports a math backend DLL
+              type "%TEMP%\dependents.txt"
               exit /b 1
             )
           )
-          echo no OpenBLAS or flang imports in the released binaries
+          rem Zero matches must not pass as "no bad imports": that is the shape a
+          rem renamed release directory or a build that produced nothing takes.
+          if !checked! equ 0 (
+            echo ::error::no onedal*.dll found under __release_win_${{ matrix.os.cxx }}
+            exit /b 1
+          )
+          echo checked !checked! libraries: no OpenBLAS or flang imports
           rem `findstr` leaves errorlevel 1 behind when it matches nothing, and
           rem `echo` does not clear it, so the step needs an explicit success.
           exit /b 0
