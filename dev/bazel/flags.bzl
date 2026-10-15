@@ -103,10 +103,10 @@ win_clang_common_flags = [
     "-Wno-empty-body",
     "-Wreturn-type",
     "-Wno-deprecated-declarations",
-    # C++ exception handling, `-EHsc` in the Makefile. It is selected by
-    # `OS_is_win` alone (makefile:152), not by the compiler, so the clang-cl
-    # toolchain needs it as much as the icx one: without it clang-cl rejects
-    # every `throw` in cpp/oneapi/dal/detail/common.hpp.
+    # C++ exception handling. The makefile adds `-EHsc` by `OS_is_win` alone,
+    # not by the compiler, so the clang-cl toolchain needs it as much as the icx
+    # one: without it clang-cl rejects every `throw` in
+    # cpp/oneapi/dal/detail/common.hpp.
     "-EHsc",
     # Make's `-fms-runtime-lib=dll[_dbg]` (COMPILER.win.clang, selected by
     # MSVC_RT_is_release) has no counterpart here on purpose: the toolchain
@@ -144,7 +144,7 @@ def get_win_clang_target_flags(arch_id):
     """Returns the explicit `--target=` flag for a Windows clang-cl build.
 
     clang-cl defaults to the arch of the clang binary itself, so the triple is
-    stated explicitly — that is also what makes an x86_64-host cross-compile to
+    stated explicitly -- that is also what makes an x86_64-host cross-compile to
     `@config//:windows_arm64` work.
     """
     return ["--target={}".format(_WIN_CLANG_TARGET_TRIPLE[arch_id])]

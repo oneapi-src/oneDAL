@@ -33,12 +33,3 @@ cc_library(
         ":openblas_core",
     ],
 )
-
-# OpenBLAS is linked statically here too, so nothing has to travel with the
-# binaries at run time. The target exists so `_test_runtime_data()` in
-# dev/bazel/dal.bzl can name it unconditionally, same as in
-# `openblas.tpl.BUILD`.
-filegroup(
-    name = "openblas_runtime",
-    srcs = [],
-)

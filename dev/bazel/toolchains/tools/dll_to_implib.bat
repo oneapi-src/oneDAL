@@ -73,7 +73,9 @@ where dumpbin >NUL 2>&1
 if errorlevel 1 (
     set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
     if exist "!VSWHERE!" (
-        for %%d in (%MSVC_HOST_DIRS%) do (
+        rem The guard wraps the whole `vswhere` call, not just the assignment,
+        rem so the second host directory is not queried once the first hit.
+        for %%d in (%MSVC_HOST_DIRS%) do if not defined MSVC_BIN (
             for /f "usebackq delims=" %%v in (`"!VSWHERE!" -latest -products * ^
                   -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 ^
                   -find "VC\Tools\MSVC\*\bin\%%d\dumpbin.exe"`) do (
@@ -137,6 +139,13 @@ for /f "usebackq tokens=2 delims=()" %%m in (`dumpbin /nologo /headers "%DLL_IN%
 )
 if not defined MACHINE (
     echo dll_to_implib: cannot determine the machine type of %DLL_IN%
+    exit /b 5
+)
+rem Only accept a name `/machine:` takes, so a future target whose `dumpbin`
+rem spelling differs fails here rather than in the middle of a link.
+echo x64 ARM64 x86 ARM | findstr /I /R /C:"\<!MACHINE!\>" >NUL
+if errorlevel 1 (
+    echo dll_to_implib: unexpected machine type "!MACHINE!" reported for %DLL_IN%
     exit /b 5
 )
 

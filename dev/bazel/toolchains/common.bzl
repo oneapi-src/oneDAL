@@ -72,6 +72,9 @@ def detect_compiler(repo_ctx, os_id):
 # (e.g. `aarch64-linux-gnu-gcc`).
 _ARCH_ID_BY_TRIPLE_PREFIX = {
     "aarch64": "arm",
+    # Not a GNU triple machine name, but clang accepts `arm64-pc-windows-msvc`
+    # and that is the spelling a Windows user is most likely to write.
+    "arm64": "arm",
     "riscv64": "riscv64",
     "x86_64": "intel64",
     "amd64": "intel64",
@@ -166,9 +169,13 @@ def detect_host_arch(repo_ctx, os_id):
     """
     if os_id == "win":
         # `PROCESSOR_ARCHITECTURE` reports the architecture of the *current
-        # process*, so an x86_64 shell emulated on ARM64 reads AMD64 and puts
-        # the real machine arch in `PROCESSOR_ARCHITEW6432`. Prefer the latter
-        # when set, as Windows does for WOW64 processes.
+        # process*. `PROCESSOR_ARCHITEW6432` carries the machine arch, but only
+        # for a 32-bit process on a 64-bit Windows, so it is read first and is
+        # not a general answer: a 64-bit x86_64 process emulated on an ARM64
+        # host reports AMD64 with nothing to correct it, and this detection then
+        # yields `intel64`. State the target explicitly in that case --
+        # `--platforms=@config//:windows_arm64`, or a `--target=` triple in
+        # `CC`/`CXX`, both of which `detect_target_arch` honours over this.
         for env_var in ["PROCESSOR_ARCHITEW6432", "PROCESSOR_ARCHITECTURE"]:
             value = repo_ctx.os.environ.get(env_var, "").strip().upper()
             arch_id = _ARCH_ID_BY_PROCESSOR_ARCHITECTURE.get(value)
