@@ -52,7 +52,13 @@ $assetArch = switch ($Arch.ToUpperInvariant()) {
 $installerName = "LLVM-$Version-$assetArch.exe"
 Invoke-WebRequest "https://github.com/llvm/llvm-project/releases/download/llvmorg-$Version/$installerName" `
     -UseBasicParsing -OutFile $installerName
-Start-Process -FilePath ".\$installerName" -ArgumentList "/S" -Wait
+# `-Wait` alone reports nothing: without `-PassThru` there is no process object
+# to read `ExitCode` from, so a failed install would surface much later, as a
+# missing clang-cl.
+$installer = Start-Process -FilePath ".\$installerName" -ArgumentList "/S" -Wait -PassThru
+if ($installer.ExitCode -ne 0) {
+    throw "$installerName exited with $($installer.ExitCode)"
+}
 
 $binDir = Join-Path $env:ProgramFiles "LLVM\bin"
 if ($env:GITHUB_PATH) {

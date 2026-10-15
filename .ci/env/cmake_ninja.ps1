@@ -55,7 +55,11 @@ if ($archId -notin @("arm64", "amd64")) {
 $msiArch = if ($archId -eq "amd64") { "x86_64" } else { $archId }
 $msiName = "cmake-$CMakeVersion-windows-$msiArch.msi"
 Invoke-WebRequest "https://github.com/Kitware/CMake/releases/download/v$CMakeVersion/$msiName" -OutFile $msiName
-Start-Process msiexec.exe -ArgumentList "/i $msiName /quiet /norestart" -Wait
+# `-PassThru` so the exit code is actually checked; see `.ci/env/llvm.ps1`.
+$msi = Start-Process msiexec.exe -ArgumentList "/i $msiName /quiet /norestart" -Wait -PassThru
+if ($msi.ExitCode -ne 0) {
+    throw "msiexec installing $msiName exited with $($msi.ExitCode)"
+}
 
 $cmakeBin = Join-Path $env:ProgramFiles "CMake\bin"
 if ($env:GITHUB_PATH) {
