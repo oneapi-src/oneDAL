@@ -211,8 +211,7 @@ static services::Status computeMedoids(const algorithmFPType * data, const int *
         const size_t iBegin = first + (task - taskOffsets[k]) * rowBlock;
         const size_t iCount = services::internal::min<cpu, size_t>(rowBlock, last - iBegin);
 
-        // Not thread-local: MKL can run parallel work inside `finalize`, and the waiting thread
-        // may then start another task of this loop.
+        // Per task, not per thread: a nested parallel call in `finalize` can run another task here.
         TArrayScalable<algorithmFPType, cpu> tileArr(iCount * services::internal::min<cpu, size_t>(colBlock, last - first));
         algorithmFPType * tile = tileArr.get();
         DAAL_CHECK_MALLOC_THR(tile);

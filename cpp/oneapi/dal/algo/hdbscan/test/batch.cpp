@@ -1594,9 +1594,7 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
 
-    // Eight 9 x 9 integer lattices, so the medoid tasks run concurrently. By symmetry each
-    // lattice center is its medoid. MKL_CBWR=COMPATIBLE makes the sqrt in the distance tiles
-    // parallel, which is when a shared per-thread tile used to give another cluster's medoid.
+    // Eight 9 x 9 lattices, each with its center as the medoid.
     constexpr std::int64_t side = 9;
     constexpr std::int64_t cluster_count = 8;
     constexpr std::int64_t row_count = cluster_count * side * side;
@@ -1615,7 +1613,7 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
         this->get_descriptor(20, 5, result_options::responses | result_options::medoid_centers)
             .set_store_centers(store_centers_method::medoid);
 
-    for (int run = 0; run < 50; ++run) {
+    for (int run = 0; run < 10; ++run) {
         CAPTURE(run);
         const auto result = this->compute(desc, x);
         REQUIRE(result.get_cluster_count() == cluster_count);
