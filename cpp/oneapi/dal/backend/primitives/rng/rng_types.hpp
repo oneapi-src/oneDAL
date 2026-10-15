@@ -29,7 +29,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-/// The seed the RNG engines are initialized with unless another one is requested explicitly.
+/// The default seed of the RNG engines when no other seed is given.
 constexpr std::int64_t default_seed = 777;
 
 /// Enum class representing different random number generation (RNG) engine methods.
