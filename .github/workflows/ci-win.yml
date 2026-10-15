@@ -182,7 +182,7 @@ jobs:
     timeout-minutes: 180
     steps:
       - name: Checkout oneDAL
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # clang-cl / lld-link / llvm-lib are the toolchain oneDAL uses for
       # Windows ARM64, in both build systems

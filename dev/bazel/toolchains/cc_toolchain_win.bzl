@@ -129,22 +129,43 @@ def _requested_compiler(repo_ctx):
     (dev/bazel/toolchains/cc_toolchain.bzl), so a change to either
     re-evaluates the toolchain.
 
-    The value may be a full path, with either slash flavour, and Windows lets
-    the `.exe` suffix be omitted, so compare basenames with the suffix
-    stripped. An empty result means "nothing requested": the caller decides
-    the default.
+    The value may be a full path, with either slash flavour, quoted or not, and
+    Windows lets the `.exe` suffix be omitted, so compare basenames with the
+    suffix stripped. An empty result means "nothing requested": the caller
+    decides the default.
     """
     override = repo_ctx.os.environ.get("ONEDAL_WIN_COMPILER", "").lower()
     if override:
         return override
     for env_var in ["CC", "CXX"]:
-        driver = repo_ctx.os.environ.get(env_var, "").lower().split(" ")[0]
-        basename = driver.replace("\\", "/").split("/")[-1]
-        if basename.endswith(".exe"):
-            basename = basename[:-len(".exe")]
+        basename = _driver_basename(repo_ctx.os.environ.get(env_var, ""))
         if basename:
             return basename
     return ""
+
+def _driver_basename(value):
+    """The compiler name in a `CC`/`CXX` value, lower case and without `.exe`.
+
+    The value may carry flags after the program, and the program may be a path
+    with spaces in it -- `C:\\Program Files\\LLVM\\bin\\clang-cl.exe` is where
+    `.ci/env/llvm.ps1` installs clang-cl. Splitting on the first space would
+    read that as `program`, so quotes are honoured and, unquoted, words are
+    taken until one looks like a flag.
+    """
+    value = value.strip()
+    if value.startswith("\""):
+        program = value[1:].split("\"")[0]
+    else:
+        words = value.split(" ")
+        program = words[0]
+        for word in words[1:]:
+            if word.startswith("-") or word.startswith("/"):
+                break
+            program = program + " " + word
+    basename = program.lower().replace("\\", "/").split("/")[-1]
+    if basename.endswith(".exe"):
+        basename = basename[:-len(".exe")]
+    return basename
 
 def _is_icx_requested(repo_ctx):
     """Return True if the Windows toolchain should use Intel oneAPI icx/icpx.
