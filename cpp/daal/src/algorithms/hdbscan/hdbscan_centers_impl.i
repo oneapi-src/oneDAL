@@ -40,6 +40,7 @@ using daal::internal::ReadRows;
 using daal::internal::WriteOnlyRows;
 using daal::services::internal::TArray;
 using daal::services::internal::TArrayCalloc;
+using daal::services::internal::TArrayScalable;
 
 /// Create the pairwise distance of `pairwiseDistance` between the rows of `nt` and themselves.
 ///
@@ -201,18 +202,23 @@ static services::Status computeMedoids(const algorithmFPType * data, const int *
     double * scores = scoresArr.get();
     DAAL_CHECK_MALLOC(scores);
     const bool isCosine = pairwiseDistance == algorithms::internal::PairwiseDistanceType::cosine;
-    daal::TlsMem<algorithmFPType, cpu> tlsTile(rowBlock * colBlock);
     SafeStatus safeStat;
 
     daal::threader_for(nTasks, 1, [&](size_t task) {
-        algorithmFPType * tile = tlsTile.local();
-        DAAL_CHECK_MALLOC_THR(tile);
-
         const size_t k      = taskCluster[task];
         const size_t first  = offsets[k];
         const size_t last   = offsets[k + 1];
         const size_t iBegin = first + (task - taskOffsets[k]) * rowBlock;
         const size_t iCount = services::internal::min<cpu, size_t>(rowBlock, last - iBegin);
+
+        // NOTE: Do not move `tileArr` out of the `daal::threader_for`.
+        //
+        // It should be one tile per task, not per thread. Because MKL can parallelize the sqrt in `dist->finalize` over TBB,
+        // and while this thread waits on it TBB may run another task of this loop on the same
+        // thread, which would overwrite a thread-local tile mid-use.
+        TArrayScalable<algorithmFPType, cpu> tileArr(iCount * services::internal::min<cpu, size_t>(colBlock, last - first));
+        algorithmFPType * tile = tileArr.get();
+        DAAL_CHECK_MALLOC_THR(tile);
 
         for (size_t jBegin = first; jBegin < last; jBegin += colBlock)
         {
