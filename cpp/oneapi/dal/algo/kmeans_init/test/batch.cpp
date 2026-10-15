@@ -15,14 +15,15 @@
 *******************************************************************************/
 
 #include <algorithm>
-#include <tuple>
 #include <unordered_set>
 #include <vector>
 
 #include "oneapi/dal/algo/kmeans_init/compute.hpp"
+#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
+#include "oneapi/dal/test/engine/tables.hpp"
 
 #include "oneapi/dal/algo/kmeans_init/test/fixture.hpp"
 
@@ -32,7 +33,7 @@
 namespace oneapi::dal::kmeans_init::test {
 
 namespace te = dal::test::engine;
-namespace daal_dm = daal::data_management;
+namespace interop = dal::backend::interop;
 namespace daal_init = daal::algorithms::kmeans::init::internal;
 
 template <typename TestType>
@@ -64,59 +65,27 @@ TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
 
 constexpr auto daal_cpu = daal::internal::firstCpuType;
 
-// The DAAL tables wrap the test's arrays, which must outlive them.
-template <typename Float>
-struct dense_helper {
-    using float_t = Float;
-    using type = daal_init::DataHelperDense<Float, daal_cpu>;
-    dense_helper(std::vector<Float>& data, std::size_t row_count, std::size_t column_count)
-            : table(daal_dm::HomogenNumericTable<Float>::create(data.data(),
-                                                                column_count,
-                                                                row_count)) {}
-    daal_dm::NumericTablePtr table;
-};
-
-// Every value is stored explicitly, zeros included, with one-based indices.
-template <typename Float>
-struct csr_helper {
-    using float_t = Float;
-    using type = daal_init::DataHelperCSR<Float, daal_cpu>;
-    csr_helper(std::vector<Float>& data, std::size_t row_count, std::size_t column_count)
-            : col_indices(row_count * column_count),
-              row_offsets(row_count + 1) {
-        for (std::size_t i = 0; i < col_indices.size(); ++i) {
-            col_indices[i] = i % column_count + 1;
-        }
-        for (std::size_t r = 0; r <= row_count; ++r) {
-            row_offsets[r] = r * column_count + 1;
-        }
-        table = daal_dm::CSRNumericTable::create(data.data(),
-                                                 col_indices.data(),
-                                                 row_offsets.data(),
-                                                 column_count,
-                                                 row_count);
-    }
-    std::vector<std::size_t> col_indices;
-    std::vector<std::size_t> row_offsets;
-    daal_dm::NumericTablePtr table;
-};
-
-using data_helper_types =
-    std::tuple<dense_helper<float>, dense_helper<double>, csr_helper<float>, csr_helper<double>>;
-
 // Each trial's slot must be scored with that trial's own candidate, the previous best trial's
 // slot included, and every slot must start from the previous best trial's distances.
-TEMPLATE_LIST_TEST("kmeans++ updateMinDistInBlock scores each trial with its own candidate",
-                   "[kmeans_init][batch][plus_plus]",
-                   data_helper_types) {
-    using float_t = typename TestType::float_t;
+TEMPLATE_TEST("kmeans++ updateMinDistInBlock scores each trial with its own candidate",
+              "[kmeans_init][batch][plus_plus]",
+              float,
+              double) {
+    using float_t = TestType;
     constexpr std::int64_t row_count = 4;
     constexpr std::int64_t column_count = 2;
     constexpr std::size_t trial_count = 3;
 
-    std::vector<float_t> data = { 0, 0, 3, 0, 0, 4, 6, 8 };
-    const TestType input(data, row_count, column_count);
-    typename TestType::type helper(input.table.get());
+    const std::vector<float_t> data = { 0, 0, 3, 0, 0, 4, 6, 8 };
+    const auto dense_table = interop::copy_to_daal_homogen_table<float_t>(
+        homogen_table::wrap(data.data(), row_count, column_count));
+    const auto csr_table = interop::copy_to_daal_csr_table<float_t>(
+        te::dense_to_explicit_csr(data.data(),
+                                  row_count,
+                                  column_count,
+                                  sparse_indexing::one_based));
+    daal_init::DataHelperDense<float_t, daal_cpu> dense(dense_table.get());
+    daal_init::DataHelperCSR<float_t, daal_cpu> csr(csr_table.get());
 
     // Trial t's candidate is row t.
     const std::vector<float_t> candidates(data.begin(), data.begin() + trial_count * column_count);
@@ -128,33 +97,37 @@ TEMPLATE_LIST_TEST("kmeans++ updateMinDistInBlock scores each trial with its own
                                                             { 16, 25, 0, 50 } };
     const float_t expected_potential[trial_count] = { 75, 84, 91 };
 
-    for (std::size_t best_trial = 0; best_trial < trial_count; ++best_trial) {
-        CAPTURE(best_trial);
-        std::vector<float_t> min_dist(trial_count * row_count, float_t(-1));
-        std::copy(previous_min_dist.begin(),
-                  previous_min_dist.end(),
-                  min_dist.begin() + best_trial * row_count);
-        std::vector<float_t> potential(trial_count, float_t(-1));
+    auto check = [&](auto& data_helper) {
+        for (std::size_t best_trial = 0; best_trial < trial_count; ++best_trial) {
+            CAPTURE(best_trial);
+            std::vector<float_t> min_dist(trial_count * row_count, float_t(-1));
+            std::copy(previous_min_dist.begin(),
+                      previous_min_dist.end(),
+                      min_dist.begin() + best_trial * row_count);
+            std::vector<float_t> potential(trial_count, float_t(-1));
 
-        const auto status = helper.updateMinDistInBlock(potential.data(),
-                                                        1,
-                                                        0,
-                                                        trial_count,
-                                                        best_trial,
-                                                        nullptr,
-                                                        candidates.data(),
-                                                        min_dist.data());
-        REQUIRE(status.ok());
+            const auto status = data_helper.updateMinDistInBlock(potential.data(),
+                                                                 1,
+                                                                 0,
+                                                                 trial_count,
+                                                                 best_trial,
+                                                                 nullptr,
+                                                                 candidates.data(),
+                                                                 min_dist.data());
+            REQUIRE(status.ok());
 
-        for (std::size_t t = 0; t < trial_count; ++t) {
-            CAPTURE(t);
-            REQUIRE(potential[t] == expected_potential[t]);
-            for (std::int64_t r = 0; r < row_count; ++r) {
-                CAPTURE(r);
-                REQUIRE(min_dist[t * row_count + r] == expected_dist[t][r]);
+            for (std::size_t t = 0; t < trial_count; ++t) {
+                CAPTURE(t);
+                REQUIRE(potential[t] == expected_potential[t]);
+                for (std::int64_t r = 0; r < row_count; ++r) {
+                    CAPTURE(r);
+                    REQUIRE(min_dist[t * row_count + r] == expected_dist[t][r]);
+                }
             }
         }
-    }
+    };
+    check(dense);
+    check(csr);
 }
 
 } // namespace oneapi::dal::kmeans_init::test
