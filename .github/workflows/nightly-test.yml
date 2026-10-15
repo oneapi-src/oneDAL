@@ -135,14 +135,10 @@ jobs:
             const headSha = context.payload.workflow_run?.head_sha || context.sha
             const runUrl =
               `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            // `details_url` is where "Details" on the Checks list goes, but for a
-            // check run created by the `github-actions` app the platform ignores
-            // the value and points it at the check run's own page: measured on
-            // check run 112379851735, where `details_url` came back equal to
-            // `html_url` although this workflow had passed a job URL. That page
-            // shows only what `output` carries, so the links have to live there
-            // -- otherwise "Details" returns the reader to the list they clicked
-            // from, with no way to reach the log.
+            // The links live in `output` because that is what the check run page
+            // renders, and that page is where "Details" leads: the platform
+            // ignores `details_url` for a check run created by the
+            // `github-actions` app.
             const summary = [
               `Build and release comparison run: ${runUrl}`,
               `Tested commit: \`${headSha}\``,
@@ -332,9 +328,7 @@ jobs:
           script: |
             const runUrl =
               `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            // Map job `name:` values to their log pages. These go into the
-            // check run `output`, not only into `details_url`, which the
-            // platform overrides for this app (see `check_start`).
+            // Job log pages, for the summary (see `check_start`).
             const jobUrls = new Map()
             try {
               const jobs = await github.paginate(
