@@ -211,7 +211,9 @@ static services::Status computeMedoids(const algorithmFPType * data, const int *
         const size_t iBegin = first + (task - taskOffsets[k]) * rowBlock;
         const size_t iCount = services::internal::min<cpu, size_t>(rowBlock, last - iBegin);
 
-        // One tile per task, not per thread. MKL can parallelize the sqrt in `finalize` over TBB,
+        // NOTE: Do not move `tileArr` out of the `daal::threader_for`.
+        //
+        // It should be one tile per task, not per thread. Because MKL can parallelize the sqrt in `dist->finalize` over TBB,
         // and while this thread waits on it TBB may run another task of this loop on the same
         // thread, which would overwrite a thread-local tile mid-use.
         TArrayScalable<algorithmFPType, cpu> tileArr(iCount * services::internal::min<cpu, size_t>(colBlock, last - first));
