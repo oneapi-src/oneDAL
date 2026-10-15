@@ -125,6 +125,21 @@ public:
         }
     }
 
+    /// Checks that every value of `sample` is a distinct index in `[0, top)`.
+    ///
+    /// @param[in] sample The drawn indices, in host-accessible memory.
+    /// @param[in] top    The size of the population the indices were drawn from.
+    void check_distinct_indices(const ndarray<std::int32_t, 1>& sample, std::int64_t top) {
+        std::vector<bool> seen(top, false);
+        for (std::int64_t i = 0; i < sample.get_count(); ++i) {
+            const std::int32_t value = sample.get_data()[i];
+            REQUIRE(value >= 0);
+            REQUIRE(value < top);
+            REQUIRE(!seen[value]);
+            seen[value] = true;
+        }
+    }
+
     auto allocate_indices(std::int64_t elem_count) {
         return ndarray<std::int32_t, 1>::empty(this->get_queue(),
                                                { elem_count },
@@ -408,14 +423,7 @@ TEMPLATE_LIST_TEST_M(rng_test,
     auto sample = this->allocate_indices(count);
     uniform_without_replacement<std::int32_t>(count, sample.get_mutable_data(), engine_, 0, top);
 
-    std::vector<bool> seen(top, false);
-    for (std::int64_t i = 0; i < count; ++i) {
-        const std::int32_t value = sample.get_data()[i];
-        REQUIRE(value >= 0);
-        REQUIRE(value < top);
-        REQUIRE(!seen[value]);
-        seen[value] = true;
-    }
+    this->check_distinct_indices(sample, top);
 }
 
 TEMPLATE_LIST_TEST_M(rng_test,
@@ -462,14 +470,7 @@ TEMPLATE_LIST_TEST_M(rng_test,
     auto sample = this->allocate_indices(count);
     partial_fisher_yates_shuffle<std::int32_t>(q, sample, top, engine_).wait_and_throw();
 
-    std::vector<bool> seen(top, false);
-    for (std::int64_t i = 0; i < count; ++i) {
-        const std::int32_t value = sample.get_data()[i];
-        REQUIRE(value >= 0);
-        REQUIRE(value < top);
-        REQUIRE(!seen[value]);
-        seen[value] = true;
-    }
+    this->check_distinct_indices(sample, top);
 }
 
 TEMPLATE_LIST_TEST_M(rng_test,
@@ -483,14 +484,7 @@ TEMPLATE_LIST_TEST_M(rng_test,
     host_engine engine_(default_seed);
     partial_fisher_yates_shuffle<std::int32_t>(sample, top, engine_);
 
-    std::vector<bool> seen(top, false);
-    for (std::int64_t i = 0; i < count; ++i) {
-        const std::int32_t value = sample.get_data()[i];
-        REQUIRE(value >= 0);
-        REQUIRE(value < top);
-        REQUIRE(!seen[value]);
-        seen[value] = true;
-    }
+    this->check_distinct_indices(sample, top);
 }
 
 TEMPLATE_LIST_TEST_M(rng_test,

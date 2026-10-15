@@ -62,12 +62,7 @@ inline engine_type_internal convert_engine_method(engine_type method) {
 }
 
 /// The RNG engine every algorithm uses unless another one is requested explicitly.
-///
-/// `philox4x32x10` is a counter-based generator, so `skipAhead` is an O(1) jump on both CPU and
-/// GPU. Every other supported engine either has no GPU `skip_ahead` at all (`mt2203`, see
-/// `gen_mt2203::skip_ahead_gpu`) or has to iterate the state in order to skip, which makes the
-/// skip-based per-rank and per-tree stream separation the library relies on either impossible
-/// or expensive.
+/// Counter-based, so `skip_ahead` is O(1) on CPU and GPU; mt2203 has no GPU `skip_ahead` at all.
 constexpr engine_type_internal default_engine_type_internal = engine_type_internal::philox4x32x10;
 
 /// Creates the DAAL(host) engine that corresponds to the requested method.

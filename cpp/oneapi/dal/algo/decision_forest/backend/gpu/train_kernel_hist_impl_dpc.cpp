@@ -1912,11 +1912,9 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     pr::ndarray<Float, 1> node_imp_decrease_list;
     if (ctx.distr_mode_) {
-        // All ranks share the seed, so each gets its own range of the sequence. The consumption
-        // per tree is not known upfront, so every term below is an upper bound: one bootstrap
-        // draw per row, at most `2 * row_count` nodes each drawing `selected_ftr_count` features
-        // and as many thresholds, and one `2 * n` shuffle per column for MDA. Under-reserving
-        // would let a rank walk into the next rank's values.
+        // All ranks share the seed, so each skips to its own range. Per row and tree the range
+        // bounds one bootstrap draw, `selected_ftr_count` features and thresholds for each of at
+        // most `2 * row_count` nodes, and a `2 * n` MDA shuffle per column.
         std::int64_t values_per_row = 1 + 4 * std::int64_t(ctx.selected_ftr_count_);
         if (ctx.mda_required_) {
             values_per_row += 2 * std::int64_t(ctx.column_count_);

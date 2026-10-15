@@ -439,7 +439,7 @@ sycl::event shuffle(sycl::queue& queue,
 /// Fisher-Yates algorithm.
 ///
 /// The draw runs on the host engine and advances the device mirror by the number of values
-/// consumed, so a later on-device draw continues the stream instead of replaying them.
+/// consumed, so a later on-device draw continues the stream. mt2203 cannot advance its mirror.
 ///
 /// @tparam Type The data type of the array elements.
 /// @param[in] queue_ The SYCL queue for device execution.
