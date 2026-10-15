@@ -1587,6 +1587,47 @@ TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
     }
 }
 
+TEMPLATE_LIST_TEST_M(hdbscan_batch_test,
+                     "hdbscan: medoids are the same on every compute",
+                     "[hdbscan][batch]",
+                     hdbscan_types) {
+    SKIP_IF(this->not_float64_friendly());
+    using Float = std::tuple_element_t<0, TestType>;
+
+    // Eight 9 x 9 lattices, each with its center as the medoid.
+    constexpr std::int64_t side = 9;
+    constexpr std::int64_t cluster_count = 8;
+    constexpr std::int64_t row_count = cluster_count * side * side;
+    std::vector<Float> data;
+    data.reserve(row_count * 2);
+    for (std::int64_t c = 0; c < cluster_count; ++c) {
+        for (std::int64_t i = 0; i < side; ++i) {
+            for (std::int64_t j = 0; j < side; ++j) {
+                data.push_back(Float(i - side / 2 + 100 * c));
+                data.push_back(Float(j - side / 2));
+            }
+        }
+    }
+    const auto x = homogen_table::wrap(data.data(), row_count, 2);
+    const auto desc =
+        this->get_descriptor(20, 5, result_options::responses | result_options::medoid_centers)
+            .set_store_centers(store_centers_method::medoid);
+
+    for (int run = 0; run < 10; ++run) {
+        CAPTURE(run);
+        const auto result = this->compute(desc, x);
+        REQUIRE(result.get_cluster_count() == cluster_count);
+        const auto labels = this->get_labels(result);
+        const auto medoids = row_accessor<const Float>(result.get_medoid_centers()).pull({ 0, -1 });
+        for (std::int64_t c = 0; c < cluster_count; ++c) {
+            const std::int64_t k = std::int64_t(labels[c * side * side]);
+            CAPTURE(c, k);
+            REQUIRE(medoids[2 * k] == Float(100 * c));
+            REQUIRE(medoids[2 * k + 1] == Float(0));
+        }
+    }
+}
+
 TEMPLATE_LIST_TEST_M(
     hdbscan_batch_test,
     "hdbscan: max_cluster_size caps the root by its child clusters like scikit-learn",
