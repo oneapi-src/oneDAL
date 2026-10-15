@@ -27,31 +27,24 @@ dal_test_suite(
     hdrs = glob([
         "test/*.hpp",
     ]),
-    srcs = glob(
-        ["test/*.cpp"],
-        exclude = ["test/internal.cpp"],
-    ),
+    srcs = glob([
+        "test/*.cpp",
+    ]),
     dal_deps = [
         ":kmeans_init",
     ],
-)
-
-dal_test_suite(
-    name = "internal_tests",
-    framework = "catch2",
-    srcs = [
-        "test/internal.cpp",
+    # 'test/batch.cpp' calls the DAAL k-means++ helpers directly
+    dal_test_deps = [
+        "@onedal//cpp/oneapi/dal:core",
     ],
-    dal_deps = [
-        ":kmeans_init",
+    extra_deps = [
+        "@onedal//cpp/daal/src/algorithms/kmeans:kernel",
     ],
-    private = True,
 )
 
 dal_test_suite(
     name = "tests",
     tests = [
         ":interface_tests",
-        ":internal_tests",
     ],
 )
