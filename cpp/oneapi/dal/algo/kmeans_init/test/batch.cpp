@@ -20,11 +20,9 @@
 #include <vector>
 
 #include "oneapi/dal/algo/kmeans_init/compute.hpp"
-#include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/table/homogen.hpp"
 #include "oneapi/dal/table/row_accessor.hpp"
 #include "oneapi/dal/test/engine/fixtures.hpp"
-#include "oneapi/dal/test/engine/tables.hpp"
 
 #include "oneapi/dal/algo/kmeans_init/test/fixture.hpp"
 
@@ -34,7 +32,7 @@
 namespace oneapi::dal::kmeans_init::test {
 
 namespace te = dal::test::engine;
-namespace interop = dal::backend::interop;
+namespace daal_dm = daal::data_management;
 namespace daal_init = daal::algorithms::kmeans::init::internal;
 
 template <typename TestType>
@@ -66,31 +64,41 @@ TEMPLATE_LIST_TEST_M(kmeans_init_batch_test,
 
 constexpr auto daal_cpu = daal::internal::firstCpuType;
 
+// The DAAL tables wrap the test's arrays, which must outlive them.
 template <typename Float>
 struct dense_helper {
     using float_t = Float;
     using type = daal_init::DataHelperDense<Float, daal_cpu>;
-    static auto to_daal(const std::vector<Float>& data,
-                        std::int64_t row_count,
-                        std::int64_t column_count) {
-        return interop::copy_to_daal_homogen_table<Float>(
-            homogen_table::wrap(data.data(), row_count, column_count));
-    }
+    dense_helper(std::vector<Float>& data, std::size_t row_count, std::size_t column_count)
+            : table(daal_dm::HomogenNumericTable<Float>::create(data.data(),
+                                                                column_count,
+                                                                row_count)) {}
+    daal_dm::NumericTablePtr table;
 };
 
+// Every value is stored explicitly, zeros included, with one-based indices.
 template <typename Float>
 struct csr_helper {
     using float_t = Float;
     using type = daal_init::DataHelperCSR<Float, daal_cpu>;
-    static auto to_daal(const std::vector<Float>& data,
-                        std::int64_t row_count,
-                        std::int64_t column_count) {
-        return interop::copy_to_daal_csr_table<Float>(
-            te::dense_to_explicit_csr(data.data(),
-                                      row_count,
-                                      column_count,
-                                      sparse_indexing::one_based));
+    csr_helper(std::vector<Float>& data, std::size_t row_count, std::size_t column_count)
+            : col_indices(row_count * column_count),
+              row_offsets(row_count + 1) {
+        for (std::size_t i = 0; i < col_indices.size(); ++i) {
+            col_indices[i] = i % column_count + 1;
+        }
+        for (std::size_t r = 0; r <= row_count; ++r) {
+            row_offsets[r] = r * column_count + 1;
+        }
+        table = daal_dm::CSRNumericTable::create(data.data(),
+                                                 col_indices.data(),
+                                                 row_offsets.data(),
+                                                 column_count,
+                                                 row_count);
     }
+    std::vector<std::size_t> col_indices;
+    std::vector<std::size_t> row_offsets;
+    daal_dm::NumericTablePtr table;
 };
 
 using data_helper_types =
@@ -106,9 +114,9 @@ TEMPLATE_LIST_TEST("kmeans++ updateMinDistInBlock scores each trial with its own
     constexpr std::int64_t column_count = 2;
     constexpr std::size_t trial_count = 3;
 
-    const std::vector<float_t> data = { 0, 0, 3, 0, 0, 4, 6, 8 };
-    const auto daal_data = TestType::to_daal(data, row_count, column_count);
-    typename TestType::type helper(daal_data.get());
+    std::vector<float_t> data = { 0, 0, 3, 0, 0, 4, 6, 8 };
+    const TestType input(data, row_count, column_count);
+    typename TestType::type helper(input.table.get());
 
     // Trial t's candidate is row t.
     const std::vector<float_t> candidates(data.begin(), data.begin() + trial_count * column_count);
