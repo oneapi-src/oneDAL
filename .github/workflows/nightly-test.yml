@@ -217,7 +217,9 @@ jobs:
           # invocation lives in the versioned script. Drop the fallback once
           # checkouts without the script have aged out.
           if [ -f .ci/scripts/compare_linux_release.sh ]; then
-            .ci/scripts/compare_linux_release.sh
+            .ci/scripts/compare_linux_release.sh \
+              ./__release_lnx/daal/latest \
+              ./bazel-bin/release/daal/latest
           else
             echo "::warning::checkout predates .ci/scripts/compare_linux_release.sh; rebase onto main for the full comparison"
             flags=()

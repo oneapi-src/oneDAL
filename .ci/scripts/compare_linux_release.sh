@@ -18,15 +18,21 @@
 # Compares the Make and Bazel Linux releases for the nightly Linux job.
 # Nightly-test runs main's workflow against the tested checkout, so the
 # invocation lives here, versioned with the files and flags it names.
-# Usage: compare_linux_release.sh [make_release_dir] [bazel_release_dir]
-# (relative to the repo root; defaults are the nightly job's layout).
+# Usage: compare_linux_release.sh <make_release_dir> <bazel_release_dir>
+# Both are relative to the repo root and are passed by the caller, so the
+# artifact layout stays next to the step that creates it, the way
+# `-MakeReleaseDir`/`-BazelReleaseDir` work for compare_windows_release.ps1.
 
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 
-make_release_dir=${1:-__release_lnx/daal/latest}
-bazel_release_dir=${2:-bazel-bin/release/daal/latest}
+if [ $# -ne 2 ]; then
+    echo "usage: $(basename "$0") <make_release_dir> <bazel_release_dir>" >&2
+    exit 2
+fi
+make_release_dir=$1
+bazel_release_dir=$2
 
 # Self-check the undefined-symbol filter first, so a widened prefix fails here
 # rather than letting the releases compare equal for the wrong reason.
