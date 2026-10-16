@@ -347,7 +347,7 @@ TEST("profiler takes a chunk run while the thread waited elsewhere out of the wa
                 // While waiting, the worker is given another chunk of the same region.
                 run_chunk(region, []() {
                     auto stolen = prof::profiler::start_task("chunk");
-                    busy_wait(std::chrono::microseconds(2000));
+                    busy_wait(std::chrono::microseconds(20000));
                 });
                 busy_wait(std::chrono::microseconds(100));
             });
@@ -367,8 +367,9 @@ TEST("profiler takes a chunk run while the thread waited elsewhere out of the wa
 
     REQUIRE(rows[chunk].count == 2);
     REQUIRE(rows[wait].time_ns >= 100000);
-    REQUIRE(rows[wait].time_ns < 2000000);
-    REQUIRE(rows[chunk].time_ns >= 2000000 + rows[wait].time_ns);
+    // Well below the stolen chunk, with room for the thread being preempted on a loaded machine.
+    REQUIRE(rows[wait].time_ns < 10000000);
+    REQUIRE(rows[chunk].time_ns >= 20000000 + rows[wait].time_ns);
 }
 
 TEST(
@@ -515,6 +516,107 @@ TEST(
     // shows in the peak of the task that started the region.
     REQUIRE(rows[outer].peak_bytes[0] >= large);
     REQUIRE(rows[outer].peak_bytes[0] <= large + 256);
+}
+
+TEST("profiler reports memory still allocated in the task that allocated it") {
+    prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
+    char kept = 0, freed = 0, in_chunk = 0;
+    {
+        auto outer = prof::profiler::start_task("outer");
+        {
+            auto inner = prof::profiler::start_task("inner");
+            prof::profiler_record_alloc(&kept, 1000, prof::profiler_memory_kind::host);
+            prof::profiler_record_alloc(&freed, 64, prof::profiler_memory_kind::device);
+            prof::profiler_record_free(&freed);
+        }
+        // A worker's allocation outside any task belongs to the task that started the region.
+        const daal::profiler_region region = hooks.capture(true);
+        std::thread worker([&]() {
+            run_chunk(region, [&]() {
+                prof::profiler_record_alloc(&in_chunk, 300, prof::profiler_memory_kind::device);
+            });
+        });
+        worker.join();
+        hooks.finish(region);
+    }
+    auto rows = prof::profiler_report();
+    const auto outer = find_row(rows, "outer", -1);
+    const auto inner = find_row(rows, "inner", outer);
+    REQUIRE(inner >= 0);
+    REQUIRE(rows[inner].live_bytes[0] == 1000);
+    REQUIRE(rows[inner].live_count[0] == 1);
+    REQUIRE(rows[inner].live_bytes[1] == 0);
+    REQUIRE(rows[outer].live_bytes[0] == 1000);
+    REQUIRE(rows[outer].live_bytes[1] == 300);
+
+    prof::profiler_record_free(&kept);
+    prof::profiler_record_free(&in_chunk);
+    rows = prof::profiler_report();
+    REQUIRE(rows[find_row(rows, "outer", -1)].live_bytes[0] == 0);
+    REQUIRE(rows[find_row(rows, "outer", -1)].live_bytes[1] == 0);
+}
+
+TEST("profiler health names the task that holds memory") {
+    prof::profiler_reset();
+    char block = 0;
+    {
+        auto outer = prof::profiler::start_task("outer");
+        auto inner = prof::profiler::start_task("inner");
+        prof::profiler_record_alloc(&block, 4096, prof::profiler_memory_kind::host);
+    }
+    std::ostringstream out;
+    prof::profiler_print_report(out, prof::profiler_report_format::text, 0.0);
+    std::ostringstream health_only;
+    prof::profiler_print_report(health_only, prof::profiler_report_format::health, 0.0);
+    prof::profiler_record_free(&block);
+    REQUIRE(health_only.str().rfind("oneDAL profiler health\n", 0) == 0);
+    REQUIRE(health_only.str().find("outer > inner is still allocated") != std::string::npos);
+    REQUIRE(health_only.str().find("Hotspots") == std::string::npos);
+    const std::string text = out.str();
+    REQUIRE(text.find("\nHealth\n") != std::string::npos);
+    REQUIRE(
+        text.find(
+            "4.00 KiB of host memory in 1 block allocated in outer > inner is still allocated") !=
+        std::string::npos);
+    REQUIRE(text.find("host live") != std::string::npos);
+}
+
+TEST("profiler health reports a parallel task whose threads do unequal work") {
+    prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        const daal::profiler_region region = hooks.capture(true);
+        std::vector<std::thread> workers;
+        for (const int length : { 3000, 100, 100 }) {
+            workers.emplace_back([&, length]() {
+                run_chunk(region, [length]() {
+                    auto chunk = prof::profiler::start_threading_task("uneven");
+                    busy_wait(std::chrono::microseconds(length));
+                });
+            });
+        }
+        for (auto& worker : workers) {
+            worker.join();
+        }
+        hooks.finish(region);
+    }
+    std::ostringstream out;
+    prof::profiler_print_report(out, prof::profiler_report_format::text, 0.0);
+    REQUIRE(out.str().find("outer > uneven: load imbalance") != std::string::npos);
+}
+
+TEST("profiler health finds nothing in a plain sequential run") {
+    prof::profiler_reset();
+    {
+        auto outer = prof::profiler::start_task("outer");
+        auto inner = prof::profiler::start_task("inner");
+        busy_wait(std::chrono::microseconds(100));
+    }
+    std::ostringstream out;
+    prof::profiler_print_report(out, prof::profiler_report_format::text, 0.0);
+    REQUIRE(out.str().find("Health\n  nothing unusual found\n") != std::string::npos);
 }
 
 TEST("profiler closes tasks left open above the one being closed") {
@@ -786,6 +888,7 @@ TEST("profiler writes every row with its figures as JSON") {
     REQUIRE(text.find("\"name\":\"outer \\\"quoted\\\"\",\"parent\":-1") != std::string::npos);
     REQUIRE(text.find("\"name\":\"inner\",\"parent\":0,\"depth\":1") != std::string::npos);
     REQUIRE(text.find("\"first_ns\":") != std::string::npos);
+    REQUIRE(text.find("\"live_bytes\":[") != std::string::npos);
 }
 
 TEST("profiler report folds the rows below the threshold into one per parent") {

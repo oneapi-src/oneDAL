@@ -223,7 +223,8 @@ enum class profiler_report_format
     text,   // summary, task tree, hotspots and memory
     tree,   // the task tree alone
     folded, // one line per call path with its self time, for flame graph tools
-    json    // every row of the task tree with all its figures
+    json,   // every row of the task tree with all its figures
+    health  // the health checks and the memory summary alone
 };
 
 inline static profiler_report_format report_format()
@@ -234,6 +235,7 @@ inline static profiler_report_format report_format()
         if (std::strcmp(report, "tree") == 0) return profiler_report_format::tree;
         if (std::strcmp(report, "folded") == 0) return profiler_report_format::folded;
         if (std::strcmp(report, "json") == 0) return profiler_report_format::json;
+        if (std::strcmp(report, "health") == 0) return profiler_report_format::health;
         return profiler_report_format::text;
     }();
     return value;
@@ -369,6 +371,8 @@ struct profiler_report_row
     std::uint64_t free_bytes[2];
     std::uint64_t free_count[2];
     std::uint64_t peak_bytes[2]; // highest live memory above the level at task start
+    std::uint64_t live_bytes[2]; // allocated in the task and not freed when the report was built
+    std::uint64_t live_count[2];
     std::uint64_t transfer_bytes[2];
     std::uint64_t transfer_count[2];
 };

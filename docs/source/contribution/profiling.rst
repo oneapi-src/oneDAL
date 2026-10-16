@@ -93,6 +93,9 @@ with their own environment variables:
 +-----------------------------------------+----------------------------------------------------------------+
 | ``ONEDAL_PROFILER_REPORT=json``         | Print every row of the task tree with all its figures as JSON. |
 +-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_REPORT=health``       | Print only the health checks and the memory summary (see       |
+|                                         | :ref:`profiling-health`).                                      |
++-----------------------------------------+----------------------------------------------------------------+
 | ``ONEDAL_PROFILER_REPORT_AT=call``      | Print a report after each outermost call instead of one at     |
 |                                         | exit (see :ref:`profiling-notebooks`).                         |
 +-----------------------------------------+----------------------------------------------------------------+
@@ -197,6 +200,8 @@ The columns are:
 - ``host alloc``, ``dev alloc``: bytes allocated by the task and its children. Allocations that a
   worker makes outside any task count toward the task that started its parallel region.
 - ``host peak``, ``dev peak``: the highest live memory above the level at the start of the task.
+- ``host live``, ``dev live``: bytes allocated by the task and its children that were not freed
+  when the report was written. They appear only when there are some.
 - ``to dev``, ``to host``: bytes copied between host and device memory.
 
 A task that logs its arguments, such as ``blas.gemm`` with its matrix sizes, gets a row for each
@@ -233,6 +238,33 @@ over time, in the Chrome trace event format. Open the file in https://ui.perfett
 grew. A task with arguments is one slice name, with its arguments in the slice's details, and an arrow
 leads from the task that started each parallel region to every chunk of it. When the number of events
 exceeds ``ONEDAL_PROFILER_TRACE_LIMIT``, later events are dropped and a warning is printed.
+
+.. _profiling-health:
+
+Health
+------
+
+After the hotspots, the analyzer report checks the recorded figures for patterns that usually
+mean something is wrong or slow, and prints one line per finding, the worst first:
+
+- ``warning``: memory still allocated when the report was written, charged to the innermost task
+  that allocated it. At exit this is a leak, unless the program still holds the result; with
+  ``ONEDAL_PROFILER_REPORT_AT=call`` it is memory the call left behind.
+- ``warning``: a parallel task whose busiest thread works at least twice as long as the average one,
+  and that takes at least 5% of the time.
+- ``check``: a parallel task that runs at least 1000 times for less than 2 us on average, where
+  scheduling costs as much as the work.
+- ``check``: a parallel loop that used at most a quarter of the threads for at least 5% of the time:
+  too few iterations, or too large a grain size.
+- ``check``: a task that allocates at least 1000 blocks per run, and an algorithm call that copies
+  data to the host at least 10 times per call.
+- ``note``: a first run at least ten times as long as the others and at least 10 ms long, which on a
+  GPU is kernel compilation.
+- ``note``: a task that spends at least a quarter of its time in parallel regions outside any task,
+  and a profiler that costs at least 5% of the CPU time.
+
+``nothing unusual found`` means no check matched. ``ONEDAL_PROFILER_REPORT=health`` prints the
+findings and the memory summary alone.
 
 .. _profiling-flame-graphs:
 

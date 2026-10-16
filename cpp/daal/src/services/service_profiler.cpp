@@ -185,6 +185,8 @@ struct own_stats
     std::uint64_t free_count[memory_kinds]       = {};
     std::uint64_t transfer_bytes[transfer_kinds] = {};
     std::uint64_t transfer_count[transfer_kinds] = {};
+    std::uint64_t live_bytes[memory_kinds]       = {}; // still allocated when the report is built
+    std::uint64_t live_count[memory_kinds]       = {};
 
     void add(const own_stats & other)
     {
@@ -194,6 +196,8 @@ struct own_stats
             alloc_count[k] += other.alloc_count[k];
             free_bytes[k] += other.free_bytes[k];
             free_count[k] += other.free_count[k];
+            live_bytes[k] += other.live_bytes[k];
+            live_count[k] += other.live_count[k];
         }
         for (int k = 0; k < transfer_kinds; ++k)
         {
@@ -305,7 +309,8 @@ struct block_table
     struct slot
     {
         const void * ptr        = nullptr;
-        std::uint64_t size_kind = 0; // size << 1 | kind
+        std::uint64_t size_kind = 0;       // size << 1 | kind
+        const node * owner      = nullptr; // the task the allocation was charged to, if any
     };
 
     std::vector<slot> slots; // empty or a power of two
@@ -316,7 +321,7 @@ struct block_table
         return static_cast<std::size_t>(((reinterpret_cast<std::uintptr_t>(ptr) >> 4) * 0x9E3779B97F4A7C15ull) >> 16) & mask;
     }
 
-    void insert(const void * ptr, std::uint64_t size_kind)
+    void insert(const void * ptr, std::uint64_t size_kind, const node * owner)
     {
         if (2 * (used + 1) > slots.size()) grow();
         const std::size_t mask = slots.size() - 1;
@@ -325,7 +330,7 @@ struct block_table
             if (slots[i].ptr == nullptr || slots[i].ptr == ptr)
             {
                 used += slots[i].ptr == nullptr ? 1 : 0;
-                slots[i] = { ptr, size_kind };
+                slots[i] = { ptr, size_kind, owner };
                 return;
             }
         }
@@ -365,7 +370,7 @@ struct block_table
         used = 0;
         for (const slot & entry : previous)
         {
-            if (entry.ptr) insert(entry.ptr, entry.size_kind);
+            if (entry.ptr) insert(entry.ptr, entry.size_kind, entry.owner);
         }
     }
 };
@@ -616,7 +621,7 @@ void spill_recent(thread_state & ts, std::size_t first, std::size_t last)
             auto & shard = shard_for(entry.ptr);
             std::lock_guard<std::mutex> lock(shard.mutex);
             freed = take_orphan(entry.ptr);
-            if (!freed) shard.table.insert(entry.ptr, entry.size_kind);
+            if (!freed) shard.table.insert(entry.ptr, entry.size_kind, entry.owner);
         }
         if (freed) charge_free(ts, entry.size_kind);
     }
@@ -908,6 +913,13 @@ own_stats & charge_target(thread_state & ts)
     }
     if (!ts.stack.empty()) return ts.stack.back().task->own;
     return ts.outside;
+}
+
+/// The task an allocation on this thread is charged to right now, as charge_target() picks it, or nullptr.
+const node * charge_owner(const thread_state & ts)
+{
+    if (!ts.chunks.empty() && ts.stack.size() == ts.chunks.back().base) return ts.chunks.back().parent;
+    return ts.stack.empty() ? nullptr : ts.stack.back().task;
 }
 
 void record_sample(thread_state & ts, int kind, std::int64_t live)
@@ -1304,6 +1316,26 @@ merged_tree build_tree()
         for (const auto & entry : ts->anchored) resolve(tree, map, entry.first)->own.add(entry.second);
         tree.outside.add(ts->outside);
     }
+    // Blocks still allocated, charged to the task that allocated them.
+    const auto add_live = [&](const block_table::slot & entry) {
+        const int k        = static_cast<int>(entry.size_kind & 1);
+        own_stats & target = entry.owner ? resolve(tree, map, entry.owner)->own : tree.outside;
+        target.live_bytes[k] += entry.size_kind >> 1;
+        target.live_count[k] += 1;
+    };
+    for (auto & shard : global.shards)
+    {
+        std::lock_guard<std::mutex> shard_lock(shard.mutex);
+        for (const auto & entry : shard.table.slots)
+        {
+            if (entry.ptr) add_live(entry);
+        }
+    }
+    for (const auto & ts : global.threads)
+    {
+        for (const auto & entry : ts->recent) add_live(entry);
+    }
+
     region_map regions;
     for (const auto & ts : global.threads)
     {
@@ -1352,6 +1384,8 @@ void flatten(const merged & m, std::int64_t parent, std::int64_t depth, double s
         row.free_bytes[k]  = m.inclusive.free_bytes[k];
         row.free_count[k]  = m.inclusive.free_count[k];
         row.peak_bytes[k]  = m.peak[k];
+        row.live_bytes[k]  = m.inclusive.live_bytes[k];
+        row.live_count[k]  = m.inclusive.live_count[k];
     }
     for (int k = 0; k < transfer_kinds; ++k)
     {
@@ -1622,6 +1656,8 @@ void print_json(std::ostream & out, const std::vector<profiler_report_row> & row
         pair("free_bytes", row.free_bytes);
         pair("free_count", row.free_count);
         pair("peak_bytes", row.peak_bytes);
+        pair("live_bytes", row.live_bytes);
+        pair("live_count", row.live_count);
         pair("transfer_bytes", row.transfer_bytes);
         pair("transfer_count", row.transfer_count);
         out << '}';
@@ -1673,6 +1709,8 @@ std::vector<profiler_report_row> fold_small_rows(const std::vector<profiler_repo
                 {
                     rest.alloc_bytes[k] += rows[i].alloc_bytes[k];
                     rest.peak_bytes[k] = std::max(rest.peak_bytes[k], rows[i].peak_bytes[k]);
+                    rest.live_bytes[k] += rows[i].live_bytes[k];
+                    rest.live_count[k] += rows[i].live_count[k];
                 }
                 for (int k = 0; k < transfer_kinds; ++k) rest.transfer_bytes[k] += rows[i].transfer_bytes[k];
                 continue;
@@ -1695,6 +1733,145 @@ std::vector<profiler_report_row> fold_small_rows(const std::vector<profiler_repo
     };
     add(roots, -1, 0);
     return kept;
+}
+
+/// Checks the recorded figures for patterns that usually mean something is wrong or slow, and
+/// writes one line per finding, worst first.
+///
+/// @param[in] rows         The task tree, as profiler_report() returns it
+/// @param[in] total        Profiled wall time in ns
+/// @param[in] cost_share   The profiler's own cost as a share of the profiled CPU time
+void print_health(std::ostream & out, const std::vector<profiler_report_row> & rows, std::uint64_t total, double cost_share)
+{
+    struct finding
+    {
+        int severity; // 2 warning, 1 check, 0 note
+        std::string text;
+    };
+    std::vector<finding> findings;
+    const auto share    = [&](std::uint64_t t) { return total > 0 ? double(t) / double(total) : 0.0; };
+    const auto describe = [&](std::size_t i) {
+        std::string path = rows[i].name;
+        for (std::int64_t p = rows[i].parent, hops = 0; p >= 0 && hops < 2; p = rows[p].parent, ++hops) path = rows[p].name + " > " + path;
+        return path;
+    };
+    const auto is_task = [&](std::size_t i) { return rows[i].name.front() != '('; };
+    // A first run at least ten times as long as the average of the others, and at least 10 ms.
+    const auto slow_first = [&](std::size_t i) {
+        const auto & row = rows[i];
+        if (row.count < 3 || row.first_ns < 10000000 || !is_task(i)) return false;
+        const std::uint64_t rest = (row.cpu_ns > row.first_ns ? row.cpu_ns - row.first_ns : 0) / (row.count - 1);
+        return row.first_ns >= 10 * std::max<std::uint64_t>(rest, 1);
+    };
+
+    std::uint64_t threads = 1;
+    for (const auto & row : rows) threads = std::max(threads, row.threads);
+
+    static const char * kinds[memory_kinds] = { "host", "device" };
+    for (std::size_t i = 0; i < rows.size(); ++i)
+    {
+        const auto & row = rows[i];
+        for (int k = 0; k < memory_kinds; ++k)
+        {
+            // The innermost row that holds the memory: a child holding all of it is reported instead.
+            if (row.live_bytes[k] == 0) continue;
+            bool child_holds_all = false;
+            for (std::size_t j = i + 1; j < rows.size() && rows[j].depth > row.depth; ++j)
+            {
+                child_holds_all |= rows[j].parent == static_cast<std::int64_t>(i) && rows[j].live_bytes[k] == row.live_bytes[k];
+            }
+            if (child_holds_all) continue;
+            std::ostringstream text;
+            text << format_bytes(row.live_bytes[k]) << " of " << kinds[k] << " memory in " << row.live_count[k]
+                 << (row.live_count[k] == 1 ? " block" : " blocks") << " allocated in " << describe(i)
+                 << " is still allocated: a leak, unless it is a result the caller still holds";
+            findings.push_back({ 2, text.str() });
+        }
+        if (!is_task(i)) continue;
+        const std::uint64_t per_run = row.count > 0 ? row.cpu_ns / row.count : 0;
+        if (row.parallel && row.threads > 1 && row.mean_thread_ns > 0 && share(row.time_ns) >= 0.05)
+        {
+            const double imbalance = double(row.busiest_ns) / double(row.mean_thread_ns);
+            if (imbalance >= 2.0)
+            {
+                std::ostringstream text;
+                text << std::fixed << std::setprecision(1) << describe(i) << ": load imbalance " << imbalance
+                     << ", the busiest thread works that many times as long as the average one (" << percent(row.time_ns, total) << "% of the time)";
+                findings.push_back({ 2, text.str() });
+            }
+        }
+        if (row.parallel && row.count >= 1000 && per_run < 2000 && share(row.cpu_ns / std::max<std::uint64_t>(row.threads, 1)) >= 0.01)
+        {
+            std::ostringstream text;
+            text << describe(i) << ": " << row.count << " runs of " << format_time(per_run)
+                 << " on average; work this fine-grained spends much of its time scheduling, a larger grain size helps";
+            findings.push_back({ 1, text.str() });
+        }
+        if (row.name.rfind("parallel loop: ", 0) == 0 && threads >= 8 && row.threads > 0 && row.threads * 4 <= threads && share(row.time_ns) >= 0.05)
+        {
+            std::ostringstream text;
+            text << describe(i) << ": ran on at most " << row.threads << " of " << threads << " threads for " << percent(row.time_ns, total)
+                 << "% of the time; the loop has too few iterations or too large a grain to use the rest";
+            findings.push_back({ 1, text.str() });
+        }
+        if (slow_first(i))
+        {
+            bool child_explains = false;
+            for (std::size_t j = i + 1; j < rows.size() && rows[j].depth > row.depth; ++j)
+            {
+                child_explains |= rows[j].parent == static_cast<std::int64_t>(i) && slow_first(j) && 10 * rows[j].first_ns >= 9 * row.first_ns;
+            }
+            const std::uint64_t rest = (row.cpu_ns > row.first_ns ? row.cpu_ns - row.first_ns : 0) / (row.count - 1);
+            if (!child_explains)
+            {
+                std::ostringstream text;
+                text << describe(i) << ": the first run took " << format_time(row.first_ns) << ", the others " << format_time(rest)
+                     << " on average; on a GPU that is kernel compilation, which a warm-up call or a kernel cache avoids";
+                findings.push_back({ 0, text.str() });
+            }
+        }
+        const std::uint64_t allocs = row.alloc_count[0] + row.alloc_count[1];
+        if (row.count > 0 && allocs / row.count >= 1000 && row.depth > 0)
+        {
+            std::ostringstream text;
+            text << describe(i) << ": " << allocs / row.count << " allocations per run; allocating once outside the loop is usually faster";
+            findings.push_back({ 1, text.str() });
+        }
+        if (row.transfer_count[1] >= 100 && row.count > 0 && row.transfer_count[1] / row.count >= 10 && row.depth == 0)
+        {
+            std::ostringstream text;
+            text << describe(i) << ": " << row.transfer_count[1] / row.count << " copies to the host per call ("
+                 << format_bytes(row.transfer_bytes[1] / row.count) << "); each one waits for the device";
+            findings.push_back({ 1, text.str() });
+        }
+    }
+    for (std::size_t i = 0; i < rows.size(); ++i)
+    {
+        const auto & row = rows[i];
+        if (row.name != waiting_row_name || row.parent < 0) continue;
+        const auto & parent = rows[row.parent];
+        if (parent.time_ns > 0 && double(row.time_ns) >= 0.25 * double(parent.time_ns) && share(row.time_ns) >= 0.05)
+        {
+            std::ostringstream text;
+            text << describe(static_cast<std::size_t>(row.parent)) << ": " << percent(row.time_ns, parent.time_ns)
+                 << "% of it is spent in parallel regions outside any task, mostly waiting for the slowest thread or in loops without a known call "
+                    "site";
+            findings.push_back({ 0, text.str() });
+        }
+    }
+    if (cost_share >= 0.05)
+    {
+        std::ostringstream text;
+        text << "the profiler itself took about " << std::fixed << std::setprecision(1) << 100.0 * cost_share
+             << "% of the CPU time; ONEDAL_PROFILER_MEMORY=0 removes the part spent on allocations";
+        findings.push_back({ 0, text.str() });
+    }
+
+    std::stable_sort(findings.begin(), findings.end(), [](const finding & a, const finding & b) { return a.severity > b.severity; });
+    static const char * labels[] = { "note   ", "check  ", "warning" };
+    out << "\nHealth\n";
+    if (findings.empty()) out << "  nothing unusual found\n";
+    for (const auto & f : findings) out << "  " << labels[f.severity] << "  " << f.text << '\n';
 }
 
 } // namespace
@@ -1749,7 +1926,7 @@ DAAL_EXPORT void profiler_record_alloc(const void * ptr, std::size_t bytes, prof
     settle_orphans(ts);
     ++ts.memory_records;
     if (ts.recent.size() == max_recent_blocks) spill_recent(ts, 0, max_recent_blocks / 2);
-    ts.recent.push_back({ ptr, (static_cast<std::uint64_t>(bytes) << 1) | static_cast<std::uint64_t>(k) });
+    ts.recent.push_back({ ptr, (static_cast<std::uint64_t>(bytes) << 1) | static_cast<std::uint64_t>(k), charge_owner(ts) });
     own_stats & own = charge_target(ts);
     own.alloc_bytes[k] += bytes;
     own.alloc_count[k] += 1;
@@ -1825,10 +2002,15 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
         if (row.depth == 0) total += row.time_ns;
     }
     bool any_memory[memory_kinds] = {};
+    bool any_live[memory_kinds]   = {};
     bool any_transfer             = false;
     for (const auto & row : rows)
     {
-        for (int k = 0; k < memory_kinds; ++k) any_memory[k] |= row.alloc_count[k] > 0 || row.free_count[k] > 0;
+        for (int k = 0; k < memory_kinds; ++k)
+        {
+            any_memory[k] |= row.alloc_count[k] > 0 || row.free_count[k] > 0;
+            any_live[k] |= row.live_count[k] > 0;
+        }
         any_transfer |= row.transfer_count[0] > 0 || row.transfer_count[1] > 0;
     }
 
@@ -1853,6 +2035,16 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
         out << std::flush;
         return;
     }
+    if (format == profiler_report_format::health)
+    {
+        out << "oneDAL profiler health\n";
+        print_health(out, rows, total, double(overhead) / double(std::max<std::uint64_t>(total_cpu, 1)));
+        print_memory_summary(out, tree);
+        out << std::flush;
+        return;
+    }
+    // The health checks see every row, the tree only the rows above the threshold.
+    const std::vector<profiler_report_row> all_rows = rows;
     if (min_percent > 0.0) rows = fold_small_rows(rows, static_cast<std::uint64_t>(double(total) * min_percent / 100.0));
 
     const bool tree_only = format != profiler_report_format::text;
@@ -1877,6 +2069,7 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
         out << "  time: wall time, a parallel task taking its busiest thread in each run; self: time not in child tasks\n";
         if (any_memory[0] || any_memory[1])
             out << "  alloc: bytes allocated in the task and its children; peak: highest live memory above the task's start\n";
+        if (any_live[0] || any_live[1]) out << "  live: allocated in the task and its children and not freed when this report was written\n";
         out << '\n';
     }
 
@@ -1885,7 +2078,9 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
     header << std::setw(10) << "time" << std::setw(7) << "%" << std::setw(10) << "self" << std::setw(9) << "calls" << std::setw(10) << "avg"
            << std::setw(10) << "max" << std::setw(10) << "first" << std::setw(8) << "thr";
     if (any_memory[0]) header << std::setw(11) << "host alloc" << std::setw(11) << "host peak";
+    if (any_live[0]) header << std::setw(11) << "host live";
     if (any_memory[1]) header << std::setw(11) << "dev alloc" << std::setw(11) << "dev peak";
+    if (any_live[1]) header << std::setw(11) << "dev live";
     if (any_transfer) header << std::setw(11) << "to dev" << std::setw(11) << "to host";
     header << "  task";
     out << header.str() << '\n';
@@ -1928,7 +2123,9 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
             << format_time(row.max_ns) << std::setw(10) << (row.name.front() == '(' ? std::string("-") : format_time(row.first_ns)) << std::setw(8)
             << row.threads;
         if (any_memory[0]) out << std::setw(11) << format_bytes(row.alloc_bytes[0]) << std::setw(11) << format_bytes(row.peak_bytes[0]);
+        if (any_live[0]) out << std::setw(11) << format_bytes(row.live_bytes[0]);
         if (any_memory[1]) out << std::setw(11) << format_bytes(row.alloc_bytes[1]) << std::setw(11) << format_bytes(row.peak_bytes[1]);
+        if (any_live[1]) out << std::setw(11) << format_bytes(row.live_bytes[1]);
         if (any_transfer) out << std::setw(11) << format_bytes(row.transfer_bytes[0]) << std::setw(11) << format_bytes(row.transfer_bytes[1]);
         out << "  " << prefix << row.name;
         if (row.parallel && row.threads > 1 && row.mean_thread_ns > 0)
@@ -1968,6 +2165,7 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
             << hotspots[i].second.count << "  " << hotspots[i].first << '\n';
     }
 
+    print_health(out, all_rows, total, double(overhead) / double(std::max<std::uint64_t>(total_cpu, 1)));
     print_memory_summary(out, tree);
     out << std::flush;
 }
@@ -2008,6 +2206,16 @@ DAAL_EXPORT void profiler_reset()
 {
     auto & global = state();
     std::lock_guard<std::mutex> lock(global.threads_mutex);
+    // Live blocks stay recorded, but the tasks they were charged to are dropped.
+    for (auto & shard : global.shards)
+    {
+        std::lock_guard<std::mutex> shard_lock(shard.mutex);
+        for (auto & entry : shard.table.slots) entry.owner = nullptr;
+    }
+    for (auto & ts : global.threads)
+    {
+        for (auto & entry : ts->recent) entry.owner = nullptr;
+    }
     for (auto & ts : global.threads)
     {
         ts->root.children.clear();
@@ -2026,6 +2234,7 @@ DAAL_EXPORT void profiler_reset()
         ts->charged_anchor = nullptr;
         ts->charged        = nullptr;
         ts->trace_slots    = 0;
+        ts->memory_records = 0;
     }
     for (int k = 0; k < memory_kinds; ++k)
     {
