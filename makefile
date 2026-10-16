@@ -477,6 +477,26 @@ containing = $(foreach v,$2,$(if $(findstring $1,$v),$v))
 notcontaining = $(foreach v,$2,$(if $(findstring $1,$v),,$v))
 cpy = cp -fp "$<" "$@"
 mov = mv -f "$<" "$@"
+
+# Windows objects are compiled with dllexport, so that the compiler emits what an exported class
+# needs, and coff_exports then moves their /EXPORT directives into <object>.exports: the static
+# libraries archive these objects and must not export anything, and each DLL gets the same exports
+# from a .def file built from the lists of its own objects.
+ifdef OS_is_win
+COFF_EXPORTS := $(WORKDIR)/coff_exports.exe
+$(COFF_EXPORTS): dev/make/tools/coff_exports.cpp | $(WORKDIR)/. ; $(COMPILER.$(_OS).$(COMPILER)) -O2 $< -Fo$(@:.exe=.$o) -Fe$@
+endif
+
+# Used as $(eval $(call .exports_via_def,objects,DLL,link list of the DLL))
+define .exports_via_def
+ifdef OS_is_win
+$1: C.COMPILE.post = && $$(COFF_EXPORTS) move $$@ $$(@:%.$$o=%.exports)
+$1: $$(COFF_EXPORTS)
+$(3:%_link.txt=%_exports.def): $3 $$(COFF_EXPORTS) ; $$(COFF_EXPORTS) def $$< $$@
+$2: $(3:%_link.txt=%_exports.def)
+endif
+endef
+
 CORE.tmpdir_a := $(WORKDIR)/core_static
 CORE.tmpdir_y := $(WORKDIR)/core_dynamic
 CORE.srcs     := $(notdir $(wildcard $(CORE.srcdirs:%=%/*.cpp)))
@@ -497,7 +517,7 @@ CORE.objs_y     := $(CORE.objs_y) $(CORE.objs_y_tpl)
 -include $(CORE.tmpdir_y)/*.d
 
 # The static libraries archive the shared objects instead of compiling every source twice. On
-# Windows this keeps their dllexport attributes, as the Bazel static libraries do.
+# Windows the objects keep no export directives: see .exports_via_def.
 CORE.objs_a.lib := $(filter-out %core_threading_win_dll.$o,$(CORE.objs_y))
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.txt): $(CORE.objs_a.lib) | $(CORE.tmpdir_a)/. ; $(WRITE.PREREQS)
 $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a):  LOPT:=
@@ -515,6 +535,7 @@ endif
 $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt): $(CORE.objs_y) $(if $(OS_is_win),$(CORE.tmpdir_y)/dll.res,) | $(CORE.tmpdir_y)/. ; $(WRITE.PREREQS)
 $(WORKDIR.lib)/$(core_y):                   $(daaldep.math_backend.shared_link_deps) $(VTUNESDK.LIBS_A) \
                                             $(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(eval $(call .exports_via_def,$(CORE.objs_y),$(WORKDIR.lib)/$(core_y),$(CORE.tmpdir_y)/$(core_y:%.$y=%_link.txt)))
 
 $(CORE.objs_y): $(CORE.tmpdir_y)/inc_y_folders.txt
 $(CORE.objs_y): COPT += $(-fPIC) $(-cxx17) $(-optlevel) $(-Zl) $(-visibility) $(-sanitize) $(-DEBC) $(-DMKL_ILP64) $(-DPROFILER) $(-DSTDALLOC) $(-DGCOV_BUILD)
@@ -722,6 +743,7 @@ $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt): \
 $(WORKDIR.lib)/$(oneapi_y): \
     $(daaldep.math_backend.shared_link_deps) \
     $(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(eval $(call .exports_via_def,$(ONEAPI.objs_y.lib),$(WORKDIR.lib)/$(oneapi_y),$(ONEAPI.tmpdir_y)/$(oneapi_y:%.$y=%_link.txt)))
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(oneapi_y): LOPT += $(-lsanitize)
@@ -737,6 +759,7 @@ $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt): \
 $(WORKDIR.lib)/$(parameters_y): \
     $(WORKDIR.lib)/$(oneapi_y) $(daaldep.ipp) $(daaldep.vml) $(daaldep.mkl) \
     $(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt) ; $(LINK.DYNAMIC) ; $(LINK.DYNAMIC.POST)
+$(eval $(call .exports_via_def,$(PARAMETERS.objs_y.filtered),$(WORKDIR.lib)/$(parameters_y),$(ONEAPI.tmpdir_y)/$(parameters_y:%.$y=%_link.txt)))
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(-fPIC)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(daaldep.rt.seq)
 $(WORKDIR.lib)/$(parameters_y): LOPT += $(-lsanitize)
