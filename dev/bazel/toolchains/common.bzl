@@ -307,6 +307,10 @@ def _get_unfiltered_default_compiler_options(reqs, is_dpcc, category):
 _UNFILTERED_OPTION_PREFIXES = [
     "--target=",
     "-march=",
+    # Not emitted today, but it is the other way to name an aarch64 target
+    # (`-mcpu=` sets the architecture there, not only the tuning), so the probe
+    # must not be the thing that decides whether it survives.
+    "-mcpu=",
 ]
 
 def _is_unfiltered_option(option):
