@@ -515,6 +515,7 @@ CORE.objs_y_tpl := $(foreach ccc,$(USECPUS.files),$(subst _cpu,_cpu_$(ccc),$(COR
 CORE.objs_y     := $(CORE.objs_y) $(CORE.objs_y_tpl)
 
 -include $(CORE.tmpdir_y)/*.d
+-include $(CORE.tmpdir_a)/$(core_a:%.$a=%_link.$a).d
 
 # The static libraries archive the shared objects instead of compiling every source twice. On
 # Windows the objects keep no export directives: see .exports_via_def.
