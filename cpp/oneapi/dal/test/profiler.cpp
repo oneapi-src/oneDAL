@@ -54,23 +54,28 @@ static void busy_wait(std::chrono::microseconds length) {
     }
 }
 
-// Runs `body` on a new thread and keeps the task it opens alive until `release()` is called,
-// so several workers can hold open tasks at the same time.
+// Runs `body` on a new thread, inside a chunk of `region`, and keeps the task it opens alive until
+// `release()` is called, so several workers can hold open tasks at the same time.
 class held_worker {
 public:
     template <typename Body>
-    explicit held_worker(Body body)
-            : thread_([this, body]() {
-                  auto task = body();
+    held_worker(const daal::profiler_region& region, Body body)
+            : thread_([this, region, body]() {
+                  const auto& hooks = prof::profiler_threading_hooks();
+                  hooks.enter(region);
                   {
-                      std::lock_guard<std::mutex> lock(m_);
-                      opened_ = true;
+                      auto task = body();
+                      {
+                          std::lock_guard<std::mutex> lock(m_);
+                          opened_ = true;
+                      }
+                      cv_.notify_all();
+                      std::unique_lock<std::mutex> lock(m_);
+                      cv_.wait(lock, [this] {
+                          return released_;
+                      });
                   }
-                  cv_.notify_all();
-                  std::unique_lock<std::mutex> lock(m_);
-                  cv_.wait(lock, [this] {
-                      return released_;
-                  });
+                  hooks.leave();
               }) {
         std::unique_lock<std::mutex> lock(m_);
         cv_.wait(lock, [this] {
@@ -94,6 +99,15 @@ private:
     bool released_ = false;
     std::thread thread_;
 };
+
+// Calls the threading layer's hooks around `body`, as it does around a chunk of a parallel region.
+template <typename Body>
+static void run_chunk(const daal::profiler_region& region, Body body) {
+    const auto& hooks = prof::profiler_threading_hooks();
+    hooks.enter(region);
+    body();
+    hooks.leave();
+}
 
 TEST("profiler merges repeated siblings and splits self time from child time") {
     prof::profiler_reset();
@@ -126,18 +140,21 @@ TEST("profiler merges repeated siblings and splits self time from child time") {
 
 TEST("profiler attaches concurrent worker tasks to the task that started the region") {
     prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
     {
         auto outer = prof::profiler::start_task("outer");
+        const daal::profiler_region region = hooks.capture(true);
 
         // Worker threads have nothing open on their own stacks, like TBB workers joining a region.
-        held_worker first([]() {
+        held_worker first(region, []() {
             return prof::profiler::start_threading_task("worker");
         });
-        held_worker second([]() {
+        held_worker second(region, []() {
             return prof::profiler::start_threading_task("worker");
         });
         first.release();
         second.release();
+        hooks.finish(region);
 
         // A task opened after the region still nests under `outer`, not under a worker task.
         auto after = prof::profiler::start_task("after");
@@ -161,13 +178,18 @@ TEST("profiler attaches concurrent worker tasks to the task that started the reg
 
 TEST("profiler nests a worker's regular task under its own threading task") {
     prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
     {
         auto outer = prof::profiler::start_task("outer");
-        std::thread worker([]() {
-            auto threading = prof::profiler::start_threading_task("body");
-            auto inner = prof::profiler::start_task("inner");
+        const daal::profiler_region region = hooks.capture(true);
+        std::thread worker([&]() {
+            run_chunk(region, []() {
+                auto threading = prof::profiler::start_threading_task("body");
+                auto inner = prof::profiler::start_task("inner");
+            });
         });
         worker.join();
+        hooks.finish(region);
     }
     const auto rows = prof::profiler_report();
 
@@ -177,15 +199,6 @@ TEST("profiler nests a worker's regular task under its own threading task") {
     const auto inner = find_row(rows, "inner", body);
     REQUIRE(inner >= 0);
     REQUIRE(rows[inner].parallel);
-}
-
-// Calls the threading layer's hooks around `body`, as it does around a chunk of a parallel region.
-template <typename Body>
-static void run_chunk(const daal::profiler_region& region, Body body) {
-    const auto& hooks = prof::profiler_threading_hooks();
-    hooks.enter(region);
-    body();
-    hooks.leave();
 }
 
 TEST("profiler attaches each chunk to the task its region was started from") {
@@ -337,18 +350,25 @@ TEST("profiler takes a chunk run while the thread waited elsewhere out of the wa
 
 TEST("profiler takes the busiest thread of each run of a parallel region") {
     prof::profiler_reset();
+    const auto& hooks = prof::profiler_threading_hooks();
     for (int run = 0; run < 2; ++run) {
         auto outer = prof::profiler::start_task("outer");
-        std::thread slow([]() {
-            auto chunk = prof::profiler::start_threading_task("chunk");
-            busy_wait(std::chrono::microseconds(3000));
+        const daal::profiler_region region = hooks.capture(true);
+        std::thread slow([&]() {
+            run_chunk(region, []() {
+                auto chunk = prof::profiler::start_threading_task("chunk");
+                busy_wait(std::chrono::microseconds(3000));
+            });
         });
         slow.join();
-        std::thread fast([]() {
-            auto chunk = prof::profiler::start_threading_task("chunk");
-            busy_wait(std::chrono::microseconds(1000));
+        std::thread fast([&]() {
+            run_chunk(region, []() {
+                auto chunk = prof::profiler::start_threading_task("chunk");
+                busy_wait(std::chrono::microseconds(1000));
+            });
         });
         fast.join();
+        hooks.finish(region);
     }
     const auto rows = prof::profiler_report();
 
@@ -408,23 +428,33 @@ TEST("profiler charges memory to the open task and counts it in every enclosing 
 TEST(
     "profiler charges a worker's allocations outside any task to the task that started the region") {
     prof::profiler_reset();
-    char block = 0;
+    const auto& hooks = prof::profiler_threading_hooks();
+    char small_block = 0, large_block = 0;
+    const std::size_t large = std::size_t(1) << 20;
     {
         auto outer = prof::profiler::start_task("outer");
+        const daal::profiler_region region = hooks.capture(true);
         std::thread worker([&]() {
-            prof::profiler_record_alloc(&block, 256, prof::profiler_memory_kind::host);
-            prof::profiler_record_free(&block);
+            run_chunk(region, [&]() {
+                prof::profiler_record_alloc(&small_block, 256, prof::profiler_memory_kind::host);
+                prof::profiler_record_alloc(&large_block, large, prof::profiler_memory_kind::host);
+                prof::profiler_record_free(&large_block);
+                prof::profiler_record_free(&small_block);
+            });
         });
         worker.join();
+        hooks.finish(region);
     }
     const auto rows = prof::profiler_report();
 
     const auto outer = find_row(rows, "outer", -1);
     REQUIRE(outer >= 0);
-    REQUIRE(rows[outer].alloc_bytes[0] == 256);
-    REQUIRE(rows[outer].free_bytes[0] == 256);
-    // The worker allocated while `outer` was the innermost sequential task, so it shows in its peak.
-    REQUIRE(rows[outer].peak_bytes[0] == 256);
+    REQUIRE(rows[outer].alloc_bytes[0] == large + 256);
+    REQUIRE(rows[outer].free_bytes[0] == large + 256);
+    // A worker's small blocks reach the process-wide count in batches; a large one at once, so it
+    // shows in the peak of the task that started the region.
+    REQUIRE(rows[outer].peak_bytes[0] >= large);
+    REQUIRE(rows[outer].peak_bytes[0] <= large + 256);
 }
 
 TEST("profiler closes tasks left open above the one being closed") {
@@ -528,6 +558,82 @@ TEST("profiler report lists the tree and the hotspots") {
     REQUIRE(text.find("  outer\n") != std::string::npos);
     REQUIRE(text.find("`-- inner\n") != std::string::npos);
     REQUIRE(text.find("Hotspots by self time") != std::string::npos);
+}
+
+TEST("profiler keeps the tasks of independent calling threads apart") {
+    prof::profiler_reset();
+    std::mutex m;
+    std::condition_variable cv;
+    int step = 0;
+    const auto wait_for = [&](int value) {
+        std::unique_lock<std::mutex> lock(m);
+        cv.wait(lock, [&] {
+            return step >= value;
+        });
+    };
+    const auto advance = [&]() {
+        {
+            std::lock_guard<std::mutex> lock(m);
+            ++step;
+        }
+        cv.notify_all();
+    };
+    // Two threads call oneDAL at once, as two Python threads may; their tasks overlap in time and
+    // close out of order.
+    std::thread first([&]() {
+        {
+            auto fit = prof::profiler::start_task("fit_first");
+            advance();
+            wait_for(2);
+        }
+        advance();
+    });
+    std::thread second([&]() {
+        wait_for(1);
+        auto fit = prof::profiler::start_task("fit_second");
+        advance();
+        wait_for(3);
+    });
+    first.join();
+    second.join();
+    const auto rows = prof::profiler_report();
+
+    const auto first_fit = find_row(rows, "fit_first", -1);
+    const auto second_fit = find_row(rows, "fit_second", -1);
+    REQUIRE(first_fit >= 0);
+    REQUIRE(second_fit >= 0);
+    REQUIRE(!rows[first_fit].parallel);
+    REQUIRE(!rows[second_fit].parallel);
+    REQUIRE(task_count(rows) == 2);
+}
+
+TEST("profiler matches every free to its allocation across many live blocks") {
+    prof::profiler_reset();
+    // Enough blocks to grow the address table several times and to collide in it.
+    constexpr std::size_t count = 50000;
+    std::vector<char> blocks(count);
+    std::vector<std::size_t> order(count);
+    for (std::size_t i = 0; i < count; ++i) {
+        order[i] = (i * 7919) % count;
+    }
+    {
+        auto outer = prof::profiler::start_task("outer");
+        for (std::size_t i = 0; i < count; ++i) {
+            prof::profiler_record_alloc(&blocks[i], i + 1, prof::profiler_memory_kind::host);
+        }
+        for (const std::size_t i : order) {
+            prof::profiler_record_free(&blocks[i]);
+        }
+    }
+    const auto rows = prof::profiler_report();
+    const auto outer = find_row(rows, "outer", -1);
+    REQUIRE(outer >= 0);
+    const std::uint64_t bytes = count * (count + 1) / 2;
+    REQUIRE(rows[outer].alloc_count[0] == count);
+    REQUIRE(rows[outer].free_count[0] == count);
+    REQUIRE(rows[outer].alloc_bytes[0] == bytes);
+    REQUIRE(rows[outer].free_bytes[0] == bytes);
+    REQUIRE(rows[outer].peak_bytes[0] == bytes);
 }
 
 } // namespace oneapi::dal::test

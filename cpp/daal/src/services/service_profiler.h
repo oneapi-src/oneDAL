@@ -22,6 +22,7 @@
 */
 #pragma once
 
+#include <atomic>
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
@@ -62,16 +63,21 @@
 
 // LOGGER OUTPUT
 // Logs a call of a profiled task: where it was called from, then the streamed message. On stderr each
-// call site is logged once (see profiler_log).
-#define DAAL_PROFILER_LOG(...)                                                                                  \
-    do                                                                                                          \
-    {                                                                                                           \
-        std::ostringstream profiler_log_line_;                                                                  \
-        profiler_log_line_ << "-----------------------------------------------------------------------------\n" \
-                           << "File: " << __FILE__ << ", Line: " << __LINE__ << '\n';                           \
-        if (daal::internal::is_service_debug_enabled()) profiler_log_line_ << PRETTY_FUNCTION << '\n';          \
-        profiler_log_line_ << __VA_ARGS__;                                                                      \
-        daal::internal::profiler_log(__FILE__ ":" DAAL_PROFILER_STRINGIFY(__LINE__), profiler_log_line_.str()); \
+// call site is logged once (see profiler_log), and is not formatted again after that.
+#define DAAL_PROFILER_LOG(...)                                                                                      \
+    do                                                                                                              \
+    {                                                                                                               \
+        static std::atomic<bool> profiler_site_logged_ { false };                                                   \
+        if (daal::internal::is_every_call_logged()                                                                  \
+            || (!profiler_site_logged_.load(std::memory_order_relaxed) && !profiler_site_logged_.exchange(true)))   \
+        {                                                                                                           \
+            std::ostringstream profiler_log_line_;                                                                  \
+            profiler_log_line_ << "-----------------------------------------------------------------------------\n" \
+                               << "File: " << __FILE__ << ", Line: " << __LINE__ << '\n';                           \
+            if (daal::internal::is_service_debug_enabled()) profiler_log_line_ << PRETTY_FUNCTION << '\n';          \
+            profiler_log_line_ << __VA_ARGS__;                                                                      \
+            daal::internal::profiler_log(__FILE__ ":" DAAL_PROFILER_STRINGIFY(__LINE__), profiler_log_line_.str()); \
+        }                                                                                                           \
     } while (0)
 
 // ARGS LOGGING
@@ -259,6 +265,16 @@ inline static bool is_tree_only_report()
     static const bool value = [] {
         const char * report = std::getenv("ONEDAL_PROFILER_REPORT");
         return report && std::strcmp(report, "tree") == 0;
+    }();
+    return value;
+}
+
+/// Whether ONEDAL_PROFILER_OUTPUT asks for every call to be logged, rather than each call site once.
+inline static bool is_every_call_logged()
+{
+    static const bool value = [] {
+        const char * path = std::getenv("ONEDAL_PROFILER_OUTPUT");
+        return path && *path;
     }();
     return value;
 }

@@ -37,6 +37,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <queue>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
@@ -120,7 +121,7 @@ struct node
     std::string name;
     const char * key = nullptr; // the pointer first seen for this name, compared before the string
     node * parent    = nullptr; // nullptr for a top-level task of the thread
-    node * anchor    = nullptr; // for a top-level task of a worker: the task that started the region
+    node * anchor    = nullptr; // for the first task of a chunk: the task that started the region
     bool threading   = false;
     bool in_parallel = false; // ran inside a parallel region at least once
     std::vector<node *> children;
@@ -137,9 +138,7 @@ struct node
     std::uint64_t wait_max           = 0;
     std::uint64_t wait_min           = UINT64_MAX;
     own_stats own;
-
-    // Run of the innermost sequential task, published for the workers that attach to this task.
-    std::atomic<std::uint64_t> current_run { 0 };
+    bool logged = false; // the logger or the tracer wrote this task once already
 
     // For a task in a parallel region: this thread's time per run of the region, so the report can
     // take the busiest thread of each run rather than of the whole program.
@@ -147,8 +146,18 @@ struct node
     std::uint64_t unsplit_total = 0; // time recorded after `runs` reached max_runs_per_node
 };
 
-constexpr std::size_t max_runs_per_node = 1 << 16;
-constexpr std::size_t max_regions       = 1 << 22;
+constexpr std::size_t max_runs_per_node      = 1 << 16;
+constexpr std::size_t max_regions_per_thread = 1 << 18;
+
+// Allocations on a thread inside a parallel region reach the process-wide live count in steps of
+// this size, so threads do not contend on it; larger blocks are counted at once.
+constexpr std::int64_t live_batch_bytes = 64 << 10;
+
+// Timeline events a thread reserves at a time from the process-wide limit.
+constexpr std::int64_t trace_reserve = 1024;
+
+// Blocks a thread keeps in its own table before it moves them to the shared one.
+constexpr std::size_t max_recent_blocks = 128;
 
 struct frame
 {
@@ -160,7 +169,6 @@ struct frame
     bool counts_in_parent                    = false; // false for the first task of a chunk that interrupted other work
     bool in_parallel                         = false;
     bool sequential                          = false; // sequential tasks track memory process-wide, others per thread
-    node * previous_anchor                   = nullptr;
     std::int64_t live_at_start[memory_kinds] = {};
     std::int64_t peak_live[memory_kinds]     = {}; // per-thread tasks only
     std::int64_t outer_peak[memory_kinds]    = {}; // sequential tasks only: the enclosing task's peak so far
@@ -190,6 +198,85 @@ struct chunk
     std::size_t pause_from = 0;     // first stack frame the chunk interrupted
     bool interrupts        = false; // the thread was busy with other work when it took the chunk
     std::uint64_t start    = 0;
+    std::size_t recent     = 0; // first entry of the thread's `recent` blocks allocated in the chunk
+};
+
+/// Size and kind of live recorded blocks, by address. Open addressing with linear probing, so
+/// recording a block does not allocate unless the table grows.
+struct block_table
+{
+    struct slot
+    {
+        const void * ptr        = nullptr;
+        std::uint64_t size_kind = 0; // size << 1 | kind
+    };
+
+    std::vector<slot> slots; // empty or a power of two
+    std::size_t used = 0;
+
+    static std::size_t home(const void * ptr, std::size_t mask)
+    {
+        return static_cast<std::size_t>(((reinterpret_cast<std::uintptr_t>(ptr) >> 4) * 0x9E3779B97F4A7C15ull) >> 16) & mask;
+    }
+
+    void insert(const void * ptr, std::uint64_t size_kind)
+    {
+        if (2 * (used + 1) > slots.size()) grow();
+        const std::size_t mask = slots.size() - 1;
+        for (std::size_t i = home(ptr, mask);; i = (i + 1) & mask)
+        {
+            if (slots[i].ptr == nullptr || slots[i].ptr == ptr)
+            {
+                used += slots[i].ptr == nullptr ? 1 : 0;
+                slots[i] = { ptr, size_kind };
+                return;
+            }
+        }
+    }
+
+    bool erase(const void * ptr, std::uint64_t & size_kind)
+    {
+        if (slots.empty()) return false;
+        const std::size_t mask = slots.size() - 1;
+        std::size_t i          = home(ptr, mask);
+        while (slots[i].ptr != ptr)
+        {
+            if (slots[i].ptr == nullptr) return false;
+            i = (i + 1) & mask;
+        }
+        size_kind = slots[i].size_kind;
+        // Backward-shift deletion: move each following entry into the hole unless its home slot lies
+        // between the hole and the entry, so every entry stays reachable without tombstones.
+        for (std::size_t j = (i + 1) & mask; slots[j].ptr != nullptr; j = (j + 1) & mask)
+        {
+            const std::size_t k = home(slots[j].ptr, mask);
+            if (((j - k) & mask) >= ((j - i) & mask))
+            {
+                slots[i] = slots[j];
+                i        = j;
+            }
+        }
+        slots[i] = slot();
+        --used;
+        return true;
+    }
+
+    void grow()
+    {
+        std::vector<slot> previous(slots.empty() ? 64 : 2 * slots.size());
+        previous.swap(slots);
+        used = 0;
+        for (const slot & entry : previous)
+        {
+            if (entry.ptr) insert(entry.ptr, entry.size_kind);
+        }
+    }
+};
+
+struct alignas(64) allocation_shard
+{
+    std::mutex mutex;
+    block_table table;
 };
 
 struct thread_state
@@ -209,54 +296,50 @@ struct thread_state
         std::uint64_t child_time; // that task's child time when the region started
     };
     std::vector<started_region> started;
-    std::int64_t live[memory_kinds] = {};
+    std::uint64_t runs_started = 0;
+    // For each parallel region this thread started: its run and the run it was started in.
+    std::vector<std::pair<std::uint64_t, std::uint64_t> > regions;
+
+    std::int64_t live[memory_kinds]    = {};
+    std::int64_t pending[memory_kinds] = {}; // change in live memory not yet in the process-wide count
+    // Blocks this thread allocated that are not in the shared table yet, newest last; most are
+    // freed here, soon after they were allocated.
+    std::vector<block_table::slot> recent;
     std::unordered_map<const node *, own_stats> anchored; // charged while idle inside a region
-    own_stats outside;                                    // charged with no task open anywhere
+    const node * charged_anchor = nullptr;                // the last entry of `anchored` looked up
+    own_stats * charged         = nullptr;
+    own_stats outside;            // charged with no task open
+    std::int64_t trace_slots = 0; // reserved, not yet used timeline events
     std::vector<trace_event> events;
     std::vector<memory_sample> samples;
 };
 
-struct allocation_shard
-{
-    std::mutex mutex;
-    std::unordered_map<const void *, std::pair<std::size_t, int> > blocks;
-};
+constexpr std::size_t shard_count = 256;
 
-constexpr std::size_t shard_count = 64;
+struct alignas(64) padded_counter
+{
+    std::atomic<std::int64_t> value { 0 };
+};
 
 struct global_state
 {
     std::mutex threads_mutex;
     std::vector<std::unique_ptr<thread_state> > threads;
 
-    // Innermost sequential task open anywhere; a thread with nothing open attaches to it.
-    std::atomic<node *> anchor { nullptr };
-    std::atomic<std::uint64_t> started_runs { 0 };
-
-    // For each parallel region: the run it was started in and the thread that started it.
-    std::mutex regions_mutex;
-    std::unordered_map<std::uint64_t, std::pair<std::uint64_t, std::size_t> > regions;
-
     allocation_shard shards[shard_count];
-    std::atomic<std::int64_t> live[memory_kinds];
-    std::atomic<std::int64_t> region_peak[memory_kinds]; // peak since the innermost sequential task started
-    std::atomic<std::int64_t> process_peak[memory_kinds];
-    std::atomic<std::uint64_t> untracked_frees { 0 };
+    padded_counter live[memory_kinds];
+    padded_counter region_peak[memory_kinds]; // peak since the innermost sequential task started
+    padded_counter process_peak[memory_kinds];
+    // Frees of blocks that were still in another thread's `recent` table, settled when it is spilled.
+    std::mutex orphans_mutex;
+    std::unordered_set<const void *> orphans;
+    std::atomic<std::size_t> orphan_count { 0 };
 
     std::atomic<std::int64_t> trace_budget { 0 };
     std::atomic<std::uint64_t> trace_dropped { 0 };
     std::uint64_t origin = now_ns();
 
-    global_state()
-    {
-        for (int k = 0; k < memory_kinds; ++k)
-        {
-            live[k]         = 0;
-            region_peak[k]  = 0;
-            process_peak[k] = 0;
-        }
-        trace_budget = trace_limit();
-    }
+    global_state() { trace_budget = trace_limit(); }
 
     static std::int64_t trace_limit()
     {
@@ -328,6 +411,17 @@ global_state & state()
 
 thread_local thread_state * current_thread_state = nullptr;
 
+void spill_recent(thread_state & ts);
+
+/// Spills the thread's recent blocks when the thread exits.
+struct thread_exit_spill
+{
+    ~thread_exit_spill()
+    {
+        if (current_thread_state) spill_recent(*current_thread_state);
+    }
+};
+
 thread_state & this_thread()
 {
     if (!current_thread_state)
@@ -338,6 +432,8 @@ thread_state & this_thread()
         created->index       = global.threads.size();
         current_thread_state = created.get();
         global.threads.push_back(std::move(created));
+        static thread_local thread_exit_spill exit_spill;
+        (void)exit_spill;
     }
     return *current_thread_state;
 }
@@ -345,7 +441,102 @@ thread_state & this_thread()
 allocation_shard & shard_for(const void * ptr)
 {
     const auto bits = reinterpret_cast<std::uintptr_t>(ptr) >> 4;
-    return state().shards[(bits * 0x9E3779B97F4A7C15ull) >> 58];
+    return state().shards[(bits * 0x9E3779B97F4A7C15ull) >> 56];
+}
+
+/// A run number unique across threads; run 0 means none.
+std::uint64_t new_run(thread_state & ts)
+{
+    return (static_cast<std::uint64_t>(ts.index + 1) << 40) | ++ts.runs_started;
+}
+
+/// Adds this thread's pending change in live memory of `kind` to the process-wide count.
+void flush_live(thread_state & ts, int kind);
+
+void flush_live(thread_state & ts)
+{
+    for (int k = 0; k < memory_kinds; ++k) flush_live(ts, k);
+}
+
+own_stats & charge_target(thread_state & ts);
+void update_live(thread_state & ts, int kind, std::int64_t delta);
+
+void charge_free(thread_state & ts, std::uint64_t size_kind)
+{
+    const std::uint64_t bytes = size_kind >> 1;
+    const int k               = static_cast<int>(size_kind & 1);
+    own_stats & own           = charge_target(ts);
+    own.free_bytes[k] += bytes;
+    own.free_count[k] += 1;
+    update_live(ts, k, -static_cast<std::int64_t>(bytes));
+}
+
+/// Whether `ptr` was freed by another thread while it was in this thread's `recent` table.
+/// Called with the shard of `ptr` locked, as every change to the orphans is.
+bool take_orphan(const void * ptr)
+{
+    auto & global = state();
+    if (global.orphan_count.load(std::memory_order_acquire) == 0) return false;
+    std::lock_guard<std::mutex> lock(global.orphans_mutex);
+    if (global.orphans.erase(ptr) == 0) return false;
+    global.orphan_count.fetch_sub(1, std::memory_order_release);
+    return true;
+}
+
+/// Removes entries [first, last) of this thread's recent blocks, keeping the chunks' offsets into them.
+void erase_recent(thread_state & ts, std::size_t first, std::size_t last)
+{
+    ts.recent.erase(ts.recent.begin() + first, ts.recent.begin() + last);
+    for (auto & c : ts.chunks)
+    {
+        if (c.recent > first) c.recent = c.recent >= last ? c.recent - (last - first) : first;
+    }
+}
+
+/// Moves entries [first, last) of this thread's recent blocks to the shared table, where any thread
+/// can free them.
+void spill_recent(thread_state & ts, std::size_t first, std::size_t last)
+{
+    last = std::min(last, ts.recent.size());
+    if (first >= last) return;
+    for (std::size_t i = first; i < last; ++i)
+    {
+        const auto & entry = ts.recent[i];
+        bool freed         = false;
+        {
+            auto & shard = shard_for(entry.ptr);
+            std::lock_guard<std::mutex> lock(shard.mutex);
+            freed = take_orphan(entry.ptr);
+            if (!freed) shard.table.insert(entry.ptr, entry.size_kind);
+        }
+        if (freed) charge_free(ts, entry.size_kind);
+    }
+    erase_recent(ts, first, last);
+}
+
+void spill_recent(thread_state & ts)
+{
+    spill_recent(ts, 0, ts.recent.size());
+}
+
+/// Settles the frees other threads made of blocks still in this thread's `recent` table.
+void settle_orphans(thread_state & ts)
+{
+    auto & global = state();
+    if (global.orphan_count.load(std::memory_order_acquire) == 0 || ts.recent.empty()) return;
+    std::vector<std::uint64_t> freed;
+    for (std::size_t i = ts.recent.size(); i-- > 0;)
+    {
+        const auto & entry = ts.recent[i];
+        auto & shard       = shard_for(entry.ptr);
+        std::lock_guard<std::mutex> lock(shard.mutex);
+        if (take_orphan(entry.ptr))
+        {
+            freed.push_back(entry.size_kind);
+            erase_recent(ts, i, i + 1);
+        }
+    }
+    for (const std::uint64_t size_kind : freed) charge_free(ts, size_kind);
 }
 
 /// @param[in] stable_name  Whether `name` outlives the profiler, as the string literals in the macros
@@ -372,7 +563,7 @@ node * find_child(thread_state & ts, node * parent, node * anchor, const char * 
     return created;
 }
 
-/// @param[in] shared   Whether the task may publish itself as the anchor and track memory process-wide.
+/// @param[in] shared   Whether the task tracks memory process-wide, logs and is traced.
 ///                     False only for the private calibration state.
 constexpr std::size_t max_args_variants = 8;
 
@@ -422,10 +613,8 @@ int begin_task(thread_state & ts, const char * name, bool threading, bool shared
     }
     else
     {
-        // Not inside a chunk the threading layer reported: attach to the sequential task open elsewhere.
-        anchor      = shared ? global.anchor.load(std::memory_order_acquire) : nullptr;
-        in_parallel = threading || anchor != nullptr;
-        f.run       = anchor ? anchor->current_run.load(std::memory_order_relaxed) : 0;
+        // Not inside a chunk the threading layer reported: a top-level task of this thread.
+        in_parallel = threading;
     }
     if (args)
     {
@@ -440,16 +629,23 @@ int begin_task(thread_state & ts, const char * name, bool threading, bool shared
     f.in_parallel      = in_parallel;
     f.counts_in_parent = parent != nullptr;
 
+    if (threading && shared && is_logger_enabled() && (is_every_call_logged() || !f.task->logged))
+    {
+        f.task->logged = true;
+        profiler_log(("threading " + f.task->name).c_str(), "-----------------------------------------------------------------------------\n"
+                                                            "THREADING Profiler task started "
+                                                                + f.task->name + "\n");
+    }
+
     f.sequential = !in_parallel && shared;
     if (f.sequential)
     {
-        f.run = global.started_runs.fetch_add(1, std::memory_order_relaxed) + 1;
-        f.task->current_run.store(f.run, std::memory_order_relaxed);
-        f.previous_anchor = global.anchor.exchange(f.task, std::memory_order_acq_rel);
+        f.run = new_run(ts);
+        flush_live(ts);
         for (int k = 0; k < memory_kinds; ++k)
         {
-            f.live_at_start[k] = global.live[k].load(std::memory_order_relaxed);
-            f.outer_peak[k]    = global.region_peak[k].exchange(f.live_at_start[k], std::memory_order_relaxed);
+            f.live_at_start[k] = global.live[k].value.load(std::memory_order_relaxed);
+            f.outer_peak[k]    = global.region_peak[k].value.exchange(f.live_at_start[k], std::memory_order_relaxed);
         }
     }
     else
@@ -464,6 +660,24 @@ int begin_task(thread_state & ts, const char * name, bool threading, bool shared
     // Taken last, so the bookkeeping above is charged to the parent rather than to this task.
     ts.stack.back().start = now_ns();
     return static_cast<int>(ts.stack.size() - 1);
+}
+
+/// Whether the timeline can take one more event from this thread.
+bool take_trace_slot(thread_state & ts)
+{
+    auto & global = state();
+    if (ts.trace_slots == 0)
+    {
+        const std::int64_t left = global.trace_budget.fetch_sub(trace_reserve, std::memory_order_relaxed);
+        ts.trace_slots          = std::max<std::int64_t>(0, std::min(left, trace_reserve));
+    }
+    if (ts.trace_slots == 0)
+    {
+        global.trace_dropped.fetch_add(1, std::memory_order_relaxed);
+        return false;
+    }
+    --ts.trace_slots;
+    return true;
 }
 
 void end_one(thread_state & ts, std::uint64_t end, bool shared)
@@ -484,14 +698,14 @@ void end_one(thread_state & ts, std::uint64_t end, bool shared)
 
     if (f.sequential)
     {
+        flush_live(ts);
         for (int k = 0; k < memory_kinds; ++k)
         {
-            const std::int64_t peak = global.region_peak[k].load(std::memory_order_relaxed);
+            const std::int64_t peak = global.region_peak[k].value.load(std::memory_order_relaxed);
             task.peak[k]            = std::max(task.peak[k], positive_part(peak - f.live_at_start[k]));
             // The enclosing task's peak is the larger of its own so far and this task's.
-            atomic_max(global.region_peak[k], f.outer_peak[k]);
+            atomic_max(global.region_peak[k].value, f.outer_peak[k]);
         }
-        global.anchor.store(f.previous_anchor, std::memory_order_release);
     }
     if (!f.in_parallel)
     {
@@ -516,16 +730,11 @@ void end_one(thread_state & ts, std::uint64_t end, bool shared)
         }
     }
 
-    if (shared && profiler_trace_path())
-    {
-        if (global.trace_budget.fetch_sub(1, std::memory_order_relaxed) > 0)
-            ts.events.push_back({ &task, f.start, end, f.in_parallel });
-        else
-            global.trace_dropped.fetch_add(1, std::memory_order_relaxed);
-    }
+    if (shared && profiler_trace_path() && take_trace_slot(ts)) ts.events.push_back({ &task, f.start, end, f.in_parallel });
 
-    if (shared && is_tracer_enabled())
+    if (shared && is_tracer_enabled() && (is_every_call_logged() || !task.logged))
     {
+        task.logged           = true;
         const std::string key = "tracer " + task.name;
         if (!task.threading)
             profiler_log(key.c_str(), task.name + " " + format_time(length) + "\n");
@@ -548,43 +757,53 @@ own_stats & charge_target(thread_state & ts)
     if (!ts.chunks.empty() && ts.stack.size() == ts.chunks.back().base)
     {
         const node * parent = ts.chunks.back().parent;
-        return parent ? ts.anchored[parent] : ts.outside;
+        if (!parent) return ts.outside;
+        if (parent != ts.charged_anchor || !ts.charged)
+        {
+            ts.charged        = &ts.anchored[parent];
+            ts.charged_anchor = parent;
+        }
+        return *ts.charged;
     }
     if (!ts.stack.empty()) return ts.stack.back().task->own;
-    const node * anchor = state().anchor.load(std::memory_order_acquire);
-    if (anchor) return ts.anchored[anchor];
     return ts.outside;
 }
 
 void record_sample(thread_state & ts, int kind, std::int64_t live)
 {
-    auto & global = state();
-    if (global.trace_budget.fetch_sub(1, std::memory_order_relaxed) > 0)
-        ts.samples.push_back({ now_ns(), live, kind });
-    else
-        global.trace_dropped.fetch_add(1, std::memory_order_relaxed);
+    if (take_trace_slot(ts)) ts.samples.push_back({ now_ns(), live, kind });
 }
 
-void update_live(thread_state & ts, int kind, std::int64_t delta)
+void flush_live(thread_state & ts, int kind)
 {
+    const std::int64_t delta = ts.pending[kind];
+    if (delta == 0) return;
+    ts.pending[kind]         = 0;
     auto & global            = state();
-    const std::int64_t value = global.live[kind].fetch_add(delta, std::memory_order_relaxed) + delta;
+    const std::int64_t value = global.live[kind].value.fetch_add(delta, std::memory_order_relaxed) + delta;
     if (delta > 0)
     {
-        atomic_max(global.region_peak[kind], value);
-        atomic_max(global.process_peak[kind], value);
-    }
-    ts.live[kind] += delta;
-    if (delta > 0 && !ts.stack.empty() && !ts.stack.back().sequential)
-    {
-        ts.stack.back().peak_live[kind] = std::max(ts.stack.back().peak_live[kind], ts.live[kind]);
+        atomic_max(global.region_peak[kind].value, value);
+        atomic_max(global.process_peak[kind].value, value);
     }
     if (profiler_trace_path()) record_sample(ts, kind, value);
 }
 
+void update_live(thread_state & ts, int kind, std::int64_t delta)
+{
+    ts.live[kind] += delta;
+    const bool sequential = !ts.stack.empty() && ts.stack.back().sequential;
+    if (delta > 0 && !ts.stack.empty() && !sequential)
+    {
+        ts.stack.back().peak_live[kind] = std::max(ts.stack.back().peak_live[kind], ts.live[kind]);
+    }
+    ts.pending[kind] += delta;
+    // A sequential task counts every byte at once; elsewhere small blocks are counted in batches.
+    if (sequential || ts.pending[kind] >= live_batch_bytes || ts.pending[kind] <= -live_batch_bytes) flush_live(ts, kind);
+}
+
 profiler_region region_capture(bool blocking)
 {
-    auto & global           = state();
     thread_state & ts       = this_thread();
     const chunk * c         = ts.chunks.empty() ? nullptr : &ts.chunks.back();
     const bool own          = !ts.stack.empty() && (!c || ts.stack.size() > c->base);
@@ -600,19 +819,11 @@ profiler_region region_capture(bool blocking)
         parent    = c->parent;
         outer_run = c->run;
     }
-    else
-    {
-        parent    = global.anchor.load(std::memory_order_acquire);
-        outer_run = parent ? parent->current_run.load(std::memory_order_relaxed) : 0;
-    }
 
     // Every region is a run of its own: the report takes the busiest thread of each, and counts it on
     // the line of the thread that started it within the enclosing run.
-    const std::uint64_t run = global.started_runs.fetch_add(1, std::memory_order_relaxed) + 1;
-    {
-        std::lock_guard<std::mutex> lock(global.regions_mutex);
-        if (global.regions.size() < max_regions) global.regions.emplace(run, std::make_pair(outer_run, ts.index));
-    }
+    const std::uint64_t run = new_run(ts);
+    if (ts.regions.size() < max_regions_per_thread) ts.regions.emplace_back(run, outer_run);
     if (blocking && own) ts.started.push_back({ run, now_ns(), ts.stack.size() - 1, ts.stack.back().child_time });
     return { parent, run };
 }
@@ -650,6 +861,7 @@ void region_enter(const profiler_region & region)
     c.parent = static_cast<node *>(const_cast<void *>(region.parent));
     c.run    = region.run;
     c.base   = ts.stack.size();
+    c.recent = ts.recent.size();
 
     // A thread that waits inside other work (for example in a nested parallel call) may be given a
     // chunk of an unrelated region. Its time is not part of the tasks it interrupted: those are the
@@ -689,6 +901,8 @@ void region_leave()
     if (ts.chunks.empty()) return;
     const chunk c = ts.chunks.back();
     ts.chunks.pop_back();
+    // What the chunk allocated and did not free may be freed by another thread after the region.
+    spill_recent(ts, c.recent, ts.recent.size());
     if (c.interrupts)
     {
         const std::uint64_t elapsed = now_ns() - c.start;
@@ -779,9 +993,8 @@ void finish(merged & m, const region_map & regions)
     m.threads     = m.per_thread.size();
     if (m.parallel)
     {
-        // Time per run and thread. Runs are numbered in start order, so a region comes after the run
-        // it was started in and is folded into it first.
-        std::map<std::uint64_t, std::unordered_map<std::size_t, std::uint64_t>, std::greater<std::uint64_t> > lines;
+        // Time per run and thread.
+        std::unordered_map<std::uint64_t, std::unordered_map<std::size_t, std::uint64_t> > lines;
         for (const auto & entry : m.runs) lines[entry.run][entry.thread] += entry.time;
 
         m.busiest     = m.unsplit_busiest + m.sequential_cpu;
@@ -801,19 +1014,39 @@ void finish(merged & m, const region_map & regions)
         }
 
         // A run lasts as long as its busiest thread, and that time is spent on the line of the thread
-        // that started the region, within the run it was started in.
+        // that started the region, within the run it was started in. Innermost runs are folded first.
+        const auto depth = [&](std::uint64_t run) {
+            std::size_t d = 0;
+            for (auto it = regions.find(run); it != regions.end() && it->second.first != 0 && d <= regions.size();
+                 it      = regions.find(it->second.first))
+            {
+                ++d;
+            }
+            return d;
+        };
+        std::priority_queue<std::pair<std::size_t, std::uint64_t> > order;
+        for (const auto & run : lines) order.push({ depth(run.first), run.first });
         m.wall = m.unsplit_busiest + m.sequential_cpu;
-        while (!lines.empty())
+        while (!order.empty())
         {
-            const auto it         = lines.begin();
+            const std::uint64_t run = order.top().second;
+            order.pop();
+            const auto it = lines.find(run);
+            if (it == lines.end()) continue;
             std::uint64_t busiest = 0;
             for (const auto & line : it->second) busiest = std::max(busiest, line.second);
-            const auto region = regions.find(it->first);
-            if (region != regions.end() && region->second.first != 0)
-                lines[region->second.first][region->second.second] += busiest;
-            else
-                m.wall += busiest;
             lines.erase(it);
+            const auto region = regions.find(run);
+            if (region != regions.end() && region->second.first != 0)
+            {
+                const std::uint64_t outer = region->second.first;
+                if (lines.find(outer) == lines.end()) order.push({ depth(outer), outer });
+                lines[outer][region->second.second] += busiest;
+            }
+            else
+            {
+                m.wall += busiest;
+            }
         }
     }
 
@@ -881,9 +1114,9 @@ merged_tree build_tree()
         tree.outside.add(ts->outside);
     }
     region_map regions;
+    for (const auto & ts : global.threads)
     {
-        std::lock_guard<std::mutex> regions_lock(global.regions_mutex);
-        regions = global.regions;
+        for (const auto & region : ts->regions) regions.emplace(region.first, std::make_pair(region.second, ts->index));
     }
     for (auto & child : tree.root.children) finish(*child, regions);
     return tree;
@@ -1044,6 +1277,16 @@ void report_at_exit()
 #endif
 }
 
+/// Live memory of `kind`, including the changes threads have not added to the process-wide count yet.
+std::int64_t live_now(int kind)
+{
+    auto & global      = state();
+    std::int64_t value = global.live[kind].value.load();
+    std::lock_guard<std::mutex> lock(global.threads_mutex);
+    for (const auto & ts : global.threads) value += ts->pending[kind];
+    return value;
+}
+
 void print_memory_summary(std::ostream & out, const merged_tree & tree)
 {
     auto & global = state();
@@ -1057,7 +1300,7 @@ void print_memory_summary(std::ostream & out, const merged_tree & tree)
         {
             if (all.alloc_count[k] == 0 && all.free_count[k] == 0) continue;
             out << memory_line(labels[k], all.alloc_bytes[k], all.alloc_count[k], all.free_bytes[k], all.free_count[k]) << ", peak "
-                << format_bytes(positive_part(global.process_peak[k].load())) << ", live now " << format_bytes(positive_part(global.live[k].load()))
+                << format_bytes(positive_part(global.process_peak[k].value.load())) << ", live now " << format_bytes(positive_part(live_now(k)))
                 << '\n';
             if (tree.outside.alloc_count[k] > 0)
             {
@@ -1070,10 +1313,8 @@ void print_memory_summary(std::ostream & out, const merged_tree & tree)
             out << "  copies: " << format_bytes(all.transfer_bytes[0]) << " to the device in " << all.transfer_count[0] << " copies, "
                 << format_bytes(all.transfer_bytes[1]) << " to the host in " << all.transfer_count[1] << " copies\n";
         }
-        if (global.untracked_frees.load() > 0)
-        {
-            out << "  " << global.untracked_frees.load() << " frees of blocks allocated before tracking started were ignored\n";
-        }
+        const std::size_t unmatched = global.orphan_count.load();
+        if (unmatched > 0) out << "  " << unmatched << " frees of blocks that were not recorded were ignored\n";
     }
 }
 
@@ -1098,13 +1339,6 @@ DAAL_EXPORT void profiler_log(const char * once_key, const std::string & text)
 
 DAAL_EXPORT int profiler_begin_task(const char * task_name, bool threading)
 {
-    if (threading && is_logger_enabled())
-    {
-        const std::string key = std::string("threading ") + task_name;
-        profiler_log(key.c_str(), std::string("-----------------------------------------------------------------------------\n"
-                                              "THREADING Profiler task started ")
-                                      + task_name + "\n");
-    }
     return begin_task(this_thread(), task_name, threading, true);
 }
 
@@ -1127,12 +1361,10 @@ DAAL_EXPORT void profiler_record_alloc(const void * ptr, std::size_t bytes, prof
 {
     if (!ptr) return;
     const int k = static_cast<int>(kind);
-    {
-        auto & shard = shard_for(ptr);
-        std::lock_guard<std::mutex> lock(shard.mutex);
-        shard.blocks[ptr] = { bytes, k };
-    }
-    auto & ts       = this_thread();
+    auto & ts   = this_thread();
+    settle_orphans(ts);
+    if (ts.recent.size() == max_recent_blocks) spill_recent(ts, 0, max_recent_blocks / 2);
+    ts.recent.push_back({ ptr, (static_cast<std::uint64_t>(bytes) << 1) | static_cast<std::uint64_t>(k) });
     own_stats & own = charge_target(ts);
     own.alloc_bytes[k] += bytes;
     own.alloc_count[k] += 1;
@@ -1142,26 +1374,34 @@ DAAL_EXPORT void profiler_record_alloc(const void * ptr, std::size_t bytes, prof
 DAAL_EXPORT void profiler_record_free(const void * ptr)
 {
     if (!ptr) return;
-    std::size_t bytes = 0;
-    int k             = 0;
+    auto & ts = this_thread();
+    settle_orphans(ts);
+    std::uint64_t size_kind = 0;
+    bool found              = false;
+    for (std::size_t i = ts.recent.size(); i-- > 0;)
+    {
+        if (ts.recent[i].ptr == ptr)
+        {
+            size_kind = ts.recent[i].size_kind;
+            erase_recent(ts, i, i + 1);
+            found = true;
+            break;
+        }
+    }
+    if (!found)
     {
         auto & shard = shard_for(ptr);
         std::lock_guard<std::mutex> lock(shard.mutex);
-        auto it = shard.blocks.find(ptr);
-        if (it == shard.blocks.end())
+        if (!shard.table.erase(ptr, size_kind))
         {
-            state().untracked_frees.fetch_add(1, std::memory_order_relaxed);
+            // Still in the table of the thread that allocated it, or never recorded.
+            auto & global = state();
+            std::lock_guard<std::mutex> orphans_lock(global.orphans_mutex);
+            if (global.orphans.insert(ptr).second) global.orphan_count.fetch_add(1, std::memory_order_release);
             return;
         }
-        bytes = it->second.first;
-        k     = it->second.second;
-        shard.blocks.erase(it);
     }
-    auto & ts       = this_thread();
-    own_stats & own = charge_target(ts);
-    own.free_bytes[k] += bytes;
-    own.free_count[k] += 1;
-    update_live(ts, k, -static_cast<std::int64_t>(bytes));
+    charge_free(ts, size_kind);
 }
 
 DAAL_EXPORT void profiler_record_transfer(std::size_t bytes, profiler_transfer_kind kind)
@@ -1335,15 +1575,17 @@ DAAL_EXPORT void profiler_reset()
         ts->events.clear();
         ts->samples.clear();
     }
-    global.anchor = nullptr;
+    for (auto & ts : global.threads)
     {
-        std::lock_guard<std::mutex> regions_lock(global.regions_mutex);
-        global.regions.clear();
+        ts->regions.clear();
+        ts->charged_anchor = nullptr;
+        ts->charged        = nullptr;
+        ts->trace_slots    = 0;
     }
     for (int k = 0; k < memory_kinds; ++k)
     {
-        global.region_peak[k]  = global.live[k].load();
-        global.process_peak[k] = global.live[k].load();
+        global.region_peak[k].value  = global.live[k].value.load();
+        global.process_peak[k].value = global.live[k].value.load();
     }
     global.trace_budget  = global_state::trace_limit();
     global.trace_dropped = 0;
