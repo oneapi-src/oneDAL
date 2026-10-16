@@ -537,7 +537,7 @@ daal::profiler_region capture(bool)
     captures.fetch_add(1);
     const uint64_t run = next_run.fetch_add(1) + 1;
     current_run.store(run);
-    return { nullptr, run };
+    return { nullptr, run, nullptr };
 }
 void finish(const daal::profiler_region & region)
 {

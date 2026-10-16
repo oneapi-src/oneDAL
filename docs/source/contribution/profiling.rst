@@ -88,9 +88,29 @@ with their own environment variables:
 | ``ONEDAL_PROFILER_REPORT=tree``         | Print only the task tree: no version lines, summary, hotspots  |
 |                                         | or memory summary.                                             |
 +-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_REPORT=folded``       | Print one line per call path with its self time, for flame     |
+|                                         | graph tools (see :ref:`profiling-flame-graphs`).               |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_REPORT=json``         | Print every row of the task tree with all its figures as JSON. |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_REPORT_AT=call``      | Print a report after each outermost call instead of one at     |
+|                                         | exit (see :ref:`profiling-notebooks`).                         |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_MIN_PERCENT=<p>``     | Fold the rows shorter than ``<p>`` percent of the profiled     |
+|                                         | time into one row per parent.                                  |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_GPU_SYNC=0``          | Do not wait for the queue around GPU tasks (see below).        |
++-----------------------------------------+----------------------------------------------------------------+
+| ``ONEDAL_PROFILER_CLOCK=steady``        | Time with ``std::chrono::steady_clock`` instead of the         |
+|                                         | time-stamp counter of the processor.                           |
++-----------------------------------------+----------------------------------------------------------------+
 
 GPU tasks that are given a queue wait for the queue when they start and when they end, so their time
-covers the device work. This serializes kernels that would otherwise overlap.
+covers the device work. This serializes kernels that would otherwise overlap. With
+``ONEDAL_PROFILER_GPU_SYNC=0`` they do not wait, and their time is the time to submit the work.
+
+On x86 processors with an invariant time-stamp counter the profiler reads the counter, which costs
+about half as much as ``std::chrono::steady_clock``, and converts it to nanoseconds when it reports.
 
 Logger
 ------
@@ -165,10 +185,14 @@ Example output (illustrative):
 The columns are:
 
 - ``time``: wall time. A task that runs in a parallel region is as long as its busiest thread in
-  each run of the region, so a child is never longer than its parent.
+  each run of the region, so a child is never longer than its parent. The rows under a sequential
+  task add up to at most the task; under a parallel task each row takes its own busiest thread,
+  so they can add up to a little more.
 - ``%``: share of the profiled wall time.
 - ``self``: time not spent in child tasks, or waiting for parallel regions the task started.
 - ``calls``, ``avg``, ``max``: number of runs, and the average and longest run.
+- ``first``: the first run. On a GPU it includes compiling the task's kernels, so a ``first`` much
+  longer than ``avg`` is start-up cost rather than steady-state time.
 - ``thr``: number of threads; for a parallel task, the most threads in one run of its region.
 - ``host alloc``, ``dev alloc``: bytes allocated by the task and its children. Allocations that a
   worker makes outside any task count toward the task that started its parallel region.
@@ -179,10 +203,18 @@ A task that logs its arguments, such as ``blas.gemm`` with its matrix sizes, get
 distinct set of them, for example ``blas.gemm [a.get_dimension(0): 20; a.get_dimension(1): 1000; alpha: 1]``.
 After eight such rows under one parent, further argument sets share a row named ``[other args]``.
 
+Every oneAPI algorithm call has a row named after its kernel, such as
+``kmeans::train_kernel_cpu<float, lloyd_dense, clustering>``, and every parallel loop of the
+threading layer has a row named after where it was called, such as
+``parallel loop: computeImpl (df_train_dense_default_impl.i:483)``. Tasks opened inside the loop's
+body are placed under that row. So an algorithm without profiler tasks of its own still shows where
+its time goes.
+
 Parallel tasks also show their total CPU time and their imbalance: the busiest thread over the
 average thread in each run, where 1.00 is a perfectly balanced region. A row named
-``(waiting for parallel work)`` is the time a task waited for a parallel region it started, beyond
-running chunks of the region itself.
+``(in parallel regions, outside tasks)`` is the time a task spent in parallel regions it started
+that is not in any task: waiting for other threads, or running chunks of a region without a known
+call site.
 
 The memory columns, and the transfer columns, appear only when there is something to show: a CPU
 run has no device or transfer columns, and no host columns either if every allocation happened
@@ -198,20 +230,63 @@ Timeline
 ``ONEDAL_PROFILER_TRACE=<file>`` writes every task run, per thread, and the live host and device memory
 over time, in the Chrome trace event format. Open the file in https://ui.perfetto.dev or in
 ``chrome://tracing`` to see when each task ran on which thread, where threads were idle, and how memory
-grew. When the number of events exceeds ``ONEDAL_PROFILER_TRACE_LIMIT``, later events are dropped and a
-warning is printed.
+grew. A task with arguments is one slice name, with its arguments in the slice's details, and an arrow
+leads from the task that started each parallel region to every chunk of it. When the number of events
+exceeds ``ONEDAL_PROFILER_TRACE_LIMIT``, later events are dropped and a warning is printed.
+
+.. _profiling-flame-graphs:
+
+Flame graphs
+------------
+
+``ONEDAL_PROFILER_REPORT=folded`` prints one line per call path, the frames joined by ``;`` and
+followed by the path's self time in nanoseconds. https://www.speedscope.app and ``flamegraph.pl``
+read it as it is::
+
+    ONEDAL_VERBOSE=3 ONEDAL_PROFILER_REPORT=folded ONEDAL_PROFILER_OUTPUT=stacks.txt ./app
+    flamegraph.pl stacks.txt > flame.svg
+
+.. _profiling-notebooks:
+
+Notebooks
+---------
+
+The report is written when the process exits, which a notebook kernel does not do while it is
+used. ``ONEDAL_PROFILER_REPORT_AT=call`` prints a report after each outermost oneDAL call
+instead, with that call alone in it. A report can also be asked for at any point from Python:
+
+.. code-block:: python
+
+    import ctypes
+    core = ctypes.CDLL("libonedal_core.so")
+    # Appends the report to the file, or writes it to the profiler output for None;
+    # a non-zero second argument sets the figures to zero afterwards.
+    core._onedal_profiler_report(b"report.txt", 1)
+
+Set ``ONEDAL_PROFILER_OUTPUT=<file>`` as well: reports and logs written to ``stderr`` from a
+notebook kernel may not be shown.
+
+VTune Profiler
+--------------
+
+A oneDAL built with ``REQPROFILE=yes`` (see ``INSTALL.md``) also reports every task to the ITT API,
+so Intel VTune Profiler shows oneDAL's tasks on its timeline, next to the GPU kernels it measures
+itself. Run the application with ``ONEDAL_VERBOSE`` set to any level, and with
+``ONEDAL_PROFILER_GPU_SYNC=0`` so that the tasks do not change how device work overlaps.
 
 General Notes on Verbose Mode
 -----------------------------
 
-The analyzer report and the timeline are written when the process exits. They are not written in
-interactive environments like Jupyter Notebooks, where the process may not exit; run the application
-as a standalone script.
+The analyzer report and the timeline are written when the process exits; see
+:ref:`profiling-notebooks` for interactive environments.
 
 On ``stderr``, the Logger and the Tracer print each call site once. Every call, which for an iterative
 algorithm can be megabytes, goes only to the file named by ``ONEDAL_PROFILER_OUTPUT``: where ``stderr``
 is a pipe that is not read while oneDAL runs, such as a notebook kernel, that much output would block
 the process once the pipe is full.
 
-Profiling adds the cost printed in the report to every task run. The report shows it so that the
-timings can be judged against it.
+Profiling adds the cost printed in the report to every task run and every recorded allocation. The
+report shows it so that the timings can be judged against it. Allocations are the larger part in
+programs that allocate a lot: a block freed by another thread than the one that allocated it costs
+the most, and ``ONEDAL_PROFILER_MEMORY=0`` turns allocation recording off. Inside parallel regions,
+blocks smaller than 64 KiB reach the process-wide peak in steps of 64 KiB per thread.

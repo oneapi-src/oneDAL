@@ -36,6 +36,7 @@
 #include <exception>
 #include "services/daal_defines.h"
 #include "services/library_version_info.h"
+#include "src/services/service_profiler_site.h"
 
 #ifdef _WIN32
     #define PRETTY_FUNCTION __FUNCSIG__
@@ -137,13 +138,6 @@
         return daal::internal::profiler::start_task(nullptr);                                                                                 \
     }()
 
-inline static constexpr int PROFILER_MODE_OFF       = 0;
-inline static constexpr int PROFILER_MODE_LOGGER    = 1;
-inline static constexpr int PROFILER_MODE_TRACER    = 2;
-inline static constexpr int PROFILER_MODE_ANALYZER  = 3;
-inline static constexpr int PROFILER_MODE_ALL_TOOLS = 4;
-inline static constexpr int PROFILER_MODE_DEBUG     = 5;
-
 namespace daal
 {
 struct profiler_region_hooks;
@@ -151,48 +145,15 @@ struct profiler_region_hooks;
 namespace internal
 {
 
-// Every shared object that includes this header reads the mode on its own, and they all get the
-// same answer. The recorded data lives only in libonedal_core (service_profiler.cpp), so tasks from
-// all shared objects go into one tree.
-inline static int daal_verbose_mode()
-{
-    static const int cached = [] {
-        const char * verbose_str = std::getenv("ONEDAL_VERBOSE");
-        int result               = PROFILER_MODE_OFF;
-        if (verbose_str)
-        {
-            char * endptr = nullptr;
-            errno         = 0;
-            long parsed   = std::strtol(verbose_str, &endptr, 10);
-            if (errno == 0 && endptr != verbose_str && *endptr == '\0' && parsed >= 0 && parsed <= 5)
-            {
-                result = static_cast<int>(parsed);
-            }
-        }
-        return result;
-    }();
-    return cached;
-}
-
-/// Path of the timeline file requested through ONEDAL_PROFILER_TRACE, or nullptr.
-inline static const char * profiler_trace_path()
-{
-    static const char * path = [] {
-        const char * value = std::getenv("ONEDAL_PROFILER_TRACE");
-        return (value && *value) ? value : nullptr;
-    }();
-    return path;
-}
-
 inline void profiler_write_named_args(std::ostream & /*out*/, const char * /*names*/) {}
 
 template <typename T, typename... Rest>
 inline void profiler_write_named_args(std::ostream & out, const char * names, const T & value, Rest &&... rest)
 {
+    while (std::isspace(static_cast<unsigned char>(*names))) ++names;
     const char * comma = strchr(names, ',');
-    std::string name   = comma ? std::string(names, comma) : std::string(names);
-    name.erase(name.begin(), std::find_if(name.begin(), name.end(), [](unsigned char ch) { return !std::isspace(ch); }));
-    out << name << ": " << value << "; ";
+    out.write(names, comma ? comma - names : static_cast<std::streamsize>(strlen(names)));
+    out << ": " << value << "; ";
     if (comma) profiler_write_named_args(out, comma + 1, std::forward<Rest>(rest)...);
 }
 
@@ -200,7 +161,10 @@ inline void profiler_write_named_args(std::ostream & out, const char * names, co
 template <typename... Args>
 inline std::string profiler_named_args(const char * names, Args &&... values)
 {
-    std::ostringstream out;
+    // One stream per thread: constructing a stream costs more than formatting a few numbers.
+    thread_local std::ostringstream out;
+    out.str(std::string());
+    out.clear();
     profiler_write_named_args(out, names, std::forward<Args>(values)...);
     return out.str();
 }
@@ -241,12 +205,6 @@ inline static bool is_analyzer_enabled()
     return profiler_value;
 }
 
-inline static bool is_profiler_enabled()
-{
-    static const bool profiler_value = [] { return daal_verbose_mode() != PROFILER_MODE_OFF || profiler_trace_path() != nullptr; }();
-    return profiler_value;
-}
-
 /// Whether allocations are recorded. Only the analyzer report and the timeline show them;
 /// ONEDAL_PROFILER_MEMORY=0 turns them off.
 inline static bool is_memory_tracking_enabled()
@@ -259,12 +217,42 @@ inline static bool is_memory_tracking_enabled()
     return value;
 }
 
-/// Whether ONEDAL_PROFILER_REPORT=tree asks for the task tree alone.
+/// Form of the analyzer report, set by ONEDAL_PROFILER_REPORT.
+enum class profiler_report_format
+{
+    text,   // summary, task tree, hotspots and memory
+    tree,   // the task tree alone
+    folded, // one line per call path with its self time, for flame graph tools
+    json    // every row of the task tree with all its figures
+};
+
+inline static profiler_report_format report_format()
+{
+    static const profiler_report_format value = [] {
+        const char * report = std::getenv("ONEDAL_PROFILER_REPORT");
+        if (!report) return profiler_report_format::text;
+        if (std::strcmp(report, "tree") == 0) return profiler_report_format::tree;
+        if (std::strcmp(report, "folded") == 0) return profiler_report_format::folded;
+        if (std::strcmp(report, "json") == 0) return profiler_report_format::json;
+        return profiler_report_format::text;
+    }();
+    return value;
+}
+
+/// Whether the report is something other than the full text report, which has no room for the
+/// version lines.
 inline static bool is_tree_only_report()
 {
+    return report_format() != profiler_report_format::text;
+}
+
+/// Whether ONEDAL_PROFILER_REPORT_AT=call asks for a report after each outermost call instead of
+/// one at exit.
+inline static bool is_report_per_call()
+{
     static const bool value = [] {
-        const char * report = std::getenv("ONEDAL_PROFILER_REPORT");
-        return report && std::strcmp(report, "tree") == 0;
+        const char * at = std::getenv("ONEDAL_PROFILER_REPORT_AT");
+        return at && std::strcmp(at, "call") == 0;
     }();
     return value;
 }
@@ -372,6 +360,7 @@ struct profiler_report_row
     std::uint64_t self_ns;        // wall time not spent in child tasks
     std::uint64_t min_ns;         // shortest run
     std::uint64_t max_ns;         // longest run
+    std::uint64_t first_ns;       // the first run, which on a GPU includes compiling its kernels
     std::uint64_t threads;        // number of threads; for a parallel task, the most in one run of the region
     std::uint64_t busiest_ns;     // for a parallel task: the busiest thread's time, summed over runs
     std::uint64_t mean_thread_ns; // for a parallel task: the average thread's time, summed over runs
@@ -392,8 +381,19 @@ DAAL_EXPORT std::vector<profiler_report_row> profiler_report();
 /// @param[in] out  Stream to write to
 DAAL_EXPORT void profiler_print_report(std::ostream & out);
 
+/// Writes the report in the given form, as ONEDAL_PROFILER_REPORT and ONEDAL_PROFILER_MIN_PERCENT
+/// would select it.
+///
+/// @param[in] out          Stream to write to
+/// @param[in] format       Form of the report
+/// @param[in] min_percent  Rows shorter than this share of the profiled time are folded into one per parent
+DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_format format, double min_percent);
+
 /// Drops everything recorded so far. No task may be open on any thread.
 DAAL_EXPORT void profiler_reset();
+
+/// Sets every figure recorded so far to zero, keeping the timeline. No task may be open on any thread.
+DAAL_EXPORT void profiler_clear();
 
 /// Callbacks the threading layer calls around every chunk of a parallel region.
 DAAL_EXPORT const daal::profiler_region_hooks & profiler_threading_hooks();
@@ -482,3 +482,13 @@ inline profiler_task::~profiler_task()
 
 } // namespace internal
 } // namespace daal
+
+extern "C"
+{
+    /// Writes the analyzer report for everything recorded so far, for callers without C++ linkage
+    /// such as Python through ctypes.
+    ///
+    /// @param[in] path     File to append the report to, or nullptr for the profiler output
+    /// @param[in] clear    If not 0, the figures are set to zero afterwards, as profiler_clear() does
+    DAAL_EXPORT void _onedal_profiler_report(const char * path, int clear);
+}

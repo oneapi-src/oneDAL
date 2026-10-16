@@ -16,6 +16,10 @@
 
 #pragma once
 
+#include <cstdlib>
+#include <cstring>
+#include <string>
+
 #include "src/services/service_profiler.h"
 
 #ifdef ONEDAL_DATA_PARALLEL
@@ -25,9 +29,19 @@
 namespace oneapi::dal::detail {
 
 #ifdef ONEDAL_DATA_PARALLEL
+/// Whether tasks given a queue wait for it; ONEDAL_PROFILER_GPU_SYNC=0 times only the host side,
+/// so profiling does not change how device work overlaps.
+inline bool is_queue_sync_enabled() {
+    static const bool value = [] {
+        const char* sync = std::getenv("ONEDAL_PROFILER_GPU_SYNC");
+        return !(sync && std::strcmp(sync, "0") == 0);
+    }();
+    return value;
+}
+
 // Waits on the queue at both ends of a profiled region so the duration covers device execution.
 // make() waits before start_task() takes its timestamp, so earlier work is not charged to the region.
-// When `enabled` is false no waits are issued.
+// When `enabled` is false, or queue waits are turned off, no waits are issued.
 class queue_sync_guard {
 public:
     /// @param[in] args  The task's arguments for the analyzer, or empty
@@ -36,9 +50,12 @@ public:
                                  bool enabled,
                                  const std::string& args = std::string()) {
         if (enabled) {
-            q.wait_and_throw();
+            const bool sync = is_queue_sync_enabled();
+            if (sync) {
+                q.wait_and_throw();
+            }
             return queue_sync_guard(
-                &q,
+                sync ? &q : nullptr,
                 args.empty() ? daal::internal::profiler::start_task(task_name)
                              : daal::internal::profiler::start_task_with_args(task_name, args));
         }
@@ -81,6 +98,62 @@ private:
     daal::internal::profiler_task task_;
 };
 #endif
+
+/// Shortens a type name taken from a function signature to the part a reader needs, for example
+/// `kmeans::train_kernel_cpu<float, lloyd_dense, clustering>`.
+inline std::string profiler_short_type_name(const char* signature) {
+    std::string text = signature;
+#ifdef _WIN32
+    const auto open = text.find("profiler_type_name<");
+    const auto close = text.rfind(">(");
+    if (open != std::string::npos && close != std::string::npos && close > open) {
+        text = text.substr(open + 19, close - open - 19);
+    }
+#else
+    const auto open = text.find("T = ");
+    if (open != std::string::npos) {
+        text = text.substr(open + 4);
+        const auto close = text.find_first_of(";]");
+        text = text.substr(0, close);
+    }
+#endif
+    for (const char* noise : { "oneapi::dal::",
+                               "backend::",
+                               "detail::",
+                               "method::",
+                               "task::",
+                               "v1::",
+                               "v2::",
+                               "struct ",
+                               "class " }) {
+        const std::string what = noise;
+        for (auto at = text.find(what); at != std::string::npos; at = text.find(what, at)) {
+            text.erase(at, what.size());
+        }
+    }
+    // The algorithm's namespace once, at the front: `kmeans::train_kernel_cpu<float, lloyd_dense>`.
+    const auto scope = text.find("::");
+    if (scope != std::string::npos) {
+        const std::string algorithm = text.substr(0, scope + 2);
+        for (auto at = text.find(algorithm, scope + 2); at != std::string::npos;
+             at = text.find(algorithm, at)) {
+            text.erase(at, algorithm.size());
+        }
+    }
+    for (auto at = text.find(",", 0); at != std::string::npos; at = text.find(",", at + 1)) {
+        if (at + 1 < text.size() && text[at + 1] != ' ') {
+            text.insert(at + 1, " ");
+        }
+    }
+    return text;
+}
+
+/// The name of `T` for a profiler task, computed once per type.
+template <typename T>
+inline const char* profiler_type_name() {
+    static const std::string name = profiler_short_type_name(PRETTY_FUNCTION);
+    return name.c_str();
+}
 
 } // namespace oneapi::dal::detail
 
