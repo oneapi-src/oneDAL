@@ -213,36 +213,27 @@ jobs:
       - name: Compare make and Bazel releases
         run: |
           source /opt/intel/oneapi/setvars.sh
-          # This job always runs the workflow from `main` against a checkout of
-          # the tested commit (see the `agent:` note at the top of the file), so
-          # anything this step names has to be optional: a pull request branched
-          # before the comparison script grew it carries neither the module nor
-          # the flag, and its nightly must still run rather than fail on a
-          # missing file. Both probes are also what tells a reader which
-          # comparison actually ran.
-          linkage=dev/release_tests/compare_release_linkage.py
-          if [ -f "${linkage}" ]; then
-            # Cheap and hermetic: asserts the undefined-symbol filter still
-            # classifies its pinned representatives before the comparison relies
-            # on it, so a widened prefix shows up as a failure of its own rather
-            # than as a release that compares equal for the wrong reason.
-            python "${linkage}"
+          # workflow_run runs main's YAML against the tested checkout, so the
+          # invocation lives in the versioned script. Drop the fallback once
+          # checkouts without the script have aged out.
+          if [ -f .ci/scripts/compare_linux_release.sh ]; then
+            .ci/scripts/compare_linux_release.sh
           else
-            echo "::notice::${linkage} is absent in this checkout; skipping the filter self-check"
+            echo "::warning::checkout predates .ci/scripts/compare_linux_release.sh; rebase onto main for the full comparison"
+            flags=()
+            # #3800 added the linkage self-check and --cross-toolchain together.
+            if [ -f dev/release_tests/compare_release_linkage.py ]; then
+              python dev/release_tests/compare_release_linkage.py
+              flags=(--cross-toolchain)
+            fi
+            python dev/release_tests/compare_release_trees.py \
+              --platform linux \
+              --make ./__release_lnx/daal/latest \
+              --bazel ./bazel-bin/release/daal/latest \
+              --check-level 4 \
+              --make-symlinks-dereferenced \
+              "${flags[@]}"
           fi
-          compare_flags=(
-            --platform linux
-            --make ./__release_lnx/daal/latest
-            --bazel ./bazel-bin/release/daal/latest
-            --check-level 4
-            --make-symlinks-dereferenced
-          )
-          if python dev/release_tests/compare_release_trees.py --help | grep -q -- '--cross-toolchain'; then
-            compare_flags+=(--cross-toolchain)
-          else
-            echo "::notice::this checkout has no --cross-toolchain; comparing without it"
-          fi
-          python dev/release_tests/compare_release_trees.py "${compare_flags[@]}"
 
   bazel_win:
     name: oneDAL Windows Bazel test
