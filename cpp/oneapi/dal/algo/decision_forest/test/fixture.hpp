@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <list>
+#include <vector>
 
 #define sizeofa(p) sizeof(p) / sizeof(*p)
 
@@ -279,6 +280,144 @@ public:
             return true;
         });
         return node_count;
+    }
+
+    /// Trains one tree with the random splitter on `row_count` rows whose only feature is the row
+    /// index, and returns the leaves from left to right. Leaf `k` then holds the rows right after
+    /// those of leaf `k - 1`, which lets the caller compute what every leaf must contain.
+    ///
+    /// @param[in] row_count           The number of training rows.
+    /// @param[in] column_count        The number of identical feature columns.
+    /// @param[in] min_weight_fraction The minimum weight fraction of a leaf; 0 trains unweighted.
+    /// @param[in] max_tree_depth      The maximum depth of the tree.
+    template <typename LeafCheck>
+    void check_random_split_leaves(std::int64_t row_count,
+                                   std::int64_t column_count,
+                                   double min_weight_fraction,
+                                   std::int64_t max_tree_depth,
+                                   LeafCheck&& check_leaf) {
+        constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
+
+        auto x_arr = array<float>::empty(row_count * column_count);
+        auto y_arr = array<float>::empty(row_count);
+        auto w_arr = array<float>::empty(row_count);
+        float* x_ptr = x_arr.get_mutable_data();
+        float* y_ptr = y_arr.get_mutable_data();
+        float* w_ptr = w_arr.get_mutable_data();
+        for (std::int64_t i = 0; i < row_count; ++i) {
+            for (std::int64_t j = 0; j < column_count; ++j) {
+                x_ptr[i * column_count + j] = static_cast<float>(i);
+            }
+            y_ptr[i] = is_cls ? static_cast<float>(cls_label(i)) : static_cast<float>(i);
+            w_ptr[i] = 1.0f;
+        }
+        const auto x = dal::homogen_table::wrap(x_ptr, row_count, column_count);
+        const auto y = dal::homogen_table::wrap(y_ptr, row_count, 1);
+
+        auto desc = this->get_default_descriptor();
+        if constexpr (is_cls) {
+            desc.set_class_count(cls_class_count);
+        }
+        desc.set_tree_count(1);
+        desc.set_features_per_node(column_count);
+        desc.set_bootstrap(false);
+        desc.set_max_tree_depth(max_tree_depth);
+        desc.set_min_observations_in_leaf_node(1);
+        desc.set_splitter_mode(splitter_mode::random);
+
+        struct leaf_collector {
+            std::vector<leaf_node_info<Task>>* out;
+            bool operator()(const leaf_node_info<Task>& info) {
+                out->push_back(info);
+                return true;
+            }
+            bool operator()(const split_node_info<Task>& info) {
+                return true;
+            }
+        };
+
+        model_t model;
+        if (min_weight_fraction > 0.0) {
+            desc.set_min_weight_fraction_in_leaf_node(min_weight_fraction);
+            const auto w = dal::homogen_table::wrap(w_ptr, row_count, 1);
+            model = this->train(desc, x, y, w).get_model();
+        }
+        else {
+            model = this->train(desc, x, y).get_model();
+        }
+
+        std::vector<leaf_node_info<Task>> leaves;
+        model.traverse_depth_first(0, leaf_collector{ &leaves });
+        REQUIRE(leaves.size() >= 2);
+
+        std::int64_t start = 0;
+        for (const auto& leaf : leaves) {
+            const std::int64_t count = leaf.get_sample_count();
+            CAPTURE(row_count, leaves.size(), start, count);
+            REQUIRE(count > 0);
+            check_leaf(leaf, start, count);
+            start += count;
+        }
+        REQUIRE(start == row_count);
+    }
+
+    static constexpr std::int64_t cls_class_count = 3;
+
+    /// The class of row `i` in the random splitter checks: runs of three rows per class.
+    static std::int64_t cls_label(std::int64_t i) {
+        return (i / 3) % cls_class_count;
+    }
+
+    /// Checks that every leaf of a random split describes exactly the rows it holds, including
+    /// for nodes with more rows than the GPU splitter has work items in a work group.
+    ///
+    /// @param[in] row_count The number of training rows.
+    void check_random_split_covers_all_rows(std::int64_t row_count) {
+        // A shallow tree keeps the split nodes far larger than a work group.
+        check_random_split_leaves(
+            row_count,
+            1,
+            0.0,
+            2,
+            [](const leaf_node_info<Task>& leaf, std::int64_t start, std::int64_t count) {
+                if constexpr (std::is_same_v<Task, decision_forest::task::classification>) {
+                    for (std::int64_t c = 0; c < cls_class_count; ++c) {
+                        std::int64_t class_rows = 0;
+                        for (std::int64_t i = start; i < start + count; ++i) {
+                            class_rows += (cls_label(i) == c);
+                        }
+                        CAPTURE(c, class_rows);
+                        REQUIRE(std::fabs(leaf.get_probability(c) -
+                                          double(class_rows) / double(count)) < 1e-6);
+                    }
+                }
+                else {
+                    // The response of a leaf is the mean of its rows' row indices.
+                    const double expected = 0.5 * double(2 * start + count - 1);
+                    CAPTURE(leaf.get_response(), expected);
+                    REQUIRE(std::fabs(leaf.get_response() - expected) < 1.0);
+                }
+            });
+    }
+
+    /// Checks that the weight of every row of a node counts towards the minimum leaf weight,
+    /// including for nodes with more rows than the GPU splitter has work items in a work group.
+    ///
+    /// @param[in] row_count The number of training rows, each of unit weight.
+    void check_random_split_weights_cover_all_rows(std::int64_t row_count) {
+        // Every leaf needs a quarter of the rows, more than any work group has work items, so a
+        // left part that misses rows can never be accepted. Several identical columns give each
+        // node more than one random threshold to try.
+        constexpr double min_weight_fraction = 0.25;
+        const auto min_rows = static_cast<std::int64_t>(std::ceil(min_weight_fraction * row_count));
+        check_random_split_leaves(
+            row_count,
+            8,
+            min_weight_fraction,
+            4,
+            [=](const leaf_node_info<Task>&, std::int64_t, std::int64_t count) {
+                REQUIRE(count >= min_rows);
+            });
     }
 
     // Trains a single fully-grown tree with and without a min_weight_fraction
