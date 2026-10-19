@@ -1912,15 +1912,22 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     pr::ndarray<Float, 1> node_imp_decrease_list;
     if (ctx.distr_mode_) {
-        // All ranks share the seed, so each skips to its own range. Per row and tree the range
-        // bounds one bootstrap draw, `selected_ftr_count` features and thresholds for each of at
-        // most `2 * row_count` nodes, and a `2 * n` MDA shuffle per column.
-        std::int64_t values_per_row = 1 + 4 * std::int64_t(ctx.selected_ftr_count_);
+        // All ranks share the seed, so each skips to its own range, which has the same size on
+        // every rank. Per tree it bounds one bootstrap draw per selected row, `selected_ftr_count`
+        // features and thresholds for each of at most `2 * selected_row_total_count` nodes, and
+        // an MDA shuffle per column of two draws per OOB row, of which there are at most
+        // `row_total_count`.
+        const std::int64_t selected_row_count = ctx.selected_row_total_count_;
+        const std::int64_t split_values_per_row = 1 + 4 * std::int64_t(ctx.selected_ftr_count_);
+        de::check_mul_overflow(split_values_per_row, selected_row_count);
+        std::int64_t values_per_tree = split_values_per_row * selected_row_count;
         if (ctx.mda_required_) {
-            values_per_row += 2 * std::int64_t(ctx.column_count_);
+            const std::int64_t mda_values_per_row = 2 * std::int64_t(ctx.column_count_);
+            de::check_mul_overflow(mda_values_per_row, std::int64_t(ctx.row_total_count_));
+            const std::int64_t mda_values = mda_values_per_row * ctx.row_total_count_;
+            de::check_sum_overflow(values_per_tree, mda_values);
+            values_per_tree += mda_values;
         }
-        de::check_mul_overflow(values_per_row, std::int64_t(ctx.selected_row_total_count_));
-        const std::int64_t values_per_tree = values_per_row * ctx.selected_row_total_count_;
         de::check_mul_overflow(values_per_tree, std::int64_t(ctx.tree_count_));
         const std::int64_t values_per_rank = values_per_tree * ctx.tree_count_;
         de::check_mul_overflow(values_per_rank, comm_.get_rank() + 1);

@@ -63,12 +63,11 @@ public:
         return engine_type_internal::mt2203;
     }
 
-    /// No-op by design: oneMKL has no `skip_ahead` for `mt2203`, a parametrized family whose
-    /// independent streams come from `engine_idx` rather than from jumping inside one stream.
-    /// Callers that need skip-based stream separation must use a counter-based engine.
-    ///
-    /// @param[in] nSkip The number of steps to skip in the sequence. Ignored.
-    void skip_ahead_gpu(std::int64_t nSkip) override {}
+    /// Skips ahead in the random number sequence for mt2203 on the GPU.
+    /// @param[in] nSkip The number of steps to skip in the sequence.
+    void skip_ahead_gpu(std::int64_t nSkip) override {
+        skip_ahead(_gen, nSkip);
+    }
 
     /// Retrieves a pointer to the underlying mt2203 generator.
     /// @return A pointer to the `mt2203` RNG.
@@ -224,8 +223,7 @@ protected:
 /// device.
 ///
 /// The class provides functionality to skip ahead in the RNG sequence, retrieve engine states, and
-/// manage host and device engines independently. Support for `skip_ahead` on GPU is currently limited for
-/// some engine types.
+/// manage host and device engines independently.
 class device_engine {
 public:
     /// @param[in] queue   The SYCL queue used to manage device operations.
@@ -439,7 +437,7 @@ sycl::event shuffle(sycl::queue& queue,
 /// Fisher-Yates algorithm.
 ///
 /// The draw runs on the host engine and advances the device mirror by the number of values
-/// consumed, so a later on-device draw continues the stream. mt2203 cannot advance its mirror.
+/// consumed, so a later on-device draw continues the stream.
 ///
 /// @tparam Type The data type of the array elements.
 /// @param[in] queue_ The SYCL queue for device execution.

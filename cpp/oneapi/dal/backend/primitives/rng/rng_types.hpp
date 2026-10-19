@@ -62,7 +62,7 @@ inline engine_type_internal convert_engine_method(engine_type method) {
 }
 
 /// The RNG engine every algorithm uses unless another one is requested explicitly.
-/// Counter-based, so `skip_ahead` is O(1) on CPU and GPU; mt2203 has no GPU `skip_ahead` at all.
+/// Counter-based: it keeps no generator state beyond a counter, so `skip_ahead` is O(1).
 constexpr engine_type_internal default_engine_type_internal = engine_type_internal::philox4x32x10;
 
 /// Creates the DAAL(host) engine that corresponds to the requested method.

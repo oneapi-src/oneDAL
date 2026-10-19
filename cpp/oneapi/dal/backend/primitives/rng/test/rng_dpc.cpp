@@ -200,8 +200,8 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     this->check_results(arr_gpu, arr_host);
 }
 
-using rng_types_skip_ahead_support = COMBINE_TYPES((float, double),
-                                                   (mt19937, mcg59, mrg32k3a, philox4x32x10));
+using rng_types_skip_ahead_support =
+    COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59, mrg32k3a, philox4x32x10));
 
 TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahead_support) {
     SKIP_IF(this->get_policy().is_cpu());
@@ -323,26 +323,6 @@ TEMPLATE_LIST_TEST_M(rng_test,
     this->check_tail_matches(this->draw_on_host(skip + count, host_full),
                              this->draw_on_host(count, host_tail),
                              skip);
-}
-
-using rng_types_no_skip_ahead = COMBINE_TYPES((float), (mt2203));
-
-TEMPLATE_LIST_TEST_M(rng_test,
-                     "mt2203 device skip ahead is a no-op",
-                     "[rng]",
-                     rng_types_no_skip_ahead) {
-    SKIP_IF(this->get_policy().is_cpu());
-
-    constexpr std::int64_t count = 256;
-    auto eng_plain = this->get_device_engine(default_seed);
-    auto eng_skipped = this->get_device_engine(default_seed);
-    eng_skipped.skip_ahead_gpu(count);
-
-    // Documented on `gen_mt2203::skip_ahead_gpu`: oneMKL has no `skip_ahead` for mt2203, so the
-    // skip-based stream separation of distributed decision forest cannot work with this engine.
-    this->check_tail_matches(this->draw_on_device(count, eng_plain),
-                             this->draw_on_device(count, eng_skipped),
-                             0);
 }
 
 TEMPLATE_LIST_TEST_M(rng_test,

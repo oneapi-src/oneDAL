@@ -62,8 +62,7 @@ public:
     infer_mode infer_mode_value = infer_mode::class_responses;
 
     // Mirrors `default_engine_type_internal` in backend/primitives/rng/rng_types.hpp, which the
-    // public descriptor must not include. Distributed training needs a `skip_ahead`-capable
-    // engine to separate per-rank streams, and mt2203 has none on GPU.
+    // public descriptor must not include.
     engine_type df_engine_type = engine_type::philox4x32x10;
     bool memory_saving_mode = false;
     bool bootstrap = true;
