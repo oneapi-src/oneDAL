@@ -44,6 +44,19 @@
    bazel --version
    ```
 
+## Quick start on Linux
+Bazelisk and a C++ compiler (gcc or clang) are all that is needed. Bazel
+downloads MKL, TBB and the other dependencies itself, at the versions pinned in
+`dev/bazel/deps/`.
+```sh
+bazel build //:release
+bazel test //cpp/oneapi/dal/algo/kmeans:tests
+```
+Without the Intel(R) oneAPI DPC++ Compiler (`icpx`) in `PATH`, the DPC++
+libraries are left out of the release and the DPC++ tests and examples are
+reported as `SKIPPED`. To build them, source `setvars.sh` from a oneAPI
+installation first; see [Compiler choice](#compiler-choice).
+
 ## Install Bazel on Windows
 Windows Bazel support covers the regular C++/CPU build with the MSVC compiler
 and release DPC++/SYCL artifact builds with the Intel(R) oneAPI DPC++ Compiler.
@@ -85,16 +98,24 @@ validation.
    ```
 
 ### Compiler choice
-Be default our build system configures Bazel to use Intel(R) C++ Compiler
-in case of normal C++ code and Intel(R) oneAPI DPC++ Compiler in case of
-DPC++. If Intel(R) C++ Compiler is not available in the `$PATH`, Bazel
-tries to find default compiler for specific OS, e.g., GCC for Linux.
+For C++ code Bazel uses the first of `icx`, `gcc` and `clang` found in `PATH`
+on Linux (`icx`, then `cl` on Windows). DPC++ code needs the Intel(R) oneAPI
+DPC++ Compiler, `icpx`.
 
-The C++ compiler can be forcibly changed using environment variable `CC`.
+The C++ compiler can be forcibly changed using environment variable `CC`. It
+takes `gcc`, `clang` or `icx`, a versioned name such as `clang-19`, or a full
+path.
 ```sh
 export CC=gcc
 bazel <bazel-command> ... # Will use GCC for normal C++ code
 ```
+
+On Linux, `--release_dpc` defaults to whether `icpx` is in `PATH`. When it is
+false, the DPC++ targets are skipped: `//:release` has no DPC++ libraries,
+`bazel test` reports the DPC++ tests as `SKIPPED`, and requesting a DPC++
+target by name fails with an `incompatible` error that names
+`dpc_needs_icpx_in_PATH`. `--release_dpc=true` builds them regardless, and their
+compile actions fail with `icpx is not found!` if the compiler is missing.
 
 ### Prebuilt dependency roots
 Each prebuilt dependency is described by its own file in `dev/bazel/deps/`: an
@@ -306,7 +327,7 @@ The most used Bazel commands are `build`, `test` and `run`.
   ```sh
   bazel build //:release
   ```
-  This automatically builds all required ISA variants (SSE2, AVX2, AVX-512) and includes DPC++ libraries by default.
+  This automatically builds all required ISA variants (SSE2, AVX2, AVX-512) and includes DPC++ libraries when `icpx` is in `PATH`.
 
   The release tree is placed under `bazel-bin/release/daal/latest`, matching the layout of
   oneDAL release directories such as `__release_lnx/daal/latest`. The main outputs are in the
@@ -317,7 +338,7 @@ The most used Bazel commands are `build`, `test` and `run`.
     ```sh
     bazel build //:release --cpu=avx2
     ```
-  - To disable building DPC++ libraries, use `--release_dpc=false`:
+  - To disable building DPC++ libraries when `icpx` is available, use `--release_dpc=false`:
     ```sh
     bazel build //:release --release_dpc=false
     ```
@@ -442,7 +463,8 @@ waiting on.
   bazel test //cpp/oneapi/dal:tests
   ```
 
-  This will run all tests including HOST and DPC++ interfaces. In case of DPC++
+  This will run all tests including HOST and DPC++ interfaces; the DPC++ ones
+  are skipped when `icpx` is not in `PATH`. In case of DPC++
   tests, queue will be created depending machine configuration. If there is a
   GPU, `sycl::gpu_selector_v` is used, otherwise queue is created with
   `sycl::cpu_selector_v`.

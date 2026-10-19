@@ -45,8 +45,9 @@ load(
 
 def _find_tool(repo_ctx, tool_name, mandatory = False):
     if tool_name.startswith("/"):
-        return tool_name
-    tool_path = repo_ctx.which(tool_name)
+        tool_path = repo_ctx.path(tool_name) if repo_ctx.path(tool_name).exists else None
+    else:
+        tool_path = repo_ctx.which(tool_name)
     is_found = tool_path != None
     if not is_found:
         if mandatory:
@@ -71,7 +72,10 @@ def _find_tools(repo_ctx, reqs):
     # the exec host's native `ar`/`strip`, producing wrong-arch archives.
     cross_prefix = get_cross_tool_prefix(repo_ctx)
     ar_path, _ = _find_tool(repo_ctx, cross_prefix + "ar", mandatory = True)
-    cc_path, _ = _find_tool(repo_ctx, cross_prefix + reqs.compiler_id, mandatory = True)
+    # Use CC as given so that a versioned name (gcc-14, clang-19) or a full
+    # path selects that exact compiler.
+    cc_name = repo_ctx.os.environ.get("CC") or (cross_prefix + reqs.compiler_id)
+    cc_path, _ = _find_tool(repo_ctx, cc_name, mandatory = True)
     strip_path, _ = _find_tool(repo_ctx, cross_prefix + "strip", mandatory = True)
     dpcc_path, dpcpp_found = _find_tool(repo_ctx, reqs.dpc_compiler_id, mandatory = False)
     if dpcpp_found:
@@ -137,13 +141,12 @@ def _get_bin_search_flag(repo_ctx, cc_path):
         bin_search_flag = []
     return bin_search_flag
 
-def _get_gcc_toolchain_path(repo_ctx):
-    return str(repo_ctx.which("gcc").dirname.dirname.realpath)
-
 def _add_gcc_toolchain_if_needed(repo_ctx, cc):
-    if ("clang" in cc) or ("icpx" in cc):
-        return ["--gcc-toolchain=" + _get_gcc_toolchain_path(repo_ctx)]
+    gcc_path = repo_ctx.which("gcc")
+    if (("clang" in cc) or ("icpx" in cc)) and gcc_path:
+        return ["--gcc-toolchain=" + str(gcc_path.dirname.dirname.realpath)]
     else:
+        # Without a gcc driver in PATH, clang finds the installed libstdc++ itself.
         return []
 
 def _add_sycl_linkage(repo_ctx, cc):

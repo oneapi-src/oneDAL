@@ -138,10 +138,10 @@ test:dpc-private \
 
 # Configuration: 'release'
 # The //:release target automatically builds all ISA variants when
-# --cpu is unset (auto), and includes DPC++ libs by default.
+# --cpu is unset (auto), and includes DPC++ libs when icpx is in PATH.
 # Use --cpu=<isa> to restrict ISAs for CI speed, or --release_dpc=false
 # to disable DPC++ libs.
-#   bazel build //:release                       # CPU + DPC++, all ISAs
+#   bazel build //:release                       # CPU (+ DPC++ with icpx), all ISAs
 #   bazel build //:release --release_dpc=false   # CPU only, all ISAs
 #   bazel build //:release --cpu=avx2            # CI: avx2 only
 build:release-dpc \
