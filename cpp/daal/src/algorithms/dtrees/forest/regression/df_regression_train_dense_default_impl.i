@@ -1562,9 +1562,9 @@ services::Status RegressionTrainBatchKernel<algorithmFPType, method, cpu>::compu
     if (!s) return s;
     if (normalizedWeights) w = normalizedWeights.get();
 
-    const services::SharedPtr<NumericTable> convertedResponses = convertResponses<algorithmFPType, cpu>(y, s);
+    const services::SharedPtr<NumericTable> responses = convertResponses<algorithmFPType, cpu>(y, s);
     if (!s) return s;
-    if (convertedResponses) y = convertedResponses.get();
+    y = responses.get();
 
     if (par.splitter == decision_forest::training::SplitterMode::best)
     {
