@@ -25,7 +25,7 @@ CMPLRDIRSUFF.dpcpp = _dpcpp
 
 CORE.SERV.COMPILER.dpcpp = generic
 
-OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Ofast Os Oz Og
+OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Os Oz Og
 
 ifneq (,$(filter $(OPTFLAG),$(OPTFLAGS_SUPPORTED)))
 else
@@ -49,16 +49,12 @@ endif
 ifeq ($(OS_is_win),true)
     ifeq ($(filter $(OPTFLAG),Ob Od Oi Os Ot Ox Oy),$(OPTFLAG))
         -optlevel.dpcpp = -O2
-    else ifeq ($(OPTFLAG),Ofast)
-        -optlevel.dpcpp = -O3 -ffast-math
     else
         -optlevel.dpcpp = -$(OPTFLAG)
     endif
 else
     # -U first: a different level from CXXFLAGS would otherwise be a -Werror redefinition.
-    ifeq ($(OPTFLAG),Ofast)
-        -optlevel.dpcpp = -O3 -ffast-math -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
-    else ifeq ($(OPTFLAG),O0)
+    ifeq ($(OPTFLAG),O0)
         -optlevel.dpcpp = -$(OPTFLAG)
     else
         -optlevel.dpcpp = -$(OPTFLAG) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2

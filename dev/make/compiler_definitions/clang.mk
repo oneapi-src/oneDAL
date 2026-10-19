@@ -26,7 +26,7 @@ CMPLRDIRSUFF.clang = _clang
 
 CORE.SERV.COMPILER.clang = generic
 
-OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Ofast Os Oz Og
+OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Os Oz Og
 
 ifneq ($(LINKER),)
     ifneq ($(filter $(LINKER),bfd gold lld),$(LINKER))
@@ -42,8 +42,6 @@ endif
 # -U first: a different level from CXXFLAGS would otherwise be a -Werror redefinition.
 ifeq ($(filter $(OPTFLAG),O0 Og),$(OPTFLAG))
     -optlevel.clang = -$(OPTFLAG)
-else ifeq ($(OPTFLAG),Ofast)
-    -optlevel.clang = -O3 -ffast-math -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 else
     -optlevel.clang = -$(OPTFLAG) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 endif

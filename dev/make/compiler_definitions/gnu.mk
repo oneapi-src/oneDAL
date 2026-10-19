@@ -25,7 +25,7 @@ CMPLRDIRSUFF.gnu = _gnu
 
 CORE.SERV.COMPILER.gnu = generic
 
-OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Os Ofast Og Oz
+OPTFLAGS_SUPPORTED := O0 O1 O2 O3 Os Og Oz
 
 ifneq ($(LINKER),)
     ifneq ($(filter $(LINKER),bfd gold lld),$(LINKER))
@@ -38,13 +38,9 @@ else
     $(error Invalid OPTFLAG '$(OPTFLAG)' for $(COMPILER). Supported: $(OPTFLAGS_SUPPORTED))
 endif
 
-# Ofast maps to -O3 -ffast-math rather than to -Ofast itself, because -Ofast
-# also implies -fallow-store-data-races, which is unsafe in threaded kernels.
 # -U first: a different level from CXXFLAGS would otherwise be a -Werror redefinition.
 ifeq ($(filter $(OPTFLAG),O0 Og),$(OPTFLAG))
     -optlevel.gnu = -$(OPTFLAG)
-else ifeq ($(OPTFLAG),Ofast)
-    -optlevel.gnu = -O3 -ffast-math -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 else
     -optlevel.gnu = -$(OPTFLAG) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 endif
