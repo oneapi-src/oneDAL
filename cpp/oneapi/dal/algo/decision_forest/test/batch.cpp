@@ -542,6 +542,23 @@ DF_BATCH_REG_TEST("df reg random splitter covers nodes larger than a work group"
     this->check_random_split_covers_all_rows(GENERATE_COPY(2048, 8192));
 }
 
+DF_BATCH_REG_TEST("df reg random splitter leaf statistics match a sequential pass") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->check_random_split_leaf_statistics(GENERATE_COPY(2048, 8191), false);
+}
+
+// The GPU regression statistics are unweighted: weights enter only the minimum leaf weight and the
+// impurity decrease, so the leaves keep the unweighted mean and variance of their rows.
+DF_BATCH_REG_TEST("df reg random splitter leaf statistics ignore non-uniform weights on GPU") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+    SKIP_IF(!this->is_gpu());
+
+    this->check_random_split_leaf_statistics(GENERATE_COPY(2048, 8191), true);
+}
+
 DF_BATCH_REG_TEST("df reg random splitter weighs nodes larger than a work group") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());

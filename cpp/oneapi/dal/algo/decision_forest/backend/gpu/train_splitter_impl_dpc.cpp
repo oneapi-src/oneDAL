@@ -312,7 +312,12 @@ sycl::event train_splitter_impl<Float, Bin, Index, Task>::random_split(
                                                  min_weight_leaf);
                     }
                     else {
+                        const Index left_count = ts_scal.left_count;
                         sp_hlp.calc_imp_dec(ts, node_ptr, node_imp_list_ptr, node_id, false);
+                        // `calc_imp_dec` reads the count back from the histogram, where a float
+                        // holds it exactly only up to 2^24 rows.
+                        ts_scal.left_count = left_count;
+                        ts_scal.right_count = node_ptr[impl_const_t::ind_grc] - left_count;
                         sp_hlp.choose_best_split(bs,
                                                  ts,
                                                  impl_const_t::hist_prop_count_,

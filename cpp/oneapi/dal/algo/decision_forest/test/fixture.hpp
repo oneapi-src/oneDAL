@@ -288,13 +288,18 @@ public:
     ///
     /// @param[in] row_count           The number of training rows.
     /// @param[in] column_count        The number of identical feature columns.
-    /// @param[in] min_weight_fraction The minimum weight fraction of a leaf; 0 trains unweighted.
+    /// @param[in] min_weight_fraction The minimum weight fraction of a leaf, or 0 for none.
     /// @param[in] max_tree_depth      The maximum depth of the tree.
+    /// @param[in] response_of         The response of row `i`.
+    /// @param[in] weight_of           The weight of row `i`, or `nullptr` to train unweighted.
+    /// @param[in] check_leaf          Called with each leaf, its first row and its row count.
     template <typename LeafCheck>
     void check_random_split_leaves(std::int64_t row_count,
                                    std::int64_t column_count,
                                    double min_weight_fraction,
                                    std::int64_t max_tree_depth,
+                                   float (*response_of)(std::int64_t),
+                                   float (*weight_of)(std::int64_t),
                                    LeafCheck&& check_leaf) {
         constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
 
@@ -308,8 +313,8 @@ public:
             for (std::int64_t j = 0; j < column_count; ++j) {
                 x_ptr[i * column_count + j] = static_cast<float>(i);
             }
-            y_ptr[i] = is_cls ? static_cast<float>(cls_label(i)) : static_cast<float>(i);
-            w_ptr[i] = 1.0f;
+            y_ptr[i] = response_of(i);
+            w_ptr[i] = weight_of ? weight_of(i) : 1.0f;
         }
         const auto x = dal::homogen_table::wrap(x_ptr, row_count, column_count);
         const auto y = dal::homogen_table::wrap(y_ptr, row_count, 1);
@@ -336,9 +341,11 @@ public:
             }
         };
 
-        model_t model;
         if (min_weight_fraction > 0.0) {
             desc.set_min_weight_fraction_in_leaf_node(min_weight_fraction);
+        }
+        model_t model;
+        if (weight_of) {
             const auto w = dal::homogen_table::wrap(w_ptr, row_count, 1);
             model = this->train(desc, x, y, w).get_model();
         }
@@ -368,6 +375,16 @@ public:
         return (i / 3) % cls_class_count;
     }
 
+    /// The response of row `i` in the random splitter checks: its class or its row index.
+    static float row_response(std::int64_t i) {
+        constexpr bool is_cls = std::is_same_v<Task, decision_forest::task::classification>;
+        return is_cls ? static_cast<float>(cls_label(i)) : static_cast<float>(i);
+    }
+
+    static float unit_weight(std::int64_t) {
+        return 1.0f;
+    }
+
     /// Checks that every leaf of a random split describes exactly the rows it holds, including
     /// for nodes with more rows than the GPU splitter has work items in a work group.
     ///
@@ -379,6 +396,8 @@ public:
             1,
             0.0,
             2,
+            row_response,
+            nullptr,
             [](const leaf_node_info<Task>& leaf, std::int64_t start, std::int64_t count) {
                 if constexpr (std::is_same_v<Task, decision_forest::task::classification>) {
                     for (std::int64_t c = 0; c < cls_class_count; ++c) {
@@ -415,8 +434,61 @@ public:
             8,
             min_weight_fraction,
             4,
+            row_response,
+            unit_weight,
             [=](const leaf_node_info<Task>&, std::int64_t, std::int64_t count) {
                 REQUIRE(count >= min_rows);
+            });
+    }
+
+    /// Checks that the mean and the variance of every regression leaf match a sequential
+    /// double-precision pass over its rows, including for nodes with more rows than the GPU
+    /// splitter has work items in a work group.
+    ///
+    /// @param[in] row_count The number of training rows.
+    /// @param[in] weighted  Whether to train with non-uniform weights.
+    void check_random_split_leaf_statistics(std::int64_t row_count, bool weighted) {
+        // Rows that share `i % 64` share most of their response, and a work item only visits rows
+        // a work-group size apart, so the per-item means differ and an inexact combination of the
+        // per-item statistics shows up in the leaf variance.
+        const auto response_of = [](std::int64_t i) {
+            return static_cast<float>(1000 + 10 * (i % 64) + (i * 37) % 7);
+        };
+        const auto weight_of = [](std::int64_t i) {
+            return static_cast<float>(1 + i % 5);
+        };
+        // A leaf's variance can come from subtracting a sibling's from the parent's, which loses
+        // a few ulp of the node's sum of squared deviations.
+        double total_sum2cent = 0.0;
+        {
+            double mean = 0.0;
+            for (std::int64_t i = 0; i < row_count; ++i) {
+                const double delta = response_of(i) - mean;
+                mean += delta / double(i + 1);
+                total_sum2cent += delta * (response_of(i) - mean);
+            }
+        }
+        const double eps = std::is_same_v<Float, float> ? 1e-6 : 1e-12;
+        check_random_split_leaves(
+            row_count,
+            1,
+            0.0,
+            2,
+            response_of,
+            weighted ? +weight_of : nullptr,
+            [&](const leaf_node_info<Task>& leaf, std::int64_t start, std::int64_t count) {
+                double mean = 0.0;
+                double sum2cent = 0.0;
+                for (std::int64_t i = start; i < start + count; ++i) {
+                    const double delta = response_of(i) - mean;
+                    mean += delta / double(i - start + 1);
+                    sum2cent += delta * (response_of(i) - mean);
+                }
+                const double variance = sum2cent / double(count);
+                CAPTURE(leaf.get_response(), mean, leaf.get_impurity(), variance);
+                REQUIRE(std::fabs(leaf.get_response() - mean) < 1e-5 * mean);
+                REQUIRE(std::fabs(leaf.get_impurity() - variance) <
+                        1e-3 * variance + 10 * eps * total_sum2cent / double(count));
             });
     }
 
