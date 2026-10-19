@@ -142,8 +142,7 @@ sycl::event shuffle(sycl::queue& queue,
         uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
         std::swap(dst[idx[0]], dst[idx[1]]);
     }
-    // Two values are drawn per iteration, so the device mirror has to advance by `2 * count`
-    // to stay at the same position in the stream as the host engine.
+    // Two values are drawn per iteration, so the device mirror advances by `2 * count`.
     engine_.skip_ahead_gpu(2 * count);
     auto event = queue.submit([&](sycl::handler& h) {
         h.depends_on(deps);
@@ -165,16 +164,19 @@ sycl::event partial_fisher_yates_shuffle(sycl::queue& queue_,
                                          std::int64_t top,
                                          device_engine& engine_,
                                          const event_vector& deps) {
-    const auto casted_top = dal::detail::integral_cast<std::size_t>(top);
     const std::int64_t count = result_array.get_count();
     const auto casted_count = dal::detail::integral_cast<std::size_t>(count);
-    ONEDAL_ASSERT(casted_count <= casted_top);
+    ONEDAL_ASSERT(count <= top);
     auto indices_ptr = result_array.get_mutable_data();
 
     auto state = engine_.get_host_engine_state();
-    partial_fisher_yates_draw(state, indices_ptr, casted_count, casted_top);
-    // One value is drawn per iteration, so the device mirror has to advance by `count` to stay
-    // at the same position in the stream as the host engine.
+    uniform_dispatcher::uniform_without_replacement_by_cpu<int>(
+        casted_count,
+        indices_ptr,
+        state,
+        0,
+        dal::detail::integral_cast<int>(top));
+    // One value is drawn per index, so the device mirror advances by `count`.
     engine_.skip_ahead_gpu(count);
     auto event = queue_.submit([&](sycl::handler& h) {
         h.depends_on(deps);

@@ -140,6 +140,9 @@ public:
         }
     }
 
+    /// Allocates host memory for `elem_count` drawn indices.
+    ///
+    /// @param[in] elem_count The number of indices.
     auto allocate_indices(std::int64_t elem_count) {
         return ndarray<std::int32_t, 1>::empty(this->get_queue(),
                                                { elem_count },
@@ -200,10 +203,7 @@ TEMPLATE_LIST_TEST_M(rng_test, "rng cpu vs gpu", "[rng]", rng_types) {
     this->check_results(arr_gpu, arr_host);
 }
 
-using rng_types_skip_ahead_support =
-    COMBINE_TYPES((float, double), (mt2203, mt19937, mcg59, mrg32k3a, philox4x32x10));
-
-TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahead_support) {
+TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
@@ -236,7 +236,7 @@ TEMPLATE_LIST_TEST_M(rng_test, "mixed rng cpu skip", "[rng]", rng_types_skip_ahe
     this->check_results(arr_gpu, arr_host);
 }
 
-TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types_skip_ahead_support) {
+TEMPLATE_LIST_TEST_M(rng_test, "mixed rng gpu skip", "[rng]", rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
     using Float = std::tuple_element_t<0, TestType>;
@@ -297,10 +297,7 @@ TEMPLATE_LIST_TEST_M(rng_test, "default engine and seed", "[rng]", rng_types_def
     this->check_tail_matches(arr_defaulted, arr_explicit, 0);
 }
 
-TEMPLATE_LIST_TEST_M(rng_test,
-                     "skip ahead offsets host and device streams",
-                     "[rng]",
-                     rng_types_skip_ahead_support) {
+TEMPLATE_LIST_TEST_M(rng_test, "skip ahead offsets host and device streams", "[rng]", rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -328,7 +325,7 @@ TEMPLATE_LIST_TEST_M(rng_test,
 TEMPLATE_LIST_TEST_M(rng_test,
                      "shuffle keeps host and device streams in lockstep",
                      "[rng]",
-                     rng_types_skip_ahead_support) {
+                     rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -359,7 +356,7 @@ TEMPLATE_LIST_TEST_M(rng_test,
 TEMPLATE_LIST_TEST_M(rng_test,
                      "uniform without replacement keeps host and device streams in lockstep",
                      "[rng]",
-                     rng_types_skip_ahead_support) {
+                     rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 
@@ -409,7 +406,7 @@ TEMPLATE_LIST_TEST_M(rng_test,
 TEMPLATE_LIST_TEST_M(rng_test,
                      "partial fisher yates keeps host and device streams in lockstep",
                      "[rng]",
-                     rng_types_skip_ahead_support) {
+                     rng_types) {
     SKIP_IF(this->get_policy().is_cpu());
     SKIP_IF(this->not_float64_friendly());
 

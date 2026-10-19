@@ -377,8 +377,7 @@ void shuffle(std::int64_t count, Type* dst, device_engine& engine_) {
         uniform_dispatcher::uniform_by_cpu<Type>(2, idx, state, 0, count);
         std::swap(dst[idx[0]], dst[idx[1]]);
     }
-    // Two values are drawn per iteration, so the device mirror has to advance by `2 * count`
-    // to stay at the same position in the stream as the host engine.
+    // Two values are drawn per iteration, so the device mirror advances by `2 * count`.
     engine_.skip_ahead_gpu(2 * count);
 }
 

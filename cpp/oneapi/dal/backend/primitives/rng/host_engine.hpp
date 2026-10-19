@@ -145,14 +145,18 @@ template <typename Type>
 void partial_fisher_yates_shuffle(ndview<Type, 1>& result_array,
                                   std::int64_t top,
                                   host_engine& engine_) {
-    const auto casted_top = dal::detail::integral_cast<std::size_t>(top);
     const std::int64_t count = result_array.get_count();
     const auto casted_count = dal::detail::integral_cast<std::size_t>(count);
-    ONEDAL_ASSERT(casted_count <= casted_top);
+    ONEDAL_ASSERT(count <= top);
     auto indices_ptr = result_array.get_mutable_data();
 
     auto state = engine_.get_host_engine_state();
-    partial_fisher_yates_draw(state, indices_ptr, casted_count, casted_top);
+    uniform_dispatcher::uniform_without_replacement_by_cpu<int>(
+        casted_count,
+        indices_ptr,
+        state,
+        0,
+        dal::detail::integral_cast<int>(top));
 }
 
 /// One-shot overload that draws from a throw-away engine, so the same `seed` always yields the
