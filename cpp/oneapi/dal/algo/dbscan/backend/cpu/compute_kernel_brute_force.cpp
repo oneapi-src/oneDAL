@@ -17,8 +17,9 @@
 #include "oneapi/dal/backend/interop/common.hpp"
 #include "oneapi/dal/backend/interop/table_conversion.hpp"
 #include "oneapi/dal/algo/dbscan/backend/cpu/compute_kernel.hpp"
-#include "oneapi/dal/algo/dbscan/backend/cpu/compute_kernel_common.hpp"
 #include "oneapi/dal/algo/dbscan/backend/fill_core_flags.hpp"
+#include "oneapi/dal/detail/error_messages.hpp"
+#include "oneapi/dal/exceptions.hpp"
 
 #include <daal/src/algorithms/dbscan/dbscan_kernel.h>
 
@@ -40,40 +41,28 @@ using daal_dbscan_default_dense_t =
 template <typename Float, daal::internal::CpuType Cpu>
 class dbscan_compute_wrapper {
 public:
-    /// Routes to the full-matrix or the memory-saving DBSCAN kernel.
-    auto compute(const daal::data_management::NumericTable* data,
-                 const daal::data_management::NumericTable* weights,
-                 daal::data_management::NumericTable* responses,
-                 daal::data_management::NumericTable* cluster_count,
-                 daal::data_management::NumericTable* core_indices,
-                 daal::data_management::NumericTable* core_observations,
-                 const daal_dbscan::Parameter* par,
-                 daal_pairwise_distance_t metric,
-                 double degree) {
-        using kernel_t =
-            daal_dbscan::internal::DBSCANBatchKernel<Float, daal_dbscan::defaultDense, Cpu>;
-        if (par->memorySavingMode == false) {
-            return kernel_t{}.computeNoMemSave(data,
-                                               weights,
-                                               responses,
-                                               cluster_count,
-                                               core_indices,
-                                               core_observations,
-                                               par,
-                                               metric,
-                                               degree);
+    template <typename... Args>
+    auto compute(bool mem_save_mode, Args&&... args) {
+        if (mem_save_mode == false) {
+            return daal_dbscan::internal::DBSCANBatchKernel<Float, daal_dbscan::defaultDense, Cpu>{}
+                .computeNoMemSave(std::forward<Args>(args)...);
         }
-        return kernel_t{}.computeMemSave(data,
-                                         weights,
-                                         responses,
-                                         cluster_count,
-                                         core_indices,
-                                         core_observations,
-                                         par,
-                                         metric,
-                                         degree);
+        return daal_dbscan::internal::DBSCANBatchKernel<Float, daal_dbscan::defaultDense, Cpu>{}
+            .computeMemSave(std::forward<Args>(args)...);
     }
 };
+
+static daal::algorithms::internal::PairwiseDistanceType convert_metric(distance_metric metric) {
+    using daal::algorithms::internal::PairwiseDistanceType;
+    switch (metric) {
+        case distance_metric::euclidean: return PairwiseDistanceType::euclidean;
+        case distance_metric::manhattan: return PairwiseDistanceType::manhattan;
+        case distance_metric::minkowski: return PairwiseDistanceType::minkowski;
+        case distance_metric::chebyshev: return PairwiseDistanceType::chebyshev;
+        case distance_metric::cosine: return PairwiseDistanceType::cosine;
+    }
+    throw invalid_argument(dal::detail::error_messages::unknown_distance_type());
+}
 
 template <typename Float>
 static result_t call_daal_kernel(const context_cpu& ctx,
@@ -111,6 +100,7 @@ static result_t call_daal_kernel(const context_cpu& ctx,
 
     interop::status_to_exception(interop::call_daal_kernel<Float, dbscan_compute_wrapper>(
         ctx,
+        par.memorySavingMode,
         daal_data.get(),
         daal_weights.get(),
         daal_responses.get(),

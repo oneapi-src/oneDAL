@@ -33,6 +33,7 @@
 #include "src/data_management/service_numeric_table.h"
 #include "src/externals/service_math.h"
 #include "src/algorithms/service_kernel_math.h"
+#include "src/algorithms/hdbscan/hdbscan_distance_utils.h"
 #include "src/algorithms/service_error_handling.h"
 
 using namespace daal::internal;
@@ -408,86 +409,24 @@ inline FPType poweredEpsilon(PairwiseDistanceType metric, FPType eps, FPType p)
     }
 }
 
-// Point-to-point distances for the memory-saving search. Each returns the same unrooted value
-// the matching `PairwiseDistances` engine of `queryFull` writes, so both paths share `poweredEpsilon`.
-
+/// Cosine distance of two rows for the memory-saving search; a zero row is at distance 1 from
+/// every other row, as in scikit-learn.
 template <typename FPType, CpuType cpu>
-struct EuclideanPoweredDistance
+FPType cosinePointDist(const FPType * a, const FPType * b, size_t dim)
 {
-    FPType operator()(const FPType * a, const FPType * b, size_t dim) const { return distancePow2<FPType, cpu>(a, b, dim); }
-};
-
-template <typename FPType, CpuType cpu>
-struct ManhattanPoweredDistance
-{
-    FPType operator()(const FPType * a, const FPType * b, size_t dim) const
+    FPType dot = FPType(0);
+    FPType aa  = FPType(0);
+    FPType bb  = FPType(0);
+    PRAGMA_OMP_SIMD_ARGS(reduction(+ : dot, aa, bb))
+    for (size_t i = 0; i < dim; ++i)
     {
-        FPType sum = FPType(0);
-        PRAGMA_OMP_SIMD_ARGS(reduction(+ : sum))
-        for (size_t i = 0; i < dim; ++i)
-        {
-            const FPType diff = a[i] - b[i];
-            sum += (diff < FPType(0)) ? -diff : diff;
-        }
-        return sum;
+        dot += a[i] * b[i];
+        aa += a[i] * a[i];
+        bb += b[i] * b[i];
     }
-};
-
-template <typename FPType, CpuType cpu>
-struct MinkowskiPoweredDistance
-{
-    explicit MinkowskiPoweredDistance(FPType p) : _p(p) {}
-
-    FPType operator()(const FPType * a, const FPType * b, size_t dim) const
-    {
-        FPType sum = FPType(0);
-        for (size_t i = 0; i < dim; ++i)
-        {
-            sum += MathInst<FPType, cpu>::sPowx(MathInst<FPType, cpu>::sFabs(a[i] - b[i]), _p);
-        }
-        return sum;
-    }
-
-    FPType _p;
-};
-
-template <typename FPType, CpuType cpu>
-struct ChebyshevPoweredDistance
-{
-    FPType operator()(const FPType * a, const FPType * b, size_t dim) const
-    {
-        FPType mx = FPType(0);
-        PRAGMA_OMP_SIMD_ARGS(reduction(max : mx))
-        for (size_t i = 0; i < dim; ++i)
-        {
-            const FPType diff = a[i] - b[i];
-            const FPType absd = (diff < FPType(0)) ? -diff : diff;
-            mx                = (absd > mx) ? absd : mx;
-        }
-        return mx;
-    }
-};
-
-template <typename FPType, CpuType cpu>
-struct CosinePoweredDistance
-{
-    FPType operator()(const FPType * a, const FPType * b, size_t dim) const
-    {
-        FPType dot = FPType(0);
-        FPType aa  = FPType(0);
-        FPType bb  = FPType(0);
-        PRAGMA_OMP_SIMD_ARGS(reduction(+ : dot, aa, bb))
-        for (size_t i = 0; i < dim; ++i)
-        {
-            dot += a[i] * b[i];
-            aa += a[i] * a[i];
-            bb += b[i] * b[i];
-        }
-        const FPType norm = MathInst<FPType, cpu>::sSqrt(aa) * MathInst<FPType, cpu>::sSqrt(bb);
-        // As in scikit-learn, a zero row is at distance 1 from every other row.
-        return (norm > FPType(0)) ? FPType(1) - dot / norm : FPType(1);
-    }
-};
+    const FPType norm = MathInst<FPType, cpu>::sSqrt(aa) * MathInst<FPType, cpu>::sSqrt(bb);
+    return (norm > FPType(0)) ? FPType(1) - dot / norm : FPType(1);
+}
 
 /// `CosineDistances` with scikit-learn's value for zero rows: distance 1 from every other row.
 template <typename FPType, CpuType cpu>
@@ -597,13 +536,21 @@ public:
 
     services::Status query(size_t * indices, size_t n, Neighborhood<FPType, cpu> * neighs, bool doReset = false)
     {
+        // Each distance is in the same form as the matching `queryFull` engine, so both paths share `poweredEpsilon`.
+        const hdbscan::internal::MinkowskiDist<FPType> minkowski(_p);
         switch (_metric)
         {
-        case PairwiseDistanceType::euclidean: return queryImpl(EuclideanPoweredDistance<FPType, cpu> {}, indices, n, neighs, doReset);
-        case PairwiseDistanceType::manhattan: return queryImpl(ManhattanPoweredDistance<FPType, cpu> {}, indices, n, neighs, doReset);
-        case PairwiseDistanceType::minkowski: return queryImpl(MinkowskiPoweredDistance<FPType, cpu> { _p }, indices, n, neighs, doReset);
-        case PairwiseDistanceType::chebyshev: return queryImpl(ChebyshevPoweredDistance<FPType, cpu> {}, indices, n, neighs, doReset);
-        case PairwiseDistanceType::cosine: return queryImpl(CosinePoweredDistance<FPType, cpu> {}, indices, n, neighs, doReset);
+        case PairwiseDistanceType::euclidean:
+            return queryImpl([](const FPType * a, const FPType * b, size_t dim) { return distancePow2<FPType, cpu>(a, b, dim); }, indices, n, neighs,
+                             doReset);
+        case PairwiseDistanceType::manhattan:
+            return queryImpl(hdbscan::internal::ManhattanDist<FPType>::template pointDist<cpu>, indices, n, neighs, doReset);
+        case PairwiseDistanceType::minkowski:
+            return queryImpl([&](const FPType * a, const FPType * b, size_t dim) { return minkowski.template poweredPointDist<cpu>(a, b, dim); },
+                             indices, n, neighs, doReset);
+        case PairwiseDistanceType::chebyshev:
+            return queryImpl(hdbscan::internal::ChebyshevDist<FPType>::template pointDist<cpu>, indices, n, neighs, doReset);
+        case PairwiseDistanceType::cosine: return queryImpl(cosinePointDist<FPType, cpu>, indices, n, neighs, doReset);
         }
 
         return services::Status(services::ErrorMethodNotSupported);
