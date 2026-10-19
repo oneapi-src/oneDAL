@@ -130,9 +130,11 @@ def _mpi_test_impl(ctx):
 mpi_test = rule(
     implementation = _mpi_test_impl,
     attrs = {
+        # The test binary itself: built for the target like any other test,
+        # so it shares the build with the rest of the test suite.
         "src": attr.label(mandatory=True,
                           executable=True,
-                          cfg="exec"),
+                          cfg="target"),
         "mpi_ranks": attr.int(mandatory=True),
         "mpiexec": attr.label(mandatory=True,
                               executable=True,
