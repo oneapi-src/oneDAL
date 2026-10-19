@@ -45,17 +45,39 @@
    ```
 
 ## Quick start on Linux
-Bazelisk and a C++ compiler (gcc or clang) are all that is needed. Bazel
+Bazelisk and a C++ compiler are all that is needed on an x86-64 host. Bazel
 downloads MKL, TBB and the other dependencies itself, at the versions pinned in
 `MODULE.bazel` and `dev/bazel/deps/`.
 ```sh
 bazel build //:release
 bazel test //cpp/oneapi/dal/algo/kmeans:tests
 ```
-Without the Intel(R) oneAPI DPC++ Compiler (`icpx`) in `PATH`, the DPC++
-libraries are left out of the release and the DPC++ tests and examples are
-reported as `SKIPPED`. To build them, source `setvars.sh` from a oneAPI
-installation first; see [Compiler choice](#compiler-choice).
+- Bazel: use Bazelisk, which runs the version pinned in `.bazelversion`, or
+  install exactly that version.
+- Compiler: gcc 11 or newer, or clang 14 or newer. These are the oldest
+  versions tested; gcc 10 fails to build (its `<cpuid.h>` has no `__cpuidex`).
+- DPC++: without the Intel(R) oneAPI DPC++ Compiler (`icpx`) in `PATH`, the
+  DPC++ libraries are left out of the release and the DPC++ tests and examples
+  are reported as `SKIPPED`. To build them, source `setvars.sh` from a oneAPI
+  installation first; see [Compiler choice](#compiler-choice).
+- AArch64 and RISC-V64 hosts: the MKL and TBB archives are x86-64 only, so
+  these hosts need the `ref` backend with a local OpenBLAS; see
+  [Cross-compiling to ARM/RISC-V](#cross-compiling-to-armrisc-v).
+  `.github/workflows/ci-aarch64.yml` also builds TBB and sets `TBBROOT` for
+  the tests.
+
+### Proxy and offline use
+Downloads honour `https_proxy` / `HTTPS_PROXY`. Bazel keeps every downloaded
+archive in its repository cache, so a machine without network access can build
+from a cache copied from one that has it:
+```sh
+bazel build //:release --repository_cache=<copied-repository-cache>
+```
+The cache lives under `<output_user_root>/cache/repos` unless
+`--repository_cache` moves it. Alternatively, `--distdir=<dir>` takes the
+prebuilt archives from a directory, each named like the last component of its
+URL in `dev/bazel/deps/*.bzl`; the checksum is still verified. Bazelisk itself
+downloads Bazel once into `~/.cache/bazelisk`.
 
 ## Install Bazel on Windows
 Windows Bazel support covers the regular C++/CPU build with the MSVC compiler
@@ -116,6 +138,12 @@ false, the DPC++ targets are skipped: `//:release` has no DPC++ libraries,
 target by name fails with an `incompatible` error that names
 `dpc_needs_icpx_in_PATH`. `--release_dpc=true` builds them regardless, and their
 compile actions fail with `icpx is not found!` if the compiler is missing.
+`--config=dpc` (and `dpc-public`, `dpc-private`) sets `--release_dpc=true`, so
+without icpx it fails that way instead of skipping every test.
+
+Since the default follows `PATH`, a release or packaging job that must ship the
+DPC++ libraries should pass `--release_dpc=true` (or `--config=release-dpc`):
+a missing icpx then fails the build instead of producing a CPU-only package.
 
 ### Prebuilt dependency roots
 Each prebuilt dependency is described by its own file in `dev/bazel/deps/`: an
