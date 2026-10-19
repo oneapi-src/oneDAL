@@ -101,6 +101,9 @@ def _generate_mpiexec_wrapper(ctx, mpiexec, executable, fi_dir, libfabric):
         "   cd ${script_path}${runfiles_suffix}\n" +
         "fi\n" +
         "export FI_PROVIDER_PATH=\"$(pwd)/{}\"\n".format(fi_dir) +
+        # The ranks run on one node. Without this, Intel MPI may pick a NIC
+        # provider (seen: verbs/psm3 on CI VMs) that cannot open an endpoint.
+        "export I_MPI_FABRICS=\"${I_MPI_FABRICS:-shm}\"\n" +
         # libmpi dlopens libfabric.so.1 and has no RUNPATH of its own.
         "export LD_LIBRARY_PATH=\"$(pwd)/{}${{LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}}\"\n".format(
             libfabric.short_path.rpartition("/")[0]) +
