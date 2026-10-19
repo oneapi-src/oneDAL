@@ -17,6 +17,8 @@
 #include "oneapi/dal/algo/dbscan/common.hpp"
 #include "oneapi/dal/exceptions.hpp"
 
+#include <cmath>
+
 namespace oneapi::dal::dbscan {
 namespace detail {
 
@@ -111,7 +113,7 @@ void descriptor_base<Task>::set_metric_impl(distance_metric value) {
 
 template <typename Task>
 void descriptor_base<Task>::set_degree_impl(double value) {
-    if (!(value > 0.0)) {
+    if (!(value > 0.0) || !std::isfinite(value)) {
         throw domain_error(dal::detail::error_messages::invalid_minkowski_degree());
     }
     impl_->degree = value;
