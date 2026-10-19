@@ -146,8 +146,7 @@ y              := $(notdir $(filter $(_OS)/%,lnx/so win/dll mac/dylib))
 -DMKL_LP64     := $(if $(filter mkl,$(BACKEND_CONFIG)),-DMKL_LP64)
 -Zl            := $(-Zl.$(COMPILER))
 -Zl_DPCPP      := $(-Zl.dpcpp)
-# Always on, for the host and the DPC++ part alike. They used to be appended to
-# -DEBC, which reads as if they were debug-only.
+# TBB compatibility defines, applied to every build type, host and DPC++ alike.
 -DTBBCOMPAT    := -DTBB_SUPPRESS_DEPRECATED_MESSAGES -D__TBB_LEGACY_MODE
 # if REQDBG set to 'symbols', it will disable assert checking.
 # Debug flags are defined per compiler in dev/make/compiler_definitions/ under -DEBC,
