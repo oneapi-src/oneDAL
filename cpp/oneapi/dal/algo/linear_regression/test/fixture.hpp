@@ -280,6 +280,21 @@ public:
         return { x_train, y_train, x_test, y_test };
     }
 
+    void print_table(const table & t) {
+        row_accessor<const float_t> acc(t);
+        std::int64_t row_count = t.get_row_count();
+        std::int64_t col_count = t.get_column_count();
+
+        const auto arr = acc.pull({ 0, -1 });
+        for (std::int64_t i = 0; i < row_count; ++i) {
+            for (std::int64_t j = 0; j < col_count; ++j) {
+                std::cout << arr[i * col_count + j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
     void run_and_check_ridge(std::int64_t seed = 888, double tol = 1e-2) {
         table x_train, y_train, x_test, y_test;
         std::tie(x_train, y_train, x_test, y_test) = prepare_inputs(seed, tol);
@@ -289,6 +304,13 @@ public:
 
         const auto ridge_desc = this->get_descriptor(this->alpha_);
         const auto ridge_train_res = this->train(ridge_desc, x_train, y_train);
+
+        std::cout << "Alpha value: " << std::endl;
+        std::cout << this->alpha_ << std::endl;
+        std::cout << "Ridge coefficients: " << std::endl;
+        print_table(ridge_train_res.get_coefficients());
+        std::cout << "Linear coefficients: " << std::endl;
+        print_table(linear_train_res.get_coefficients());
 
         SECTION("Checking coefficient shrinkage") {
             this->check_coefficient_shrinkage(linear_train_res.get_coefficients(),
