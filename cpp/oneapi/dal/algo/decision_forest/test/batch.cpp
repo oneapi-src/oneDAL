@@ -341,6 +341,13 @@ DF_BATCH_CLS_TEST("df cls base check with default params and train weights") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
+DF_BATCH_CLS_TEST("df cls engine type selects the random stream") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->check_engine_type_changes_forest(engine_type::mt2203, engine_type::philox4x32x10);
+}
+
 DF_BATCH_CLS_TEST("df cls trees draw different random streams") {
     SKIP_IF(this->not_available_on_device());
     SKIP_IF(this->not_float64_friendly());
@@ -518,6 +525,13 @@ DF_BATCH_REG_TEST("df reg base check with default params and train weights") {
         this->train_weighted_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
+DF_BATCH_REG_TEST("df reg engine type selects the random stream") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    this->check_engine_type_changes_forest(engine_type::mt2203, engine_type::philox4x32x10);
 }
 
 DF_BATCH_REG_TEST("df reg trees draw different random streams") {
