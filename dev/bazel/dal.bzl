@@ -588,6 +588,7 @@ def _dal_cc_test(name, mpi=False, ccl = False, mpi_ranks=0, **kwargs):
             mpi_ranks = mpi_ranks,
             mpiexec = "@mpi//:mpiexec",
             fi = "@mpi//:fi",
+            libfabric = "@mpi//:libfabric_runtime",
         )
     elif ccl:
         if mpi_ranks <= 0:
@@ -603,6 +604,7 @@ def _dal_cc_test(name, mpi=False, ccl = False, mpi_ranks=0, **kwargs):
             mpi_ranks = mpi_ranks,
             mpiexec = "@mpi//:mpiexec",
             fi = "@mpi//:fi",
+            libfabric = "@mpi//:libfabric_runtime",
         )
     else:
         cc_test(
