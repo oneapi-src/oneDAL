@@ -312,8 +312,9 @@ jobs:
     name: LinuxBazelNoOneAPI(${{ matrix.compiler }})
     timeout-minutes: 180
     env:
-      BAZEL_REPO_CACHE: ${{ github.workspace }}/../bazel-repo-cache
-      BAZEL_DISK_CACHE: ${{ github.workspace }}/../bazel-disk-cache
+      # actions/cache rejects paths with '..', so keep the caches under $HOME.
+      BAZEL_REPO_CACHE: /home/runner/.cache/bazel-repo
+      BAZEL_DISK_CACHE: /home/runner/.cache/bazel-disk
 
     steps:
       - name: Checkout oneDAL
