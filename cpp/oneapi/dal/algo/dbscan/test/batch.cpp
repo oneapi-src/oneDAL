@@ -17,6 +17,7 @@
 #include <array>
 
 #include "oneapi/dal/algo/dbscan/test/fixture.hpp"
+#include "oneapi/dal/test/engine/blobs.hpp"
 
 namespace oneapi::dal::dbscan::test {
 
@@ -208,131 +209,55 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
     this->run_checks(x, table{}, epsilon, min_observations, r);
 }
 
-// The metric tests use 2 and 5 columns, on both sides of the GPU narrow/wide kernel threshold.
-
-struct metric_case {
-    distance_metric metric;
-    double degree;
-    double epsilon;
-    const std::int32_t* responses;
-};
-
-constexpr std::int32_t pair_and_noise[] = { 0, 0, -1 };
-constexpr std::int32_t all_noise[] = { -1, -1, -1 };
-constexpr std::int32_t one_cluster[] = { 0, 0, 0 };
-
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "dbscan narrow metric test",
+                     "dbscan metrics match the definition on reference distances",
                      "[dbscan][batch]",
                      dbscan_types) {
     SKIP_IF(this->not_float64_friendly());
     using float_t = std::tuple_element_t<0, TestType>;
+    using method_t = std::tuple_element_t<1, TestType>;
 
-    // Distances (p0, p1), (p1, p2), (p0, p2): euclidean 1.41, 2.83, 4.24; manhattan 2, 4, 6;
-    // chebyshev 1, 2, 3; minkowski(3) 1.26, 2.52, 3.78.
-    constexpr float_t data[] = { 0.0, 0.0, 1.0, 1.0, 3.0, 3.0 };
-    const auto x = homogen_table::wrap(data, 3, 2);
-
-    const metric_case c =
-        GENERATE(metric_case{ distance_metric::euclidean, 2.0, 1.5, pair_and_noise },
-                 metric_case{ distance_metric::chebyshev, 2.0, 1.5, pair_and_noise },
-                 metric_case{ distance_metric::minkowski, 3.0, 1.5, pair_and_noise },
-                 metric_case{ distance_metric::manhattan, 2.0, 1.5, all_noise },
-                 metric_case{ distance_metric::euclidean, 2.0, 2.5, pair_and_noise },
-                 metric_case{ distance_metric::manhattan, 2.0, 2.5, pair_and_noise },
-                 metric_case{ distance_metric::minkowski, 3.0, 2.5, pair_and_noise },
-                 metric_case{ distance_metric::chebyshev, 2.0, 2.5, one_cluster });
-
-    this->run_metric_checks(x,
-                            c.epsilon,
-                            2,
-                            c.metric,
-                            c.degree,
-                            homogen_table::wrap(c.responses, 3, 1));
-}
-
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "dbscan wide metric test",
-                     "[dbscan][batch]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
-
-    // Distances (p0, p1), (p1, p2), (p0, p2): euclidean 2.24, 3.61, 4; manhattan 5, 7, 4;
-    // chebyshev 1, 3, 4; minkowski(3) 1.71, 3.14, 4.
-    constexpr float_t data[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-                                 1.0, 1.0, 4.0, 0.0, 0.0, 0.0, 0.0 };
-    const auto x = homogen_table::wrap(data, 3, 5);
-
-    const metric_case c =
-        GENERATE(metric_case{ distance_metric::euclidean, 2.0, 2.5, pair_and_noise },
-                 metric_case{ distance_metric::chebyshev, 2.0, 2.5, pair_and_noise },
-                 metric_case{ distance_metric::minkowski, 3.0, 2.5, pair_and_noise },
-                 metric_case{ distance_metric::manhattan, 2.0, 2.5, all_noise },
-                 metric_case{ distance_metric::euclidean, 2.0, 3.5, pair_and_noise },
-                 metric_case{ distance_metric::manhattan, 2.0, 3.5, all_noise },
-                 metric_case{ distance_metric::chebyshev, 2.0, 3.5, one_cluster },
-                 metric_case{ distance_metric::minkowski, 3.0, 3.5, one_cluster });
-
-    this->run_metric_checks(x,
-                            c.epsilon,
-                            2,
-                            c.metric,
-                            c.degree,
-                            homogen_table::wrap(c.responses, 3, 1));
-}
-
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "dbscan minkowski degree matches the dedicated metrics",
-                     "[dbscan][batch]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
-
-    constexpr float_t data[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
-                                 1.0, 1.0, 4.0, 0.0, 0.0, 0.0, 0.0 };
-    const auto x = homogen_table::wrap(data, 3, 5);
-
-    constexpr std::int64_t min_observations = 2;
-    const double epsilon = GENERATE(1.5, 2.5, 3.5, 4.5);
-    struct degree_case {
+    struct metric_case {
+        distance_metric metric;
         double degree;
-        distance_metric dedicated;
     };
-    const degree_case c = GENERATE(degree_case{ 2.0, distance_metric::euclidean },
-                                   degree_case{ 1.0, distance_metric::manhattan });
+    const metric_case c = GENERATE(metric_case{ distance_metric::euclidean, 2.0 },
+                                   metric_case{ distance_metric::manhattan, 2.0 },
+                                   metric_case{ distance_metric::minkowski, 3.0 },
+                                   metric_case{ distance_metric::minkowski, 0.5 },
+                                   metric_case{ distance_metric::chebyshev, 2.0 },
+                                   metric_case{ distance_metric::cosine, 2.0 });
+    // 2 and 5 columns take the narrow and the wide GPU kernels; 20 also takes the early exit.
+    const std::int64_t column_count = GENERATE(2, 5, 20);
+    const bool weighted = GENERATE(false, true);
+    const bool mem_save_mode = GENERATE(false, true);
+    CAPTURE(static_cast<int>(c.metric), c.degree, column_count, weighted, mem_save_mode);
 
-    const auto reference = oneapi::dal::test::engine::compute(
-        this->get_policy(),
-        this->get_metric_descriptor(epsilon, min_observations, c.dedicated, 2.0, true),
-        x,
-        table{});
-    this->run_metric_checks(x,
-                            epsilon,
-                            min_observations,
-                            distance_metric::minkowski,
-                            c.degree,
-                            reference.get_responses());
-}
+    constexpr std::int64_t row_count = 120;
+    constexpr std::int64_t min_observations = 5;
+    const auto x = te::make_blobs<float_t>(40, 3, column_count, 4.0, 3.0);
+    std::vector<float_t> w(row_count, 1);
+    for (std::int64_t i = 0; weighted && i < row_count; i++) {
+        w[i] = float_t(1 + i % 3);
+    }
 
-TEMPLATE_LIST_TEST_M(dbscan_batch_test,
-                     "dbscan cosine metric test",
-                     "[dbscan][batch]",
-                     dbscan_types) {
-    SKIP_IF(this->not_float64_friendly());
-    using float_t = std::tuple_element_t<0, TestType>;
+    const auto dist = this->reference_distances(x, column_count, c.metric, c.degree);
+    const double epsilon = this->pick_epsilon(dist, row_count, 0.03);
 
-    // The first two rows are collinear, so far apart in the euclidean sense but at cosine
-    // distance 0; the third row is orthogonal to both, at cosine distance 1.
-    constexpr float_t narrow_data[] = { 1.0, 0.0, 2.0, 0.0, 0.0, 1.0 };
-    const auto x_narrow = homogen_table::wrap(narrow_data, 3, 2);
-    constexpr float_t wide_data[] = { 1.0, 1.0, 0.0, 0.0, 0.0, 2.0, 2.0, 0.0,
-                                      0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0 };
-    const auto x_wide = homogen_table::wrap(wide_data, 3, 5);
-
-    const auto r = homogen_table::wrap(pair_and_noise, 3, 1);
-    this->run_metric_checks(x_narrow, 0.1, 2, distance_metric::cosine, 2.0, r);
-    this->run_metric_checks(x_wide, 0.1, 2, distance_metric::cosine, 2.0, r);
+    const auto desc =
+        dbscan::descriptor<float_t, method_t>(epsilon, min_observations)
+            .set_mem_save_mode(mem_save_mode)
+            .set_metric(c.metric)
+            .set_degree(c.degree)
+            // The CPU fills the core flags only when the core indices are requested too.
+            .set_result_options(result_options::responses | result_options::core_flags |
+                                result_options::core_observation_indices);
+    const auto result =
+        te::compute(this->get_policy(),
+                    desc,
+                    homogen_table::wrap(x.data(), row_count, column_count),
+                    weighted ? table{ homogen_table::wrap(w.data(), row_count, 1) } : table{});
+    this->check_against_definition(result, dist, w, epsilon, min_observations);
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
