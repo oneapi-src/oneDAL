@@ -341,6 +341,19 @@ DF_BATCH_CLS_TEST("df cls base check with default params and train weights") {
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
 }
 
+DF_BATCH_CLS_TEST("df cls trees draw different random streams") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto engine = GENERATE(engine_type::mt2203,
+                                 engine_type::mcg59,
+                                 engine_type::mt19937,
+                                 engine_type::mrg32k3a,
+                                 engine_type::philox4x32x10);
+    CAPTURE(static_cast<int>(engine));
+    this->check_trees_draw_different_streams(engine);
+}
+
 // min_weight_fraction_in_leaf_node enforcement (classification).
 DF_BATCH_CLS_TEST("df cls min weight fraction reduces node count") {
     SKIP_IF(this->not_available_on_device());
@@ -505,6 +518,19 @@ DF_BATCH_REG_TEST("df reg base check with default params and train weights") {
         this->train_weighted_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
+DF_BATCH_REG_TEST("df reg trees draw different random streams") {
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto engine = GENERATE(engine_type::mt2203,
+                                 engine_type::mcg59,
+                                 engine_type::mt19937,
+                                 engine_type::mrg32k3a,
+                                 engine_type::philox4x32x10);
+    CAPTURE(static_cast<int>(engine));
+    this->check_trees_draw_different_streams(engine);
 }
 
 // min_weight_fraction_in_leaf_node enforcement (regression).

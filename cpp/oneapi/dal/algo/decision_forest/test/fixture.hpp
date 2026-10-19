@@ -22,6 +22,8 @@
 
 #include <cmath>
 #include <list>
+#include <utility>
+#include <vector>
 
 #define sizeofa(p) sizeof(p) / sizeof(*p)
 
@@ -279,6 +281,58 @@ public:
             return true;
         });
         return node_count;
+    }
+
+    /// Trains a bootstrapped forest with `engine` and checks that its trees are not all the same,
+    /// which they are when every tree draws from the same random stream.
+    ///
+    /// @param[in] engine The engine type of the forest.
+    void check_trees_draw_different_streams(engine_type engine) {
+        constexpr std::int64_t row_count = 256;
+        constexpr std::int64_t tree_count = 4;
+
+        auto x_arr = array<float>::empty(row_count);
+        auto y_arr = array<float>::empty(row_count);
+        float* x_ptr = x_arr.get_mutable_data();
+        float* y_ptr = y_arr.get_mutable_data();
+        for (std::int64_t i = 0; i < row_count; ++i) {
+            x_ptr[i] = static_cast<float>(i);
+            y_ptr[i] = static_cast<float>(i % 2);
+        }
+        const auto x = dal::homogen_table::wrap(x_ptr, row_count, 1);
+        const auto y = dal::homogen_table::wrap(y_ptr, row_count, 1);
+
+        auto desc = this->get_default_descriptor();
+        if constexpr (std::is_same_v<Task, decision_forest::task::classification>) {
+            desc.set_class_count(2);
+        }
+        desc.set_tree_count(tree_count);
+        desc.set_features_per_node(1);
+        desc.set_bootstrap(true);
+        desc.set_engine_type(engine);
+        const auto model = this->train(desc, x, y).get_model();
+
+        // Leaf sizes in traversal order identify a tree's bootstrap sample and splits.
+        struct leaf_size_collector {
+            std::vector<std::int64_t>* out;
+            bool operator()(const leaf_node_info<Task>& info) {
+                out->push_back(info.get_sample_count());
+                return true;
+            }
+            bool operator()(const split_node_info<Task>& info) {
+                return true;
+            }
+        };
+
+        std::vector<std::vector<std::int64_t>> trees(tree_count);
+        for (std::int64_t t = 0; t < tree_count; ++t) {
+            model.traverse_depth_first(t, leaf_size_collector{ &trees[t] });
+        }
+        bool all_same = true;
+        for (std::int64_t t = 1; t < tree_count; ++t) {
+            all_same = all_same && (trees[t] == trees[0]);
+        }
+        REQUIRE(!all_same);
     }
 
     // Trains a single fully-grown tree with and without a min_weight_fraction
