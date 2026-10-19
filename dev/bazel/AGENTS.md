@@ -86,7 +86,7 @@ bazel build //:release
 
 Always scope targets, and pass `--config` to `bazel test` and `bazel run`; with it unset, tests include DPC++ targets, which are skipped when `icpx` is not in `PATH` (`--release_dpc` defaults to whether it is). `dev/bazel/README.md` lists every config.
 
-Bazel downloads MKL, TBB and every other dependency from `dev/bazel/deps/*.bzl`, so a Linux host only needs Bazelisk and gcc or clang; the `*ROOT` variables in the README point a dependency at a local install instead.
+Bazel downloads MKL, TBB and every other dependency at the versions pinned in `MODULE.bazel` and `dev/bazel/deps/*.bzl`, so a Linux host only needs Bazelisk and gcc or clang; the `*ROOT` variables in the README point a dependency at a local install instead.
 
 ## 🔧 Dependency Management
 

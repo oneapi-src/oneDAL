@@ -47,7 +47,7 @@
 ## Quick start on Linux
 Bazelisk and a C++ compiler (gcc or clang) are all that is needed. Bazel
 downloads MKL, TBB and the other dependencies itself, at the versions pinned in
-`dev/bazel/deps/`.
+`MODULE.bazel` and `dev/bazel/deps/`.
 ```sh
 bazel build //:release
 bazel test //cpp/oneapi/dal/algo/kmeans:tests
