@@ -91,8 +91,8 @@ services::SharedPtr<NumericTable> normalizeWeights(const NumericTable * weights,
     return normalized;
 }
 
-// Every tree reads its sampled responses as algorithmFPType. Convert a table of another type
-// once per fit so those reads are zero-copy instead of a conversion per tree.
+// Each tree and each OOB row reads responses as algorithmFPType. Converting a table of another
+// type once per fit makes those reads zero-copy.
 template <typename algorithmFPType, CpuType cpu>
 services::SharedPtr<NumericTable> convertResponses(const NumericTable * y, services::Status & s)
 {
