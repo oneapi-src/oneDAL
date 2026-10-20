@@ -642,16 +642,29 @@ TEST("profiler closes tasks left open above the one being closed") {
     REQUIRE(find_row(prof::profiler_report(), "next", -1) >= 0);
 }
 
+template <typename T>
+void log_from_template() {
+    DAAL_PROFILER_LOG("template log line " << sizeof(T) << '\n');
+}
+
 TEST("profiler logs a call site once unless every call is asked for") {
     // Without ONEDAL_PROFILER_OUTPUT, the log goes to stderr one line per call
     // site, so a pipe nobody reads while oneDAL runs cannot fill up and block the process.
     std::ostringstream captured;
     auto* previous = std::cerr.rdbuf(captured.rdbuf());
+    const std::string logged = "logged line\n";
+    const std::string unkeyed = "unkeyed line\n";
     for (int i = 0; i < 3; ++i) {
-        prof::profiler_log("profiler test call site", "logged line\n");
+        if (prof::profiler_claim_log_site("profiler test call site")) {
+            prof::profiler_log(logged.data(), logged.size());
+        }
     }
-    prof::profiler_log(nullptr, "unkeyed line\n");
-    prof::profiler_log(nullptr, "unkeyed line\n");
+    prof::profiler_log(unkeyed.data(), unkeyed.size());
+    prof::profiler_log(unkeyed.data(), unkeyed.size());
+    // Each instantiation of a template shares the call site of its log line.
+    log_from_template<int>();
+    log_from_template<float>();
+    log_from_template<int>();
     std::cerr.rdbuf(previous);
 
     const std::string text = captured.str();
@@ -664,6 +677,7 @@ TEST("profiler logs a call site once unless every call is asked for") {
     };
     REQUIRE(count("logged line") == 1);
     REQUIRE(count("unkeyed line") == 2);
+    REQUIRE(count("template log line") == 1);
 }
 
 TEST("profiler reports a task with arguments once per distinct set of arguments") {

@@ -66,6 +66,16 @@ namespace internal
 namespace
 {
 
+// A hash type local to this file gives the containers below internal linkage, so their
+// instantiations are not exported from libonedal_core.
+template <typename T>
+struct local_hash : std::hash<T>
+{};
+template <typename K, typename V>
+using hash_map = std::unordered_map<K, V, local_hash<K> >;
+template <typename K>
+using hash_set = std::unordered_set<K, local_hash<K> >;
+
 constexpr int memory_kinds   = 2;
 constexpr int transfer_kinds = 2;
 
@@ -413,8 +423,8 @@ struct thread_state
     // Blocks this thread allocated that are not in the shared table yet, newest last; most are
     // freed here, soon after they were allocated.
     std::vector<block_table::slot> recent;
-    std::unordered_map<const node *, own_stats> anchored; // charged while idle inside a region
-    const node * charged_anchor = nullptr;                // the last entry of `anchored` looked up
+    hash_map<const node *, own_stats> anchored; // charged while idle inside a region
+    const node * charged_anchor = nullptr;      // the last entry of `anchored` looked up
     own_stats * charged         = nullptr;
     own_stats outside;                // charged with no task open
     std::int64_t trace_slots     = 0; // reserved, not yet used timeline events
@@ -441,7 +451,7 @@ struct global_state
     padded_counter process_peak[memory_kinds];
     // Frees of blocks that were still in another thread's `recent` table, settled when it is spilled.
     std::mutex orphans_mutex;
-    std::unordered_set<const void *> orphans;
+    hash_set<const void *> orphans;
     std::atomic<std::size_t> orphan_count { 0 };
 
     std::atomic<int> open_calls { 0 }; // outermost tasks open on any thread
@@ -473,7 +483,7 @@ struct log_sink
     bool to_file    = false;
     bool every_call = false; // otherwise each call site is logged once
     bool noted      = false;
-    std::unordered_set<std::string> seen;
+    hash_set<std::string> seen;
 
     log_sink()
     {
@@ -496,6 +506,33 @@ log_sink & sink()
 {
     static log_sink * instance = new log_sink();
     return *instance;
+}
+
+/// Whether a line keyed by `key` is to be written: always when the output is a file, otherwise
+/// the first time `key` is seen.
+bool claim_log_key(const char * key)
+{
+    auto & s = sink();
+    std::lock_guard<std::mutex> lock(s.mutex);
+    if (s.every_call) return true;
+    if (!s.seen.insert(key).second) return false;
+    if (!s.noted)
+    {
+        s.noted = true;
+        s.out() << "ONEDAL PROFILER: each call site is logged once; set ONEDAL_PROFILER_OUTPUT=<file> to log every call\n";
+    }
+    return true;
+}
+
+/// Writes `text` the first time `key` is seen, or every time when the output is a file.
+void log_once(const char * key, const std::string & text)
+{
+    if (claim_log_key(key)) profiler_log(text.data(), text.size());
+}
+
+void log_text(const std::string & text)
+{
+    profiler_log(text.data(), text.size());
 }
 
 void report_at_exit();
@@ -681,12 +718,19 @@ node * find_child(thread_state & ts, node * parent, node * anchor, const char * 
 ///                     False only for the private calibration state.
 constexpr std::size_t max_args_variants = 8;
 
+/// The arguments of a task as "name: value; " pairs, not null-terminated.
+struct task_args
+{
+    const char * text;
+    std::size_t length;
+};
+
 /// The row of a task with arguments under `parent`: "name [args]", or "name [other args]" once the
 /// task has max_args_variants rows there already. Existing rows are matched without building the label.
-node * find_args_child(thread_state & ts, node * parent, node * anchor, const char * name, const std::string & args)
+node * find_args_child(thread_state & ts, node * parent, node * anchor, const char * name, const task_args & args)
 {
-    std::size_t length = args.size();
-    while (length > 0 && (args[length - 1] == ' ' || args[length - 1] == ';')) --length;
+    std::size_t length = args.length;
+    while (length > 0 && (args.text[length - 1] == ' ' || args.text[length - 1] == ';')) --length;
     const std::size_t name_length = std::strlen(name);
     std::size_t variants          = 0;
     for (node * sibling : parent ? parent->children : ts.root.children)
@@ -697,15 +741,16 @@ node * find_args_child(thread_state & ts, node * parent, node * anchor, const ch
         {
             continue;
         }
-        if (label.size() == name_length + length + 3 && label.compare(name_length + 2, length, args, 0, length) == 0) return sibling;
+        if (label.size() == name_length + length + 3 && label.compare(name_length + 2, length, args.text, length) == 0) return sibling;
         ++variants;
     }
-    const std::string label = std::string(name) + " [" + (variants < max_args_variants ? args.substr(0, length) : "other args") + "]";
+    const std::string label =
+        std::string(name) + " [" + (variants < max_args_variants ? std::string(args.text, length) : std::string("other args")) + "]";
     return find_child(ts, parent, anchor, label.c_str(), false, false);
 }
 
 /// @param[in] args     The task's arguments, or nullptr
-int begin_task(thread_state & ts, const char * name, bool threading, bool shared, const std::string * args = nullptr)
+int begin_task(thread_state & ts, const char * name, bool threading, bool shared, const task_args * args = nullptr)
 {
     auto & global = state();
     frame f;
@@ -751,9 +796,10 @@ int begin_task(thread_state & ts, const char * name, bool threading, bool shared
     if (threading && shared && is_logger_enabled() && (is_every_call_logged() || !f.task->logged))
     {
         f.task->logged = true;
-        profiler_log(("threading " + f.task->name).c_str(), "-----------------------------------------------------------------------------\n"
-                                                            "THREADING Profiler task started "
-                                                                + f.task->name + "\n");
+        log_once((std::string("threading ") + f.task->name).c_str(),
+                 std::string("-----------------------------------------------------------------------------\n"
+                             "THREADING Profiler task started ")
+                     + f.task->name + "\n");
     }
 
     f.sequential = !in_parallel && shared;
@@ -872,12 +918,12 @@ void end_one(thread_state & ts, std::uint64_t end, bool shared)
     if (shared && is_tracer_enabled() && (is_every_call_logged() || !task.logged))
     {
         task.logged           = true;
-        const std::string key = "tracer " + task.name;
+        const std::string key = std::string("tracer ") + task.name;
         if (!task.threading)
-            profiler_log(key.c_str(), task.name + " " + format_time(ticks_to_ns(length, ns_per_tick())) + "\n");
+            log_once(key.c_str(), task.name + " " + format_time(ticks_to_ns(length, ns_per_tick())) + "\n");
         else
-            profiler_log(key.c_str(), "THREADING " + task.name + " finished on the main rank(time could be different for other ranks): "
-                                          + format_time(ticks_to_ns(length, ns_per_tick())) + "\n");
+            log_once(key.c_str(), std::string("THREADING ") + task.name + " finished on the main rank(time could be different for other ranks): "
+                                      + format_time(ticks_to_ns(length, ns_per_tick())) + "\n");
     }
 }
 
@@ -958,7 +1004,7 @@ void update_live(thread_state & ts, int kind, std::int64_t delta)
 /// The row name for the chunks of regions started at `site`, interned so that tasks can key on it.
 const char * site_name(const profiler_site & site)
 {
-    static thread_local std::unordered_map<const char *, std::unordered_map<int, const char *> > cache;
+    static thread_local hash_map<const char *, hash_map<int, const char *> > cache;
     const char *& cached = cache[site.file][site.line];
     if (cached) return cached;
 
@@ -969,7 +1015,7 @@ const char * site_name(const profiler_site & site)
         std::string("parallel loop: ") + (site.function ? site.function : "?") + " (" + file + ':' + std::to_string(site.line) + ')';
 
     static std::mutex mutex;
-    static auto * names = new std::unordered_set<std::string>(); // never destroyed, like global_state
+    static auto * names = new hash_set<std::string>(); // never destroyed, like global_state
     std::lock_guard<std::mutex> lock(mutex);
     cached = names->insert(name).first->c_str();
     return cached;
@@ -1100,7 +1146,7 @@ struct merged
     std::uint64_t max                = 0;
     std::uint64_t peak[memory_kinds] = {};
     own_stats own;
-    std::unordered_map<std::size_t, std::uint64_t> per_thread;
+    hash_map<std::size_t, std::uint64_t> per_thread;
 
     struct run_time
     {
@@ -1149,7 +1195,7 @@ merged * merged_child(merged * parent, const std::string & name)
     return created;
 }
 
-merged * resolve(merged_tree & tree, std::unordered_map<const node *, merged *> & map, const node * n)
+merged * resolve(merged_tree & tree, hash_map<const node *, merged *> & map, const node * n)
 {
     auto it = map.find(n);
     if (it != map.end()) return it->second;
@@ -1159,7 +1205,7 @@ merged * resolve(merged_tree & tree, std::unordered_map<const node *, merged *> 
     return result;
 }
 
-using region_map = std::unordered_map<std::uint64_t, std::pair<std::uint64_t, std::size_t> >;
+using region_map = hash_map<std::uint64_t, std::pair<std::uint64_t, std::size_t> >;
 
 const char * const waiting_row_name = "(in parallel regions, outside tasks)";
 
@@ -1174,7 +1220,7 @@ void finish(merged & m, const region_map & regions)
     if (m.parallel)
     {
         // Time per run and thread.
-        std::unordered_map<std::uint64_t, std::unordered_map<std::size_t, std::uint64_t> > lines;
+        hash_map<std::uint64_t, hash_map<std::size_t, std::uint64_t> > lines;
         for (const auto & entry : m.runs) lines[entry.run][entry.thread] += entry.time;
 
         m.busiest     = m.unsplit_busiest + m.sequential_cpu;
@@ -1279,7 +1325,7 @@ merged_tree build_tree()
     merged_tree tree;
     auto & global = state();
     std::lock_guard<std::mutex> lock(global.threads_mutex);
-    std::unordered_map<const node *, merged *> map;
+    hash_map<const node *, merged *> map;
     for (const auto & ts : global.threads)
     {
         for (const node & n : ts->nodes)
@@ -1487,7 +1533,7 @@ void write_trace(const char * path)
     static const char * memory_names[memory_kinds] = { "host memory", "device memory" };
 
     // Where each region started, for the arrows from there to its chunks.
-    std::unordered_map<std::uint64_t, std::pair<std::size_t, std::uint64_t> > region_starts;
+    hash_map<std::uint64_t, std::pair<std::size_t, std::uint64_t> > region_starts;
     for (const auto & ts : global.threads)
     {
         for (const auto & region : ts->regions) region_starts.emplace(region.run, std::make_pair(ts->index, region.start));
@@ -1551,7 +1597,7 @@ void report_call()
 {
     std::ostringstream report;
     profiler_print_report(report);
-    profiler_log(nullptr, report.str());
+    log_text(report.str());
     profiler_clear();
 }
 
@@ -1565,7 +1611,7 @@ void report_at_exit()
         {
             std::ostringstream report;
             profiler_print_report(report);
-            profiler_log(nullptr, report.str());
+            log_text(report.str());
         }
         if (const char * path = profiler_trace_path()) write_trace(path);
 #ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED
@@ -1876,20 +1922,20 @@ void print_health(std::ostream & out, const std::vector<profiler_report_row> & r
 
 } // namespace
 
-DAAL_EXPORT void profiler_log(const char * once_key, const std::string & text)
+DAAL_EXPORT bool profiler_claim_log_site(const char * site)
+{
+    if (sink().every_call) return true;
+    // Sites this thread has passed, so that a site already logged takes no lock.
+    static thread_local hash_set<const char *> passed;
+    if (!passed.insert(site).second) return false;
+    return claim_log_key(site);
+}
+
+DAAL_EXPORT void profiler_log(const char * text, std::size_t length)
 {
     auto & s = sink();
     std::lock_guard<std::mutex> lock(s.mutex);
-    if (once_key && !s.every_call)
-    {
-        if (!s.seen.insert(once_key).second) return;
-        if (!s.noted)
-        {
-            s.noted = true;
-            s.out() << "ONEDAL PROFILER: each call site is logged once; set ONEDAL_PROFILER_OUTPUT=<file> to log every call\n";
-        }
-    }
-    s.out() << text;
+    s.out().write(text, static_cast<std::streamsize>(length));
     s.out().flush();
 }
 
@@ -1898,9 +1944,10 @@ DAAL_EXPORT int profiler_begin_task(const char * task_name, bool threading)
     return begin_task(this_thread(), task_name, threading, true);
 }
 
-DAAL_EXPORT int profiler_begin_task_with_args(const char * task_name, const std::string & args)
+DAAL_EXPORT int profiler_begin_task_with_args(const char * task_name, const char * args, std::size_t args_length)
 {
-    return begin_task(this_thread(), task_name, false, true, &args);
+    const task_args a { args, args_length };
+    return begin_task(this_thread(), task_name, false, true, &a);
 }
 
 DAAL_EXPORT void profiler_set_region_site(const profiler_site * site)
@@ -1994,7 +2041,6 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
     report_rows_printed    = true;
     std::vector<profiler_report_row> rows;
     for (const auto & child : tree.root.children) flatten(*child, -1, 0, ns_per_tick(), rows);
-    auto & global = state();
 
     std::uint64_t total = 0;
     for (const auto & row : rows)
@@ -2149,7 +2195,7 @@ DAAL_EXPORT void profiler_print_report(std::ostream & out, profiler_report_forma
         std::uint64_t self  = 0;
         std::uint64_t count = 0;
     };
-    std::unordered_map<std::string, hotspot> by_name;
+    hash_map<std::string, hotspot> by_name;
     for (const auto & row : rows)
     {
         by_name[row.name].self += row.self_ns;
@@ -2263,7 +2309,7 @@ extern "C" DAAL_EXPORT void _onedal_profiler_report(const char * path, int clear
         }
         else
         {
-            daal::internal::profiler_log(nullptr, report.str());
+            daal::internal::log_text(report.str());
         }
         if (clear) daal::internal::profiler_clear();
 #ifdef DAAL_PROFILER_EXCEPTIONS_ENABLED

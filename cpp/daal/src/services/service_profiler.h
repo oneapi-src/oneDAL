@@ -64,21 +64,22 @@
 
 // LOGGER OUTPUT
 // Logs a call of a profiled task: where it was called from, then the streamed message. On stderr each
-// call site is logged once (see profiler_log), and is not formatted again after that.
-#define DAAL_PROFILER_LOG(...)                                                                                      \
-    do                                                                                                              \
-    {                                                                                                               \
-        static std::atomic<bool> profiler_site_logged_ { false };                                                   \
-        if (daal::internal::is_every_call_logged()                                                                  \
-            || (!profiler_site_logged_.load(std::memory_order_relaxed) && !profiler_site_logged_.exchange(true)))   \
-        {                                                                                                           \
-            std::ostringstream profiler_log_line_;                                                                  \
-            profiler_log_line_ << "-----------------------------------------------------------------------------\n" \
-                               << "File: " << __FILE__ << ", Line: " << __LINE__ << '\n';                           \
-            if (daal::internal::is_service_debug_enabled()) profiler_log_line_ << PRETTY_FUNCTION << '\n';          \
-            profiler_log_line_ << __VA_ARGS__;                                                                      \
-            daal::internal::profiler_log(__FILE__ ":" DAAL_PROFILER_STRINGIFY(__LINE__), profiler_log_line_.str()); \
-        }                                                                                                           \
+// call site is logged once (see profiler_claim_log_site), and is not formatted again after that.
+// The once-per-site state lives in libonedal_core: a function-local static here would be exported
+// from every library that instantiates a template using this macro.
+#define DAAL_PROFILER_LOG(...)                                                                                                                 \
+    do                                                                                                                                         \
+    {                                                                                                                                          \
+        if (daal::internal::is_every_call_logged() || daal::internal::profiler_claim_log_site(__FILE__ ":" DAAL_PROFILER_STRINGIFY(__LINE__))) \
+        {                                                                                                                                      \
+            std::ostringstream profiler_log_line_;                                                                                             \
+            profiler_log_line_ << "-----------------------------------------------------------------------------\n"                            \
+                               << "File: " << __FILE__ << ", Line: " << __LINE__ << '\n';                                                      \
+            if (daal::internal::is_service_debug_enabled()) profiler_log_line_ << PRETTY_FUNCTION << '\n';                                     \
+            profiler_log_line_ << __VA_ARGS__;                                                                                                 \
+            const std::string profiler_log_text_ = profiler_log_line_.str();                                                                   \
+            daal::internal::profiler_log(profiler_log_text_.data(), profiler_log_text_.size());                                                \
+        }                                                                                                                                      \
     } while (0)
 
 // ARGS LOGGING
@@ -269,12 +270,20 @@ inline static bool is_every_call_logged()
     return value;
 }
 
+/// Whether a call site is to be logged now: always when the output is a file, otherwise only the
+/// first time the site is seen.
+///
+/// @param[in] site  Key of the call site, such as "file:line"; a string literal, as it is also
+///                  remembered by address
+///
+/// @return True if the caller is to write the log line
+DAAL_EXPORT bool profiler_claim_log_site(const char * site);
+
 /// Writes `text` to the profiler output: the file named by ONEDAL_PROFILER_OUTPUT, or stderr.
 ///
-/// @param[in] once_key  If not nullptr, `text` is written only the first time this key is seen,
-///                      unless the output is a file, which takes every call.
-/// @param[in] text      Whole lines, written in one piece.
-DAAL_EXPORT void profiler_log(const char * once_key, const std::string & text);
+/// @param[in] text    Whole lines, written in one piece
+/// @param[in] length  Number of characters in `text`
+DAAL_EXPORT void profiler_log(const char * text, std::size_t length);
 
 inline void print_header()
 {
@@ -291,7 +300,8 @@ inline void print_header()
         out << "Name:                   " << ver.name << '\n';
         out << "Processor optimization: " << ver.processor << '\n';
         out << '\n';
-        profiler_log(nullptr, out.str());
+        const std::string text = out.str();
+        profiler_log(text.data(), text.size());
     }
 }
 
@@ -321,9 +331,10 @@ DAAL_EXPORT int profiler_begin_task(const char * task_name, bool threading);
 ///
 /// @param[in] task_name    Name of the task
 /// @param[in] args         The task's arguments as "name: value; " pairs
+/// @param[in] args_length  Number of characters in `args`
 ///
 /// @return The stack depth to pass to profiler_end_task()
-DAAL_EXPORT int profiler_begin_task_with_args(const char * task_name, const std::string & args);
+DAAL_EXPORT int profiler_begin_task_with_args(const char * task_name, const char * args, std::size_t args_length);
 
 /// Closes the task opened at `depth` on the calling thread, and any task still open above it.
 ///
@@ -448,7 +459,7 @@ public:
     /// @param[in] args      The task's arguments, as formatted by profiler_named_args()
     inline static profiler_task start_task_with_args(const char * task_name, const std::string & args)
     {
-        return profiler_task(profiler_begin_task_with_args(task_name, args));
+        return profiler_task(profiler_begin_task_with_args(task_name, args.data(), args.size()));
     }
 
     /// Starts a task that is the body of a parallel region. Invoked by DAAL_PROFILER_THREADING_TASK.
