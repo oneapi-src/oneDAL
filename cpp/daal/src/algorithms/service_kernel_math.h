@@ -995,7 +995,6 @@ bool solveSymmetricEquationsSystem(FPType * a, FPType * b, size_t n, size_t nX, 
     }
     return true;
 }
-
 } // namespace internal
 } // namespace algorithms
 } // namespace daal
