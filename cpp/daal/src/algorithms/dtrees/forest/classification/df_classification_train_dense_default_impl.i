@@ -1800,6 +1800,10 @@ services::Status ClassificationTrainBatchKernel<algorithmFPType, method, cpu>::c
     if (!s) return s;
     if (normalizedWeights) w = normalizedWeights.get();
 
+    const services::SharedPtr<NumericTable> responses = convertResponses<algorithmFPType, cpu>(y, s);
+    if (!s) return s;
+    y = responses.get();
+
     if (par.splitter == decision_forest::training::SplitterMode::best)
     {
         s = computeForSpecificHelper<algorithmFPType, method, cpu,

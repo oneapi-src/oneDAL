@@ -91,6 +91,29 @@ services::SharedPtr<NumericTable> normalizeWeights(const NumericTable * weights,
     return normalized;
 }
 
+// Each tree and each OOB row reads responses as algorithmFPType. Returns the table to read them
+// from: y itself (not owned) when it already has that type, otherwise a copy converted once per fit.
+template <typename algorithmFPType, CpuType cpu>
+services::SharedPtr<NumericTable> convertResponses(const NumericTable * y, services::Status & s)
+{
+    const services::SharedPtr<NumericTable> original(const_cast<NumericTable *>(y), services::EmptyDeleter());
+    if (!y || dynamic_cast<const HomogenNumericTable<algorithmFPType> *>(y)) return original;
+
+    const size_t nRows = y->getNumberOfRows();
+    const size_t nCols = y->getNumberOfColumns();
+    if (!nRows || !nCols) return original;
+
+    ReadRows<algorithmFPType, cpu> srcBlock(const_cast<NumericTable *>(y), 0, nRows);
+    s |= srcBlock.status();
+    if (!s) return original;
+
+    services::SharedPtr<HomogenNumericTableCPU<algorithmFPType, cpu> > converted =
+        HomogenNumericTableCPU<algorithmFPType, cpu>::create(nCols, nRows, &s);
+    if (!s) return original;
+    services::internal::tmemcpy<algorithmFPType, cpu>(converted->getArray(), srcBlock.get(), nRows * nCols);
+    return converted;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Service class, it uses to keep information about nodes
 //////////////////////////////////////////////////////////////////////////////////////////
