@@ -230,99 +230,86 @@ class TreeThreadCtxBase
 {
 public:
     typedef double intermSummFPType;
-    TreeThreadCtxBase(algorithmFPType * _varImp = nullptr) : varImp(_varImp), varImpVariance(nullptr), nTrees(0), oobBuf(nullptr) {}
+    TreeThreadCtxBase(algorithmFPType * _varImp = nullptr) : varImp(_varImp), varImpPerTree(nullptr), nTrees(0), oobBuf(nullptr) {}
     ~TreeThreadCtxBase()
     {
-        if (varImpVariance) service_free<algorithmFPType, cpu>(varImpVariance);
         if (oobBuf) service_free<byte, cpu>(oobBuf);
     }
-    void finalizeVarImp(training::VariableImportanceMode mode, size_t nVars);
+    services::Status finalizeVarImp(training::VariableImportanceMode mode, size_t nVars);
+
+    algorithmFPType * varImpOfTree(size_t iTree, size_t nVars) const { return varImpPerTree + iTree * nVars; }
 
 protected:
-    bool init(const decision_forest::training::Parameter & par, const NumericTable * x)
+    // Thread contexts share the per-fit state of the main context
+    void init(const TreeThreadCtxBase & main)
     {
-        if (par.varImportance == training::MDA_Scaled)
-        {
-            varImpVariance = service_calloc<algorithmFPType, cpu>(x->getNumberOfColumns());
-            DAAL_CHECK_STATUS_VAR(varImpVariance);
-        }
-        return true;
-    }
-
-    void reduceTo(training::VariableImportanceMode mode, TreeThreadCtxBase & other, size_t nVars, size_t nSamples) const
-    {
-        // Reduces tls variable importance results
-        if (varImp)
-        {
-            if (mode == training::MDI)
-            {
-                for (size_t i = 0; i < nVars; ++i) other.varImp[i] += varImp[i];
-            }
-            else
-            {
-                const algorithmFPType div  = algorithmFPType(1) / algorithmFPType(other.nTrees + nTrees);
-                const algorithmFPType n1   = algorithmFPType(nTrees) * div;
-                const algorithmFPType n2   = algorithmFPType(other.nTrees) * div;
-                const algorithmFPType div2 = algorithmFPType(nTrees * other.nTrees) * div;
-                for (size_t i = 0; i < nVars; ++i)
-                {
-                    const algorithmFPType newM = varImp[i] * n1 + other.varImp[i] * n2;
-                    if (varImpVariance)
-                    {
-                        const algorithmFPType deltaM = varImp[i] - other.varImp[i];
-                        const algorithmFPType v1     = varImpVariance[i];
-                        const algorithmFPType v2     = other.varImpVariance[i];
-                        const algorithmFPType v      = v1 + v2 + deltaM * deltaM * div2;
-                        other.varImpVariance[i]      = v;
-                    }
-                    other.varImp[i] = newM;
-                }
-            }
-        }
-        other.nTrees += nTrees;
+        varImpPerTree = main.varImpPerTree;
+        nTrees        = main.nTrees;
     }
 
 public:
-    algorithmFPType * varImp;
-    algorithmFPType * varImpVariance;
+    algorithmFPType * varImp;        // main context only, result row
+    algorithmFPType * varImpPerTree; // nTrees x nVars, row i is written by the task that builds tree i
     size_t nTrees;
     byte * oobBuf;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Finalizes calculation of variable importance results
+// Finalizes calculation of variable importance results. The per-tree contributions are
+// reduced in tree order, so the result does not depend on the number of threads.
 //////////////////////////////////////////////////////////////////////////////////////////
 template <typename algorithmFPType, CpuType cpu>
-void TreeThreadCtxBase<algorithmFPType, cpu>::finalizeVarImp(training::VariableImportanceMode mode, size_t nVars)
+services::Status TreeThreadCtxBase<algorithmFPType, cpu>::finalizeVarImp(training::VariableImportanceMode mode, size_t nVars)
 {
-    if (mode == training::MDA_Scaled)
+    DAAL_ASSERT(varImp && varImpPerTree);
+    TArrayCalloc<intermSummFPType, cpu> mean(nVars);
+    DAAL_CHECK_MALLOC(mean.get());
+    if (mode == training::MDI)
     {
-        //average over all trees and scale by its variance
-        if (nTrees > 1)
+        for (size_t t = 0; t < nTrees; ++t)
         {
-            const algorithmFPType div = 1. / algorithmFPType(nTrees);
+            const algorithmFPType * row = varImpOfTree(t, nVars);
+            for (size_t i = 0; i < nVars; ++i) mean[i] += row[i];
+        }
+        //average over all trees
+        const intermSummFPType div = 1. / intermSummFPType(nTrees);
+        for (size_t i = 0; i < nVars; ++i) varImp[i] = mean[i] * div;
+    }
+    else
+    {
+        //mean and sum of squared deviations of the per-tree permutation errors (Welford)
+        TArrayCalloc<intermSummFPType, cpu> m2(nVars);
+        DAAL_CHECK_MALLOC(m2.get());
+        for (size_t t = 0; t < nTrees; ++t)
+        {
+            const algorithmFPType * row = varImpOfTree(t, nVars);
+            const intermSummFPType div  = 1. / intermSummFPType(t + 1);
             for (size_t i = 0; i < nVars; ++i)
             {
-                varImpVariance[i] *= div;
-                if (isPositive<algorithmFPType, cpu>(varImpVariance[i]))
-                    varImp[i] /= daal::internal::MathInst<algorithmFPType, cpu>::sSqrt(varImpVariance[i] * div);
+                const intermSummFPType delta = row[i] - mean[i];
+                mean[i] += div * delta;
+                m2[i] += delta * (row[i] - mean[i]);
+            }
+        }
+        if (mode == training::MDA_Raw)
+        {
+            for (size_t i = 0; i < nVars; ++i) varImp[i] = mean[i];
+        }
+        else if (nTrees > 1)
+        {
+            //scale the mean by its standard error
+            const intermSummFPType div = 1. / intermSummFPType(nTrees);
+            for (size_t i = 0; i < nVars; ++i)
+            {
+                const intermSummFPType var = m2[i] * div;
+                varImp[i] =
+                    isPositive<intermSummFPType, cpu>(var) ? mean[i] / daal::internal::MathInst<intermSummFPType, cpu>::sSqrt(var * div) : mean[i];
             }
         }
         else
         {
-            PRAGMA_OMP_SIMD
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t i = 0; i < nVars; ++i)
-            {
-                varImp[i] = 0;
-            }
+            for (size_t i = 0; i < nVars; ++i) varImp[i] = 0;
         }
-    }
-    else if (mode == training::MDI)
-    {
-        const algorithmFPType div = 1. / algorithmFPType(nTrees);
-        //average over all trees
-        for (size_t i = 0; i < nVars; ++i) varImp[i] *= div;
     }
 
 #if ENABLE_VAR_IMP_NORMALIZATION
@@ -337,7 +324,7 @@ void TreeThreadCtxBase<algorithmFPType, cpu>::finalizeVarImp(training::VariableI
             const algorithmFPType val = daal::internal::MathInst<algorithmFPType, cpu>::sFabs(varImp[i]);
             maxVal                    = daal::internal::MathInst<algorithmFPType, cpu>::sMax(maxVal, val);
         }
-        if (!isPositive<algorithmFPType, cpu>(maxVal)) return;
+        if (!isPositive<algorithmFPType, cpu>(maxVal)) return services::Status();
         const algorithmFPType div = 1. / maxVal;
         for (size_t i = 0; i < nVars; varImp[i++] *= div);
     }
@@ -347,27 +334,21 @@ void TreeThreadCtxBase<algorithmFPType, cpu>::finalizeVarImp(training::VariableI
         for (size_t i = 0; i < nVars; varImp[i++] *= sum);
     }
 #endif
+    return services::Status();
 }
 
 template <typename algorithmFPType, CpuType cpu, class Ctx>
-Ctx * createTlsContext(const NumericTable * x, const Parameter & par, size_t nClasses)
+Ctx * createTlsContext(const NumericTable * x, const Parameter & par, size_t nClasses, const Ctx & mainCtx)
 {
-    const size_t szVarImp = (par.varImportance == decision_forest::training::none ? 0 : x->getNumberOfColumns() * sizeof(algorithmFPType));
-    size_t szCtx          = sizeof(Ctx);
-    if (szCtx % sizeof(algorithmFPType)) szCtx = sizeof(algorithmFPType) * (1 + (szCtx / sizeof(algorithmFPType)));
-    const size_t sz = szCtx + szVarImp;
-    byte * ptr      = service_scalable_calloc<byte, cpu>(sz);
-    Ctx * ctx       = new (ptr) Ctx();
-    if (ctx)
+    byte * ptr = service_scalable_calloc<byte, cpu>(sizeof(Ctx));
+    if (!ptr) return nullptr;
+    Ctx * ctx = new (ptr) Ctx();
+    if (!ctx->init(par, x, nClasses, mainCtx))
     {
-        if (szVarImp) ctx->varImp = (algorithmFPType *)(ptr + szCtx);
-        if (!ctx->init(par, x, nClasses))
-        {
-            //allocation of extra data hasn't succeeded
-            ctx->~Ctx();
-            service_scalable_free<byte, cpu>(ptr);
-            return nullptr;
-        }
+        //allocation of extra data hasn't succeeded
+        ctx->~Ctx();
+        service_scalable_free<byte, cpu>(ptr);
+        return nullptr;
     }
     return ctx;
 }
@@ -470,17 +451,22 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
     //set of auxiliary data used by single thread or a target for reduction by multiple threads
     typedef typename TaskType::ThreadCtxType Ctx;
     Ctx mainCtx(varImpBD.get());
-    DAAL_CHECK(mainCtx.init(par, x, nClasses), ErrorMemoryAllocationFailed);
-
-    if (mainCtx.varImp)
-        //initialize its data
-        daal::services::internal::service_memset<algorithmFPType, cpu>(mainCtx.varImp, 0, nFeatures);
+    mainCtx.nTrees = par.nTrees;
+    TArrayCalloc<algorithmFPType, cpu> varImpPerTree;
+    if (par.varImportance != decision_forest::training::none)
+    {
+        DAAL_OVERFLOW_CHECK_BY_MULTIPLICATION(size_t, par.nTrees, nFeatures);
+        varImpPerTree.reset(par.nTrees * nFeatures);
+        DAAL_CHECK_MALLOC(varImpPerTree.get());
+        mainCtx.varImpPerTree = varImpPerTree.get();
+    }
+    DAAL_CHECK(mainCtx.init(par, x, y, nClasses), ErrorMemoryAllocationFailed);
 
     //use tls in case of multiple threads
     const bool bThreaded = (threader_get_max_threads_number() > 1) && (par.nTrees > 1);
     daal::tls<Ctx *> tlsCtx([&]() -> Ctx * {
         //in case of single thread no need to allocate
-        return (bThreaded ? createTlsContext<algorithmFPType, cpu, Ctx>(x, par, nClasses) : &mainCtx);
+        return (bThreaded ? createTlsContext<algorithmFPType, cpu, Ctx>(x, par, nClasses, mainCtx) : &mainCtx);
     });
     daal::tls<TaskType *> tlsTask([&]() -> TaskType * {
         //in case of single thread no need to allocate
@@ -511,7 +497,7 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
         numElems[i]                    = 0;
         auto engineImpl                = dynamic_cast<engines::internal::BatchBaseImpl *>(engines[i].get());
         DAAL_CHECK_THR(engineImpl, ErrorEngineNotSupported);
-        services::Status s = task->run(engineImpl, pTree, numElems[i]);
+        services::Status s = task->run(i, engineImpl, pTree, numElems[i]);
         DAAL_CHECK_STATUS_THR(s);
         if (pTree)
         {
@@ -522,7 +508,7 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
     tlsCtx.reduce([&](Ctx * ctx) -> void {
         if (ctx && bThreaded)
         {
-            ctx->reduceTo(par.varImportance, mainCtx, nFeatures, nRows);
+            ctx->reduceTo(mainCtx, nRows);
             ctx->~Ctx();
             service_scalable_free<byte, cpu>((byte *)ctx);
         }
@@ -538,7 +524,7 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
 
     //finalize results computation
     //variable importance
-    if (varImpBD.get()) mainCtx.finalizeVarImp(par.varImportance, nFeatures);
+    if (varImpBD.get()) DAAL_CHECK_STATUS_VAR(mainCtx.finalizeVarImp(par.varImportance, nFeatures));
 
     //OOB error
     if (par.resultsToCompute
@@ -576,10 +562,10 @@ template <typename algorithmFPType, typename BinIndexType, typename DataHelper, 
 class TrainBatchTaskBase
 {
 public:
-    typedef TreeThreadCtxBase<algorithmFPType, cpu> ThreadCtxType;
+    typedef typename DataHelper::ThreadCtxType ThreadCtxType;
     using intermSummFPType = typename ThreadCtxType::intermSummFPType;
 
-    services::Status run(engines::internal::BatchBaseImpl * engineImpl, dtrees::internal::Tree *& pTree, size_t & numElems);
+    services::Status run(size_t iTree, engines::internal::BatchBaseImpl * engineImpl, dtrees::internal::Tree *& pTree, size_t & numElems);
 
 protected:
     typedef dtrees::internal::TVector<algorithmFPType, cpu> algorithmFPTypeArray;
@@ -601,6 +587,7 @@ protected:
           _nFeatureBufs(1), //for sequential processing
           _featHelper(featTypes),
           _threadCtx(threadCtx),
+          _iTree(0),
           _accuracy(daal::services::internal::EpsilonVal<algorithmFPType>::get()),
           _minSamplesSplit(2),
           _minWeightLeaf(0.),
@@ -737,6 +724,7 @@ protected:
     algorithmFPType _accuracy;
     intermSummFPType _impurityThreshold;
     ThreadCtxType & _threadCtx;
+    size_t _iTree; //index of the tree being built, set by run()
     size_t _nClasses;
     size_t * _numElems;
     size_t _minSamplesSplit;
@@ -750,9 +738,10 @@ protected:
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, typename HyperparameterType, CpuType cpu>
 services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, HyperparameterType, cpu>::run(
-    engines::internal::BatchBaseImpl * engineImpl, dtrees::internal::Tree *& pTree, size_t & numElems)
+    size_t iTree, engines::internal::BatchBaseImpl * engineImpl, dtrees::internal::Tree *& pTree, size_t & numElems)
 {
     const size_t maxFeatures = nFeatures();
+    _iTree                   = iTree;
     _nConstFeature           = 0;
     _numElems                = &numElems;
     _helper.engineImpl       = engineImpl;
@@ -833,7 +822,6 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, H
     {
         //to prevent memory leak in case of general allocator
         _tree.reset(nd, bUnorderedFeaturesUsed);
-        _threadCtx.nTrees++;
     }
 
     if (s
@@ -1436,8 +1424,8 @@ template <typename algorithmFPType, typename BinIndexType, typename DataHelper, 
 void TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, HyperparameterType, cpu>::addImpurityDecrease(IndexType iFeature,
                                                                                                                  intermSummFPType impurityDecrease)
 {
-    DAAL_ASSERT(_threadCtx.varImp);
-    if (!isZero<intermSummFPType, cpu>(impurityDecrease)) _threadCtx.varImp[iFeature] += impurityDecrease;
+    DAAL_ASSERT(_threadCtx.varImpPerTree);
+    if (!isZero<intermSummFPType, cpu>(impurityDecrease)) _threadCtx.varImpOfTree(_iTree, nFeatures())[iFeature] += impurityDecrease;
 }
 
 template <typename algorithmFPType, typename BinIndexType, typename DataHelper, typename HyperparameterType, CpuType cpu>
@@ -1461,17 +1449,13 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, H
             TArray<IndexType, cpu> permutation(nOOB);
             DAAL_CHECK_MALLOC(permutation.get());
             for (size_t i = 0; i < nOOB; permutation[i] = i, ++i);
-            const size_t nTrees         = _threadCtx.nTrees;
-            const intermSummFPType div1 = 1.0 / static_cast<intermSummFPType>(nTrees);
-            for (size_t i = 0, n = nFeatures(); i < n; ++i)
+            const size_t n           = nFeatures();
+            algorithmFPType * varImp = _threadCtx.varImpOfTree(_iTree, n);
+            for (size_t i = 0; i < n; ++i)
             {
                 shuffle<cpu>(_helper.engineImpl->getState(), nOOB, permutation.get());
                 const algorithmFPType permOOBError = computeOOBErrorPerm(t, nOOB, oobIndices.get(), permutation.get(), i);
-                const algorithmFPType diff         = (permOOBError - oobError);
-                //_threadCtx.varImp[i] is a mean of diff among all the trees
-                const intermSummFPType delta = diff - _threadCtx.varImp[i]; //old mean
-                _threadCtx.varImp[i] += div1 * delta;
-                if (_threadCtx.varImpVariance) _threadCtx.varImpVariance[i] += delta * (diff - _threadCtx.varImp[i]); //new mean
+                varImp[i]                          = permOOBError - oobError;
             }
         }
     }
@@ -1521,10 +1505,10 @@ algorithmFPType TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, Hy
     //compute prediction error on each OOB row and get its mean online formulae (Welford)
     //TODO: can be threader_for() block
     ReadRows<algorithmFPType, cpu> x(const_cast<NumericTable *>(_data), aInd[0], 1);
-    intermSummFPType mean = _helper.predictionError(t, x.get(), _resp, aInd[0], _threadCtx.oobBuf);
+    intermSummFPType mean = _helper.predictionError(t, x.get(), _resp, aInd[0], _threadCtx);
     for (size_t i = 1; i < n; ++i)
     {
-        intermSummFPType val = _helper.predictionError(t, x.set(const_cast<NumericTable *>(_data), aInd[i], 1), _resp, aInd[i], _threadCtx.oobBuf);
+        intermSummFPType val = _helper.predictionError(t, x.set(const_cast<NumericTable *>(_data), aInd[i], 1), _resp, aInd[i], _threadCtx);
         mean += (val - mean) / static_cast<intermSummFPType>(i + 1);
     }
     return mean;

@@ -27,6 +27,8 @@
 
 #include <limits>
 #include <cstddef>
+#include <cstdint>
+#include <cmath>
 
 #include "src/algorithms/dtrees/forest/df_train_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h"
@@ -98,18 +100,51 @@ void calcPrevImpurity(intermSummFPType var, intermSummFPType mean, intermSummFPT
     if (varPrev < 0) varPrev = 0;
 }
 
+template <typename algorithmFPType, CpuType cpu>
+class TreeThreadCtx;
+
 //////////////////////////////////////////////////////////////////////////////////////////
-// Service structure, contains regression error data for OOB calculation
+// Service structure, contains regression error data for OOB calculation.
+// The prediction sum is a 128-bit two's complement fixed-point integer: integer addition is
+// associative, so the sum is the same whichever threads build the trees and in whatever
+// order their buffers are merged.
 //////////////////////////////////////////////////////////////////////////////////////////
-template <typename intermSummFPType, CpuType cpu>
+template <CpuType cpu>
 struct RegErr
 {
-    intermSummFPType value = 0;
-    size_t count           = 0;
+    uint64_t lo  = 0;
+    uint64_t hi  = 0;
+    size_t count = 0;
+
     void add(const RegErr & o)
     {
+        lo += o.lo;
+        hi += o.hi + (lo < o.lo);
         count += o.count;
-        value += o.value;
+    }
+
+    // scaled is a prediction multiplied by the fixed-point scale; the fraction below one unit is dropped
+    void add(double scaled)
+    {
+        double a = scaled < 0 ? -scaled : scaled;
+        if (!(a < 0x1p126)) a = 0x1p126; //not reached for finite responses, keeps the conversions below defined
+        uint64_t h = static_cast<uint64_t>(a * 0x1p-64);
+        uint64_t l = static_cast<uint64_t>(a - static_cast<double>(h) * 0x1p64);
+        if (scaled < 0)
+        {
+            l = 0 - l;
+            h = ~h + (l == 0);
+        }
+        lo += l;
+        hi += h + (lo < l);
+        ++count;
+    }
+
+    // mean of the accumulated predictions, invScale undoes the fixed-point scale
+    double mean(double invScale) const
+    {
+        const double sum = static_cast<double>(static_cast<int64_t>(hi)) * 0x1p64 + static_cast<double>(lo);
+        return sum * invScale / static_cast<double>(count);
     }
 };
 
@@ -652,9 +687,10 @@ public:
     using intermSummFPType = typename OrderedRespHelperBest<algorithmFPType, cpu>::intermSummFPType;
     typedef dtrees::internal::TreeImpRegression<> TreeType;
     typedef typename TreeType::NodeType NodeType;
-    using ImpurityData = typename OrderedRespHelperBest<algorithmFPType, cpu>::ImpurityData;
-    using TSplitData   = typename OrderedRespHelperBest<algorithmFPType, cpu>::TSplitData;
-    using super        = typename OrderedRespHelperBest<algorithmFPType, cpu>::super;
+    using ImpurityData  = typename OrderedRespHelperBest<algorithmFPType, cpu>::ImpurityData;
+    using TSplitData    = typename OrderedRespHelperBest<algorithmFPType, cpu>::TSplitData;
+    using super         = typename OrderedRespHelperBest<algorithmFPType, cpu>::super;
+    using ThreadCtxType = TreeThreadCtx<algorithmFPType, cpu>;
 
     engines::internal::BatchBaseImpl * engineImpl;
 
@@ -705,17 +741,12 @@ public:
     algorithmFPType predictionError(TResponse prediction, TResponse response) const { return (prediction - response) * (prediction - response); }
 
     algorithmFPType predictionError(const dtrees::internal::Tree & t, const algorithmFPType * x, const NumericTable * resp, size_t iRow,
-                                    byte * oobBuf) const
+                                    ThreadCtxType & ctx) const
     {
         ReadRows<algorithmFPType, cpu> y(const_cast<NumericTable *>(resp), iRow, 1);
         const TResponse response(this->predict(t, x));
-        algorithmFPType val = this->predictionError(response, *y.get());
-        if (oobBuf)
-        {
-            ((RegErr<intermSummFPType, cpu> *)oobBuf)[iRow].value += response;
-            ((RegErr<intermSummFPType, cpu> *)oobBuf)[iRow].count++;
-        }
-        return val;
+        ctx.addOOBPrediction(iRow, response);
+        return this->predictionError(response, *y.get());
     }
 
     void setLeafData(typename TreeType::NodeType::Leaf & node, const IndexType * idx, size_t n, ImpurityData & imp) const
@@ -1373,28 +1404,55 @@ class TreeThreadCtx : public TreeThreadCtxBase<algorithmFPType, cpu>
 public:
     typedef TreeThreadCtxBase<algorithmFPType, cpu> super;
     using intermSummFPType = typename super::intermSummFPType;
-    TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp) {}
-    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t /*dummy*/)
+    TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp), _oobScale(1), _oobInvScale(1) {}
+
+    // Main context. The fixed-point scale of the OOB sums is 2^e with e chosen from the response
+    // range: predictions are leaf means, so nTrees of them stay below 2^(eY + 1 + eT) and fit in 126 bits.
+    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, const NumericTable * y, size_t /*nClasses*/)
     {
-        DAAL_CHECK_STATUS_VAR(super::init(par, x));
-        using namespace decision_forest::training;
-        if (par.resultsToCompute
-            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorPrediction))
+        if (!needsOOBBuffer(par)) return true;
+        const size_t nRows = y->getNumberOfRows();
+        ReadRows<algorithmFPType, cpu> yBD(const_cast<NumericTable *>(y), 0, nRows);
+        if (!yBD.get()) return false;
+        const algorithmFPType * py = yBD.get();
+        intermSummFPType maxAbs    = 0;
+        for (size_t i = 0; i < nRows; ++i)
         {
-            size_t sz    = sizeof(RegErr<intermSummFPType, cpu>) * x->getNumberOfRows();
-            this->oobBuf = service_calloc<byte, cpu>(sz);
-            DAAL_CHECK_STATUS_VAR(this->oobBuf);
+            const intermSummFPType a = py[i] < 0 ? -py[i] : py[i];
+            if (a > maxAbs) maxAbs = a;
         }
-        return true;
+        int eY = 0;
+        int eT = 0;
+        std::frexp(maxAbs, &eY);
+        std::frexp(static_cast<double>(par.nTrees), &eT);
+        const int maxExponent = 1022; //keeps 2^e and 2^-e normal doubles
+        int e                 = 125 - eY - eT;
+        e                     = e > maxExponent ? maxExponent : (e < -maxExponent ? -maxExponent : e);
+        _oobScale             = std::ldexp(1.0, e);
+        _oobInvScale          = std::ldexp(1.0, -e);
+        return allocOOBBuffer(nRows);
     }
 
-    void reduceTo(decision_forest::training::VariableImportanceMode mode, TreeThreadCtx & other, size_t nVars, size_t nSamples) const
+    // Thread context, shares the per-fit state of the main context
+    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t /*nClasses*/, const TreeThreadCtx & main)
     {
-        super::reduceTo(mode, other, nVars, nSamples);
+        super::init(main);
+        _oobScale    = main._oobScale;
+        _oobInvScale = main._oobInvScale;
+        return !main.oobBuf || allocOOBBuffer(x->getNumberOfRows());
+    }
+
+    void addOOBPrediction(size_t iRow, algorithmFPType prediction)
+    {
+        if (this->oobBuf) oobData()[iRow].add(static_cast<double>(prediction) * _oobScale);
+    }
+
+    void reduceTo(TreeThreadCtx & other, size_t nSamples) const
+    {
         if (this->oobBuf)
         {
-            RegErr<intermSummFPType, cpu> * dst       = (RegErr<intermSummFPType, cpu> *)other.oobBuf;
-            const RegErr<intermSummFPType, cpu> * src = (const RegErr<intermSummFPType, cpu> *)this->oobBuf;
+            RegErr<cpu> * dst       = other.oobData();
+            const RegErr<cpu> * src = oobData();
             for (size_t i = 0; i < nSamples; ++i) dst[i].add(src[i]);
         }
     }
@@ -1406,12 +1464,12 @@ public:
         const size_t nSamples = resp->getNumberOfRows();
         ReadRows<algorithmFPType, cpu> y(const_cast<NumericTable *>(resp), 0, nSamples);
         DAAL_CHECK_BLOCK_STATUS(y);
-        const algorithmFPType * py          = y.get();
-        size_t nPredicted                   = 0;
-        intermSummFPType _res               = 0;
-        intermSummFPType yMean              = 0;
-        intermSummFPType sumMeanDiff        = 0;
-        RegErr<intermSummFPType, cpu> * ptr = (RegErr<intermSummFPType, cpu> *)this->oobBuf;
+        const algorithmFPType * py   = y.get();
+        size_t nPredicted            = 0;
+        intermSummFPType _res        = 0;
+        intermSummFPType yMean       = 0;
+        intermSummFPType sumMeanDiff = 0;
+        const RegErr<cpu> * ptr      = oobData();
 
         PRAGMA_OMP_SIMD_ARGS(reduction(+ : yMean))
         for (size_t i = 0; i < nSamples; ++i)
@@ -1424,14 +1482,14 @@ public:
         {
             if (ptr[i].count)
             {
-                ptr[i].value /= static_cast<intermSummFPType>(ptr[i].count);
-                const intermSummFPType oobForObs = (ptr[i].value - py[i]) * (ptr[i].value - py[i]);
+                const intermSummFPType prediction = ptr[i].mean(_oobInvScale);
+                const intermSummFPType oobForObs  = (prediction - py[i]) * (prediction - py[i]);
 
                 if (resPerObs) resPerObs[i] = oobForObs;
                 _res += oobForObs;
                 ++nPredicted;
 
-                if (resPrediction) resPrediction[i] = ptr[i].value;
+                if (resPrediction) resPrediction[i] = prediction;
                 sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
             else
@@ -1444,6 +1502,25 @@ public:
         if (resR2) *resR2 = 1 - _res / sumMeanDiff;
         return Status();
     }
+
+private:
+    static bool needsOOBBuffer(const decision_forest::training::Parameter & par)
+    {
+        using namespace decision_forest::training;
+        return par.resultsToCompute
+               & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorPrediction);
+    }
+
+    bool allocOOBBuffer(size_t nRows)
+    {
+        this->oobBuf = service_calloc<byte, cpu>(sizeof(RegErr<cpu>) * nRows);
+        return this->oobBuf != nullptr;
+    }
+
+    RegErr<cpu> * oobData() const { return reinterpret_cast<RegErr<cpu> *>(this->oobBuf); }
+
+    double _oobScale;
+    double _oobInvScale;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
