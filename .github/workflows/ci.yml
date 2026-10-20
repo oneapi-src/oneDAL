@@ -101,11 +101,12 @@ jobs:
         id: onedal-dbg
         run: |
           source /opt/intel/oneapi/setvars.sh
-          .ci/scripts/build.sh --compiler icx  --optimizations ${{ matrix.ISA }} --target oneapi_c --debug symbols --jobs 20
-          rm -rf __work
           # No debug info for oneapi_dpc: device DWARF exhausts the runner's memory at -j20.
           # TODO: add --debug symbols once device DWARF is suppressed or the runner is larger.
           .ci/scripts/build.sh --compiler icx  --optimizations ${{ matrix.ISA }} --target oneapi_dpc --jobs 20
+          rm -rf __work
+          # oneapi_dpc also rebuilds and releases libonedal.so, so oneapi_c runs last to keep its debug info.
+          .ci/scripts/build.sh --compiler icx  --optimizations ${{ matrix.ISA }} --target oneapi_c --debug symbols --jobs 20
           # clean up build directory due to space limitations
           rm -rf __work
           echo "key=__release_lnx-$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
