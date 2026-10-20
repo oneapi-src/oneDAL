@@ -45,9 +45,12 @@
    ```
 
 ## Quick start on Linux
-Bazelisk and a C++ compiler are all that is needed on an x86-64 host. Bazel
-downloads MKL, TBB and the other dependencies itself, at the versions pinned in
-`MODULE.bazel` and `dev/bazel/deps/`.
+On an x86-64 host, Bazelisk, a C++ compiler, `unzip` and `unzstd` (from
+zstd) are all that is needed; the last two extract the MKL `.conda` archives.
+Bazel downloads MKL, TBB and the other dependencies with fallback archives
+itself, at the versions pinned in `MODULE.bazel` and `dev/bazel/deps/`; see
+[Prebuilt dependency roots](#prebuilt-dependency-roots) for the ones that need
+a local installation.
 ```sh
 bazel build //:release
 bazel test //cpp/oneapi/dal/algo/kmeans:tests
