@@ -253,6 +253,62 @@ public:
         REQUIRE(rr_norm_squared <= lr_norm_squared + tol);
     }
 
+    /// Checks the optimality conditions of min ||y - X * beta - b||^2 + alpha * ||beta||^2:
+    /// X' * r = alpha * beta and, with intercept, sum(r) = 0, where r = y - X * beta - b
+    void check_ridge_optimality(const table& x,
+                                const table& y,
+                                const train_result_t& result,
+                                double alpha,
+                                double tol = 1e-3) {
+        const auto s_count = x.get_row_count();
+        const auto f_count = x.get_column_count();
+        const auto r_count = y.get_column_count();
+
+        const auto x_arr = row_accessor<const float_t>(x).pull({ 0, -1 });
+        const auto y_arr = row_accessor<const float_t>(y).pull({ 0, -1 });
+        const auto beta_arr =
+            row_accessor<const float_t>(result.get_coefficients()).pull({ 0, -1 });
+
+        std::vector<double> bias(r_count, 0.0);
+        if (this->intercept_) {
+            const auto bias_arr =
+                row_accessor<const float_t>(result.get_intercept()).pull({ 0, -1 });
+            for (std::int64_t r = 0; r < r_count; ++r)
+                bias[r] = bias_arr[r];
+        }
+
+        constexpr double eps = std::numeric_limits<float_t>::epsilon();
+        for (std::int64_t r = 0; r < r_count; ++r) {
+            std::vector<double> residual(s_count);
+            double residual_sum = 0.0, residual_scale = eps;
+            for (std::int64_t s = 0; s < s_count; ++s) {
+                double pred = bias[r];
+                for (std::int64_t f = 0; f < f_count; ++f)
+                    pred += double(x_arr[s * f_count + f]) * beta_arr[r * f_count + f];
+                residual[s] = y_arr[s * r_count + r] - pred;
+                residual_sum += residual[s];
+                residual_scale += std::abs(y_arr[s * r_count + r]) + std::abs(bias[r]);
+            }
+            if (this->intercept_) {
+                CAPTURE(r, residual_sum, residual_scale);
+                REQUIRE(std::abs(residual_sum) / residual_scale < tol);
+            }
+
+            for (std::int64_t f = 0; f < f_count; ++f) {
+                const double penalty = alpha * beta_arr[r * f_count + f];
+                double gradient = -penalty, scale = eps + std::abs(penalty);
+                for (std::int64_t s = 0; s < s_count; ++s) {
+                    const double x_val = x_arr[s * f_count + f];
+                    gradient += x_val * residual[s];
+                    scale +=
+                        std::abs(x_val) * (std::abs(y_arr[s * r_count + r]) + std::abs(bias[r]));
+                }
+                CAPTURE(r, f, gradient, scale);
+                REQUIRE(std::abs(gradient) / scale < tol);
+            }
+        }
+    }
+
     std::tuple<table, table, table, table> prepare_inputs(std::int64_t seed = 888,
                                                           double tol = 1e-2) {
         using namespace ::oneapi::dal::detail;
@@ -280,7 +336,7 @@ public:
         return { x_train, y_train, x_test, y_test };
     }
 
-    void print_table(const table & t) {
+    void print_table(const table& t) {
         row_accessor<const float_t> acc(t);
         std::int64_t row_count = t.get_row_count();
         std::int64_t col_count = t.get_column_count();
@@ -316,6 +372,10 @@ public:
             this->check_coefficient_shrinkage(linear_train_res.get_coefficients(),
                                               ridge_train_res.get_coefficients(),
                                               tol);
+        }
+
+        SECTION("Checking ridge optimality conditions") {
+            this->check_ridge_optimality(x_train, y_train, ridge_train_res, this->alpha_);
         }
     }
 

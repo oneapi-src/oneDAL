@@ -74,7 +74,7 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
 
             DAAL_INT one(1);
 
-            st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, one, b, ErrorRidgeRegressionInternal);
+            st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, one, bPtr, ErrorRidgeRegressionInternal);
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
