@@ -25,6 +25,7 @@
 #define __RIDGE_REGRESSION_TRAIN_DENSE_NORMEQ_IMPL_I__
 
 #include "src/algorithms/ridge_regression/ridge_regression_train_kernel.h"
+#include "src/algorithms/service_kernel_math.h"
 #include "src/externals/service_blas.h"
 
 #include <iostream>
@@ -42,16 +43,56 @@ namespace internal
 using namespace daal::algorithms::linear_model::normal_equations::training::internal;
 
 template <typename algorithmFPType, CpuType cpu>
+Status computeDualCoefficients(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny,
+                               algorithmFPType * b, bool interceptFlag, DAAL_INT nRidge, const algorithmFPType * ridge)
+{
+    const DAAL_INT pToFix = (interceptFlag ? p - 1 : p);
+
+    Status st;
+    int result = 0;
+    if (nRidge == 1)
+    {
+        for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
+        {
+            aCopy[idx] += *ridge;
+        }
+
+        if (!daal::algorithms::internal::solveDualSymmetricEquationsSystem<algorithmFPType, cpu>(aCopy, b, p, ny, false, interceptFlag, *ridge))
+            return services::Status(services::ErrorRidgeRegressionInternal);
+    }
+    else
+    {
+        algorithmFPType * bPtr    = b;
+        const size_t aSizeInBytes = p * p * sizeof(algorithmFPType);
+        for (DAAL_INT j = 0; j < ny; j++, bPtr += (pToFix + 1))
+        {
+            result |= daal::services::internal::daal_memcpy_s(aCopy, aSizeInBytes, a, aSizeInBytes);
+            for (DAAL_INT i = 0, idx = 0; i < pToFix; i++, idx += (p + 1))
+            {
+                aCopy[idx] += ridge[j];
+            }
+
+            DAAL_INT one(1);
+
+            if (!daal::algorithms::internal::solveDualSymmetricEquationsSystem<algorithmFPType, cpu>(aCopy, bPtr, p, one, false, interceptFlag, ridge[j]))
+                return services::Status(services::ErrorRidgeRegressionInternal);
+        }
+    }
+    return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
+}
+
+
+template <typename algorithmFPType, CpuType cpu>
 Status solveDualRidgeProblem(const NumericTable & xTable, const NumericTable & yTable, NumericTable & xxtTable,
                  NumericTable & xytTable, NumericTable & betaTable, bool interceptFlag,
-                 const KernelHelperIface<algorithmFPType, cpu> & helper)
+                 const NumericTable & ridgeTable)
 {
     Status st;
     std::cout << "Solving dual ridge problem..." << std::endl;
     DAAL_INT nRows(xTable.getNumberOfRows());         /* observations */
     DAAL_INT nFeatures(xTable.getNumberOfColumns());  /* features */
     DAAL_INT nResponses(yTable.getNumberOfColumns()); /* responses */
-    DAAL_INT nBetas(xTable.getNumberOfColumns() + 1); /* coefficients */
+    DAAL_INT nBetas(xTable.getNumberOfColumns() + interceptFlag); /* coefficients */
     DAAL_INT nDualCoeffs(interceptFlag ? nRows + 1 : nRows); /* dual coefficients */
 
     ReadRows<algorithmFPType, cpu> xBlock(const_cast<NumericTable &>(xTable), 0, nRows);
@@ -75,7 +116,7 @@ Status solveDualRidgeProblem(const NumericTable & xTable, const NumericTable & y
     algorithmFPType * xxt = xxtBlock.get();
 
     algorithmFPType one(1.0);
-    algorithmFPType zero(0.0);
+    const algorithmFPType zero(0.0);
     BlasInst<algorithmFPType, cpu>::xsyrk("U", "T", &nRows, &nFeatures, &one, const_cast<algorithmFPType *>(x), &nFeatures, &one, xxt,
                                            (DAAL_INT *)(&nDualCoeffs));
     if (interceptFlag)
@@ -126,7 +167,11 @@ Status solveDualRidgeProblem(const NumericTable & xTable, const NumericTable & y
         }
     }
 
-    DAAL_CHECK_STATUS(st, helper.computeBetasImpl(nRows, xxt, xxtCopy, nResponses, dualCoef, false));
+    size_t nRidge = ridgeTable.getNumberOfRows();
+    ReadRows<algorithmFPType, cpu> ridgeBlock(const_cast<NumericTable &>(ridgeTable), 0, nRidge);
+    const algorithmFPType * ridge = ridgeBlock.get();
+    DAAL_CHECK_MALLOC(ridge);
+    DAAL_CHECK_STATUS(st, (computeDualCoefficients<algorithmFPType, cpu>(nDualCoeffs, xxt, xxtCopy, nResponses, dualCoef, interceptFlag, nRidge, ridge)));
 
     std::cout << "dual coefficients matrix:" << std::endl;
     for (DAAL_INT i = 0; i < nDualCoeffs; ++i) {
@@ -136,46 +181,45 @@ Status solveDualRidgeProblem(const NumericTable & xTable, const NumericTable & y
         std::cout << std::endl;
     }
 
-    TArray<algorithmFPType, cpu> betaBufferArray(nResponses * nBetasIntercept);
+    /* Compute beta coefficients from dual coefficients as b = X^T * dualCoef */
+    TArray<algorithmFPType, cpu> betaBufferArray(nResponses * nFeatures);
     algorithmFPType * betaBuffer = betaBufferArray.get();
     DAAL_CHECK_MALLOC(betaBuffer);
+    BlasInst<algorithmFPType, cpu>::xgemm("N", "N", &nFeatures, &nResponses, &nRows, &one, x, &nFeatures, dualCoef, &nDualCoeffs, &zero, betaBuffer,
+                                          &nFeatures);
 
-    BlasInst<algorithmFPType, cpu>::xgemm("T", "N", &nRows, &nResponses, &nResponses, &one, xPtr, &nCols, yPtr, &nResponses, mult_current_data, xty,
-                                              &nBetasIntercept);
+    std::cout << "beta buffer matrix:" << std::endl;
+    for (DAAL_INT i = 0; i < nResponses; ++i) {
+        for (DAAL_INT j = 0; j < nFeatures; ++j) {
+            std::cout << betaBuffer[i * nFeatures + j] << " ";
+        }
+        std::cout << std::endl;
+    }
 
+    /* Copy beta coefficients from buffer to result table */
+    DAAL_ASSERT(betaTable.getNumberOfColumns() == nBetas);
     WriteOnlyRows<algorithmFPType, cpu> betaBlock(betaTable, 0, nResponses);
     DAAL_CHECK_BLOCK_STATUS(betaBlock);
     algorithmFPType * beta = betaBlock.get();
 
-
-
-    DAAL_PROFILER_TASK(computeFinalize.copyBetaToResult);
-    if (nBetasIntercept == nBetas)
+    for (size_t i = 0; i < nResponses; i++)
+    {
+        PRAGMA_OMP_SIMD
+        PRAGMA_VECTOR_ALWAYS
+        for (size_t j = 1; j < nFeatures; j++)
+        {
+            beta[i * nBetas + j] = betaBuffer[i * nFeatures + j - 1];
+        }
+        beta[i * nBetas] = betaBuffer[i * nFeatures + nFeatures - 1];
+    }
+    if (interceptFlag)
     {
         for (size_t i = 0; i < nResponses; i++)
         {
-            PRAGMA_OMP_SIMD
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 1; j < nBetas; j++)
-            {
-                beta[i * nBetas + j] = betaBuffer[i * nBetas + j - 1];
-            }
-            beta[i * nBetas] = betaBuffer[i * nBetas + nBetas - 1];
+            beta[i * nBetas] = dualCoef[nRows * nResponses + i];
         }
     }
-    else
-    {
-        for (size_t i = 0; i < nResponses; i++)
-        {
-            PRAGMA_OMP_SIMD
-            PRAGMA_VECTOR_ALWAYS
-            for (size_t j = 0; j < nBetas - 1; j++)
-            {
-                beta[i * nBetas + j + 1] = betaBuffer[i * nBetasIntercept + j];
-            }
-            beta[i * nBetas] = 0.0;
-        }
-    }
+
     return st;
 }
 
@@ -197,7 +241,7 @@ Status BatchKernel<algorithmFPType, training::normEqDense, cpu>::compute(const N
     else
     {
         // Use dual ridge problem solver
-        st = solveDualRidgeProblem<algorithmFPType, cpu>(x, y, xtx, xty, beta, interceptFlag, ridgeHelper); // Initialize st to a default success status if the condition is not met
+        st = solveDualRidgeProblem<algorithmFPType, cpu>(x, y, xtx, xty, beta, interceptFlag, ridge); // Initialize st to a default success status if the condition is not met
     }
     return st;
 }

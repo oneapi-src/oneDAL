@@ -76,7 +76,7 @@ TEMPLATE_LIST_TEST_M(lr_batch_test, "RR wide matrix flow", "[rr][batch-wide]", l
     this->t_count_ = 2;
     this->s_count_ = 3;
     this->f_count_ = 10;
-    this->r_count_ = 1;
+    this->r_count_ = GENERATE(1, 2);
     this->intercept_ = GENERATE(0, 1);
 
     size_t seed = 777;
