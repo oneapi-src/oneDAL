@@ -43,6 +43,7 @@ static bool print_profiler_header = (daal::internal::print_header(), false);
 
 #ifndef DAAL_REF // temporary!!! should depend both on BACKEND and TARGETARCH
     #include <mkl.h>
+    #include "src/externals/service_lapack_decl_mkl.h" // fails to compile if a declaration drifts from MKL
 static const char * cpu_long_names[] = { "Generic",
                                          "Supplemental Streaming SIMD Extensions 3",
                                          "Intel(R) Streaming SIMD Extensions 4.2",
