@@ -290,6 +290,7 @@ public:
     /// @param[in] column_count        The number of identical feature columns.
     /// @param[in] min_weight_fraction The minimum weight fraction of a leaf, or 0 for none.
     /// @param[in] max_tree_depth      The maximum depth of the tree.
+    /// @param[in] min_leaf_rows       The minimum number of rows in a leaf.
     /// @param[in] response_of         The response of row `i`.
     /// @param[in] weight_of           The weight of row `i`, or `nullptr` to train unweighted.
     /// @param[in] check_leaf          Called with each leaf, its first row and its row count.
@@ -298,6 +299,7 @@ public:
                                    std::int64_t column_count,
                                    double min_weight_fraction,
                                    std::int64_t max_tree_depth,
+                                   std::int64_t min_leaf_rows,
                                    float (*response_of)(std::int64_t),
                                    float (*weight_of)(std::int64_t),
                                    LeafCheck&& check_leaf) {
@@ -327,7 +329,7 @@ public:
         desc.set_features_per_node(column_count);
         desc.set_bootstrap(false);
         desc.set_max_tree_depth(max_tree_depth);
-        desc.set_min_observations_in_leaf_node(1);
+        desc.set_min_observations_in_leaf_node(min_leaf_rows);
         desc.set_splitter_mode(splitter_mode::random);
 
         struct leaf_collector {
@@ -396,6 +398,7 @@ public:
             1,
             0.0,
             2,
+            1,
             row_response,
             nullptr,
             [](const leaf_node_info<Task>& leaf, std::int64_t start, std::int64_t count) {
@@ -434,6 +437,7 @@ public:
             8,
             min_weight_fraction,
             4,
+            1,
             row_response,
             unit_weight,
             [=](const leaf_node_info<Task>&, std::int64_t, std::int64_t count) {
@@ -441,19 +445,42 @@ public:
             });
     }
 
+    /// The response of row `i` in the leaf statistics check. Row `i` is drawn from one of 16
+    /// distributions chosen by `i % 16`: uniform, exponential, Bernoulli and normal families with
+    /// different means and scales. 16 divides the work-group size, so every GPU work item sees a
+    /// single distribution, and the per-item means and variances all differ.
+    static float mixed_family_response(std::int64_t i) {
+        const auto uniform01 = [](std::uint64_t x) {
+            // splitmix64
+            std::uint64_t z = (x + 1) * 0x9E3779B97F4A7C15ull;
+            z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+            z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+            z ^= z >> 31;
+            return double(z >> 11) * 0x1.0p-53;
+        };
+        const std::int64_t k = i % 16;
+        const double u = uniform01(2 * i);
+        const double v = uniform01(2 * i + 1);
+        double x = 0.0;
+        switch (k % 4) {
+            case 0: x = u; break;
+            case 1: x = -std::log1p(-u); break;
+            case 2: x = (u < 0.2) ? 1.0 : 0.0; break;
+            default: x = std::sqrt(-2.0 * std::log1p(-u)) * std::cos(6.283185307179586 * v); break;
+        }
+        return static_cast<float>(100.0 + 25.0 * double(k) + 4.0 * double(1 + 3 * k) * x);
+    }
+
     /// Checks that the mean and the variance of every regression leaf match a sequential
     /// double-precision pass over its rows, including for nodes with more rows than the GPU
-    /// splitter has work items in a work group.
+    /// splitter has work items in a work group. Leaves hold at least an eighth of the rows, so
+    /// the tolerances stay far below the error of an inexact combination of the per-item
+    /// statistics: weighing every item equally misses the variance by about 5% on this data and
+    /// dropping the within-item term by more than 10%.
     ///
     /// @param[in] row_count The number of training rows.
     /// @param[in] weighted  Whether to train with non-uniform weights.
     void check_random_split_leaf_statistics(std::int64_t row_count, bool weighted) {
-        // Rows that share `i % 64` share most of their response, and a work item only visits rows
-        // a work-group size apart, so the per-item means differ and an inexact combination of the
-        // per-item statistics shows up in the leaf variance.
-        const auto response_of = [](std::int64_t i) {
-            return static_cast<float>(1000 + 10 * (i % 64) + (i * 37) % 7);
-        };
         const auto weight_of = [](std::int64_t i) {
             return static_cast<float>(1 + i % 5);
         };
@@ -463,32 +490,35 @@ public:
         {
             double mean = 0.0;
             for (std::int64_t i = 0; i < row_count; ++i) {
-                const double delta = response_of(i) - mean;
+                const double delta = mixed_family_response(i) - mean;
                 mean += delta / double(i + 1);
-                total_sum2cent += delta * (response_of(i) - mean);
+                total_sum2cent += delta * (mixed_family_response(i) - mean);
             }
         }
-        const double eps = std::is_same_v<Float, float> ? 1e-6 : 1e-12;
+        const double eps = std::is_same_v<Float, float> ? 1.2e-7 : 2.3e-16;
+        const double rel_tol = std::is_same_v<Float, float> ? 1e-4 : 1e-10;
         check_random_split_leaves(
             row_count,
-            1,
+            8,
             0.0,
-            2,
-            response_of,
+            3,
+            row_count / 8,
+            mixed_family_response,
             weighted ? +weight_of : nullptr,
             [&](const leaf_node_info<Task>& leaf, std::int64_t start, std::int64_t count) {
                 double mean = 0.0;
                 double sum2cent = 0.0;
                 for (std::int64_t i = start; i < start + count; ++i) {
-                    const double delta = response_of(i) - mean;
+                    const double y = mixed_family_response(i);
+                    const double delta = y - mean;
                     mean += delta / double(i - start + 1);
-                    sum2cent += delta * (response_of(i) - mean);
+                    sum2cent += delta * (y - mean);
                 }
                 const double variance = sum2cent / double(count);
                 CAPTURE(leaf.get_response(), mean, leaf.get_impurity(), variance);
-                REQUIRE(std::fabs(leaf.get_response() - mean) < 1e-5 * mean);
+                REQUIRE(std::fabs(leaf.get_response() - mean) < rel_tol * std::sqrt(variance));
                 REQUIRE(std::fabs(leaf.get_impurity() - variance) <
-                        1e-3 * variance + 10 * eps * total_sum2cent / double(count));
+                        rel_tol * variance + 10 * eps * total_sum2cent / double(count));
             });
     }
 
