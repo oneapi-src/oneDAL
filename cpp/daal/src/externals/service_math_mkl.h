@@ -130,6 +130,13 @@ struct MklMath<double, cpu>
         __DAAL_MKLFN_CALL_MATH(vmdExp, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
+    static void vExpxx(SizeType n, const double * in, double * out)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        vmdExp((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE));
+        mkl_set_num_threads_local(old_nthr);
+    }
+
     static double vExpThreshold() { return -650.0; }
 
     static void vTanh(SizeType n, const double * in, double * out)
@@ -155,6 +162,13 @@ struct MklMath<double, cpu>
     static void vLog(SizeType n, const double * in, double * out)
     {
         __DAAL_MKLFN_CALL_MATH(vmdLn, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+    }
+
+    static void vLogxx(SizeType n, const double * in, double * out)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        vmdLn((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE));
+        mkl_set_num_threads_local(old_nthr);
     }
 
     static void vLog1p(SizeType n, const double * in, double * out)
@@ -256,6 +270,13 @@ struct MklMath<float, cpu>
         __DAAL_MKLFN_CALL_MATH(vmsExp, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
     }
 
+    static void vExpxx(SizeType n, const float * in, float * out)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        vmsExp((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE));
+        mkl_set_num_threads_local(old_nthr);
+    }
+
     static float vExpThreshold() { return -75.0f; }
 
     static void vTanh(SizeType n, const float * in, float * out)
@@ -281,6 +302,13 @@ struct MklMath<float, cpu>
     static void vLog(SizeType n, const float * in, float * out)
     {
         __DAAL_MKLFN_CALL_MATH(vmsLn, ((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE)));
+    }
+
+    static void vLogxx(SizeType n, const float * in, float * out)
+    {
+        int old_nthr = mkl_set_num_threads_local(1);
+        vmsLn((int)n, in, out, (VML_HA | VML_FTZDAZ_ON | VML_ERRMODE_IGNORE));
+        mkl_set_num_threads_local(old_nthr);
     }
 
     static void vLog1p(SizeType n, const float * in, float * out)
