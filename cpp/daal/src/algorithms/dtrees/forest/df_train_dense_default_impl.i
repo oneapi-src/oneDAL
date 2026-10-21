@@ -239,6 +239,15 @@ public:
 
     algorithmFPType * varImpOfTree(size_t iTree, size_t nVars) const { return varImpPerTree + iTree * nVars; }
 
+    // Contexts that sum the OOB predictions after training override these
+    static constexpr bool oobPredictedInTask = true;
+    void recordOOBRows(size_t /*iTree*/, const IndexType * /*aInd*/, size_t /*n*/) {}
+    template <typename ModelType>
+    services::Status predictOOB(const ModelType & /*md*/, const NumericTable * /*x*/, const dtrees::internal::FeatureTypes & /*featTypes*/)
+    {
+        return services::Status();
+    }
+
 protected:
     // Thread contexts share the per-fit state of the main context
     void init(const TreeThreadCtxBase & main)
@@ -460,7 +469,7 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
         DAAL_CHECK_MALLOC(varImpPerTree.get());
         mainCtx.varImpPerTree = varImpPerTree.get();
     }
-    DAAL_CHECK(mainCtx.init(par, x, y, nClasses), ErrorMemoryAllocationFailed);
+    DAAL_CHECK(mainCtx.init(par, x, nClasses), ErrorMemoryAllocationFailed);
 
     //use tls in case of multiple threads
     const bool bThreaded = (threader_get_max_threads_number() > 1) && (par.nTrees > 1);
@@ -549,6 +558,7 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
         WriteOnlyRows<algorithmFPType, cpu> oobErrPrediction(res.oobErrorPrediction, 0, nRows);
         if (par.resultsToCompute & computeOutOfBagErrorPrediction) DAAL_CHECK_BLOCK_STATUS(oobErrPrediction);
 
+        DAAL_CHECK_STATUS_VAR(mainCtx.predictOOB(md, x, featTypes));
         s = mainCtx.finalizeOOBError(y, oobErr.get(), oobErrPerObs.get(), oobErrAccuracy.get(), oobErrR2.get(), oobErrDecisionFunction.get(),
                                      oobErrPrediction.get());
     }
@@ -1438,10 +1448,11 @@ services::Status TrainBatchTaskBase<algorithmFPType, BinIndexType, DataHelper, H
     DAAL_CHECK_MALLOC(oobIndices.get());
     _helper.getOOBIndices(oobIndices.get());
     const bool bMDA(_par.varImportance == training::MDA_Raw || _par.varImportance == training::MDA_Scaled);
-    if (_par.resultsToCompute
-            & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
-               | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction)
-        || bMDA)
+    const bool bOOBResults(_par.resultsToCompute
+                           & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+                              | computeOutOfBagErrorDecisionFunction | computeOutOfBagErrorPrediction));
+    if (bOOBResults) _threadCtx.recordOOBRows(_iTree, oobIndices.get(), nOOB);
+    if ((bOOBResults && ThreadCtxType::oobPredictedInTask) || bMDA)
     {
         const algorithmFPType oobError = computeOOBError(t, nOOB, oobIndices.get());
         if (bMDA)

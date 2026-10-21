@@ -1592,7 +1592,7 @@ public:
     TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp), _nClasses(0) {}
 
     // Main context
-    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, const NumericTable * /*y*/, size_t nClasses)
+    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t nClasses)
     {
         _nClasses = nClasses;
         using namespace decision_forest::training;

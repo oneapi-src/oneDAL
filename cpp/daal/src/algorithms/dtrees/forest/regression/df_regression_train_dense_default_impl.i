@@ -27,8 +27,6 @@
 
 #include <limits>
 #include <cstddef>
-#include <cstdint>
-#include <cmath>
 
 #include "src/algorithms/dtrees/forest/df_train_dense_default_impl.i"
 #include "src/algorithms/dtrees/forest/regression/df_regression_train_kernel.h"
@@ -104,48 +102,13 @@ template <typename algorithmFPType, CpuType cpu>
 class TreeThreadCtx;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Service structure, contains regression error data for OOB calculation.
-// The prediction sum is a 128-bit two's complement fixed-point integer: integer addition is
-// associative, so the sum is the same whichever threads build the trees and in whatever
-// order their buffers are merged.
+// Service structure, contains regression error data for OOB calculation
 //////////////////////////////////////////////////////////////////////////////////////////
-template <CpuType cpu>
+template <typename intermSummFPType, CpuType cpu>
 struct RegErr
 {
-    uint64_t lo  = 0;
-    uint64_t hi  = 0;
-    size_t count = 0;
-
-    void add(const RegErr & o)
-    {
-        lo += o.lo;
-        hi += o.hi + (lo < o.lo);
-        count += o.count;
-    }
-
-    // scaled is a prediction multiplied by the fixed-point scale; the fraction below one unit is dropped
-    void add(double scaled)
-    {
-        double a = scaled < 0 ? -scaled : scaled;
-        if (!(a < 0x1p126)) a = 0x1p126; //not reached for finite responses, keeps the conversions below defined
-        uint64_t h = static_cast<uint64_t>(a * 0x1p-64);
-        uint64_t l = static_cast<uint64_t>(a - static_cast<double>(h) * 0x1p64);
-        if (scaled < 0)
-        {
-            l = 0 - l;
-            h = ~h + (l == 0);
-        }
-        lo += l;
-        hi += h + (lo < l);
-        ++count;
-    }
-
-    // mean of the accumulated predictions, invScale undoes the fixed-point scale
-    double mean(double invScale) const
-    {
-        const double sum = static_cast<double>(static_cast<int64_t>(hi)) * 0x1p64 + static_cast<double>(lo);
-        return sum * invScale / static_cast<double>(count);
-    }
+    intermSummFPType value = 0;
+    size_t count           = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -741,12 +704,10 @@ public:
     algorithmFPType predictionError(TResponse prediction, TResponse response) const { return (prediction - response) * (prediction - response); }
 
     algorithmFPType predictionError(const dtrees::internal::Tree & t, const algorithmFPType * x, const NumericTable * resp, size_t iRow,
-                                    ThreadCtxType & ctx) const
+                                    ThreadCtxType & /*ctx*/) const
     {
         ReadRows<algorithmFPType, cpu> y(const_cast<NumericTable *>(resp), iRow, 1);
-        const TResponse response(this->predict(t, x));
-        ctx.addOOBPrediction(iRow, response);
-        return this->predictionError(response, *y.get());
+        return this->predictionError(TResponse(this->predict(t, x)), *y.get());
     }
 
     void setLeafData(typename TreeType::NodeType::Leaf & node, const IndexType * idx, size_t n, ImpurityData & imp) const
@@ -1404,57 +1365,79 @@ class TreeThreadCtx : public TreeThreadCtxBase<algorithmFPType, cpu>
 public:
     typedef TreeThreadCtxBase<algorithmFPType, cpu> super;
     using intermSummFPType = typename super::intermSummFPType;
-    TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp), _oobScale(1), _oobInvScale(1) {}
+    // The tasks only record which rows are OOB for their tree, the predictions are summed by predictOOB
+    static constexpr bool oobPredictedInTask = false;
 
-    // Main context. The fixed-point scale of the OOB sums is 2^e with e chosen from the response
-    // range: predictions are leaf means, so nTrees of them stay below 2^(eY + 1 + eT) and fit in 126 bits.
-    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, const NumericTable * y, size_t /*nClasses*/)
+    TreeThreadCtx(algorithmFPType * _varImp = nullptr) : super(_varImp), _oobRows(nullptr), _oobRowsStride(0) {}
+
+    // Main context, owns the OOB row masks and the prediction sums
+    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t /*nClasses*/)
     {
-        if (!needsOOBBuffer(par)) return true;
-        const size_t nRows = y->getNumberOfRows();
-        ReadRows<algorithmFPType, cpu> yBD(const_cast<NumericTable *>(y), 0, nRows);
-        if (!yBD.get()) return false;
-        const algorithmFPType * py = yBD.get();
-        intermSummFPType maxAbs    = 0;
-        for (size_t i = 0; i < nRows; ++i)
-        {
-            const intermSummFPType a = py[i] < 0 ? -py[i] : py[i];
-            if (a > maxAbs) maxAbs = a;
-        }
-        int eY = 0;
-        int eT = 0;
-        std::frexp(maxAbs, &eY);
-        std::frexp(static_cast<double>(par.nTrees), &eT);
-        const int maxExponent = 1022; //keeps 2^e and 2^-e normal doubles
-        int e                 = 125 - eY - eT;
-        e                     = e > maxExponent ? maxExponent : (e < -maxExponent ? -maxExponent : e);
-        _oobScale             = std::ldexp(1.0, e);
-        _oobInvScale          = std::ldexp(1.0, -e);
-        return allocOOBBuffer(nRows);
+        using namespace decision_forest::training;
+        if (!(par.resultsToCompute
+              & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorPrediction)))
+            return true;
+        const size_t nRows = x->getNumberOfRows();
+        _oobRowsStride     = nRows / 8 + !!(nRows % 8);
+        if (!_oobRowsStride || this->nTrees > std::numeric_limits<size_t>::max() / _oobRowsStride) return false;
+        _oobRowsBuf.reset(this->nTrees * _oobRowsStride);
+        _oobRows     = _oobRowsBuf.get();
+        this->oobBuf = service_calloc<byte, cpu>(sizeof(RegErr<intermSummFPType, cpu>) * nRows);
+        return _oobRows && this->oobBuf;
     }
 
     // Thread context, shares the per-fit state of the main context
-    bool init(const decision_forest::training::Parameter & par, const NumericTable * x, size_t /*nClasses*/, const TreeThreadCtx & main)
+    bool init(const decision_forest::training::Parameter & /*par*/, const NumericTable * /*x*/, size_t /*nClasses*/, const TreeThreadCtx & main)
     {
         super::init(main);
-        _oobScale    = main._oobScale;
-        _oobInvScale = main._oobInvScale;
-        return !main.oobBuf || allocOOBBuffer(x->getNumberOfRows());
+        _oobRows       = main._oobRows;
+        _oobRowsStride = main._oobRowsStride;
+        return true;
     }
 
-    void addOOBPrediction(size_t iRow, algorithmFPType prediction)
+    // Only the task building tree iTree writes its mask
+    void recordOOBRows(size_t iTree, const IndexType * aInd, size_t n)
     {
-        if (this->oobBuf) oobData()[iRow].add(static_cast<double>(prediction) * _oobScale);
+        if (!_oobRows) return;
+        unsigned char * mask = _oobRows + iTree * _oobRowsStride;
+        for (size_t i = 0; i < n; ++i) mask[aInd[i] / 8] |= static_cast<unsigned char>(1u << (aInd[i] % 8));
     }
 
-    void reduceTo(TreeThreadCtx & other, size_t nSamples) const
+    void reduceTo(TreeThreadCtx & /*other*/, size_t /*nSamples*/) const {}
+
+    // Sums the OOB predictions of each row in tree order, so the sums do not depend on the thread count
+    template <typename ModelType>
+    Status predictOOB(const ModelType & md, const NumericTable * x, const dtrees::internal::FeatureTypes & featTypes)
     {
-        if (this->oobBuf)
-        {
-            RegErr<cpu> * dst       = other.oobData();
-            const RegErr<cpu> * src = oobData();
-            for (size_t i = 0; i < nSamples; ++i) dst[i].add(src[i]);
-        }
+        if (!_oobRows) return Status();
+        const size_t nRows                  = x->getNumberOfRows();
+        const size_t nCols                  = x->getNumberOfColumns();
+        const size_t blockSize              = 256;
+        const size_t nBlocks                = nRows / blockSize + !!(nRows % blockSize);
+        RegErr<intermSummFPType, cpu> * acc = oobData();
+        daal::SafeStatus safeStat;
+        daal::threader_for(nBlocks, nBlocks, [&](size_t iBlock) {
+            const size_t iStart = iBlock * blockSize;
+            const size_t iEnd   = (iStart + blockSize < nRows) ? iStart + blockSize : nRows;
+            ReadRows<algorithmFPType, cpu> xBD(const_cast<NumericTable *>(x), iStart, iEnd - iStart);
+            DAAL_CHECK_BLOCK_STATUS_THR(xBD);
+            for (size_t iTree = 0; iTree < this->nTrees; ++iTree)
+            {
+                const unsigned char * mask = _oobRows + iTree * _oobRowsStride;
+                const auto & tree          = *md.at(iTree);
+                for (size_t i = iStart; i < iEnd; ++i)
+                {
+                    if (!(mask[i / 8] & (1u << (i % 8)))) continue;
+                    const dtrees::internal::DecisionTreeNode * pNode =
+                        dtrees::prediction::internal::findNode<algorithmFPType, typename ModelType::TreeType, cpu>(tree, featTypes,
+                                                                                                                   xBD.get() + (i - iStart) * nCols);
+                    DAAL_ASSERT(pNode);
+                    acc[i].value += pNode->featureValueOrResponse;
+                    ++acc[i].count;
+                }
+            }
+        });
+        return safeStat.detach();
     }
 
     Status finalizeOOBError(const NumericTable * resp, algorithmFPType * res, algorithmFPType * resPerObs, algorithmFPType * resAccuracy,
@@ -1464,12 +1447,12 @@ public:
         const size_t nSamples = resp->getNumberOfRows();
         ReadRows<algorithmFPType, cpu> y(const_cast<NumericTable *>(resp), 0, nSamples);
         DAAL_CHECK_BLOCK_STATUS(y);
-        const algorithmFPType * py   = y.get();
-        size_t nPredicted            = 0;
-        intermSummFPType _res        = 0;
-        intermSummFPType yMean       = 0;
-        intermSummFPType sumMeanDiff = 0;
-        const RegErr<cpu> * ptr      = oobData();
+        const algorithmFPType * py          = y.get();
+        size_t nPredicted                   = 0;
+        intermSummFPType _res               = 0;
+        intermSummFPType yMean              = 0;
+        intermSummFPType sumMeanDiff        = 0;
+        RegErr<intermSummFPType, cpu> * ptr = (RegErr<intermSummFPType, cpu> *)this->oobBuf;
 
         PRAGMA_OMP_SIMD_ARGS(reduction(+ : yMean))
         for (size_t i = 0; i < nSamples; ++i)
@@ -1482,14 +1465,14 @@ public:
         {
             if (ptr[i].count)
             {
-                const intermSummFPType prediction = ptr[i].mean(_oobInvScale);
-                const intermSummFPType oobForObs  = (prediction - py[i]) * (prediction - py[i]);
+                ptr[i].value /= static_cast<intermSummFPType>(ptr[i].count);
+                const intermSummFPType oobForObs = (ptr[i].value - py[i]) * (ptr[i].value - py[i]);
 
                 if (resPerObs) resPerObs[i] = oobForObs;
                 _res += oobForObs;
                 ++nPredicted;
 
-                if (resPrediction) resPrediction[i] = prediction;
+                if (resPrediction) resPrediction[i] = ptr[i].value;
                 sumMeanDiff += (py[i] - yMean) * (py[i] - yMean);
             }
             else
@@ -1504,23 +1487,11 @@ public:
     }
 
 private:
-    static bool needsOOBBuffer(const decision_forest::training::Parameter & par)
-    {
-        using namespace decision_forest::training;
-        return par.resultsToCompute
-               & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorPrediction);
-    }
+    RegErr<intermSummFPType, cpu> * oobData() const { return reinterpret_cast<RegErr<intermSummFPType, cpu> *>(this->oobBuf); }
 
-    bool allocOOBBuffer(size_t nRows)
-    {
-        this->oobBuf = service_calloc<byte, cpu>(sizeof(RegErr<cpu>) * nRows);
-        return this->oobBuf != nullptr;
-    }
-
-    RegErr<cpu> * oobData() const { return reinterpret_cast<RegErr<cpu> *>(this->oobBuf); }
-
-    double _oobScale;
-    double _oobInvScale;
+    TArrayCalloc<unsigned char, cpu> _oobRowsBuf; // main context only
+    unsigned char * _oobRows;                     // nTrees x _oobRowsStride bytes, bit i of row t is set if row i is OOB for tree t
+    size_t _oobRowsStride;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////

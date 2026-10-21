@@ -14,9 +14,9 @@
 * limitations under the License.
 *******************************************************************************/
 
-/// Out-of-bag results and variable importance of decision forest training are reduced from
-/// thread-local partial results. The cases below train the same forest with one thread and
-/// with several threads, twice, and require bitwise identical results.
+/// Out-of-bag results and variable importance of decision forest training must not depend on
+/// the number of threads. The cases below train the same forest with one thread and with
+/// several threads, twice, and require bitwise identical results.
 
 #include <algorithm>
 #include <cstdint>
@@ -218,6 +218,52 @@ TEST("classification OOB results and variable importance do not depend on the th
     {
         checkThreadCountIndependence([](const Dataset & d) { return trainClassification<float, training::defaultDense>(d, df::training::MDA_Raw); });
     }
+}
+
+TEST("regression OOB prediction of a single tree matches the model prediction", "[decision_forest][unit]")
+{
+    namespace training   = df::regression::training;
+    namespace prediction = df::regression::prediction;
+    const Dataset d      = makeDataset();
+    std::vector<double> x(d.x);
+    std::vector<double> y(d.yRegression);
+    const NumericTablePtr xTable = HomogenNumericTable<double>::create(x.data(), nFeatures, nRows);
+    training::Batch<double, training::hist> algorithm;
+    algorithm.input.set(training::data, xTable);
+    algorithm.input.set(training::dependentVariable, HomogenNumericTable<double>::create(y.data(), 1, nRows));
+    algorithm.parameter().nTrees           = 1;
+    algorithm.parameter().engine           = daal::algorithms::engines::mt2203::Batch<>::create(seed);
+    algorithm.parameter().resultsToCompute = df::training::computeOutOfBagErrorPerObservation | df::training::computeOutOfBagErrorPrediction;
+    algorithm.compute();
+    const training::ResultPtr res = algorithm.getResult();
+
+    prediction::Batch<double> predictor;
+    predictor.input.set(prediction::data, xTable);
+    predictor.input.set(prediction::model, res->get(training::model));
+    predictor.compute();
+
+    const std::vector<double> errPerObs = readTable(res->get(training::outOfBagErrorPerObservation));
+    const std::vector<double> oobPred   = readTable(res->get(training::outOfBagErrorPrediction));
+    const std::vector<double> modelPred = readTable(predictor.getResult()->get(prediction::prediction));
+    REQUIRE(errPerObs.size() == nRows);
+    REQUIRE(oobPred.size() == nRows);
+    REQUIRE(modelPred.size() == nRows);
+    size_t nOOB = 0;
+    for (size_t i = 0; i < nRows; ++i)
+    {
+        CAPTURE(i);
+        if (errPerObs[i] < 0)
+        {
+            REQUIRE(oobPred[i] == 0.0);
+            continue;
+        }
+        ++nOOB;
+        REQUIRE(oobPred[i] == modelPred[i]);
+        REQUIRE(errPerObs[i] == (modelPred[i] - y[i]) * (modelPred[i] - y[i]));
+    }
+    // a bootstrap sample of nRows rows leaves about 37% of them out
+    REQUIRE(nOOB > nRows / 4);
+    REQUIRE(nOOB < nRows / 2);
 }
 
 } // namespace daal::test
