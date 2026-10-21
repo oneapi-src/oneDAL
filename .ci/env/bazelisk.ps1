@@ -31,7 +31,7 @@ updated, which also makes the script convenient for local CI reproduction.
 
 $ErrorActionPreference = "Stop"
 
-$bazeliskVersion = "v1.29.0"
+$bazeliskVersion = "v1.30.0"
 $assetName = "bazelisk-windows-amd64.exe"
 $installDir = Join-Path (Get-Location) "bazel\bin"
 $bazelPath = Join-Path $installDir "bazel.exe"

@@ -19,7 +19,7 @@
 1. Download Bazelisk. `.ci/env/bazelisk.sh` does the same with a pinned
    version and a checksum check, and is what CI runs.
    ```sh
-   wget -O bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.29.0/bazelisk-linux-amd64
+   wget -O bazel https://github.com/bazelbuild/bazelisk/releases/download/v1.30.0/bazelisk-linux-amd64
    ```
    > Note: If you are using proxy don't forget to set
    `http_proxy` and `https_proxy` environment variables
@@ -56,7 +56,7 @@ validation.
    it in the repository root as `bazelisk.exe`. `.ci/env/bazelisk.ps1` does this
    with a pinned version and a checksum check, and is what CI runs.
    ```bat
-   set BAZELISK_VERSION=v1.29.0
+   set BAZELISK_VERSION=v1.30.0
    curl.exe -L -o bazelisk.exe https://github.com/bazelbuild/bazelisk/releases/download/%BAZELISK_VERSION%/bazelisk-windows-amd64.exe
    bazelisk.exe version
    ```
