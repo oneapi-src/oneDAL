@@ -29,8 +29,7 @@
 
 namespace oneapi::dal::backend::primitives {
 
-/// The default seed of the RNG engines when no other seed is given.
-constexpr std::int64_t default_seed = 777;
+constexpr std::int64_t default_seed = dal::detail::default_seed;
 
 /// Enum class representing different random number generation (RNG) engine methods.
 ///
@@ -45,7 +44,7 @@ constexpr std::int64_t default_seed = 777;
 /// - `philox4x32x10`: Counter-based RNG engine optimized for parallel computations.
 enum class engine_type_internal { mt2203, mcg59, mt19937, mrg32k3a, philox4x32x10 };
 
-inline engine_type_internal convert_engine_method(engine_type method) {
+constexpr engine_type_internal convert_engine_method(engine_type method) {
     switch (method) {
         case engine_type::mt2203:
             return ::oneapi::dal::backend::primitives::engine_type_internal::mt2203;
@@ -61,9 +60,9 @@ inline engine_type_internal convert_engine_method(engine_type method) {
     }
 }
 
-/// The RNG engine every algorithm uses unless another one is requested explicitly.
-/// Counter-based: its state is a key and a counter, so `skip_ahead` is O(1).
-constexpr engine_type_internal default_engine_type_internal = engine_type_internal::philox4x32x10;
+/// `dal::detail::default_engine_type`, philox4x32x10: counter-based, so `skip_ahead` is O(1).
+constexpr engine_type_internal default_engine_type_internal =
+    convert_engine_method(dal::detail::default_engine_type);
 
 /// Creates the DAAL(host) engine that corresponds to the requested method.
 /// @param[in] seed    The initial seed for the random number generator.
