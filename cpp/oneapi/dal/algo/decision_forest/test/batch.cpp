@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/decision_forest/test/fixture.hpp"
 
+#include <cmath>
 #include <limits>
 #include <random>
 
@@ -569,6 +570,34 @@ DF_BATCH_REG_TEST("df reg oob r2 for constant responses") {
     const double oob_r2 = dal::row_accessor<const double>(train_result.get_oob_err_r2()).pull()[0];
     // every tree predicts the constant exactly, so scikit-learn's r2_score convention gives 1
     REQUIRE(oob_r2 == 1.0);
+}
+
+DF_BATCH_REG_TEST("df reg oob r2 without oob rows") {
+    SKIP_IF(this->is_gpu()); // the GPU kernel does not compute the OOB R2
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    constexpr std::int64_t row_count = 6;
+    constexpr std::int64_t column_count = 2;
+
+    static const float train_arr[] = { 0.1f, 1.f, 0.2f, 3.f, 0.3f, 2.f,
+                                       0.4f, 5.f, 0.5f, 4.f, 0.6f, 6.f };
+
+    const te::dataframe data{ array<float>::wrap(train_arr, row_count * column_count),
+                              row_count,
+                              column_count };
+
+    auto desc = this->get_default_descriptor();
+
+    // without bootstrap every tree trains on all rows, so no row is out of bag
+    desc.set_bootstrap(false);
+    desc.set_error_metric_mode(error_metric_mode::out_of_bag_error_r2);
+
+    const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
+
+    REQUIRE(train_result.get_oob_err_r2().has_data());
+    const double oob_r2 = dal::row_accessor<const double>(train_result.get_oob_err_r2()).pull()[0];
+    REQUIRE(std::isnan(oob_r2));
 }
 
 DF_BATCH_REG_TEST_NIGHTLY_EXT("df reg default flow") {
