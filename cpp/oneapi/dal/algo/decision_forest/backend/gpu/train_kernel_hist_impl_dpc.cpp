@@ -1912,19 +1912,27 @@ train_result<Task> train_kernel_hist_impl<Float, Bin, Index, Task>::operator()(
 
     pr::ndarray<Float, 1> node_imp_decrease_list;
     if (ctx.distr_mode_) {
-        // All ranks share the seed, so each skips to its own range, which has the same size on
-        // every rank. Per tree it bounds one bootstrap draw per selected row, `selected_ftr_count`
-        // features and thresholds for each of at most `2 * selected_row_total_count` nodes, and
-        // an MDA shuffle per column of two draws per OOB row, of which there are at most
-        // `row_total_count`.
+        // All ranks share the seed, so each rank skips past the draws of the lower ranks.
+        // Upper bound on the draws per tree:
+        //   bootstrap: one per selected row
+        //   splits:    `selected_ftr_count` features plus as many thresholds per node,
+        //              and a tree has at most `2 * selected_row_count` nodes
+        //   MDA:       per column, a shuffle of the OOB rows with two draws per row
         const std::int64_t selected_row_count = ctx.selected_row_total_count_;
-        const std::int64_t split_values_per_row = 1 + 4 * std::int64_t(ctx.selected_ftr_count_);
-        de::check_mul_overflow(split_values_per_row, selected_row_count);
-        std::int64_t values_per_tree = split_values_per_row * selected_row_count;
+        const std::int64_t bootstrap_values = selected_row_count;
+
+        const std::int64_t max_node_count = 2 * selected_row_count;
+        const std::int64_t split_values_per_node = 2 * std::int64_t(ctx.selected_ftr_count_);
+        de::check_mul_overflow(split_values_per_node, max_node_count);
+        const std::int64_t split_values = split_values_per_node * max_node_count;
+
+        de::check_sum_overflow(bootstrap_values, split_values);
+        std::int64_t values_per_tree = bootstrap_values + split_values;
         if (ctx.mda_required_) {
-            const std::int64_t mda_values_per_row = 2 * std::int64_t(ctx.column_count_);
-            de::check_mul_overflow(mda_values_per_row, std::int64_t(ctx.row_total_count_));
-            const std::int64_t mda_values = mda_values_per_row * ctx.row_total_count_;
+            const std::int64_t max_oob_row_count = ctx.row_total_count_;
+            const std::int64_t mda_values_per_column = 2 * max_oob_row_count;
+            de::check_mul_overflow(mda_values_per_column, std::int64_t(ctx.column_count_));
+            const std::int64_t mda_values = mda_values_per_column * ctx.column_count_;
             de::check_sum_overflow(values_per_tree, mda_values);
             values_per_tree += mda_values;
         }
