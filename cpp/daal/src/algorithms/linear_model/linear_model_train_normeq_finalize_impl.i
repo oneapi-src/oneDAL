@@ -181,9 +181,9 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
 }
 
 /**
- * Solves regression problem through the dual system: (X * X' + ridge * I) * alpha = y.
+ * Solves regression problem through the dual system: (X * X^t + ridge * I) * alpha = y.
  *
- * The resulting coefficients beta = X' * alpha.
+ * The resulting coefficients beta = X^t * alpha.
  *
  * The intercept case is solved for centered X and y so that the intercept is not penalized.
  *
@@ -224,13 +224,11 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     {
         DAAL_CHECK_MALLOC(xMean);
         DAAL_CHECK_MALLOC(yMean);
-        if (daal::internal::StatisticsInst<algorithmFPType, cpu>::xmeansOnePass(x, nFeatures, nRows, xMean))
-            return services::Status(services::ErrorRidgeRegressionInternal);
-        if (daal::internal::StatisticsInst<algorithmFPType, cpu>::xmeansOnePass(y, nResponses, nRows, yMean))
-            return services::Status(services::ErrorRidgeRegressionInternal);
+        if (daal::internal::StatisticsInst<algorithmFPType, cpu>::xmeansOnePass(x, nFeatures, nRows, xMean)) return helper.getInternalErrorCode();
+        if (daal::internal::StatisticsInst<algorithmFPType, cpu>::xmeansOnePass(y, nResponses, nRows, yMean)) return helper.getInternalErrorCode();
     }
 
-    /* Compute X * X' */
+    /* Compute X * X^t */
     const algorithmFPType one(1);
     const algorithmFPType zero(0);
     const DAAL_INT incOne(1);
@@ -242,7 +240,7 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     if (interceptFlag)
     {
         /* Compute centered left hand side:
-           Xc * Xc' = X * X' - u * 1' - 1 * u' + c * 1 * 1', where u = X * xMean and c = xMean' * xMean */
+           Xc * Xc^t = X * X^t - u * 1^t - 1 * u^t + c * 1 * 1^t, where u = X * xMean and c = xMean^t * xMean */
         TArray<algorithmFPType, cpu> uArray(nRows);
         algorithmFPType * u = uArray.get();
         DAAL_CHECK_MALLOC(u);
@@ -287,7 +285,7 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     Status st;
     DAAL_CHECK_STATUS(st, helper.computeBetasImpl(nRows, xxt, xxtCopy, nResponses, dualCoef, false));
 
-    /* betaBuffer = Xc' * dualCoef */
+    /* betaBuffer = Xc^t * dualCoef */
     TArray<algorithmFPType, cpu> betaBufferArray(nFeatures * nResponses);
     algorithmFPType * betaBuffer = betaBufferArray.get();
     DAAL_CHECK_MALLOC(betaBuffer);

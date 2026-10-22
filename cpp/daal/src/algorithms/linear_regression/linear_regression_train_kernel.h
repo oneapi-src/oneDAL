@@ -61,6 +61,7 @@ class KernelHelper : public KernelHelperIface<algorithmFPType, cpu>
 public:
     Status computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny, algorithmFPType * b,
                             bool inteceptFlag) const;
+    ErrorID getInternalErrorCode() const;
 };
 
 template <typename algorithmFPType, CpuType cpu>

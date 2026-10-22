@@ -54,6 +54,7 @@ public:
     KernelHelper(const NumericTable & ridge) : _ridge(ridge) {}
     Status computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny, algorithmFPType * b,
                             bool inteceptFlag) const;
+    ErrorID getInternalErrorCode() const;
 
 protected:
     const NumericTable & _ridge;

@@ -70,6 +70,8 @@ public:
      */
     virtual Status computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny, algorithmFPType * b,
                                     bool inteceptFlag) const = 0;
+
+    virtual ErrorID getInternalErrorCode() const = 0;
 };
 
 /**
