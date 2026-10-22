@@ -836,7 +836,7 @@ to run them against a specific binary, such as a downloaded `bazelisk`.
 | Both runtimes in one tree      | `bazel build //:release_all`                                 | Windows only; equals `//:release` elsewhere                                |
 | `PLAT=lnxarm`                  | `--platforms=@config//:linux_aarch64 CC=aarch64-linux-gnu-gcc`| Cross-compile to Linux AArch64 (ref backend only)                          |
 | `PLAT=lnxriscv64`              | `--platforms=@config//:linux_riscv64 CC=riscv64-linux-gnu-gcc`| Cross-compile to Linux RISC-V64 (ref backend only)                         |
-| `PLAT=winarm`                  | `--platforms=@config//:windows_arm64`                        | Windows ARM64 with `clang-cl` (ref backend only)                           |
+| `PLAT=winarm`                  | `--platforms=@config//:windows_arm64`                        | Windows ARM64 with `clang-cl` (ref backend only); off an ARM64 host also `CC="clang-cl --target=aarch64-pc-windows-msvc"` |
 | `COMPILER=clang` (Windows)     | `ONEDAL_WIN_COMPILER=clang bazel build ...`                   | `clang-cl` + `lld-link` + `llvm-lib`; implied when targeting Windows ARM64, untested on x86_64 (Make has no `COMPILER.win.clang` for it either) |
 | `RNG_BACKEND=openrng`          | `--rng_backend=openrng --backend_config=ref`                  | Use OpenRNG instead of the ref RNG (ref backend only; needs `OPENRNGROOT`) |
 
@@ -881,11 +881,14 @@ The default target is the host arch, read from `PROCESSOR_ARCHITEW6432` /
 `--platforms=@config//:windows_arm64` only makes that explicit. That pair of
 variables answers for a 32-bit process on 64-bit Windows; a 64-bit x86_64
 process emulated on an ARM64 host reports `AMD64`, so state the target
-explicitly there.
+explicitly there with `CC`/`CXX` set to
+`clang-cl --target=aarch64-pc-windows-msvc`. `--platforms` alone is not enough:
+the target arch is detected in repository rules, which never see `--platforms`,
+so without the `--target=` flag the toolchain is configured for x86_64.
 
-Cross-compiling from an x86_64 host is **untested**: the toolchain does pass the
-target triple explicitly (`--platforms=@config//:windows_arm64`, or a
-`--target=aarch64-pc-windows-msvc` in `CC`/`CXX`), but it also needs
+Cross-compiling from an x86_64 host is **untested**: it needs the same
+`--target=aarch64-pc-windows-msvc` in `CC`/`CXX` next to
+`--platforms=@config//:windows_arm64`, and also
 `vcvarsall x64_arm64` and ARM64 builds of oneTBB and OpenBLAS, and no CI lane
 covers it. CI covers the native ARM64 path only.
 

@@ -173,9 +173,9 @@ def detect_host_arch(repo_ctx, os_id):
         # for a 32-bit process on a 64-bit Windows, so it is read first and is
         # not a general answer: a 64-bit x86_64 process emulated on an ARM64
         # host reports AMD64 with nothing to correct it, and this detection then
-        # yields `intel64`. State the target explicitly in that case --
-        # `--platforms=@config//:windows_arm64`, or a `--target=` triple in
-        # `CC`/`CXX`, both of which `detect_target_arch` honours over this.
+        # yields `intel64`. State the target explicitly in that case with a
+        # `--target=` triple in `CC`/`CXX`, which `detect_target_arch` honours
+        # over this. `--platforms` does not help: repository rules never see it.
         for env_var in ["PROCESSOR_ARCHITEW6432", "PROCESSOR_ARCHITECTURE"]:
             value = repo_ctx.os.environ.get(env_var, "").strip().upper()
             arch_id = _ARCH_ID_BY_PROCESSOR_ARCHITECTURE.get(value)
