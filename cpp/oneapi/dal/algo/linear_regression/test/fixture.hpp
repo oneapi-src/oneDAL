@@ -413,12 +413,12 @@ public:
         const auto coefs = train_res.get_coefficients();
 
         if (desc.get_result_options().test(result_options::intercept)) {
-            const float_t expected_beta[] = { 0.27785494,
-                                              0.53011669,
-                                              0.34352259,
-                                              0.40506216,
-                                              -1.26026447 };
-            const float_t expected_intercept[] = { 1.24485441 };
+            const float_t expected_beta[] = { 0.22642944,
+                                              0.65675701,
+                                              -0.40964003,
+                                              0.29191640,
+                                              -0.85383405 };
+            const float_t expected_intercept[] = { 1.85851968 };
             const auto expected_beta_tbl = oneapi::dal::detail::homogen_table_builder()
                                                .set_data_type(dtype)
                                                .set_layout(data_layout::row_major)
@@ -487,10 +487,10 @@ public:
 
         if (desc.get_result_options().test(result_options::intercept)) {
             const float_t expected_beta[] = {
-                -0.18692112, -0.20034801, -0.09590892, -0.13672683, 0.56229012,
-                -0.97006008, 1.39413595,  0.49238012,  1.11041239,  -0.79213452,
+                -0.16669371, -0.25015995, 0.20033555,  -0.09222276, 0.40242722,
+                -1.00991131, 1.49227351,  -0.09126926, 1.02273218,  -0.47717881,
             };
-            const float_t expected_intercept[] = { -0.48964358, 0.96467681 };
+            const float_t expected_intercept[] = { -0.73101900, 1.44022530 };
             const auto expected_beta_tbl = oneapi::dal::detail::homogen_table_builder()
                                                .set_data_type(dtype)
                                                .set_layout(data_layout::row_major)
