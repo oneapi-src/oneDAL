@@ -233,6 +233,7 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     /* Compute X * X' */
     const algorithmFPType one(1);
     const algorithmFPType zero(0);
+    const DAAL_INT incOne(1);
     TArray<algorithmFPType, cpu> xxtArray(nRows * nRows);
     algorithmFPType * xxt = xxtArray.get();
     DAAL_CHECK_MALLOC(xxt);
@@ -245,7 +246,6 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
         TArray<algorithmFPType, cpu> uArray(nRows);
         algorithmFPType * u = uArray.get();
         DAAL_CHECK_MALLOC(u);
-        const DAAL_INT incOne(1);
         BlasInst<algorithmFPType, cpu>::xgemv("T", &nFeatures, &nRows, &one, x, &nFeatures, xMean, &incOne, &zero, u, &incOne);
         algorithmFPType c = BlasInst<algorithmFPType, cpu>::xxdot(&nFeatures, xMean, &incOne, xMean, &incOne);
 
@@ -266,7 +266,6 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     {
         if (interceptFlag)
         {
-            const size_t incOne(1);
             MathInst<algorithmFPType, cpu>::vSubI(nResponses, y + i * nResponses, incOne, yMean, incOne, dualCoef + i, nRows);
         }
         else
