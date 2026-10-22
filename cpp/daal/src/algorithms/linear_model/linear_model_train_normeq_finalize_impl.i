@@ -26,8 +26,9 @@
 
 #include "src/algorithms/service_kernel_math.h"
 #include "src/externals/service_blas.h"
-#include "src/externals/service_stat.h"
 #include "src/externals/service_lapack.h"
+#include "src/externals/service_math.h"
+#include "src/externals/service_stat.h"
 #include "src/services/service_profiler.h"
 
 namespace daal
@@ -180,7 +181,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
 }
 
 /**
- * Solves ridge regression through the dual system: (X * X' + ridge * I) * alpha = y.
+ * Solves regression problem through the dual system: (X * X' + ridge * I) * alpha = y.
  *
  * The resulting coefficients beta = X' * alpha.
  *
@@ -191,7 +192,7 @@ Status FinalizeKernel<algorithmFPType, cpu>::solveSystem(DAAL_INT p, algorithmFP
  * @param[out]  betaTable       Output data table for coefficients of size nResponses x (nFeatures + 1).
  *                              The first column corresponds to the intercept (if interceptFlag is true) or zero otherwise.
  * @param[in]  interceptFlag    Flag indicating whether to include an intercept term.
- * @param[in]  helper      Helper object containing ridge parameter and other kernel-related information.
+ * @param[in]  helper           Helper object containing ridge parameter if needed and other kernel-related information.
  *
  * @return Status indicating success or failure of the operation.
  */
@@ -246,8 +247,7 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
         DAAL_CHECK_MALLOC(u);
         const DAAL_INT incOne(1);
         BlasInst<algorithmFPType, cpu>::xgemv("T", &nFeatures, &nRows, &one, x, &nFeatures, xMean, &incOne, &zero, u, &incOne);
-        algorithmFPType c = zero;
-        for (DAAL_INT f = 0; f < nFeatures; ++f) c += xMean[f] * xMean[f];
+        algorithmFPType c = BlasInst<algorithmFPType, cpu>::xxdot(&nFeatures, xMean, &incOne, xMean, &incOne);
 
         /* Only the lower triangle is used by the solver */
         for (DAAL_INT j = 0; j < nRows; ++j)
@@ -266,10 +266,8 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     {
         if (interceptFlag)
         {
-            for (DAAL_INT j = 0; j < nResponses; ++j)
-            {
-                dualCoef[j * nRows + i] = y[i * nResponses + j] - yMean[j];
-            }
+            const size_t incOne(1);
+            MathInst<algorithmFPType, cpu>::vSubI(nResponses, y + i * nResponses, incOne, yMean, incOne, dualCoef + i, nRows);
         }
         else
         {
