@@ -413,12 +413,22 @@ public:
         const auto coefs = train_res.get_coefficients();
 
         if (desc.get_result_options().test(result_options::intercept)) {
-            const float_t expected_beta[] = { 0.22642944,
-                                              0.65675701,
-                                              -0.40964003,
-                                              0.29191640,
-                                              -0.85383405 };
-            const float_t expected_intercept[] = { 1.85851968 };
+            const float_t expected_beta_primal[] = { 0.27785494,
+                                                     0.53011669,
+                                                     0.34352259,
+                                                     0.40506216,
+                                                     -1.26026447 };
+            const float_t expected_beta_dual[] = { 0.22642944,
+                                                   0.65675701,
+                                                   -0.40964003,
+                                                   0.29191640,
+                                                   -0.85383405 };
+            const float_t* expected_beta =
+                this->get_policy().is_gpu() ? expected_beta_primal : expected_beta_dual;
+            const float_t expected_intercept_primal[1] = { 1.24485441 };
+            const float_t expected_intercept_dual[1] = { 1.85851968 };
+            const float_t* expected_intercept =
+                this->get_policy().is_gpu() ? expected_intercept_primal : expected_intercept_dual;
             const auto expected_beta_tbl = oneapi::dal::detail::homogen_table_builder()
                                                .set_data_type(dtype)
                                                .set_layout(data_layout::row_major)
@@ -468,17 +478,21 @@ public:
                               0.09716732,  -1.52593041, 1.1921661,  -0.67108968, 1.00026942 };
         const float_t y[] = { 0.13632112,  1.53203308, -0.65996941,
                               -0.31179486, 0.33776913, -2.2074711 };
+
+        constexpr std::int64_t nRows = 3;
+        constexpr std::int64_t nFeatures = 5;
+        constexpr std::int64_t nResponses = 2;
         auto X_tbl = oneapi::dal::detail::homogen_table_builder()
                          .set_data_type(dtype)
                          .set_layout(data_layout::row_major)
-                         .allocate(3, 5)
-                         .copy_data(X, 3, 5)
+                         .allocate(nRows, nFeatures)
+                         .copy_data(X, nRows, nFeatures)
                          .build();
         auto y_tbl = oneapi::dal::detail::homogen_table_builder()
                          .set_data_type(dtype)
                          .set_layout(data_layout::row_major)
-                         .allocate(3, 2)
-                         .copy_data(y, 3, 2)
+                         .allocate(nRows, nResponses)
+                         .copy_data(y, nRows, nResponses)
                          .build();
 
         auto desc = this->get_descriptor();
@@ -486,22 +500,32 @@ public:
         const auto coefs = train_res.get_coefficients();
 
         if (desc.get_result_options().test(result_options::intercept)) {
-            const float_t expected_beta[] = {
+            const float_t expected_beta_primal[] = {
+                -0.18692112, -0.20034801, -0.09590892, -0.13672683, 0.56229012,
+                -0.97006008, 1.39413595,  0.49238012,  1.11041239,  -0.79213452,
+            };
+            const float_t expected_beta_dual[] = {
                 -0.16669371, -0.25015995, 0.20033555,  -0.09222276, 0.40242722,
                 -1.00991131, 1.49227351,  -0.09126926, 1.02273218,  -0.47717881,
             };
-            const float_t expected_intercept[] = { -0.73101900, 1.44022530 };
+            const float_t* expected_beta =
+                this->get_policy().is_gpu() ? expected_beta_primal : expected_beta_dual;
+
+            const float_t expected_intercept_primal[] = { -0.48964358, 0.96467681 };
+            const float_t expected_intercept_dual[] = { -0.73101900, 1.44022530 };
+            const float_t* expected_intercept =
+                this->get_policy().is_gpu() ? expected_intercept_primal : expected_intercept_dual;
             const auto expected_beta_tbl = oneapi::dal::detail::homogen_table_builder()
                                                .set_data_type(dtype)
                                                .set_layout(data_layout::row_major)
-                                               .allocate(2, 5)
-                                               .copy_data(expected_beta, 2, 5)
+                                               .allocate(nResponses, nFeatures)
+                                               .copy_data(expected_beta, nResponses, nFeatures)
                                                .build();
             const auto expected_intercept_tbl = oneapi::dal::detail::homogen_table_builder()
                                                     .set_data_type(dtype)
                                                     .set_layout(data_layout::row_major)
-                                                    .allocate(1, 2)
-                                                    .copy_data(expected_intercept, 1, 2)
+                                                    .allocate(1, nResponses)
+                                                    .copy_data(expected_intercept, 1, nResponses)
                                                     .build();
 
             const auto intercept = train_res.get_intercept();
@@ -521,8 +545,8 @@ public:
             const auto expected_beta_tbl = oneapi::dal::detail::homogen_table_builder()
                                                .set_data_type(dtype)
                                                .set_layout(data_layout::row_major)
-                                               .allocate(2, 5)
-                                               .copy_data(expected_beta, 2, 5)
+                                               .allocate(nResponses, nFeatures)
+                                               .copy_data(expected_beta, nResponses, nFeatures)
                                                .build();
             SECTION("Checking coefficient values") {
                 check_if_close(coefs, expected_beta_tbl, tol);

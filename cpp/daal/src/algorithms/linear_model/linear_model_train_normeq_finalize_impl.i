@@ -208,13 +208,30 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
     DAAL_ASSERT(nBetas == nFeatures + 1);
     DAAL_CHECK(nRows > 0, services::ErrorIncorrectNumberOfObservations);
 
-    ReadRowsType xBlock(const_cast<NumericTable &>(xTable), 0, nRows);
-    DAAL_CHECK_BLOCK_STATUS(xBlock);
-    const algorithmFPType * x = xBlock.get();
-
     ReadRowsType yBlock(const_cast<NumericTable &>(yTable), 0, nRows);
     DAAL_CHECK_BLOCK_STATUS(yBlock);
     const algorithmFPType * y = yBlock.get();
+
+    const algorithmFPType zero(0);
+
+    if (nRows == 1 && interceptFlag)
+    {
+        // Special case: only one observation and intercept is included.
+        // The intercept is set to the response value and all other coefficients are zero.
+        WriteOnlyRows<algorithmFPType, cpu> betaBlock(betaTable, 0, nResponses);
+        DAAL_CHECK_BLOCK_STATUS(betaBlock);
+        algorithmFPType * beta = betaBlock.get();
+        daal::services::internal::service_memset<algorithmFPType, cpu>(beta, zero, nBetas * nResponses);
+        for (DAAL_INT j = 0; j < nResponses; ++j)
+        {
+            beta[j * nBetas] = y[j];
+        }
+        return Status();
+    }
+
+    ReadRowsType xBlock(const_cast<NumericTable &>(xTable), 0, nRows);
+    DAAL_CHECK_BLOCK_STATUS(xBlock);
+    const algorithmFPType * x = xBlock.get();
 
     TArrayCalloc<algorithmFPType, cpu> xMeanArray(interceptFlag ? nFeatures : 0);
     TArrayCalloc<algorithmFPType, cpu> yMeanArray(interceptFlag ? nResponses : 0);
@@ -230,7 +247,6 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
 
     /* Compute X * X^t */
     const algorithmFPType one(1);
-    const algorithmFPType zero(0);
     const DAAL_INT incOne(1);
     TArray<algorithmFPType, cpu> xxtArray(nRows * nRows);
     algorithmFPType * xxt = xxtArray.get();
