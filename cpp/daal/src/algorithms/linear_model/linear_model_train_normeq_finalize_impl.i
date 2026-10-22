@@ -250,7 +250,7 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
         /* Only the lower triangle is used by the solver */
         for (DAAL_INT j = 0; j < nRows; ++j)
         {
-            PRAGMA_OMP_SIMD
+            PRAGMA_OMP_SIMD_ARGS(aligned(u : DAAL_MALLOC_DEFAULT_ALIGNMENT))
             for (DAAL_INT i = 0; i <= j; ++i) xxt[j * nRows + i] += c - u[i] - u[j];
         }
     }
@@ -307,12 +307,9 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
             PRAGMA_OMP_SIMD_ARGS(reduction(+ : dualSum))
             for (DAAL_INT i = 0; i < nRows; ++i) dualSum += dualCoef[j * nRows + i];
 
-            PRAGMA_OMP_SIMD
-            for (DAAL_INT i = 0; i < nFeatures; ++i) coef[i] -= xMean[i] * dualSum;
+            BlasInst<algorithmFPType, cpu>::xxaxpy(&nFeatures, &dualSum, xMean, &incOne, coef, &incOne);
 
-            intercept = yMean[j];
-            PRAGMA_OMP_SIMD_ARGS(reduction(- : intercept))
-            for (DAAL_INT i = 0; i < nFeatures; ++i) intercept -= xMean[i] * coef[i];
+            intercept = yMean[j] - BlasInst<algorithmFPType, cpu>::xxdot(&nFeatures, xMean, &incOne, coef, &incOne);
         }
         beta[j * nBetas] = intercept;
         DAAL_CHECK(!daal::services::internal::daal_memcpy_s(beta + j * nBetas + 1, nFeatures * sizeof(algorithmFPType), coef,
