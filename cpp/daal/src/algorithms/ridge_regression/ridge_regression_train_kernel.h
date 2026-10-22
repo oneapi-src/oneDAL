@@ -64,6 +64,7 @@ class BatchKernel<algorithmFPType, training::normEqDense, cpu> : public daal::al
 {
     typedef linear_model::normal_equations::training::internal::UpdateKernel<algorithmFPType, cpu> UpdateKernelType;
     typedef linear_model::normal_equations::training::internal::FinalizeKernel<algorithmFPType, cpu> FinalizeKernelType;
+    typedef linear_model::normal_equations::training::internal::DualKernel<algorithmFPType, cpu> DualKernelType;
 
 public:
     Status compute(const NumericTable & x, const NumericTable & y, NumericTable & xtx, NumericTable & xty, NumericTable & beta, bool interceptFlag,

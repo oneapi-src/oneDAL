@@ -126,6 +126,21 @@ public:
 };
 
 /**
+ * Implements the common part of the regression coefficients computation from partial result
+ */
+template <typename algorithmFPType, CpuType cpu>
+class DualKernel
+{
+    typedef WriteRows<algorithmFPType, cpu> WriteRowsType;
+    typedef WriteOnlyRows<algorithmFPType, cpu> WriteOnlyRowsType;
+    typedef ReadRows<algorithmFPType, cpu> ReadRowsType;
+
+public:
+    static Status compute(const NumericTable & xTable, const NumericTable & yTable, NumericTable & betaTable, bool interceptFlag,
+                          const KernelHelperIface<algorithmFPType, cpu> & helper);
+};
+
+/**
  * Thread local storage used on the partial results update stage
  */
 template <typename algorithmFPType, CpuType cpu>
