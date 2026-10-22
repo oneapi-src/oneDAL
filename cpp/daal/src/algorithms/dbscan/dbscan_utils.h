@@ -540,9 +540,7 @@ public:
         const hdbscan::internal::MinkowskiDist<FPType> minkowski(_p);
         switch (_metric)
         {
-        case PairwiseDistanceType::euclidean:
-            return queryImpl([](const FPType * a, const FPType * b, size_t dim) { return distancePow2<FPType, cpu>(a, b, dim); }, indices, n, neighs,
-                             doReset);
+        case PairwiseDistanceType::euclidean: return queryImpl(distancePow2<FPType, cpu>, indices, n, neighs, doReset);
         case PairwiseDistanceType::manhattan:
             return queryImpl(hdbscan::internal::ManhattanDist<FPType>::template pointDist<cpu>, indices, n, neighs, doReset);
         case PairwiseDistanceType::minkowski:
