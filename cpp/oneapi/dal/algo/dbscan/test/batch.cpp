@@ -284,13 +284,17 @@ TEMPLATE_LIST_TEST_M(dbscan_batch_test,
                                      zero_row_case{ 0.1, 2, { -1, -1, 0, 0 } },
                                      zero_row_case{ 1.0, 4, { 0, 0, 0, 0 } });
     const auto r = homogen_table::wrap(c.responses.data(), 4, 1);
-    this->run_metric_checks(x_narrow,
-                            c.epsilon,
-                            c.min_observations,
-                            distance_metric::cosine,
-                            2.0,
-                            r);
-    this->run_metric_checks(x_wide, c.epsilon, c.min_observations, distance_metric::cosine, 2.0, r);
+    // On CPU the two memory modes are separate distance code paths.
+    for (const auto& x : { x_narrow, x_wide }) {
+        for (bool mem_save_mode : { false, true }) {
+            CAPTURE(c.epsilon, c.min_observations, x.get_column_count(), mem_save_mode);
+            const auto desc = this->get_descriptor(c.epsilon, c.min_observations)
+                                  .set_mem_save_mode(mem_save_mode)
+                                  .set_metric(distance_metric::cosine);
+            const auto result = te::compute(this->get_policy(), desc, x, table{});
+            this->check_responses_against_ref(result.get_responses(), r);
+        }
+    }
 }
 
 TEMPLATE_LIST_TEST_M(dbscan_batch_test,
