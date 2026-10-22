@@ -307,7 +307,8 @@ Status DualKernel<algorithmFPType, cpu>::compute(const NumericTable & xTable, co
             PRAGMA_OMP_SIMD_ARGS(reduction(+ : dualSum))
             for (DAAL_INT i = 0; i < nRows; ++i) dualSum += dualCoef[j * nRows + i];
 
-            BlasInst<algorithmFPType, cpu>::xxaxpy(&nFeatures, &dualSum, xMean, &incOne, coef, &incOne);
+            const algorithmFPType negDualSum = -dualSum;
+            BlasInst<algorithmFPType, cpu>::xxaxpy(&nFeatures, &negDualSum, xMean, &incOne, coef, &incOne);
 
             intercept = yMean[j] - BlasInst<algorithmFPType, cpu>::xxdot(&nFeatures, xMean, &incOne, coef, &incOne);
         }
