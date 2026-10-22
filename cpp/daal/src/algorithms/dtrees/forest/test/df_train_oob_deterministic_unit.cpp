@@ -115,7 +115,10 @@ Outputs trainRegression(const Dataset & d, df::training::VariableImportanceMode 
 }
 
 template <typename FP, df::classification::training::Method method>
-Outputs trainClassification(const Dataset & d, df::training::VariableImportanceMode varImportance)
+Outputs trainClassification(const Dataset & d, df::training::VariableImportanceMode varImportance,
+                            DAAL_UINT64 resultsToCompute = df::training::computeOutOfBagError | df::training::computeOutOfBagErrorPerObservation
+                                                           | df::training::computeOutOfBagErrorAccuracy
+                                                           | df::training::computeOutOfBagErrorDecisionFunction)
 {
     namespace training = df::classification::training;
     std::vector<FP> x  = convert<FP>(d.x);
@@ -126,8 +129,7 @@ Outputs trainClassification(const Dataset & d, df::training::VariableImportanceM
     algorithm.parameter().nTrees           = nTrees;
     algorithm.parameter().engine           = daal::algorithms::engines::mt2203::Batch<>::create(seed);
     algorithm.parameter().varImportance    = varImportance;
-    algorithm.parameter().resultsToCompute = df::training::computeOutOfBagError | df::training::computeOutOfBagErrorPerObservation
-                                             | df::training::computeOutOfBagErrorAccuracy | df::training::computeOutOfBagErrorDecisionFunction;
+    algorithm.parameter().resultsToCompute = resultsToCompute;
     algorithm.compute();
     const training::ResultPtr res = algorithm.getResult();
     return { readTable(res->get(training::outOfBagError)), readTable(res->get(training::outOfBagErrorPerObservation)),
@@ -264,6 +266,17 @@ TEST("regression OOB prediction of a single tree matches the model prediction", 
     // a bootstrap sample of nRows rows leaves about 37% of them out
     REQUIRE(nOOB > nRows / 4);
     REQUIRE(nOOB < nRows / 2);
+}
+
+TEST("classification OOB accuracy alone matches the accuracy computed with the other OOB results", "[decision_forest][unit]")
+{
+    namespace training = df::classification::training;
+    const Dataset d    = makeDataset();
+    const Outputs all  = trainClassification<double, training::defaultDense>(d, df::training::none);
+    const Outputs only = trainClassification<double, training::defaultDense>(d, df::training::none, df::training::computeOutOfBagErrorAccuracy);
+    REQUIRE(all[2].size() == 1);
+    REQUIRE(only[2].size() == 1);
+    REQUIRE(only[2][0] == all[2][0]);
 }
 
 } // namespace daal::test

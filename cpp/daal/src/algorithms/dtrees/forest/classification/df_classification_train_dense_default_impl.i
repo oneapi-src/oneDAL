@@ -1597,7 +1597,8 @@ public:
         _nClasses = nClasses;
         using namespace decision_forest::training;
         if (!(par.resultsToCompute
-              & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorR2 | computeOutOfBagErrorDecisionFunction)))
+              & (computeOutOfBagError | computeOutOfBagErrorPerObservation | computeOutOfBagErrorAccuracy | computeOutOfBagErrorR2
+                 | computeOutOfBagErrorDecisionFunction)))
             return true;
         return allocOOBBuffer(x->getNumberOfRows());
     }
