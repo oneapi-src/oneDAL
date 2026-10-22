@@ -65,7 +65,7 @@ inline auto dispatch_distance_kind(distance_kind kind, Body&& body) {
 
 /// Add the term of one column to the accumulated distance `acc`.
 template <distance_kind Kind, typename Float>
-inline Float accumulate(Float degree, Float acc, Float a, Float b) {
+inline Float accumulate_distance(Float degree, Float acc, Float a, Float b) {
     if constexpr (Kind == distance_kind::squared_l2) {
         return acc + (a - b) * (a - b);
     }
@@ -85,7 +85,7 @@ inline Float accumulate(Float degree, Float acc, Float a, Float b) {
 
 /// Combine the accumulated distances of the sub-group lanes.
 template <distance_kind Kind, typename Float>
-inline Float reduce(const sycl::sub_group& sg, Float acc) {
+inline Float reduce_distance(const sycl::sub_group& sg, Float acc) {
     if constexpr (Kind == distance_kind::linf) {
         return sycl::reduce_over_group(sg, acc, sycl::maximum<Float>());
     }
@@ -162,21 +162,21 @@ struct get_core_wide_kernel {
                         std::int64_t count_iter = 0;
                         for (std::int64_t i = local_id; i < column_count; i += local_size) {
                             count_iter++;
-                            sum = accumulate<Kind>(metric.degree,
-                                                   sum,
-                                                   data_ptr[wg_id * column_count + i],
-                                                   data_ptr[j * column_count + i]);
+                            sum = accumulate_distance<Kind>(metric.degree,
+                                                            sum,
+                                                            data_ptr[wg_id * column_count + i],
+                                                            data_ptr[j * column_count + i]);
 
                             if (Kind != distance_kind::neg_dot &&
                                 count_iter % block_split_size == 0 &&
                                 local_size * count_iter <= column_count) {
-                                Float distance_check = reduce<Kind>(sg, sum);
+                                Float distance_check = reduce_distance<Kind>(sg, sum);
                                 if (distance_check > metric.threshold) {
                                     break;
                                 }
                             }
                         }
-                        Float distance = reduce<Kind>(sg, sum);
+                        Float distance = reduce_distance<Kind>(sg, sum);
                         // A row is always in its own neighborhood.
                         if (j == wg_id || distance <= metric.threshold) {
                             count += use_weights ? weights_ptr[j] : Float(1);
@@ -250,10 +250,10 @@ struct get_core_narrow_kernel {
                 for (std::int64_t j = 0; j < local_row_count; j++) {
                     Float sum = 0.0;
                     for (std::int64_t i = 0; i < column_count; i++) {
-                        sum = accumulate<Kind>(metric.degree,
-                                               sum,
-                                               data_ptr[idx * column_count + i],
-                                               data_ptr[j * column_count + i]);
+                        sum = accumulate_distance<Kind>(metric.degree,
+                                                        sum,
+                                                        data_ptr[idx * column_count + i],
+                                                        data_ptr[j * column_count + i]);
                     }
                     if (j != std::int64_t(idx[0]) && sum > metric.threshold) {
                         continue;
@@ -348,20 +348,20 @@ struct get_core_send_recv_replace_wide_kernel {
                         std::int64_t count_iter = 0;
                         for (std::int64_t i = local_id; i < column_count; i += local_size) {
                             count_iter++;
-                            sum = accumulate<Kind>(metric.degree,
-                                                   sum,
-                                                   data_ptr[wg_id * column_count + i],
-                                                   data_replace_ptr[j * column_count + i]);
+                            sum = accumulate_distance<Kind>(metric.degree,
+                                                            sum,
+                                                            data_ptr[wg_id * column_count + i],
+                                                            data_replace_ptr[j * column_count + i]);
                             if (Kind != distance_kind::neg_dot &&
                                 count_iter % block_split_size == 0 &&
                                 local_size * count_iter <= column_count) {
-                                Float distance_check = reduce<Kind>(sg, sum);
+                                Float distance_check = reduce_distance<Kind>(sg, sum);
                                 if (distance_check > metric.threshold) {
                                     break;
                                 }
                             }
                         }
-                        Float distance = reduce<Kind>(sg, sum);
+                        Float distance = reduce_distance<Kind>(sg, sum);
                         if (distance <= metric.threshold) {
                             count += use_weights ? weights_ptr[j] : Float(1);
                             if (local_id == 0) {
@@ -438,10 +438,10 @@ struct get_core_send_recv_replace_narrow_kernel {
                 for (std::int64_t j = 0; j < row_count_replace; j++) {
                     Float sum = 0.0;
                     for (std::int64_t i = 0; i < column_count; i++) {
-                        sum = accumulate<Kind>(metric.degree,
-                                               sum,
-                                               data_ptr[idx * column_count + i],
-                                               data_replace_ptr[j * column_count + i]);
+                        sum = accumulate_distance<Kind>(metric.degree,
+                                                        sum,
+                                                        data_ptr[idx * column_count + i],
+                                                        data_replace_ptr[j * column_count + i]);
                     }
                     if (sum > metric.threshold) {
                         continue;
@@ -862,6 +862,7 @@ sycl::event kernels_fp<Float>::fill_current_points_queue(
 ///  Also this function updates the responses and indicies of points which should be copied on the next step
 ///
 /// @tparam Float  Floating-point type used to perform computations
+/// @tparam Kind   Accumulated form of the distance
 ///
 /// @param[in]  queue                  The SYCL queue
 /// @param[in]  data                   The input data of size `row_count` x `column_count`
@@ -877,17 +878,17 @@ sycl::event kernels_fp<Float>::fill_current_points_queue(
 ///
 /// @return A SYCL event indicating the availability
 /// of the updated arrays for reading and writing
-template <typename Float>
-sycl::event kernels_fp<Float>::update_points_queue(sycl::queue& queue,
-                                                   const pr::ndview<Float, 2>& data,
-                                                   const pr::ndview<std::int32_t, 1>& cores,
-                                                   pr::ndview<Float, 2>& current_points_queue,
-                                                   pr::ndview<std::int32_t, 1>& responses,
-                                                   pr::ndview<std::int32_t, 1>& queue_size_arr,
-                                                   pr::ndview<bool, 1>& indices_cores,
-                                                   const neighborhood_metric<Float>& metric,
-                                                   std::int32_t cluster_id,
-                                                   const bk::event_vector& deps) {
+template <typename Float, distance_kind Kind>
+sycl::event update_points_queue_impl(sycl::queue& queue,
+                                     const pr::ndview<Float, 2>& data,
+                                     const pr::ndview<std::int32_t, 1>& cores,
+                                     pr::ndview<Float, 2>& current_points_queue,
+                                     pr::ndview<std::int32_t, 1>& responses,
+                                     pr::ndview<std::int32_t, 1>& queue_size_arr,
+                                     pr::ndview<bool, 1>& indices_cores,
+                                     const neighborhood_metric<Float>& metric,
+                                     std::int32_t cluster_id,
+                                     const bk::event_vector& deps) {
     ONEDAL_PROFILER_TASK(update_points_queue, queue);
 
     const auto local_row_count = data.get_dimension(0);
@@ -914,56 +915,78 @@ sycl::event kernels_fp<Float>::update_points_queue(sycl::queue& queue,
     auto event = queue.submit([&](sycl::handler& cgh) {
         cgh.depends_on(fill_event);
         const std::int64_t wg_size = get_recommended_wg_size(queue, column_count);
-        dispatch_distance_kind(metric.kind, [&](auto kind) {
-            cgh.parallel_for(
-                bk::make_multiple_nd_range_2d({ wg_size, local_row_count }, { wg_size, 1 }),
-                [=](sycl::nd_item<2> item) {
-                    auto sg = item.get_sub_group();
-                    const std::uint32_t sg_id = sg.get_group_id()[0];
-                    if (sg_id > 0)
-                        return;
-                    const std::uint32_t wg_id = item.get_global_id(1);
-                    if (wg_id >= local_row_count)
-                        return;
-                    const std::uint32_t local_id = sg.get_local_id();
-                    const std::uint32_t local_size = sg.get_local_range()[0];
+        cgh.parallel_for(
+            bk::make_multiple_nd_range_2d({ wg_size, local_row_count }, { wg_size, 1 }),
+            [=](sycl::nd_item<2> item) {
+                auto sg = item.get_sub_group();
+                const std::uint32_t sg_id = sg.get_group_id()[0];
+                if (sg_id > 0)
+                    return;
+                const std::uint32_t wg_id = item.get_global_id(1);
+                if (wg_id >= local_row_count)
+                    return;
+                const std::uint32_t local_id = sg.get_local_id();
+                const std::uint32_t local_size = sg.get_local_range()[0];
 
-                    if (responses_ptr[wg_id] >= 0)
-                        return;
+                if (responses_ptr[wg_id] >= 0)
+                    return;
 
-                    for (std::int64_t j = 0; j < queue_size; j++) {
-                        Float sum = 0.0;
-                        for (std::int64_t i = local_id; i < column_count; i += local_size) {
-                            sum = accumulate<decltype(kind)::value>(
-                                metric.degree,
-                                sum,
-                                data_ptr[wg_id * column_count + i],
-                                current_queue_ptr[j * column_count + i]);
-                        }
-                        Float distance = reduce<decltype(kind)::value>(sg, sum);
-                        if (distance > metric.threshold)
-                            continue;
-                        if (local_id == 0) {
-                            responses_ptr[wg_id] = cluster_id;
-                        }
-
-                        if (cores_ptr[wg_id] == 0)
-                            continue;
-                        if (local_id == 0) {
-                            sycl::atomic_ref<std::int32_t,
-                                             sycl::memory_order::relaxed,
-                                             sycl::memory_scope::device,
-                                             sycl::access::address_space::global_space>
-                                counter_atomic(queue_size_arr_ptr[0]);
-                            counter_atomic.fetch_add(1);
-                            indices_cores_ptr[wg_id] = true;
-                        }
-                        break;
+                for (std::int64_t j = 0; j < queue_size; j++) {
+                    Float sum = 0.0;
+                    for (std::int64_t i = local_id; i < column_count; i += local_size) {
+                        sum = accumulate_distance<Kind>(metric.degree,
+                                                        sum,
+                                                        data_ptr[wg_id * column_count + i],
+                                                        current_queue_ptr[j * column_count + i]);
                     }
-                });
-        });
+                    Float distance = reduce_distance<Kind>(sg, sum);
+                    if (distance > metric.threshold)
+                        continue;
+                    if (local_id == 0) {
+                        responses_ptr[wg_id] = cluster_id;
+                    }
+
+                    if (cores_ptr[wg_id] == 0)
+                        continue;
+                    if (local_id == 0) {
+                        sycl::atomic_ref<std::int32_t,
+                                         sycl::memory_order::relaxed,
+                                         sycl::memory_scope::device,
+                                         sycl::access::address_space::global_space>
+                            counter_atomic(queue_size_arr_ptr[0]);
+                        counter_atomic.fetch_add(1);
+                        indices_cores_ptr[wg_id] = true;
+                    }
+                    break;
+                }
+            });
     });
     return event;
+}
+
+template <typename Float>
+sycl::event kernels_fp<Float>::update_points_queue(sycl::queue& queue,
+                                                   const pr::ndview<Float, 2>& data,
+                                                   const pr::ndview<std::int32_t, 1>& cores,
+                                                   pr::ndview<Float, 2>& current_points_queue,
+                                                   pr::ndview<std::int32_t, 1>& responses,
+                                                   pr::ndview<std::int32_t, 1>& queue_size_arr,
+                                                   pr::ndview<bool, 1>& indices_cores,
+                                                   const neighborhood_metric<Float>& metric,
+                                                   std::int32_t cluster_id,
+                                                   const bk::event_vector& deps) {
+    return dispatch_distance_kind(metric.kind, [&](auto kind) {
+        return update_points_queue_impl<Float, decltype(kind)::value>(queue,
+                                                                      data,
+                                                                      cores,
+                                                                      current_points_queue,
+                                                                      responses,
+                                                                      queue_size_arr,
+                                                                      indices_cores,
+                                                                      metric,
+                                                                      cluster_id,
+                                                                      deps);
+    });
 }
 
 ///  A function that gets the queue sizes in ndview<std::int32_t, 1>& queue_size
