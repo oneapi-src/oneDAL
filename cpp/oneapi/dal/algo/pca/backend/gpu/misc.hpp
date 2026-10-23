@@ -64,38 +64,6 @@ auto syevd_computation(sycl::queue& queue,
     return std::make_tuple(eigenvalues, syevd_event);
 }
 
-///  Sums the diagonal of a square matrix.
-///
-/// @tparam Float Floating-point type used to perform computations
-///
-/// @param[in]  queue  The SYCL queue
-/// @param[in]  matrix The input matrix of size `column_count` x `column_count`
-/// @param[in]  deps   Events indicating availability of the `matrix` for reading
-///
-/// @return The trace (scalar)
-template <typename Float>
-Float compute_trace(sycl::queue& queue,
-                    const pr::ndview<Float, 2>& matrix,
-                    const bk::event_vector& deps = {}) {
-    const std::int64_t column_count = matrix.get_dimension(1);
-    const std::int64_t stride = matrix.get_stride(0);
-    const Float* matrix_ptr = matrix.get_data();
-    auto sum = pr::ndarray<Float, 1>::empty(queue, { 1 }, alloc::shared);
-    Float* sum_ptr = sum.get_mutable_data();
-    queue
-        .submit([&](sycl::handler& h) {
-            h.depends_on(deps);
-            auto red = sycl::reduction(sum_ptr,
-                                       sycl::plus<Float>(),
-                                       sycl::property::reduction::initialize_to_identity{});
-            h.parallel_for(sycl::range<1>(column_count), red, [=](sycl::id<1> i, auto& acc) {
-                acc += matrix_ptr[i * stride + i];
-            });
-        })
-        .wait_and_throw();
-    return sum_ptr[0];
-}
-
 ///  Computes the eigenpairs PCA needs from the covariance/correlation matrix, in ascending order.
 ///  For few components only the `component_count` largest pairs are computed with SYEVX;
 ///  otherwise all pairs are computed in place with SYEVD.
@@ -120,7 +88,11 @@ auto compute_eigenpairs(sycl::queue& queue,
         auto [eigenvalues, event] = syevd_computation(queue, corr, deps);
         return std::make_tuple(eigenvalues, corr, Float(0), event);
     }
-    const Float trace = compute_trace(queue, corr, deps);
+    // SYEVX overwrites `corr`, so its trace (the sum of all eigenvalues) is taken first
+    auto diagonal = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
+    auto diagonal_event = pr::variances(queue, corr, diagonal, deps);
+    const Float trace =
+        pr::reduce_1d(queue, diagonal, pr::sum<Float>{}, pr::identity<Float>{}, { diagonal_event });
     auto all_eigenvalues = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
     auto eigenvectors =
         pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
