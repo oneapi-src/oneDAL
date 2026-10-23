@@ -940,9 +940,9 @@ The DPC++ device sources are written against the oneMKL DPC++ interface but use
 no Intel-specific SYCL extension: sub-group sizes are queried at run time and
 there is no ESIMD, no `sycl::ext::intel`, and no hard-coded device selector.
 The only Intel-specific piece is the math library itself, so pointing the build
-at [oneMath](https://github.com/uxlfoundation/oneMath) — the open-source
+at [oneMath](https://github.com/uxlfoundation/oneMath) -- the open-source
 implementation of the same interface, which additionally dispatches to cuBLAS,
-cuSOLVER, cuSPARSE and cuRAND — lets the same kernels run on an NVIDIA GPU, as
+cuSOLVER, cuSPARSE and cuRAND -- lets the same kernels run on an NVIDIA GPU, as
 far as oneMath implements the interface the kernels use. That is BLAS, LAPACK
 and two of the five device RNG engines, but not sparse BLAS; see the table below
 for what that leaves out.
@@ -962,7 +962,7 @@ than device ones and show up on any target.
 
 This is orthogonal to `--backend_config`, which selects the *host* math library
 (`mkl` or `ref`); a DPC++ build keeps using whatever that says on the CPU side.
-Only `cpp/oneapi/dal/backend/math_backend.hpp` knows the difference — it maps
+Only `cpp/oneapi/dal/backend/math_backend.hpp` knows the difference -- it maps
 the `mkl::` namespace used by ~150 call sites onto `oneapi::mkl` or
 `oneapi::math`, driven by the `ONEDAL_MATH_BACKEND_ONEMATH` define that the
 selected dependency carries.
@@ -1043,7 +1043,7 @@ Intel Data Center GPU Max 1100:
 | RNG | `philox4x32x10` and `mrg32k3a` work; `mt2203`, `mt19937` and `mcg59` throw `unimplemented` |
 | sparse BLAS | throws `unimplemented` |
 
-The library builds and links as a whole either way — the two gaps below are
+The library builds and links as a whole either way -- the two gaps below are
 compiled out rather than left to fail the build, so a `DPC_MATH_BACKEND=onemath`
 build produces a `libonedal_dpc.so` that examples and tests can be linked and run
 against. What is not there reports itself as `unimplemented` at the point of use
@@ -1068,10 +1068,10 @@ so the table is not read as a list of unusable algorithms:
 - The three absent engines are reachable only on request. `decision_forest` is
   the only oneAPI descriptor that exposes `engine_type`, its default is
   `philox4x32x10`, and that default is what the one device-side draw
-  (`pr::uniform` on the bootstrap indices) ends up using — so decision forest
+  (`pr::uniform` on the bootstrap indices) ends up using -- so decision forest
   runs unless the caller explicitly asks for `mt2203`, `mt19937` or `mcg59`.
-- The host-side RNG paths — `shuffle`, `uniform_without_replacement` and the
-  Fisher-Yates helper, which is how `kmeans_init` draws its random centroids —
+- The host-side RNG paths -- `shuffle`, `uniform_without_replacement` and the
+  Fisher-Yates helper, which is how `kmeans_init` draws its random centroids --
   take their numbers from the DAAL engines and never touch the device engine, so
   they work with any engine type.
 - Sparse BLAS is only entered for a `csr_table` on the device, so it bites
@@ -1105,18 +1105,18 @@ The two gaps above are interface gaps and apply to any oneMath build. On top of
 them, oneMath's CUDA backends do not implement everything oneMath declares, so a
 `--dpc_math_backend=onemath` build with CUDA backends has a second, narrower set
 of restrictions. The table is derived from reading the oneMath sources at commit
-`3273ca2` — specifically the `unimplemented` throw sites in
-`src/{blas,lapack,rng,sparse_blas}/backends/cu*` — for exactly the entry points
+`3273ca2` -- specifically the `unimplemented` throw sites in
+`src/{blas,lapack,rng,sparse_blas}/backends/cu*` -- for exactly the entry points
 oneDAL's device code calls. **It is not measured**: there is no NVIDIA hardware
 here, so treat it as what the backend source says it will do.
 
 | oneDAL uses | CUDA backend | covered? |
 |---|---|---|
-| `blas::column_major::{gemm,gemv,syrk}`, float and double | cuBLAS | yes — only `bfloat16` `gemm` and the `row_major` forms are `unimplemented` |
+| `blas::column_major::{gemm,gemv,syrk}`, float and double | cuBLAS | yes -- only `bfloat16` `gemm` and the `row_major` forms are `unimplemented` |
 | `lapack::{potrf,potrs,syevd}` and their scratchpad sizes | cuSOLVER | yes, with no restriction |
-| `lapack::gesvd` | cuSOLVER | **only for m ≥ n** |
-| `rng::uniform` over `philox4x32x10` / `mrg32k3a`, USM API, `float` / `double` / `std::int32_t` | cuRAND | yes, including scalar `skip_ahead` — but see the semantics note below |
-| `sparse::*` | cuSPARSE | n/a — blocked by the interface-generation gap above, not by the backend |
+| `lapack::gesvd` | cuSOLVER | **only for m >= n** |
+| `rng::uniform` over `philox4x32x10` / `mrg32k3a`, USM API, `float` / `double` / `std::int32_t` | cuRAND | yes, including scalar `skip_ahead` -- but see the semantics note below |
+| `sparse::*` | cuSPARSE | n/a -- blocked by the interface-generation gap above, not by the backend |
 
 Two consequences worth calling out, because they are not visible from the domain
 table:
@@ -1124,7 +1124,7 @@ table:
 - **PCA `method::svd` cannot run on NVIDIA.** `train_kernel_svd_impl_dpc.cpp`
   calls `pr::gesvd<somevec, novec>(queue, column_count, row_count, ...)`, i.e.
   m = columns and n = rows, so m < n for any dataset with more rows than
-  columns — the normal case. cuSOLVER's `gesvd` throws
+  columns -- the normal case. cuSOLVER's `gesvd` throws
   `unimplemented("lapack", "gesvd", "cusolver gesvd does not support m < n")`
   there. PCA `method::cov` goes through `syevd` and is unaffected, so PCA as a
   whole is usable; only the SVD method is not.
@@ -1140,7 +1140,7 @@ table:
   advance. cuRAND's backend implements `skip_ahead(n)` as
   `curandSetGeneratorOffset(engine_, n)`, an *absolute* offset, so successive
   draws from one engine would restart from the same place rather than continue.
-  Single-draw use — which is what decision forest does per tree block — is
+  Single-draw use -- which is what decision forest does per tree block -- is
   unaffected, but this is a real divergence and is part of the upstream report.
 
 ### Deselecting what the backend cannot run
@@ -1154,8 +1154,8 @@ it does not implement:
   `kmeans` and `objective_function` check it with `SKIP_IF`. The define is set
   only for device translation units, so the host versions of the same tests keep
   running.
-- Type lists that mix a dense and a sparse method — `kmeans_types`,
-  `log_reg_types` — drop the sparse method under the same define, and the device
+- Type lists that mix a dense and a sparse method -- `kmeans_types`,
+  `log_reg_types` -- drop the sparse method under the same define, and the device
   RNG test's engine lists drop the three absent engines. A `COMBINE_TYPES` list
   cannot be empty, which is why the wholly-sparse cases use `SKIP_IF` instead.
 - `//cpp/oneapi/dal/backend/primitives/sparse_blas:tests` is

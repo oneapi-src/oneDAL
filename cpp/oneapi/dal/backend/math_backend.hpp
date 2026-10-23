@@ -22,9 +22,9 @@
 /// Two libraries implement the same oneMKL DPC++ interface that the BLAS,
 /// LAPACK, sparse BLAS and RNG primitives are written against:
 ///
-///  * oneMKL (`<oneapi/mkl.hpp>`, namespace `oneapi::mkl`) — the default. Its
+///  * oneMKL (`<oneapi/mkl.hpp>`, namespace `oneapi::mkl`) -- the default. Its
 ///    device backend targets Intel GPUs only.
-///  * oneMath (`<oneapi/math.hpp>`, namespace `oneapi::math`) — the
+///  * oneMath (`<oneapi/math.hpp>`, namespace `oneapi::math`) -- the
 ///    open-source implementation of the same specification. Besides the Intel
 ///    backends it dispatches to cuBLAS, cuSOLVER, cuSPARSE and cuRAND, so the
 ///    unmodified oneDAL device sources also run on NVIDIA GPUs once the

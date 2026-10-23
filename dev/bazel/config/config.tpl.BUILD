@@ -143,8 +143,8 @@ config_flag(
 # side either way. `config_flag` auto-generates the matching
 # `:dpc_math_backend_mkl` / `:dpc_math_backend_onemath` config_setting targets.
 #
-#  * "mkl"     — oneMKL, Intel GPUs only. The default, and what Make builds.
-#  * "onemath" — oneMath (https://github.com/uxlfoundation/oneMath), the
+#  * "mkl"     -- oneMKL, Intel GPUs only. The default, and what Make builds.
+#  * "onemath" -- oneMath (https://github.com/uxlfoundation/oneMath), the
 #    open-source implementation of the same DPC++ interface. Adds cuBLAS,
 #    cuSOLVER, cuSPARSE and cuRAND backends, so the same sources run on NVIDIA
 #    GPUs. Requires ONEMATHROOT and a compiler asked for an NVPTX target via
