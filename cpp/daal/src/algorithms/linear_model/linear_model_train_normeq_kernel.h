@@ -70,6 +70,8 @@ public:
      */
     virtual Status computeBetasImpl(DAAL_INT p, const algorithmFPType * a, algorithmFPType * aCopy, DAAL_INT ny, algorithmFPType * b,
                                     bool inteceptFlag) const = 0;
+
+    virtual ErrorID getInternalErrorCode() const = 0;
 };
 
 /**
@@ -123,6 +125,21 @@ public:
      * \return Status of the computations
      */
     static Status solveSystem(DAAL_INT p, algorithmFPType * a, DAAL_INT ny, algorithmFPType * b, const ErrorID & internalError);
+};
+
+/**
+ * Implements the common part of the regression coefficients computation from partial result
+ */
+template <typename algorithmFPType, CpuType cpu>
+class DualKernel
+{
+    typedef WriteRows<algorithmFPType, cpu> WriteRowsType;
+    typedef WriteOnlyRows<algorithmFPType, cpu> WriteOnlyRowsType;
+    typedef ReadRows<algorithmFPType, cpu> ReadRowsType;
+
+public:
+    static Status compute(const NumericTable & xTable, const NumericTable & yTable, NumericTable & betaTable, bool interceptFlag,
+                          const KernelHelperIface<algorithmFPType, cpu> & helper);
 };
 
 /**

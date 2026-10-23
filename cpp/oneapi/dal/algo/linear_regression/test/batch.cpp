@@ -70,4 +70,24 @@ TEMPLATE_LIST_TEST_M(lr_batch_test, "RR common flow", "[rr][batch]", lr_types) {
     this->run_and_check_ridge();
 }
 
+TEMPLATE_LIST_TEST_M(lr_batch_test, "RR wide matrix flow", "[rr][batch-wide]", lr_types) {
+    SKIP_IF(this->not_float64_friendly());
+
+    this->t_count_ = 2;
+    this->s_count_ = GENERATE(1, 3);
+    this->f_count_ = 10;
+    this->r_count_ = GENERATE(1, 2);
+    this->intercept_ = GENERATE(0, 1);
+
+    size_t seed = 777;
+
+    auto [beta, bias] = this->generate_betas(seed);
+
+    this->bias_ = std::move(bias);
+    this->beta_ = std::move(beta);
+    this->alpha_ = this->generate_alpha(seed);
+
+    this->run_and_check_ridge();
+}
+
 } // namespace oneapi::dal::linear_regression::test

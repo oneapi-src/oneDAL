@@ -57,7 +57,7 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
             aCopy[idx] += *ridge;
         }
 
-        st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b, ErrorRidgeRegressionInternal);
+        st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, ny, b, getInternalErrorCode());
         DAAL_CHECK_STATUS_VAR(st);
     }
     else
@@ -74,11 +74,17 @@ Status KernelHelper<algorithmFPType, cpu>::computeBetasImpl(DAAL_INT p, const al
 
             DAAL_INT one(1);
 
-            st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, one, b, ErrorRidgeRegressionInternal);
+            st |= FinalizeKernel<algorithmFPType, cpu>::solveSystem(p, aCopy, one, bPtr, getInternalErrorCode());
             DAAL_CHECK_STATUS_VAR(st);
         }
     }
     return (!result) ? st : services::Status(services::ErrorMemoryCopyFailedInternal);
+}
+
+template <typename algorithmFPType, CpuType cpu>
+ErrorID KernelHelper<algorithmFPType, cpu>::getInternalErrorCode() const
+{
+    return ErrorRidgeRegressionInternal;
 }
 
 } // namespace internal
