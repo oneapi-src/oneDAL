@@ -19,14 +19,31 @@
 //  Declarations of the MKL LAPACK routines that service_lapack_mkl.h calls.
 //  mkl_lapack.h declares every LAPACK routine (about 50k lines) and costs
 //  ~0.8 s of parsing in each DAAL translation unit; DAAL calls 34 of them.
-//  library_version_info.cpp includes this file after <mkl.h>, so a signature
-//  that drifts from MKL is a "conflicting declaration" compile error.
+//  library_version_info.cpp includes this file after <mkl.h>: a signature
+//  that drifts from MKL is a "conflicting declaration" compile error, and a
+//  name that MKL does not declare fails DAAL_CHECK_MKL_LAPACK_SUBSET.
 */
 
 #ifndef __SERVICE_LAPACK_DECL_MKL_H__
 #define __SERVICE_LAPACK_DECL_MKL_H__
 
 #include <mkl_types.h>
+
+// Every routine declared below.
+// clang-format off
+#define DAAL_MKL_LAPACK_SUBSET(X) \
+    X(dgeqp3) X(dgeqrf) X(dgerqf) X(dgesvd) X(dgetrf) X(dgetrs) X(dorgqr) X(dormqr) X(dormrq) \
+    X(dpotrf) X(dpotri) X(dpotrs) X(dpptrf) X(drscl) X(dsyevd) X(dsyevr) X(dtrtrs) \
+    X(sgeqp3) X(sgeqrf) X(sgerqf) X(sgesvd) X(sgetrf) X(sgetrs) X(sorgqr) X(sormqr) X(sormrq) \
+    X(spotrf) X(spotri) X(spotrs) X(spptrf) X(srscl) X(ssyevd) X(ssyevr) X(strtrs)
+// clang-format on
+
+#ifdef DAAL_CHECK_MKL_LAPACK_SUBSET
+    // Set by library_version_info.cpp after <mkl.h>: each name must already be declared by MKL.
+    #define __DAAL_MKL_LAPACK_DECLARED(f) static_assert(sizeof(&::f) > 0, #f " is not declared by <mkl.h>");
+DAAL_MKL_LAPACK_SUBSET(__DAAL_MKL_LAPACK_DECLARED)
+    #undef __DAAL_MKL_LAPACK_DECLARED
+#endif
 
 extern "C"
 {
