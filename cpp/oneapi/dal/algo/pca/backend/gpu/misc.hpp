@@ -64,6 +64,83 @@ auto syevd_computation(sycl::queue& queue,
     return std::make_tuple(eigenvalues, syevd_event);
 }
 
+///  Sums the diagonal of a square matrix.
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue  The SYCL queue
+/// @param[in]  matrix The input matrix of size `column_count` x `column_count`
+/// @param[in]  deps   Events indicating availability of the `matrix` for reading
+///
+/// @return The trace (scalar)
+template <typename Float>
+Float compute_trace(sycl::queue& queue,
+                    const pr::ndview<Float, 2>& matrix,
+                    const bk::event_vector& deps = {}) {
+    const std::int64_t column_count = matrix.get_dimension(1);
+    const std::int64_t stride = matrix.get_stride(0);
+    const Float* matrix_ptr = matrix.get_data();
+    auto sum = pr::ndarray<Float, 1>::empty(queue, { 1 }, alloc::shared);
+    Float* sum_ptr = sum.get_mutable_data();
+    queue
+        .submit([&](sycl::handler& h) {
+            h.depends_on(deps);
+            auto red = sycl::reduction(sum_ptr,
+                                       sycl::plus<Float>(),
+                                       sycl::property::reduction::initialize_to_identity{});
+            h.parallel_for(sycl::range<1>(column_count), red, [=](sycl::id<1> i, auto& acc) {
+                acc += matrix_ptr[i * stride + i];
+            });
+        })
+        .wait_and_throw();
+    return sum_ptr[0];
+}
+
+///  Computes the eigenpairs PCA needs from the covariance/correlation matrix, in ascending order.
+///  For few components only the `component_count` largest pairs are computed with SYEVX;
+///  otherwise all pairs are computed in place with SYEVD.
+///
+/// @tparam Float Floating-point type used to perform computations
+///
+/// @param[in]  queue           The SYCL queue
+/// @param[in]  corr            The covariance/correlation matrix of size `column_count` x `column_count`
+/// @param[in]  component_count The number of principal components
+/// @param[in]  deps            Events indicating availability of `corr` for reading or writing
+///
+/// @return A tuple of the eigenvalues, the eigenvectors (one per row), the trace of `corr`
+/// (0 when all pairs are computed) and a completed event
+template <typename Float>
+auto compute_eigenpairs(sycl::queue& queue,
+                        pr::ndarray<Float, 2>& corr,
+                        std::int64_t component_count,
+                        const bk::event_vector& deps = {}) {
+    const std::int64_t column_count = corr.get_dimension(1);
+    // Same bound as the one-thread rule of the CPU partial eigensolver.
+    if (4 * component_count >= column_count) {
+        auto [eigenvalues, event] = syevd_computation(queue, corr, deps);
+        return std::make_tuple(eigenvalues, corr, Float(0), event);
+    }
+    const Float trace = compute_trace(queue, corr, deps);
+    auto all_eigenvalues = pr::ndarray<Float, 1>::empty(queue, { column_count }, alloc::device);
+    auto eigenvectors =
+        pr::ndarray<Float, 2>::empty(queue, { component_count, column_count }, alloc::device);
+    auto syevx_event = pr::syevx<mkl::uplo::upper>(queue,
+                                                   corr,
+                                                   column_count - component_count + 1,
+                                                   column_count,
+                                                   all_eigenvalues,
+                                                   eigenvectors,
+                                                   deps);
+    auto eigenvalues = pr::ndarray<Float, 1>::empty(queue, { component_count }, alloc::device);
+    auto copy_event = bk::copy(queue,
+                               eigenvalues.get_mutable_data(),
+                               all_eigenvalues.get_data(),
+                               component_count,
+                               { syevx_event });
+    copy_event.wait_and_throw();
+    return std::make_tuple(eigenvalues, eigenvectors, trace, copy_event);
+}
+
 ///  Prepares eigenvectors from the gesvd result in the required order.
 ///  Optionally flips the sign of each eigenvector so that the entry with
 ///  largest absolute value is positive.
@@ -259,9 +336,12 @@ auto sign_flip(sycl::queue& queue,
 /// @tparam Float Floating-point type used to perform computations
 ///
 /// @param[in]  queue        The SYCL queue
-/// @param[in]  eigenvalues  All eigenvalues from SYEVD in ascending order (size `column_count`)
+/// @param[in]  eigenvalues  The eigenvalues in ascending order: all `column_count` of them, or only
+///                          the `component_count` largest
 /// @param[in]  column_count Total number of features
 /// @param[in]  component_count Number of selected principal components
+/// @param[in]  trace        The trace of the decomposed matrix, used when only the largest
+///                          eigenvalues are given
 /// @param[in]  deps         Events indicating availability of the data for reading
 ///
 /// @return The noise variance (scalar)
@@ -270,6 +350,7 @@ double compute_noise_variance(sycl::queue& queue,
                               pr::ndarray<Float, 1> eigenvalues,
                               std::int64_t column_count,
                               std::int64_t component_count,
+                              Float trace,
                               const dal::backend::event_vector& deps = {}) {
     ONEDAL_PROFILER_TASK(compute_noise_variance);
     ONEDAL_ASSERT(eigenvalues.has_data());
@@ -282,8 +363,16 @@ double compute_noise_variance(sycl::queue& queue,
     // The first (column_count - component_count) are the "noise" eigenvalues.
     const std::int64_t noise_count = column_count - component_count;
     Float sum = 0;
-    for (std::int64_t i = 0; i < noise_count; ++i) {
-        sum += eigvals_ptr[i];
+    if (eigenvalues.get_dimension(0) == column_count) {
+        for (std::int64_t i = 0; i < noise_count; ++i) {
+            sum += eigvals_ptr[i];
+        }
+    }
+    else {
+        sum = trace;
+        for (std::int64_t i = 0; i < component_count; ++i) {
+            sum -= eigvals_ptr[i];
+        }
     }
 
     return static_cast<double>(sum) / static_cast<double>(noise_count);
