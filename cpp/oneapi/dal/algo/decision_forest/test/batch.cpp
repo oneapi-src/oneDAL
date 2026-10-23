@@ -16,6 +16,7 @@
 
 #include "oneapi/dal/algo/decision_forest/test/fixture.hpp"
 
+#include <cmath>
 #include <limits>
 #include <random>
 
@@ -467,6 +468,28 @@ DF_BATCH_CLS_TEST("df cls base check with non default params") {
     const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
     const auto model = train_result.get_model();
     this->infer_base_checks(desc, data_test, this->get_homogen_table_id(), model, checker_list);
+}
+
+DF_BATCH_CLS_TEST("df cls oob accuracy requested alone") {
+    SKIP_IF(this->is_gpu()); // the GPU kernel does not compute the OOB accuracy
+    SKIP_IF(this->not_available_on_device());
+    SKIP_IF(this->not_float64_friendly());
+
+    const auto [data, data_test, class_count, checker_list] = this->get_cls_dataframe_base();
+
+    auto desc = this->get_default_descriptor();
+
+    desc.set_class_count(class_count);
+    desc.set_error_metric_mode(error_metric_mode::out_of_bag_error_accuracy);
+
+    const auto train_result = this->train_base_checks(desc, data, this->get_homogen_table_id());
+
+    REQUIRE(train_result.get_oob_err_accuracy().has_data());
+    const double oob_accuracy =
+        dal::row_accessor<const double>(train_result.get_oob_err_accuracy()).pull()[0];
+    REQUIRE(std::isfinite(oob_accuracy));
+    REQUIRE(oob_accuracy >= 0.0);
+    REQUIRE(oob_accuracy <= 1.0);
 }
 
 // regression tests
