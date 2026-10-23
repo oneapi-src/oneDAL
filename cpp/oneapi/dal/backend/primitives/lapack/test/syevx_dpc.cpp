@@ -41,7 +41,10 @@ public:
         auto a = ndarray<Float, 2>::wrap_mutable(s.copy().get_array(), { dim, dim }).to_device(q);
         auto w = ndarray<Float, 1>::empty(q, { dim }, sycl::usm::alloc::device);
         auto z = ndarray<Float, 2>::empty(q, { count, dim }, sycl::usm::alloc::device);
-        syevx<mkl::uplo::upper>(q, a, dim - count + 1, dim, w, z, {});
+        const auto event = syevx<mkl::uplo::upper>(q, a, dim - count + 1, dim, w, z, {});
+        // syevx owns its scratchpad, so the event it returns must already be complete
+        const auto status = event.template get_info<sycl::info::event::command_execution_status>();
+        REQUIRE(status == sycl::info::event_command_status::complete);
         const auto w_host = w.to_host(q);
         auto eigenvalues = la::matrix<Float>::full({ 1, count }, Float(0));
         for (std::int64_t i = 0; i < count; ++i) {
