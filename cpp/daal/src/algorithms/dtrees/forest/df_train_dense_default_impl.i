@@ -491,6 +491,8 @@ services::Status computeImpl(const NumericTable * x, const NumericTable * y, con
     engines::internal::ParallelizationTechnique technique = engines::internal::family;
     selectParallelizationTechnique<cpu>(par, technique);
     engines::internal::Params<cpu> params(par.nTrees);
+    // Engines without family streams (all but mt2203) position each tree's stream by skip-ahead or
+    // leapfrog. The ref RNG backend skips ahead with a linear `discard`, so large forests pay for it.
     for (size_t i = 0; i < par.nTrees; i++)
     {
         params.nSkip[i] = i * par.nTrees * x->getNumberOfRows() * (par.featuresPerNode + 1);
