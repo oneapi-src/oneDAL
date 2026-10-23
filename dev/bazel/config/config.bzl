@@ -17,9 +17,6 @@
 load("@onedal//dev/bazel:utils.bzl", "utils", "sets")
 load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_host_arch", "detect_target_arch")
 
-_BINARY_MAJOR = "4"
-_BINARY_MINOR = "0"
-
 ConfigFlagInfo = provider(
     fields = [
         "flag",
@@ -306,20 +303,21 @@ def _declare_onedal_config_impl(repo_ctx):
     auto_cpu = (_detect_cpu_extension(repo_ctx) if target_arch == "intel64"
                 else _ISA_EXTENSION_AUTO_DEFAULT)
 
+    version = utils.makefile_ver(repo_ctx)
     repo_ctx.template(
         "BUILD",
         Label("@onedal//dev/bazel/config:config.tpl.BUILD"),
         substitutions = {
             "%{auto_cpu}":              auto_cpu,
             "%{arch}":                  target_arch,
-            "%{version_major}":         "2026",
-            "%{version_minor}":         "3",
-            "%{version_update}":        "0",
+            "%{version_major}":         version.major,
+            "%{version_minor}":         version.minor,
+            "%{version_update}":        version.update,
             "%{version_build}":         utils.datestamp(repo_ctx),
             "%{version_buildrev}":      "work",
-            "%{version_status}":        "P",
-            "%{version_binary_major}":  _BINARY_MAJOR,
-            "%{version_binary_minor}":  _BINARY_MINOR,
+            "%{version_status}":        version.status,
+            "%{version_binary_major}":  version.binary_major,
+            "%{version_binary_minor}":  version.binary_minor,
         },
     )
 declare_onedal_config = repository_rule(

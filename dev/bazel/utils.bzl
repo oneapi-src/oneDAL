@@ -93,6 +93,38 @@ def _info(msg):
 def _datestamp(repo_ctx):
     return repo_ctx.execute(["date", "+%Y%m%d"]).stdout.strip()
 
+_MAKEFILE_VER_KEYS = ["MAJOR", "MINOR", "UPDATE", "STATUS", "MAJORBINARY", "MINORBINARY"]
+
+def _makefile_ver(repo_ctx):
+    """Read the product and binary versions from `makefile.ver`.
+
+    `makefile.ver` is the single source of truth for both build systems, so
+    Bazel parses its plain `NAME = value` assignments instead of keeping a copy.
+    Reading it through `repo_ctx` also makes the calling repository rule
+    re-run when the file changes.
+    """
+    content = repo_ctx.read(Label("@onedal//:makefile.ver"))
+    values = {}
+    for line in content.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.split("=", 1)
+        name = name.strip().rstrip("?").strip()
+        if name in _MAKEFILE_VER_KEYS:
+            values[name] = value.strip()
+    missing = [key for key in _MAKEFILE_VER_KEYS if key not in values]
+    if missing:
+        fail("makefile.ver does not define: {}".format(", ".join(missing)))
+    return struct(
+        major = values["MAJOR"],
+        minor = values["MINOR"],
+        update = values["UPDATE"],
+        status = values["STATUS"],
+        binary_major = values["MAJORBINARY"],
+        binary_minor = values["MINORBINARY"],
+    )
+
 utils = struct(
     unique = _unique,
     unique_files = _unique_files,
@@ -105,4 +137,5 @@ utils = struct(
     warn = _warn,
     info = _info,
     datestamp = _datestamp,
+    makefile_ver = _makefile_ver,
 )

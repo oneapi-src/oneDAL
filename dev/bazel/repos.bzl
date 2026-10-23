@@ -20,9 +20,6 @@ load("@onedal//dev/bazel/toolchains:common.bzl",
     "detect_target_arch",
 )
 
-_BINARY_MAJOR = "4"
-_BINARY_MINOR = "0"
-
 def _download_and_extract(repo_ctx, url, sha256, output, strip_prefix):
     # Workaround Python wheel extraction. Bazel cannot determine file
     # type automatically as does not support wheels out-of-the-box.
@@ -293,8 +290,9 @@ def _prebuilt_libs_repo_impl(repo_ctx):
         "%{os}": os_id,
         "%{repo_root}": str(repo_ctx.path("")),
     }
-    substitutions["%{version_binary_major}"] = _BINARY_MAJOR
-    substitutions["%{version_binary_minor}"] = _BINARY_MINOR
+    version = utils.makefile_ver(repo_ctx)
+    substitutions["%{version_binary_major}"] = version.binary_major
+    substitutions["%{version_binary_minor}"] = version.binary_minor
     _create_symlinks(repo_ctx, root, _select_by_os(repo_ctx, "includes", os_id), substitutions, mapping)
     _create_symlinks(repo_ctx, root, _select_by_os(repo_ctx, "libs", os_id), substitutions, mapping)
     # `optional_libs` holds the libraries a package ships only in some layouts,
