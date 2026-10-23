@@ -299,6 +299,14 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     "-Wl,-z,relro,-z,now",
                     "-z",
                 ) +
+                add_linker_option_if_supported(
+                    # Matches the Make build's secure.opts.link.lnx; some linkers
+                    # still default to a writable and executable stack.
+                    repo_ctx,
+                    tools.cc,
+                    "-Wl,-z,noexecstack",
+                    "-z",
+                ) +
                 add_compiler_option_if_supported(
                     # Have gcc return the exit code from ld.
                     repo_ctx,
@@ -345,6 +353,14 @@ def configure_cc_toolchain_lnx(repo_ctx, reqs):
                     repo_ctx,
                     tools.dpcc,
                     "-Wl,-z,relro,-z,now",
+                    "-z",
+                ) +
+                add_linker_option_if_supported(
+                    # Matches the Make build's secure.opts.link.lnx; some linkers
+                    # still default to a writable and executable stack.
+                    repo_ctx,
+                    tools.dpcc,
+                    "-Wl,-z,noexecstack",
                     "-z",
                 ) +
                 add_compiler_option_if_supported(
