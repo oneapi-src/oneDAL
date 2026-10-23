@@ -297,3 +297,163 @@ jobs:
           export TBBROOT="${CONDA_PREFIX}"
           export MKLROOT="${CONDA_PREFIX}"
           .ci/scripts/test.sh --test-kind samples --build-dir "${RELEASE_DIR}" --compiler gnu --interface daal/cpp/mpi --conda-env ci-env --build-system cmake
+
+  # A machine with only Bazelisk and a distribution compiler, no oneAPI: Bazel
+  # downloads every dependency and skips the DPC++ targets, since icpx is not
+  # in PATH.
+  # - gcc, clang, gcc11: cached, AVX2-only builds plus a wider test set. The
+  #   clang leg removes the gcc drivers, so the toolchain has to find clang by
+  #   itself; gcc11 is the oldest supported gcc (Ubuntu 22.04 default).
+  # - quickstart: no caches and no ~/.bazelrc, so every archive is downloaded
+  #   from its pinned URL, and the README quick start commands run as written,
+  #   building //:release for all ISAs.
+  LinuxBazelNoOneAPI:
+    if: github.repository == 'uxlfoundation/oneDAL'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - leg: gcc
+            runner: ubuntu-24.04
+            compiler: gcc
+            cached: true
+          - leg: clang
+            runner: ubuntu-24.04
+            compiler: clang
+            cached: true
+          - leg: gcc11
+            runner: ubuntu-22.04
+            compiler: gcc
+            cached: true
+          - leg: quickstart
+            runner: ubuntu-24.04
+            compiler: gcc
+            cached: false
+    runs-on: ${{ matrix.runner }}
+    name: LinuxBazelNoOneAPI(${{ matrix.leg }})
+    timeout-minutes: 180
+    env:
+      # actions/cache rejects paths with '..', so keep the caches under $HOME.
+      BAZEL_REPO_CACHE: /home/runner/.cache/bazel-repo
+      BAZEL_DISK_CACHE: /home/runner/.cache/bazel-disk
+
+    steps:
+      - name: Checkout oneDAL
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Remove gcc
+        if: matrix.compiler == 'clang'
+        run: |
+          # Only the drivers: clang still needs the libstdc++ that came with them.
+          mapfile -t drivers < <(dpkg-query -W -f '${Package}\n' | grep -E '^(gcc|g\+\+)(-[0-9]+)?$')
+          sudo apt-get remove -y "${drivers[@]}"
+          if command -v gcc; then
+            echo "gcc is still in PATH" >&2
+            exit 1
+          fi
+          clang --version
+      - name: Install Bazel
+        run: |
+          source .ci/env/bazelisk.sh
+          echo "$(pwd)/bazel/bin" >> "$GITHUB_PATH"
+      - name: System Info
+        run: .ci/scripts/describe_system.sh
+      # Everything Bazel downloads is pinned in these files.
+      - name: Hash Bazel dependencies
+        if: matrix.cached
+        id: deps
+        run: echo "hash=${{ hashFiles('.bazelversion', 'MODULE.bazel', 'MODULE.bazel.lock', 'dev/bazel/deps/*.bzl') }}" >> "$GITHUB_OUTPUT"
+      - name: Restore Bazel repository cache
+        if: matrix.cached
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.BAZEL_REPO_CACHE }}
+          key: bazel-repo-${{ runner.os }}-${{ steps.deps.outputs.hash }}
+      - name: Restore Bazel disk cache
+        if: matrix.cached
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.BAZEL_DISK_CACHE }}
+          key: bazel-disk-${{ matrix.runner }}-${{ matrix.compiler }}-${{ steps.deps.outputs.hash }}
+          restore-keys: bazel-disk-${{ matrix.runner }}-${{ matrix.compiler }}-
+      - name: bazel-configure
+        if: matrix.cached
+        run: |
+          # Minimal CPU instruction set on the runners is AVX2
+          {
+            echo "build --cpu=avx2"
+            echo "build --repository_cache=${BAZEL_REPO_CACHE}"
+            echo "build --disk_cache=${BAZEL_DISK_CACHE}"
+          } > ~/.bazelrc
+          bazel build @config//:dump
+          cat bazel-bin/external/+declare_onedal_config+config/config.json
+      - name: Check that Bazel starts from scratch
+        if: ${{ !matrix.cached }}
+        run: |
+          for path in ~/.bazelrc ~/.cache/bazel; do
+            if [ -e "${path}" ]; then
+              echo "${path} exists, so this run would not download everything" >&2
+              exit 1
+            fi
+          done
+      - name: Bazel release
+        run: |
+          bazel build //:release
+          lib_dir=bazel-bin/release/daal/latest/lib/intel64
+          ls "${lib_dir}"
+          if ls "${lib_dir}" | grep -q _dpc; then
+            echo "The release has DPC++ libraries although icpx is not in PATH" >&2
+            exit 1
+          fi
+          # The C runtime objects add a GCC tag either way, so check for clang.
+          readelf -p .comment "${lib_dir}/libonedal_core.so" | tee comment.txt
+          if grep -q "clang version" comment.txt; then built_by=clang; else built_by=gcc; fi
+          if [ "${built_by}" != "${{ matrix.compiler }}" ]; then
+            echo "Expected a ${{ matrix.compiler }} build, got ${built_by}" >&2
+            exit 1
+          fi
+      - name: Check ISA coverage
+        if: ${{ !matrix.cached }}
+        run: dev/bazel/tests/isa_coverage_test.sh bazel-bin/release/daal/latest/lib/intel64/libonedal_core.so
+      - name: Quick start tests
+        if: ${{ !matrix.cached }}
+        run: bazel test //cpp/oneapi/dal/algo/kmeans:tests
+      # No --config: the DPC++ tests are skipped rather than failing to build.
+      # test_mpi_communicator_host runs two ranks with the downloaded Intel MPI.
+      - name: Bazel tests
+        if: matrix.cached
+        run: |
+          bazel test \
+            //cpp/oneapi/dal/algo/kmeans:tests \
+            //cpp/oneapi/dal:test_mpi_communicator_host \
+            //cpp/daal:tests \
+            //examples/oneapi/cpp:kmeans \
+            //examples/daal/cpp:kmeans \
+            --test_output=errors
+          bazel test --config=host //cpp/oneapi/dal/algo/kmeans:tests
+      - name: DPC++ targets fail clearly without icpx
+        if: matrix.cached
+        run: |
+          expect_failure() {
+            local log="$1" pattern="$2"
+            shift 2
+            if bazel "$@" > "${log}" 2>&1; then
+              echo "'bazel $*' succeeded without icpx" >&2
+              exit 1
+            fi
+            if ! grep -q "${pattern}" "${log}"; then
+              tail -n 30 "${log}"
+              echo "'bazel $*' did not report '${pattern}'" >&2
+              exit 1
+            fi
+            echo "'bazel $*' failed as expected: $(grep -m1 "${pattern}" "${log}")"
+          }
+          expect_failure dpc_target.log dpc_needs_icpx_in_PATH \
+            build //cpp/oneapi/dal/algo/kmeans:test_batch_dpc
+          expect_failure config_dpc.log "icpx is not found" \
+            test --config=dpc //cpp/oneapi/dal/algo/kmeans:tests
+      - name: Save Bazel disk cache
+        if: matrix.cached && github.event_name != 'pull_request'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.BAZEL_DISK_CACHE }}
+          key: bazel-disk-${{ matrix.runner }}-${{ matrix.compiler }}-${{ steps.deps.outputs.hash }}

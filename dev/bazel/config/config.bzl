@@ -15,7 +15,7 @@
 #===============================================================================
 
 load("@onedal//dev/bazel:utils.bzl", "utils", "sets")
-load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_host_arch", "detect_target_arch")
+load("@onedal//dev/bazel/toolchains:common.bzl", "detect_os", "detect_host_arch", "detect_target_arch", "is_dpc_compiler_found")
 
 _BINARY_MAJOR = "4"
 _BINARY_MINOR = "0"
@@ -312,6 +312,7 @@ def _declare_onedal_config_impl(repo_ctx):
         substitutions = {
             "%{auto_cpu}":              auto_cpu,
             "%{arch}":                  target_arch,
+            "%{dpc_compiler_found}":    str(is_dpc_compiler_found(repo_ctx, os_id)),
             "%{version_major}":         "2026",
             "%{version_minor}":         "3",
             "%{version_update}":        "0",
@@ -328,6 +329,8 @@ declare_onedal_config = repository_rule(
     environ = [
         "CC",
         "CXX",
+        # PATH, so that sourcing setvars.sh re-detects the DPC++ compiler.
+        "PATH",
         # Windows host-arch detection (see toolchains/common.bzl).
         "PROCESSOR_ARCHITECTURE",
         "PROCESSOR_ARCHITEW6432",
