@@ -50,6 +50,27 @@ drop = yes
 symbol_name_regexp = ^_daal_(static_)?threader_for.*
 drop = yes
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; KERNEL PROFILER DESELECTIONS ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; deselect the profiler entry points that only the oneDAL libraries call
+;
+; No installed header declares daal::internal::profiler_* or _daal_threader_set_profiler_hooks.
+; The documented C entry point _onedal_profiler_report is deliberately not deselected.
+
+[suppress_function]
+symbol_name_regexp = ^(_ZN4daal8internal[[:digit:]]+profiler_|_daal_threader_set_profiler_hooks$)
+drop = yes
+
+; std::vector<std::string> members instantiated by the previous profiler header. An implicit
+; instantiation of a std template is emitted by every object file that uses it, so no caller
+; depends on the libraries providing it.
+
+[suppress_function]
+symbol_name_regexp = ^_ZNSt6vectorINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEESaIS5_EE
+change_kind = deleted-function
+drop = yes
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; DAAL 2026.0 REMOVALS ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
