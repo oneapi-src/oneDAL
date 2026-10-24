@@ -36,33 +36,34 @@ using daal::data_management::HomogenNumericTable;
 using daal::data_management::NumericTablePtr;
 using daal::data_management::readOnly;
 
-/// Reads the coefficients of the first response from a trained model, without the intercept slot.
+/// Reads the coefficients of the first response from a trained model. The intercept slot is
+/// returned first when `withIntercept` is set and dropped otherwise.
 template <typename FPType>
-std::vector<FPType> readBeta(const lr::ModelPtr & model, size_t nCols)
+std::vector<FPType> readBeta(const lr::ModelPtr & model, size_t nCols, bool withIntercept = false)
 {
     NumericTablePtr betaTable = model->getBeta();
     BlockDescriptor<FPType> block;
     REQUIRE(betaTable->getBlockOfRows(0, 1, readOnly, block).ok());
     const FPType * beta = block.getBlockPtr();
     /* beta[0] is the intercept slot, it is zero when interceptFlag is false */
-    std::vector<FPType> result(beta + 1, beta + 1 + nCols);
+    std::vector<FPType> result(withIntercept ? beta : beta + 1, beta + 1 + nCols);
     REQUIRE(betaTable->releaseBlockOfRows(block).ok());
     return result;
 }
 
 /// Trains in a single batch call.
 template <typename FPType>
-std::vector<FPType> trainBatch(const std::vector<FPType> & x, const std::vector<FPType> & y, size_t nRows, size_t nCols)
+std::vector<FPType> trainBatch(const std::vector<FPType> & x, const std::vector<FPType> & y, size_t nRows, size_t nCols, bool intercept = false)
 {
     NumericTablePtr xTable = HomogenNumericTable<FPType>::create(const_cast<FPType *>(x.data()), nCols, nRows);
     NumericTablePtr yTable = HomogenNumericTable<FPType>::create(const_cast<FPType *>(y.data()), 1, nRows);
 
     lr::training::Batch<FPType, lr::training::qrDense> algorithm;
-    algorithm.parameter.interceptFlag = false;
+    algorithm.parameter.interceptFlag = intercept;
     algorithm.input.set(lr::training::data, xTable);
     algorithm.input.set(lr::training::dependentVariables, yTable);
     REQUIRE(algorithm.compute().ok());
-    return readBeta<FPType>(algorithm.getResult()->get(lr::training::model), nCols);
+    return readBeta<FPType>(algorithm.getResult()->get(lr::training::model), nCols, intercept);
 }
 
 /// Trains in the online mode, feeding consecutive blocks of `chunkRows[i]` rows.
@@ -130,6 +131,16 @@ void checkExactlyCollinearColumns(double tolerance)
     requireClose(trainBatch<FPType>(x, y, 2, 2), { 1.0, 1.0 }, tolerance);
 }
 
+/// X = [1 1; 2 2; 3 3], y = 1 + 2 * x with an intercept: the intercept is 1 and the two equal
+/// columns share a total slope of 2, so the minimum-norm coefficients are (1, 1, 1).
+template <typename FPType>
+void checkCollinearColumnsWithIntercept(double tolerance)
+{
+    const std::vector<FPType> x = { 1, 1, 2, 2, 3, 3 };
+    const std::vector<FPType> y = { 3, 5, 7 };
+    requireClose(trainBatch<FPType>(x, y, 3, 2, true), { 1.0, 1.0, 1.0 }, tolerance);
+}
+
 /// Full-rank data with y = X * (1, -1) must give the same exact answer however it is split into
 /// blocks, including blocks with fewer rows than columns.
 template <typename FPType>
@@ -158,6 +169,11 @@ TEST("QR linear regression: fewer observations than coefficients gives the minim
 TEST("QR linear regression: exactly collinear columns give the minimum-norm solution", "[unit][linear_regression]")
 {
     checkExactlyCollinearColumns<double>(1e-10);
+}
+
+TEST("QR linear regression: exactly collinear columns with an intercept give the minimum-norm solution", "[unit][linear_regression]")
+{
+    checkCollinearColumnsWithIntercept<double>(1e-10);
 }
 
 TEST("QR linear regression: online blocks with fewer rows than columns agree with batch", "[unit][linear_regression]")
