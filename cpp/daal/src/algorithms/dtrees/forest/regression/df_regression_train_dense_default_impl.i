@@ -1441,7 +1441,12 @@ public:
             }
         }
         if (res && nPredicted > 0) *res = _res / static_cast<intermSummFPType>(nPredicted);
-        if (resR2) *resR2 = 1 - _res / sumMeanDiff;
+        // Undefined without OOB predictions. Constant responses give a zero denominator; as in scikit-learn's
+        // r2_score, R2 is then 1 for an exact fit and 0 otherwise.
+        if (resR2)
+            *resR2 = !nPredicted       ? std::numeric_limits<intermSummFPType>::quiet_NaN() :
+                     (sumMeanDiff > 0) ? 1 - _res / sumMeanDiff :
+                                         intermSummFPType(_res > 0 ? 0 : 1);
         return Status();
     }
 };
